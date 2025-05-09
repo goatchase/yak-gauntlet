@@ -92,13 +92,13 @@
 
     <label>Filter Division
       <select id="divisionFilter">
-        <option value="All">All</option>
+        <option value="All">Show All</option>
       </select>
     </label>
 
     <label>Filter Category
       <select id="categoryFilter">
-        <option value="All">All</option>
+        <option value="All">Show All</option>
       </select>
     </label>
 
@@ -164,9 +164,9 @@
       const divisions = [...new Set(entries.map(e => e.division))];
       const categories = [...new Set(entries.map(e => e.category))];
 
-      divisionFilter.innerHTML = '<option value="All">All</option>' +
+      divisionFilter.innerHTML = '<option value="All">Show All</option>' +
         divisions.map(d => `<option value="${d}">${d}</option>`).join('');
-      categoryFilter.innerHTML = '<option value="All">All</option>' +
+      categoryFilter.innerHTML = '<option value="All">Show All</option>' +
         categories.map(c => `<option value="${c}">${c}</option>`).join('');
     }
 
@@ -271,17 +271,3 @@
         });
 
         entries = [...entries, ...newEntries];
-        localStorage.setItem('entries', JSON.stringify(entries));
-        renderScoreboard();
-      };
-      reader.readAsText(file);
-    });
-
-    searchInput.addEventListener('input', renderScoreboard);
-    divisionFilter.addEventListener('change', renderScoreboard);
-    categoryFilter.addEventListener('change', renderScoreboard);
-
-    renderScoreboard();
-  </script>
-</body>
-</html>

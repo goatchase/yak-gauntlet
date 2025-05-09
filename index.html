@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Yak Gauntlet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #ffffff;
+      color: #000000;
+      margin: 20px;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    label {
+      display: flex;
+      flex-direction: column;
+      font-size: 1rem;
+    }
+    input, select, button {
+      height: 2.5rem;
+      font-size: 1rem;
+      padding: 0 0.5rem;
+    }
+    button {
+      cursor: pointer;
+    }
+    #scoreboard {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    #scoreboard th, #scoreboard td {
+      border-bottom: 1px solid #ccc;
+      text-align: left;
+      padding: 8px;
+    }
+    .leader {
+      background-color: #ffcccc;
+    }
+    .division-leader {
+      background-color: #cce5ff;
+    }
+  </style>
+</head>
+<body>
+  <h1>Yak Gauntlet</h1>
+  <form id="entryForm">
+    <label>Name <input type="text" id="name" required /></label>
+    <label>Division <input type="text" id="division" required /></label>
+    <label>Category <input type="text" id="category" required /></label>
+    <label>Time (m ss.ss) <input type="text" id="time" required /></label>
+    <label>Date <input type="date" id="date" required /></label>
+    <button type="submit" id="submitButton">Submit</button>
+    <button type="button" id="editButton">Edit</button>
+  </form>
+
+  <h2>Upload CSV</h2>
+  <input type="file" id="csvUpload" accept=".csv" />
+
+  <table id="scoreboard">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Division</th>
+        <th>Category</th>
+        <th>Time</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const form = document.getElementById('entryForm');
+    const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
+    const editButton = document.getElementById('editButton');
+    const submitButton = document.getElementById('submitButton');
+    const csvUpload = document.getElementById('csvUpload');
+    let entries = JSON.parse(localStorage.getItem('entries') || '[]');
+    let editingIndex = -1;
+
+    function formatDate(input) {
+      const d = new Date(input);
+      return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
+    }
+
+    function parseTimeToSeconds(timeStr) {
+      if (!timeStr || typeof timeStr !== 'string') return NaN;
+      const parts = timeStr.trim().split(" ");
+      if (parts.length !== 2) return NaN;
+      const [min, sec] = parts.map(parseFloat);
+      return min * 60 + sec;
+    }
+
+    function renderScoreboard() {
+      scoreboard.innerHTML = '';
+      let bestOverall = null;
+      const bestByDivision = {};
+
+      entries.forEach(entry => {
+        entry.totalSeconds = parseTimeToSeconds(entry.time);
+        if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) {
+          bestOverall = entry;
+        }
+        if (!bestByDivision[entry.division] || entry.totalSeconds < bestByDivision[entry.division].totalSeconds) {
+          bestByDivision[entry.division] = entry;
+        }
+      });
+
+      entries.sort((a, b) => a.totalSeconds - b.totalSeconds);
+
+      entries.forEach(entry => {
+        const row = document.createElement('tr');
+        if (entry === bestOverall) {
+          row.classList.add('leader');
+        } else if (bestByDivision[entry.division] === entry) {
+          row.classList.add('division-leader');
+        }
+        row.innerHTML = `
+          <td>${entry.name}</td>
+          <td>${entry.division}</td>
+          <td>${entry.category}</td>
+          <td>${entry.time}</td>
+          <td>${entry.date}</td>
+        `;
+        scoreboard.appendChild(row);
+      });
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const division = document.getElementById('division').value.trim();
+      const category = document.getElementById('category').value.trim();
+      const time = document.getElementById('time').value.trim();
+      const dateRaw = document.getElementById('date').value;
+      const date = formatDate(dateRaw);
+
+      if (!name || !division || !category || !time || !dateRaw) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      if (editingIndex !== -1) {
+        entries[editingIndex] = { name, division, category, time, date };
+        editingIndex = -1;
+        editButton.textContent = 'Edit';
+      } else {
+        entries.push({ name, division, category, time, date });
+      }
+
+      localStorage.setItem('entries', JSON.stringify(entries));
+      form.reset();
+      renderScoreboard();
+    });
+
+    csvUpload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const csv = reader.result;
+        const lines = csv.split('\n').filter(line => line.trim() !== '');
+        const newEntries = lines.map(line => {
+          const [name, division, category, time, date] = line.split(',');
+          return {
+            name: name.trim(),
+            division: division.trim(),
+            category: category.trim(),
+            time: time.trim(),
+            date: formatDate(date.trim())
+          };
+        });
+
+        entries = [...entries, ...newEntries];
+        localStorage.setItem('entries', JSON.stringify(entries));
+        renderScoreboard();
+      };
+      reader.readAsText(file);
+    });
+
+    renderScoreboard();
+  </script>
+</body>
+</html>

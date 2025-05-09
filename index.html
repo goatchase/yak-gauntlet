@@ -76,10 +76,12 @@
     <div style="display: flex; flex-direction: column; justify-content: flex-end;">
       <button type="button" id="editButton">Edit</button>
     </div>
+    <div style="display: flex; flex-direction: column; justify-content: flex-end;">
+      <label style="visibility:hidden;height:0;"></label>
+      <input type="file" id="csvUpload" accept=".csv" style="display:none" />
+      <button type="button" id="uploadButton" onclick="document.getElementById('csvUpload').click()">Upload</button>
+    </div>
   </form>
-
-  <h2>Upload CSV</h2>
-  <input type="file" id="csvUpload" accept=".csv" />
 
   <table id="scoreboard">
     <thead>

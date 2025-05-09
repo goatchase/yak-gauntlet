@@ -60,6 +60,10 @@
       font-size: 0.9rem;
       cursor: pointer;
     }
+    .button-container {
+      display: flex;
+      gap: 10px;
+    }
   </style>
 </head>
 <body>
@@ -70,17 +74,14 @@
     <label>Category <input type="text" id="category" required /></label>
     <label>Time (m ss.ss) <input type="text" id="time" required /></label>
     <label>Date <input type="date" id="date" required /></label>
-    <div style="display: flex; flex-direction: column; justify-content: flex-end;">
+    
+    <div class="button-container">
       <button type="submit" id="submitButton">Submit</button>
-    </div>
-    <div style="display: flex; flex-direction: column; justify-content: flex-end;">
       <button type="button" id="editButton">Edit</button>
-    </div>
-    <div style="display: flex; flex-direction: column; justify-content: flex-end;">
-      <label style="visibility:hidden;height:0;"></label>
-      <input type="file" id="csvUpload" accept=".csv" style="display:none" />
       <button type="button" id="uploadButton" onclick="document.getElementById('csvUpload').click()">Upload</button>
     </div>
+
+    <input type="file" id="csvUpload" accept=".csv" style="display:none" />
   </form>
 
   <table id="scoreboard">

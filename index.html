@@ -52,6 +52,14 @@
     .division-leader {
       background-color: #cce5ff;
     }
+    .delete-button {
+      background-color: #ff4d4d;
+      color: white;
+      border: none;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -62,8 +70,12 @@
     <label>Category <input type="text" id="category" required /></label>
     <label>Time (m ss.ss) <input type="text" id="time" required /></label>
     <label>Date <input type="date" id="date" required /></label>
-    <button type="submit" id="submitButton">Submit</button>
-    <button type="button" id="editButton">Edit</button>
+    <div style="display: flex; flex-direction: column; justify-content: flex-end;">
+      <button type="submit" id="submitButton">Submit</button>
+    </div>
+    <div style="display: flex; flex-direction: column; justify-content: flex-end;">
+      <button type="button" id="editButton">Edit</button>
+    </div>
   </form>
 
   <h2>Upload CSV</h2>
@@ -77,6 +89,7 @@
         <th>Category</th>
         <th>Time</th>
         <th>Date</th>
+        <th id="actionHeader" style="display:none">Action</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -88,8 +101,10 @@
     const editButton = document.getElementById('editButton');
     const submitButton = document.getElementById('submitButton');
     const csvUpload = document.getElementById('csvUpload');
+    const actionHeader = document.getElementById('actionHeader');
     let entries = JSON.parse(localStorage.getItem('entries') || '[]');
     let editingIndex = -1;
+    let isEditMode = false;
 
     function formatDate(input) {
       const d = new Date(input);
@@ -121,7 +136,7 @@
 
       entries.sort((a, b) => a.totalSeconds - b.totalSeconds);
 
-      entries.forEach(entry => {
+      entries.forEach((entry, index) => {
         const row = document.createElement('tr');
         if (entry === bestOverall) {
           row.classList.add('leader');
@@ -134,6 +149,7 @@
           <td>${entry.category}</td>
           <td>${entry.time}</td>
           <td>${entry.date}</td>
+          ${isEditMode ? `<td><button class="delete-button" onclick="deleteEntry(${index})">Delete</button></td>` : ''}
         `;
         scoreboard.appendChild(row);
       });
@@ -165,6 +181,21 @@
       form.reset();
       renderScoreboard();
     });
+
+    editButton.addEventListener('click', () => {
+      isEditMode = !isEditMode;
+      editButton.textContent = isEditMode ? 'Done' : 'Edit';
+      actionHeader.style.display = isEditMode ? '' : 'none';
+      renderScoreboard();
+    });
+
+    function deleteEntry(index) {
+      if (confirm("Delete this entry?")) {
+        entries.splice(index, 1);
+        localStorage.setItem('entries', JSON.stringify(entries));
+        renderScoreboard();
+      }
+    }
 
     csvUpload.addEventListener('change', (e) => {
       const file = e.target.files[0];

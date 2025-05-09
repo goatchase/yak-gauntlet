@@ -42,14 +42,22 @@
     #scoreboard {
       border-collapse: collapse;
       width: 100%;
-      font-weight: 400; /* lighter font for table */
+      font-weight: 400;
     }
     #scoreboard th, #scoreboard td {
       border-bottom: 1px solid #ccc;
       text-align: left;
-      padding: 8px;
-      width: 16%;
-      font-weight: 400;
+      padding: 6px;
+      width: 12%;
+    }
+    #scoreboard th {
+      font-weight: bold;
+    }
+    #scoreboard thead th {
+      position: sticky;
+      top: 0;
+      background: #f0f0f0;
+      z-index: 1;
     }
     .leader {
       background-color: #ffcccc;
@@ -67,11 +75,6 @@
     }
     .search-container {
       margin-left: auto;
-    }
-    #scoreboard thead th {
-      position: sticky;
-      top: 0;
-      background: #f0f0f0;
     }
   </style>
 </head>

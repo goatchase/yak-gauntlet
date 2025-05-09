@@ -8,14 +8,13 @@
   <style>
     body {
       font-family: 'Anton', sans-serif;
-      background-color: #f8f9fa;
+      background-color: #ffffff;
       color: #000000;
       margin: 20px;
       text-transform: uppercase;
     }
     h1 {
-      font-size: 2.5rem;
-      font-weight: bold;
+      font-size: 3rem;
       margin-bottom: 1rem;
     }
     form {
@@ -38,15 +37,6 @@
     }
     button {
       cursor: pointer;
-      background-color: #000000;
-      color: #ffffff;
-      border: none;
-      padding: 0.5rem 1rem;
-    }
-    #scoreboard-container {
-      max-height: 500px;
-      overflow-y: auto;
-      border: 2px solid #000;
     }
     #scoreboard {
       border-collapse: collapse;
@@ -54,17 +44,10 @@
       table-layout: fixed;
     }
     #scoreboard th, #scoreboard td {
-      border: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
       text-align: left;
       padding: 8px;
-      min-width: 100px;
-      font-size: 0.9rem;
-    }
-    #scoreboard th {
-      position: sticky;
-      top: 0;
-      background-color: #ffffff;
-      z-index: 2;
+      width: 16%;
     }
     .leader {
       background-color: #ffcccc;
@@ -79,12 +62,190 @@
       padding: 0.25rem 0.5rem;
       font-size: 0.9rem;
       cursor: pointer;
-      text-transform: uppercase;
+    }
+    .search-container {
+      margin-left: auto;
+    }
+    #scoreboard thead th {
+      position: sticky;
+      top: 0;
+      background: white;
     }
   </style>
 </head>
 <body>
   <h1>YAK GAUNTLET</h1>
-  <!-- Existing form and table elements stay unchanged -->
+  <form id="entryForm">
+    <label>Name <input type="text" id="name" required /></label>
+    <label>Division <input type="text" id="division" required /></label>
+    <label>Category <input type="text" id="category" required /></label>
+    <label>Time (MM SS.SS) <input type="text" id="time" required /></label>
+    <label>Date <input type="date" id="date" required /></label>
+    <div style="display: flex; flex-direction: column; justify-content: flex-end;">
+      <button type="submit" id="submitButton">Submit</button>
+    </div>
+    <div style="display: flex; flex-direction: column; justify-content: flex-end;">
+      <button type="button" id="editButton">Edit</button>
+    </div>
+    <div style="display: flex; flex-direction: column; justify-content: flex-end;">
+      <label style="visibility:hidden;height:0;"></label>
+      <input type="file" id="csvUpload" accept=".csv" style="display:none" />
+      <button type="button" id="uploadButton" onclick="document.getElementById('csvUpload').click()">Upload</button>
+    </div>
+    <div class="search-container">
+      <label>Search <input type="text" id="searchInput" placeholder="Find Name" /></label>
+    </div>
+  </form>
+
+  <table id="scoreboard">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Division</th>
+        <th>Category</th>
+        <th>Time</th>
+        <th>Date</th>
+        <th id="actionHeader" style="display:none">Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const form = document.getElementById('entryForm');
+    const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
+    const editButton = document.getElementById('editButton');
+    const submitButton = document.getElementById('submitButton');
+    const csvUpload = document.getElementById('csvUpload');
+    const actionHeader = document.getElementById('actionHeader');
+    const searchInput = document.getElementById('searchInput');
+    let entries = JSON.parse(localStorage.getItem('entries') || '[]');
+    let isEditMode = false;
+
+    function formatDate(input) {
+      const d = new Date(input);
+      return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
+    }
+
+    function parseTimeToSeconds(timeStr) {
+      if (!timeStr || typeof timeStr !== 'string') return NaN;
+      const parts = timeStr.trim().split(" ");
+      if (parts.length !== 2) return NaN;
+      const [min, sec] = parts.map(parseFloat);
+      return min * 60 + sec;
+    }
+
+    function formatTime(seconds) {
+      const min = Math.floor(seconds / 60);
+      const sec = (seconds % 60).toFixed(2).padStart(5, '0');
+      return `${String(min).padStart(2,'0')} ${sec}`;
+    }
+
+    function renderScoreboard() {
+      scoreboard.innerHTML = '';
+      let bestOverall = null;
+      const bestByDivision = {};
+
+      entries.forEach(entry => {
+        entry.totalSeconds = parseTimeToSeconds(entry.time);
+        if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) {
+          bestOverall = entry;
+        }
+        if (!bestByDivision[entry.division] || entry.totalSeconds < bestByDivision[entry.division].totalSeconds) {
+          bestByDivision[entry.division] = entry;
+        }
+      });
+
+      entries.sort((a, b) => a.totalSeconds - b.totalSeconds);
+
+      const filteredEntries = entries.filter(entry =>
+        entry.name.toUpperCase().includes(searchInput.value.toUpperCase())
+      );
+
+      filteredEntries.forEach((entry, index) => {
+        const row = document.createElement('tr');
+        if (entry === bestOverall) {
+          row.classList.add('leader');
+        } else if (bestByDivision[entry.division] === entry) {
+          row.classList.add('division-leader');
+        }
+        row.innerHTML = `
+          <td contenteditable="${isEditMode}">${entry.name}</td>
+          <td contenteditable="${isEditMode}">${entry.division}</td>
+          <td contenteditable="${isEditMode}">${entry.category}</td>
+          <td contenteditable="${isEditMode}">${formatTime(entry.totalSeconds)}</td>
+          <td contenteditable="${isEditMode}">${entry.date}</td>
+          <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
+            <button class="delete-button" onclick="deleteEntry(${index})">Delete</button>
+          </td>
+        `;
+        scoreboard.appendChild(row);
+      });
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const division = document.getElementById('division').value.trim();
+      const category = document.getElementById('category').value.trim();
+      const time = document.getElementById('time').value.trim();
+      const dateRaw = document.getElementById('date').value;
+      const date = formatDate(dateRaw);
+
+      if (!name || !division || !category || !time || !dateRaw) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      entries.push({ name, division, category, time, date });
+      localStorage.setItem('entries', JSON.stringify(entries));
+      form.reset();
+      renderScoreboard();
+    });
+
+    editButton.addEventListener('click', () => {
+      isEditMode = !isEditMode;
+      editButton.textContent = isEditMode ? 'Done' : 'Edit';
+      actionHeader.style.display = isEditMode ? '' : 'none';
+      renderScoreboard();
+    });
+
+    function deleteEntry(index) {
+      if (confirm("Delete this entry?")) {
+        entries.splice(index, 1);
+        localStorage.setItem('entries', JSON.stringify(entries));
+        renderScoreboard();
+      }
+    }
+
+    csvUpload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const csv = reader.result;
+        const lines = csv.split('\n').filter(line => line.trim() !== '');
+        const newEntries = lines.map(line => {
+          const [name, division, category, time, date] = line.split(',');
+          return {
+            name: name.trim(),
+            division: division.trim(),
+            category: category.trim(),
+            time: time.trim(),
+            date: formatDate(date.trim())
+          };
+        });
+
+        entries = [...entries, ...newEntries];
+        localStorage.setItem('entries', JSON.stringify(entries));
+        renderScoreboard();
+      };
+      reader.readAsText(file);
+    });
+
+    searchInput.addEventListener('input', renderScoreboard);
+    renderScoreboard();
+  </script>
 </body>
 </html>

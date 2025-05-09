@@ -103,7 +103,6 @@
     const csvUpload = document.getElementById('csvUpload');
     const actionHeader = document.getElementById('actionHeader');
     let entries = JSON.parse(localStorage.getItem('entries') || '[]');
-    let editingIndex = -1;
     let isEditMode = false;
 
     function formatDate(input) {
@@ -149,7 +148,9 @@
           <td>${entry.category}</td>
           <td>${entry.time}</td>
           <td>${entry.date}</td>
-          ${isEditMode ? `<td><button class="delete-button" onclick="deleteEntry(${index})">Delete</button></td>` : ''}
+          <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
+            <button class="delete-button" onclick="deleteEntry(${index})">Delete</button>
+          </td>
         `;
         scoreboard.appendChild(row);
       });
@@ -169,14 +170,7 @@
         return;
       }
 
-      if (editingIndex !== -1) {
-        entries[editingIndex] = { name, division, category, time, date };
-        editingIndex = -1;
-        editButton.textContent = 'Edit';
-      } else {
-        entries.push({ name, division, category, time, date });
-      }
-
+      entries.push({ name, division, category, time, date });
       localStorage.setItem('entries', JSON.stringify(entries));
       form.reset();
       renderScoreboard();

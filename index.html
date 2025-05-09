@@ -41,6 +41,12 @@
       border-collapse: collapse;
       width: 100%;
     }
+    #scoreboard thead {
+      position: sticky;
+      top: 0;
+      background-color: white;
+      z-index: 1;
+    }
     #scoreboard th, #scoreboard td {
       border-bottom: 1px solid #ccc;
       text-align: left;
@@ -60,14 +66,9 @@
       font-size: 0.9rem;
       cursor: pointer;
     }
-    .button-container {
-      display: flex;
-      gap: 10px;
-    }
-    .filters {
-      margin-bottom: 1rem;
-      display: flex;
-      gap: 10px;
+    .scroll-container {
+      max-height: 500px;
+      overflow-y: auto;
     }
   </style>
 </head>
@@ -77,44 +78,36 @@
     <label>Name <input type="text" id="name" required /></label>
     <label>Division <input type="text" id="division" required /></label>
     <label>Category <input type="text" id="category" required /></label>
-    <label>Time (MM SS.SS) <input type="text" id="time" required /></label>
+    <label>Time (m ss.ss) <input type="text" id="time" required /></label>
     <label>Date <input type="date" id="date" required /></label>
-
-    <div class="button-container">
+    <div style="display: flex; flex-direction: column; justify-content: flex-end;">
       <button type="submit" id="submitButton">Submit</button>
+    </div>
+    <div style="display: flex; flex-direction: column; justify-content: flex-end;">
       <button type="button" id="editButton">Edit</button>
+    </div>
+    <div style="display: flex; flex-direction: column; justify-content: flex-end;">
+      <label style="visibility:hidden;height:0;"></label>
+      <input type="file" id="csvUpload" accept=".csv" style="display:none" />
       <button type="button" id="uploadButton" onclick="document.getElementById('csvUpload').click()">Upload</button>
     </div>
-
-    <input type="file" id="csvUpload" accept=".csv" style="display:none" />
   </form>
 
-  <div class="filters">
-    <label>Division Filter
-      <select id="divisionFilter">
-        <option value="">All</option>
-      </select>
-    </label>
-    <label>Category Filter
-      <select id="categoryFilter">
-        <option value="">All</option>
-      </select>
-    </label>
+  <div class="scroll-container">
+    <table id="scoreboard">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Division</th>
+          <th>Category</th>
+          <th>Time</th>
+          <th>Date</th>
+          <th id="actionHeader" style="display:none">Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
-
-  <table id="scoreboard">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Division</th>
-        <th>Category</th>
-        <th>Time</th>
-        <th>Date</th>
-        <th id="actionHeader" style="display:none">Action</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
 
   <script>
     const form = document.getElementById('entryForm');
@@ -123,8 +116,6 @@
     const submitButton = document.getElementById('submitButton');
     const csvUpload = document.getElementById('csvUpload');
     const actionHeader = document.getElementById('actionHeader');
-    const divisionFilter = document.getElementById('divisionFilter');
-    const categoryFilter = document.getElementById('categoryFilter');
     let entries = JSON.parse(localStorage.getItem('entries') || '[]');
     let isEditMode = false;
 
@@ -139,20 +130,6 @@
       if (parts.length !== 2) return NaN;
       const [min, sec] = parts.map(parseFloat);
       return min * 60 + sec;
-    }
-
-    function formatTime(seconds) {
-      const min = Math.floor(seconds / 60);
-      const sec = (seconds % 60).toFixed(2).padStart(5, '0');
-      return `${String(min).padStart(2, '0')} ${sec}`;
-    }
-
-    function populateFilters() {
-      const divisions = new Set(entries.map(e => e.division));
-      const categories = new Set(entries.map(e => e.category));
-
-      divisionFilter.innerHTML = '<option value="">All</option>' + [...divisions].map(d => `<option value="${d}">${d}</option>`).join('');
-      categoryFilter.innerHTML = '<option value="">All</option>' + [...categories].map(c => `<option value="${c}">${c}</option>`).join('');
     }
 
     function renderScoreboard() {
@@ -170,14 +147,9 @@
         }
       });
 
-      const filtered = entries.filter(e => {
-        return (!divisionFilter.value || e.division === divisionFilter.value) &&
-               (!categoryFilter.value || e.category === categoryFilter.value);
-      });
+      entries.sort((a, b) => a.totalSeconds - b.totalSeconds);
 
-      filtered.sort((a, b) => a.totalSeconds - b.totalSeconds);
-
-      filtered.forEach((entry, index) => {
+      entries.forEach((entry, index) => {
         const row = document.createElement('tr');
         if (entry === bestOverall) {
           row.classList.add('leader');
@@ -188,7 +160,7 @@
           <td>${entry.name}</td>
           <td>${entry.division}</td>
           <td>${entry.category}</td>
-          <td>${formatTime(entry.totalSeconds)}</td>
+          <td>${entry.time}</td>
           <td>${entry.date}</td>
           <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
             <button class="delete-button" onclick="deleteEntry(${index})">Delete</button>
@@ -215,7 +187,6 @@
       entries.push({ name, division, category, time, date });
       localStorage.setItem('entries', JSON.stringify(entries));
       form.reset();
-      populateFilters();
       renderScoreboard();
     });
 
@@ -230,7 +201,6 @@
       if (confirm("Delete this entry?")) {
         entries.splice(index, 1);
         localStorage.setItem('entries', JSON.stringify(entries));
-        populateFilters();
         renderScoreboard();
       }
     }
@@ -256,16 +226,11 @@
 
         entries = [...entries, ...newEntries];
         localStorage.setItem('entries', JSON.stringify(entries));
-        populateFilters();
         renderScoreboard();
       };
       reader.readAsText(file);
     });
 
-    divisionFilter.addEventListener('change', renderScoreboard);
-    categoryFilter.addEventListener('change', renderScoreboard);
-
-    populateFilters();
     renderScoreboard();
   </script>
 </body>

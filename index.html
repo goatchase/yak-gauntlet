@@ -92,13 +92,13 @@
 
     <label>Filter Division
       <select id="divisionFilter">
-        <option value="All">Show All</option>
+        <option value="All">All</option>
       </select>
     </label>
 
     <label>Filter Category
       <select id="categoryFilter">
-        <option value="All">Show All</option>
+        <option value="All">All</option>
       </select>
     </label>
 
@@ -143,7 +143,7 @@
 
     function formatDate(input) {
       const d = new Date(input);
-      return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
+      return ${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)};
     }
 
     function parseTimeToSeconds(timeStr) {
@@ -157,17 +157,17 @@
     function formatTime(seconds) {
       const min = Math.floor(seconds / 60);
       const sec = (seconds % 60).toFixed(2).padStart(5, '0');
-      return `${String(min).padStart(2,'0')} ${sec}`;
+      return ${String(min).padStart(2,'0')} ${sec};
     }
 
     function updateFilterOptions() {
       const divisions = [...new Set(entries.map(e => e.division))];
       const categories = [...new Set(entries.map(e => e.category))];
 
-      divisionFilter.innerHTML = '<option value="All">Show All</option>' +
-        divisions.map(d => `<option value="${d}">${d}</option>`).join('');
-      categoryFilter.innerHTML = '<option value="All">Show All</option>' +
-        categories.map(c => `<option value="${c}">${c}</option>`).join('');
+      divisionFilter.innerHTML = '<option value="All">All</option>' +
+        divisions.map(d => <option value="${d}">${d}</option>).join('');
+      categoryFilter.innerHTML = '<option value="All">All</option>' +
+        categories.map(c => <option value="${c}">${c}</option>).join('');
     }
 
     function renderScoreboard() {
@@ -200,7 +200,7 @@
         } else if (bestByDivision[entry.division] === entry) {
           row.classList.add('division-leader');
         }
-        row.innerHTML = `
+        row.innerHTML = 
           <td contenteditable="${isEditMode}">${entry.name}</td>
           <td contenteditable="${isEditMode}">${entry.division}</td>
           <td contenteditable="${isEditMode}">${entry.category}</td>
@@ -209,7 +209,7 @@
           <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
             <button class="delete-button" onclick="deleteEntry(${index})">Delete</button>
           </td>
-        `;
+        ;
         scoreboard.appendChild(row);
       });
 
@@ -271,3 +271,17 @@
         });
 
         entries = [...entries, ...newEntries];
+        localStorage.setItem('entries', JSON.stringify(entries));
+        renderScoreboard();
+      };
+      reader.readAsText(file);
+    });
+
+    searchInput.addEventListener('input', renderScoreboard);
+    divisionFilter.addEventListener('change', renderScoreboard);
+    categoryFilter.addEventListener('change', renderScoreboard);
+
+    renderScoreboard();
+  </script>
+</body>
+</html>

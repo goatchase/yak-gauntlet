@@ -232,6 +232,10 @@
 
       entries.push({ name, division, category, time, date });
       localStorage.setItem('entries', JSON.stringify(entries));
+
+      // Sort entries by time (ascending order)
+      entries.sort((a, b) => parseTimeToSeconds(a.time) - parseTimeToSeconds(b.time));
+
       form.reset();
       renderScoreboard();
     });

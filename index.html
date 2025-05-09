@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>YAK GAUNTLET</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Roboto&display=swap" rel="stylesheet"/>
   <style>
     body {
       font-family: 'Roboto', sans-serif;
-      background-color: #f5f5f5;
+      background-color: #f0f0f0;
       color: #000000;
       margin: 20px;
       text-transform: uppercase;
@@ -21,7 +21,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      align-items: flex-end;
+      align-items: center;
       margin-bottom: 1rem;
     }
     label {
@@ -34,27 +34,20 @@
       font-size: 1rem;
       padding: 0 0.5rem;
       text-transform: uppercase;
-      border-radius: 9999px;
-      border: 1px solid #ccc;
     }
     button {
-      background-color: #007bff;
-      color: white;
-      border: none;
       cursor: pointer;
     }
     #scoreboard {
       border-collapse: collapse;
       width: 100%;
+      table-layout: fixed;
     }
     #scoreboard th, #scoreboard td {
       border-bottom: 1px solid #ccc;
       text-align: left;
-      padding: 6px;
-      width: auto;
-    }
-    #scoreboard th {
-      font-weight: bold;
+      padding: 8px;
+      width: 16%;
     }
     .leader {
       background-color: #ffcccc;
@@ -63,13 +56,13 @@
       background-color: #cce5ff;
     }
     .delete-button {
-      background-color: #ff4d4d;
+      background-color: #007bff;
       color: white;
       border: none;
       padding: 0.25rem 0.5rem;
       font-size: 0.9rem;
-      border-radius: 9999px;
       cursor: pointer;
+      border-radius: 15px;
     }
     .search-container {
       margin-left: auto;
@@ -77,7 +70,10 @@
     #scoreboard thead th {
       position: sticky;
       top: 0;
-      background: #f5f5f5;
+      background: white;
+    }
+    select {
+      width: 150px;
     }
   </style>
 </head>
@@ -89,27 +85,31 @@
     <label>Category <input type="text" id="category" required /></label>
     <label>Time (MM SS.SS) <input type="text" id="time" required /></label>
     <label>Date <input type="date" id="date" required /></label>
-
-    <label>Filter Division
-      <select id="divisionFilter">
-        <option value="All">All</option>
-      </select>
-    </label>
-
-    <label>Filter Category
-      <select id="categoryFilter">
-        <option value="All">All</option>
-      </select>
-    </label>
-
-    <button type="submit" id="submitButton">Submit</button>
-    <button type="button" id="editButton">Edit</button>
-
-    <input type="file" id="csvUpload" accept=".csv" style="display:none" />
-    <button type="button" id="uploadButton" onclick="document.getElementById('csvUpload').click()">Upload</button>
-
+    <div style="display: flex; flex-direction: column; justify-content: flex-end;">
+      <button type="submit" id="submitButton">Submit</button>
+    </div>
+    <div style="display: flex; flex-direction: column; justify-content: flex-end;">
+      <button type="button" id="editButton">Edit</button>
+    </div>
+    <div style="display: flex; flex-direction: column; justify-content: flex-end;">
+      <label style="visibility:hidden;height:0;"></label>
+      <input type="file" id="csvUpload" accept=".csv" style="display:none" />
+      <button type="button" id="uploadButton" onclick="document.getElementById('csvUpload').click()">Upload</button>
+    </div>
     <div class="search-container">
       <label>Search <input type="text" id="searchInput" placeholder="Find Name" /></label>
+    </div>
+    <div class="filters">
+      <label>Filter by Division:
+        <select id="divisionFilter">
+          <option value="all">All</option>
+        </select>
+      </label>
+      <label>Filter by Category:
+        <select id="categoryFilter">
+          <option value="all">All</option>
+        </select>
+      </label>
     </div>
   </form>
 
@@ -137,45 +137,25 @@
     const searchInput = document.getElementById('searchInput');
     const divisionFilter = document.getElementById('divisionFilter');
     const categoryFilter = document.getElementById('categoryFilter');
-
     let entries = JSON.parse(localStorage.getItem('entries') || '[]');
     let isEditMode = false;
 
-    function formatDate(input) {
-      const d = new Date(input);
-      return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
-    }
-
-    function parseTimeToSeconds(timeStr) {
-      if (!timeStr || typeof timeStr !== 'string') return NaN;
-      const parts = timeStr.trim().split(" ");
-      if (parts.length !== 2) return NaN;
-      const [min, sec] = parts.map(parseFloat);
-      return min * 60 + sec;
-    }
-
-    function formatTime(seconds) {
-      const min = Math.floor(seconds / 60);
-      const sec = (seconds % 60).toFixed(2).padStart(5, '0');
-      return `${String(min).padStart(2,'0')} ${sec}`;
-    }
-
-    function updateFilterOptions() {
-      const divisions = [...new Set(entries.map(e => e.division))];
-      const categories = [...new Set(entries.map(e => e.category))];
-
-      divisionFilter.innerHTML = '<option value="All">All</option>' +
-        divisions.map(d => `<option value="${d}">${d}</option>`).join('');
-      categoryFilter.innerHTML = '<option value="All">All</option>' +
-        categories.map(c => `<option value="${c}">${c}</option>`).join('');
-    }
-
+    // Function to render the scoreboard with the filters applied
     function renderScoreboard() {
       scoreboard.innerHTML = '';
       let bestOverall = null;
       const bestByDivision = {};
 
-      entries.forEach(entry => {
+      // Apply filter based on division and category
+      const divisionFilterValue = divisionFilter.value;
+      const categoryFilterValue = categoryFilter.value;
+      const filteredEntries = entries.filter(entry => {
+        const matchesDivision = divisionFilterValue === 'all' || entry.division.toUpperCase().includes(divisionFilterValue.toUpperCase());
+        const matchesCategory = categoryFilterValue === 'all' || entry.category.toUpperCase().includes(categoryFilterValue.toUpperCase());
+        return matchesDivision && matchesCategory && entry.name.toUpperCase().includes(searchInput.value.toUpperCase());
+      });
+
+      filteredEntries.forEach(entry => {
         entry.totalSeconds = parseTimeToSeconds(entry.time);
         if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) {
           bestOverall = entry;
@@ -185,13 +165,7 @@
         }
       });
 
-      entries.sort((a, b) => a.totalSeconds - b.totalSeconds);
-
-      const filteredEntries = entries.filter(entry =>
-        entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
-        (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
-        (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
-      );
+      filteredEntries.sort((a, b) => a.totalSeconds - b.totalSeconds);
 
       filteredEntries.forEach((entry, index) => {
         const row = document.createElement('tr');
@@ -212,8 +186,19 @@
         `;
         scoreboard.appendChild(row);
       });
+    }
 
-      updateFilterOptions();
+    // Update the division filter options based on the entries
+    function updateFilterOptions() {
+      const divisions = [...new Set(entries.map(entry => entry.division))];
+      const categories = [...new Set(entries.map(entry => entry.category))];
+      divisionFilter.innerHTML = '<option value="all">All</option>';
+      categories.forEach(category => {
+        categoryFilter.innerHTML += `<option value="${category}">${category}</option>`;
+      });
+      divisions.forEach(division => {
+        divisionFilter.innerHTML += `<option value="${division}">${division}</option>`;
+      });
     }
 
     form.addEventListener('submit', (e) => {
@@ -233,6 +218,7 @@
       entries.push({ name, division, category, time, date });
       localStorage.setItem('entries', JSON.stringify(entries));
       form.reset();
+      updateFilterOptions();
       renderScoreboard();
     });
 
@@ -272,6 +258,7 @@
 
         entries = [...entries, ...newEntries];
         localStorage.setItem('entries', JSON.stringify(entries));
+        updateFilterOptions();
         renderScoreboard();
       };
       reader.readAsText(file);
@@ -281,7 +268,10 @@
     divisionFilter.addEventListener('change', renderScoreboard);
     categoryFilter.addEventListener('change', renderScoreboard);
 
+    // Initialize the page
+    updateFilterOptions();
     renderScoreboard();
+
   </script>
 </body>
 </html>

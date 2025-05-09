@@ -233,7 +233,7 @@
       entries.push({ name, division, category, time, date });
       localStorage.setItem('entries', JSON.stringify(entries));
       form.reset();
-      renderScoreboard();
+      renderScoreboard();  // Automatically sorts by time here
     });
 
     editButton.addEventListener('click', () => {
@@ -253,35 +253,4 @@
 
     csvUpload.addEventListener('change', (e) => {
       const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        const csv = reader.result;
-        const lines = csv.split('\n').filter(line => line.trim() !== '');
-        const newEntries = lines.map(line => {
-          const [name, division, category, time, date] = line.split(',');
-          return {
-            name: name.trim(),
-            division: division.trim(),
-            category: category.trim(),
-            time: time.trim(),
-            date: formatDate(date.trim())
-          };
-        });
-
-        entries = [...entries, ...newEntries];
-        localStorage.setItem('entries', JSON.stringify(entries));
-        renderScoreboard();
-      };
-      reader.readAsText(file);
-    });
-
-    searchInput.addEventListener('input', renderScoreboard);
-    divisionFilter.addEventListener('change', renderScoreboard);
-    categoryFilter.addEventListener('change', renderScoreboard);
-
-    renderScoreboard();
-  </script>
-</body>
-</html>
+     

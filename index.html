@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>THE YAK GAUNTLET</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
-  <link rel="icon" href="favicon.ico" type="image/x-icon"/>
 
   <!-- Firebase v8 SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -91,16 +90,18 @@
       align-items: flex-end;
     }
 
-    .edit-button {
-      background-color: #28a745;
+    .edit-button, .unfilter-button {
+      background-color: #007bff;
       color: white;
       padding: 8px 16px;
       border: none;
       cursor: pointer;
+      border-radius: 4px;
+      font-size: 1em;
     }
 
-    .edit-button:hover {
-      background-color: #218838;
+    .edit-button:hover, .unfilter-button:hover {
+      background-color: #0056b3;
     }
 
     select, input[type="search"] {
@@ -121,11 +122,12 @@
     th, td {
       padding: 8px;
       text-align: left;
-      border-bottom: 1px solid #ccc;
+      border-bottom: 1px solid #ddd;
     }
 
     th {
       font-weight: bold;
+      background-color: transparent;
       position: sticky;
       top: 0;
       background-color: #f4f4f4;
@@ -177,6 +179,7 @@
   </style>
 </head>
 <body>
+
   <h1>THE YAK GAUNTLET</h1>
   <div class="subtitle">CORNHOLE • SOCCER • WIFFLE • FOOTBALL • BASKETBALL • SP@#$%&</div>
 
@@ -203,12 +206,12 @@
           <option value="All">All</option>
         </select>
       </div>
-      <button id="unfilterButton" class="edit-button" type="button">Unfilter</button>
     </div>
 
     <div class="top-controls">
       <input id="searchInput" type="search" placeholder="Search name" />
       <button id="editButton" class="edit-button">Edit</button>
+      <button id="unfilterButton" class="unfilter-button">Unfilter</button>
     </div>
   </div>
 
@@ -232,7 +235,7 @@
         apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
         authDomain: "goatchase-e9502.firebaseapp.com",
         projectId: "goatchase-e9502",
-        storageBucket: "goatchase-e9502.appspot.com",
+        storageBucket: "goatchase-e9502.firebasestorage.app",
         messagingSenderId: "16998517478",
         appId: "1:16998517478:web:6386aff8c1d1da2accc927",
         measurementId: "G-YWLJGQG0XD"
@@ -245,10 +248,10 @@
       const form = document.getElementById('entryForm');
       const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
       const editButton = document.getElementById('editButton');
+      const unfilterButton = document.getElementById('unfilterButton');
       const searchInput = document.getElementById('searchInput');
       const divisionFilter = document.getElementById('divisionFilter');
       const categoryFilter = document.getElementById('categoryFilter');
-      const unfilterButton = document.getElementById('unfilterButton');
       const actionHeader = document.getElementById('actionHeader');
 
       let entries = [];
@@ -273,7 +276,7 @@
       function formatTime(seconds) {
         const min = Math.floor(seconds / 60);
         const sec = (seconds % 60).toFixed(2).padStart(5, '0');
-        return `${String(min).padStart(2, '0')} ${sec}`;
+        return `${String(min).padStart(2,'0')} ${sec}`;
       }
 
       function updateFilterOptions() {
@@ -319,7 +322,7 @@
             <td contenteditable="${isEditMode}">${entry.division}</td>
             <td contenteditable="${isEditMode}">${entry.category}</td>
             <td contenteditable="${isEditMode}">${formatTime(entry.totalSeconds)}</td>
-            <td contenteditable="${isEditMode}">${entry.date}</td>
+            <td contenteditable="${isEditMode}">${formatDate(entry.date)}</td>
             <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
               <button class="delete-button" data-id="${entry.id}">Delete</button>
             </td>
@@ -375,14 +378,9 @@
 
       editButton.addEventListener('click', () => {
         isEditMode = !isEditMode;
-        editButton.textContent = isEditMode ? 'DONE' : 'EDIT';
-        actionHeader.style.display = isEditMode ? '' : 'none';
+        editButton.textContent = isEditMode ? "Done" : "Edit";
         renderScoreboard();
       });
-
-      searchInput.addEventListener('input', renderScoreboard);
-      divisionFilter.addEventListener('change', renderScoreboard);
-      categoryFilter.addEventListener('change', renderScoreboard);
 
       unfilterButton.addEventListener('click', () => {
         divisionFilter.value = 'All';
@@ -390,8 +388,13 @@
         renderScoreboard();
       });
 
+      searchInput.addEventListener('input', renderScoreboard);
+      divisionFilter.addEventListener('change', renderScoreboard);
+      categoryFilter.addEventListener('change', renderScoreboard);
+
       fetchEntries();
     });
   </script>
+
 </body>
 </html>

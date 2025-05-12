@@ -256,14 +256,16 @@
       let entries = [];
       let isEditMode = false;
 
+      // Function to format the date as MM/DD/YYYY
       function formatDate(input) {
         const d = new Date(input);
-        const mm = String(d.getMonth()+1).padStart(2,'0');
-        const dd = String(d.getDate()).padStart(2,'0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0'); // Month is 0-based
+        const dd = String(d.getDate()).padStart(2, '0');
         const yyyy = d.getFullYear();
         return `${mm}/${dd}/${yyyy}`;
       }
 
+      // Function to parse time into seconds
       function parseTimeToSeconds(timeStr) {
         if (!timeStr || typeof timeStr !== 'string') return NaN;
         const parts = timeStr.trim().split(" ");
@@ -272,12 +274,14 @@
         return min * 60 + sec;
       }
 
+      // Function to format seconds into MM SS
       function formatTime(seconds) {
         const min = Math.floor(seconds / 60);
         const sec = (seconds % 60).toFixed(2).padStart(5, '0');
-        return `${String(min).padStart(2,'0')} ${sec}`;
+        return `${String(min).padStart(2, '0')} ${sec}`;
       }
 
+      // Function to update filter options
       function updateFilterOptions() {
         const divisions = [...new Set(entries.map(e => e.division))];
         const categories = [...new Set(entries.map(e => e.category))];
@@ -288,6 +292,7 @@
           categories.map(c => `<option value="${c}">${c}</option>`).join('');
       }
 
+      // Function to render the scoreboard
       async function renderScoreboard() {
         scoreboard.innerHTML = '';
         let bestOverall = null;
@@ -321,7 +326,7 @@
             <td>${entry.division}</td>
             <td>${entry.category}</td>
             <td>${formatTime(entry.totalSeconds)}</td>
-            <td>${entry.date}</td>
+            <td>${formatDate(entry.date)}</td>  <!-- Ensuring date is formatted as MM/DD/YYYY -->
             <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
               <button class="delete-button" data-id="${entry.id}">Delete</button>
             </td>
@@ -339,17 +344,20 @@
         });
       }
 
+      // Function to fetch entries from Firestore
       async function fetchEntries() {
         const snapshot = await entriesCollection.get();
         entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderScoreboard();
       }
 
+      // Function to add an entry
       async function addEntry(entry) {
         await entriesCollection.add(entry);
         fetchEntries();
       }
 
+      // Function to delete an entry
       async function deleteEntry(id) {
         if (confirm("Delete this entry?")) {
           await entriesCollection.doc(id).delete();
@@ -357,6 +365,7 @@
         }
       }
 
+      // Handling the form submission
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('name').value.trim();
@@ -375,6 +384,7 @@
         form.reset();
       });
 
+      // Edit button toggle
       editButton.addEventListener('click', () => {
         isEditMode = !isEditMode;
         editButton.textContent = isEditMode ? 'DONE' : 'EDIT';
@@ -382,10 +392,12 @@
         renderScoreboard();
       });
 
+      // Search input listener
       searchInput.addEventListener('input', renderScoreboard);
       divisionFilter.addEventListener('change', renderScoreboard);
       categoryFilter.addEventListener('change', renderScoreboard);
 
+      // Initial fetch of entries
       fetchEntries();
     });
   </script>

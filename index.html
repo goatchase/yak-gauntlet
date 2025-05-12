@@ -6,167 +6,209 @@
   <title>YAK GAUNTLET</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
 
-  <!-- Firebase SDK v8 (legacy) -->
+  <!-- Firebase v8 SDK (compatible syntax) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
   <style>
-    /* (keep your same CSS here) */
+    body {
+      font-family: 'Roboto', sans-serif;
+      padding: 20px;
+    }
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+    .leader {
+      background-color: gold;
+    }
+    .division-leader {
+      background-color: lightblue;
+    }
   </style>
 </head>
 <body>
-  <!-- (your same HTML form/table layout here) -->
+
+  <h1>YAK GAUNTLET</h1>
+
+  <form id="entryForm">
+    <input id="name" placeholder="Name" required />
+    <input id="division" placeholder="Division" required />
+    <input id="category" placeholder="Category" required />
+    <input id="time" placeholder="Time (mm ss)" required />
+    <input id="date" type="date" required />
+    <button type="submit">Submit</button>
+  </form>
+
+  <button id="editButton">Edit</button>
+  <input id="searchInput" placeholder="Search name" />
+  <select id="divisionFilter"><option value="All">All</option></select>
+  <select id="categoryFilter"><option value="All">All</option></select>
+
+  <table id="scoreboard">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Division</th>
+        <th>Category</th>
+        <th>Time</th>
+        <th>Date</th>
+        <th id="actionHeader" style="display: none;">Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <script>
-    // 🔥 Your Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
-      authDomain: "goatchase-e9502.firebaseapp.com",
-      projectId: "goatchase-e9502",
-      storageBucket: "goatchase-e9502.firebasestorage.app",
-      messagingSenderId: "16998517478",
-      appId: "1:16998517478:web:6386aff8c1d1da2accc927",
-      measurementId: "G-YWLJGQG0XD"
-    };
+    document.addEventListener('DOMContentLoaded', () => {
+      const firebaseConfig = {
+        apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
+        authDomain: "goatchase-e9502.firebaseapp.com",
+        projectId: "goatchase-e9502",
+        storageBucket: "goatchase-e9502.firebasestorage.app",
+        messagingSenderId: "16998517478",
+        appId: "1:16998517478:web:6386aff8c1d1da2accc927",
+        measurementId: "G-YWLJGQG0XD"
+      };
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const entriesCollection = db.collection("entries");
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+      const entriesCollection = db.collection("entries");
 
-    const form = document.getElementById('entryForm');
-    const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
-    const editButton = document.getElementById('editButton');
-    const submitButton = document.getElementById('submitButton');
-    const searchInput = document.getElementById('searchInput');
-    const divisionFilter = document.getElementById('divisionFilter');
-    const categoryFilter = document.getElementById('categoryFilter');
-    const actionHeader = document.getElementById('actionHeader');
+      const form = document.getElementById('entryForm');
+      const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
+      const editButton = document.getElementById('editButton');
+      const submitButton = document.getElementById('submitButton');
+      const searchInput = document.getElementById('searchInput');
+      const divisionFilter = document.getElementById('divisionFilter');
+      const categoryFilter = document.getElementById('categoryFilter');
+      const actionHeader = document.getElementById('actionHeader');
 
-    let entries = [];
-    let isEditMode = false;
+      let entries = [];
+      let isEditMode = false;
 
-    function formatDate(input) {
-      const d = new Date(input);
-      return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
-    }
+      function formatDate(input) {
+        const d = new Date(input);
+        return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
+      }
 
-    function parseTimeToSeconds(timeStr) {
-      if (!timeStr || typeof timeStr !== 'string') return NaN;
-      const parts = timeStr.trim().split(" ");
-      if (parts.length !== 2) return NaN;
-      const [min, sec] = parts.map(parseFloat);
-      return min * 60 + sec;
-    }
+      function parseTimeToSeconds(timeStr) {
+        if (!timeStr || typeof timeStr !== 'string') return NaN;
+        const parts = timeStr.trim().split(" ");
+        if (parts.length !== 2) return NaN;
+        const [min, sec] = parts.map(parseFloat);
+        return min * 60 + sec;
+      }
 
-    function formatTime(seconds) {
-      const min = Math.floor(seconds / 60);
-      const sec = (seconds % 60).toFixed(2).padStart(5, '0');
-      return `${String(min).padStart(2,'0')} ${sec}`;
-    }
+      function formatTime(seconds) {
+        const min = Math.floor(seconds / 60);
+        const sec = (seconds % 60).toFixed(2).padStart(5, '0');
+        return `${String(min).padStart(2,'0')} ${sec}`;
+      }
 
-    function updateFilterOptions() {
-      const divisions = [...new Set(entries.map(e => e.division))];
-      const categories = [...new Set(entries.map(e => e.category))];
+      function updateFilterOptions() {
+        const divisions = [...new Set(entries.map(e => e.division))];
+        const categories = [...new Set(entries.map(e => e.category))];
 
-      divisionFilter.innerHTML = '<option value="All">All</option>' +
-        divisions.map(d => `<option value="${d}">${d}</option>`).join('');
-      categoryFilter.innerHTML = '<option value="All">All</option>' +
-        categories.map(c => `<option value="${c}">${c}</option>`).join('');
-    }
+        divisionFilter.innerHTML = '<option value="All">All</option>' +
+          divisions.map(d => `<option value="${d}">${d}</option>`).join('');
+        categoryFilter.innerHTML = '<option value="All">All</option>' +
+          categories.map(c => `<option value="${c}">${c}</option>`).join('');
+      }
 
-    async function renderScoreboard() {
-      scoreboard.innerHTML = '';
-      let bestOverall = null;
-      const bestByDivision = {};
+      async function renderScoreboard() {
+        scoreboard.innerHTML = '';
+        let bestOverall = null;
+        const bestByDivision = {};
 
-      entries.forEach(entry => {
-        entry.totalSeconds = parseTimeToSeconds(entry.time);
-        if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) {
-          bestOverall = entry;
-        }
-        if (!bestByDivision[entry.division] || entry.totalSeconds < bestByDivision[entry.division].totalSeconds) {
-          bestByDivision[entry.division] = entry;
-        }
-      });
+        entries.forEach(entry => {
+          entry.totalSeconds = parseTimeToSeconds(entry.time);
+          if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) {
+            bestOverall = entry;
+          }
+          if (!bestByDivision[entry.division] || entry.totalSeconds < bestByDivision[entry.division].totalSeconds) {
+            bestByDivision[entry.division] = entry;
+          }
+        });
 
-      entries.sort((a, b) => a.totalSeconds - b.totalSeconds);
+        entries.sort((a, b) => a.totalSeconds - b.totalSeconds);
 
-      const filteredEntries = entries.filter(entry =>
-        entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
-        (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
-        (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
-      );
+        const filteredEntries = entries.filter(entry =>
+          entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
+          (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
+          (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
+        );
 
-      filteredEntries.forEach((entry, index) => {
-        const row = document.createElement('tr');
-        if (entry === bestOverall) row.classList.add('leader');
-        else if (bestByDivision[entry.division] === entry) row.classList.add('division-leader');
+        filteredEntries.forEach((entry) => {
+          const row = document.createElement('tr');
+          if (entry === bestOverall) row.classList.add('leader');
+          else if (bestByDivision[entry.division] === entry) row.classList.add('division-leader');
 
-        row.innerHTML = `
-          <td>${entry.name}</td>
-          <td>${entry.division}</td>
-          <td>${entry.category}</td>
-          <td>${formatTime(entry.totalSeconds)}</td>
-          <td>${entry.date}</td>
-          <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
-            <button class="delete-button" onclick="deleteEntry('${entry.id}')">Delete</button>
-          </td>
-        `;
-        scoreboard.appendChild(row);
-      });
+          row.innerHTML = `
+            <td>${entry.name}</td>
+            <td>${entry.division}</td>
+            <td>${entry.category}</td>
+            <td>${formatTime(entry.totalSeconds)}</td>
+            <td>${entry.date}</td>
+            <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
+              <button class="delete-button" onclick="deleteEntry('${entry.id}')">Delete</button>
+            </td>
+          `;
+          scoreboard.appendChild(row);
+        });
 
-      updateFilterOptions();
-    }
+        updateFilterOptions();
+      }
 
-    async function fetchEntries() {
-      const snapshot = await entriesCollection.get();
-      entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      renderScoreboard();
-    }
+      async function fetchEntries() {
+        const snapshot = await entriesCollection.get();
+        entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderScoreboard();
+      }
 
-    async function addEntry(entry) {
-      await entriesCollection.add(entry);
-      fetchEntries();
-    }
-
-    async function deleteEntry(id) {
-      if (confirm("Delete this entry?")) {
-        await entriesCollection.doc(id).delete();
+      async function addEntry(entry) {
+        await entriesCollection.add(entry);
         fetchEntries();
       }
-    }
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('name').value.trim();
-      const division = document.getElementById('division').value.trim();
-      const category = document.getElementById('category').value.trim();
-      const time = document.getElementById('time').value.trim();
-      const dateRaw = document.getElementById('date').value;
-      const date = formatDate(dateRaw);
-
-      if (!name || !division || !category || !time || !dateRaw) {
-        alert("Please fill in all fields.");
-        return;
+      async function deleteEntry(id) {
+        if (confirm("Delete this entry?")) {
+          await entriesCollection.doc(id).delete();
+          fetchEntries();
+        }
       }
 
-      await addEntry({ name, division, category, time, date });
-      form.reset();
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('name').value.trim();
+        const division = document.getElementById('division').value.trim();
+        const category = document.getElementById('category').value.trim();
+        const time = document.getElementById('time').value.trim();
+        const dateRaw = document.getElementById('date').value;
+        const date = formatDate(dateRaw);
+
+        if (!name || !division || !category || !time || !dateRaw) {
+          alert("Please fill in all fields.");
+          return;
+        }
+
+        await addEntry({ name, division, category, time, date });
+        form.reset();
+      });
+
+      editButton.addEventListener('click', () => {
+        isEditMode = !isEditMode;
+        editButton.textContent = isEditMode ? 'Done' : 'Edit';
+        actionHeader.style.display = isEditMode ? '' : 'none';
+        renderScoreboard();
+      });
+
+      searchInput.addEventListener('input', renderScoreboard);
+      divisionFilter.addEventListener('change', renderScoreboard);
+      categoryFilter.addEventListener('change', renderScoreboard);
+
+      fetchEntries();
     });
-
-    editButton.addEventListener('click', () => {
-      isEditMode = !isEditMode;
-      editButton.textContent = isEditMode ? 'Done' : 'Edit';
-      actionHeader.style.display = isEditMode ? '' : 'none';
-      renderScoreboard();
-    });
-
-    searchInput.addEventListener('input', renderScoreboard);
-    divisionFilter.addEventListener('change', renderScoreboard);
-    categoryFilter.addEventListener('change', renderScoreboard);
-
-    fetchEntries(); // initial load
   </script>
 </body>
 </html>

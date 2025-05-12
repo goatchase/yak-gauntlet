@@ -51,7 +51,7 @@
 
     table {
       width: 100%;
-      margin-top: 20px;
+      margin-top: 10px;
       border-collapse: collapse;
       text-align: left;
     }
@@ -89,18 +89,29 @@
       padding: 8px 16px;
       border: none;
       cursor: pointer;
-      position: absolute;
-      top: 20px;
-      right: 20px;
       border-radius: 4px;
-      z-index: 10;
     }
 
     .edit-button:hover {
       background-color: #218838;
     }
 
-    select, input[type="search"] {
+    .top-controls {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    #searchInput {
+      padding: 8px;
+      font-size: 1em;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    select {
       margin-right: 10px;
       padding: 5px;
       font-size: 1em;
@@ -113,8 +124,6 @@
 
   <h1>YAK GAUNTLET</h1>
 
-  <button id="editButton" class="edit-button">Edit</button>
-
   <form id="entryForm">
     <input id="name" placeholder="Name" required />
     <input id="division" placeholder="Division" required />
@@ -124,9 +133,15 @@
     <button type="submit">Submit</button>
   </form>
 
-  <input id="searchInput" type="search" placeholder="Search name" />
-  <select id="divisionFilter"><option value="All">All</option></select>
-  <select id="categoryFilter"><option value="All">All</option></select>
+  <div>
+    <select id="divisionFilter"><option value="All">All</option></select>
+    <select id="categoryFilter"><option value="All">All</option></select>
+  </div>
+
+  <div class="top-controls">
+    <input id="searchInput" type="search" placeholder="Search name" />
+    <button id="editButton" class="edit-button">Edit</button>
+  </div>
 
   <table id="scoreboard">
     <thead>

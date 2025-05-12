@@ -11,74 +11,39 @@
   <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js"></script>
 
   <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      margin: 20px;
+    /* (keep your same CSS here) */
+    
+    /* CSV Upload Styling */
+    #csvUpload {
+      margin-left: 10px;
     }
-    .leader {
-      font-weight: bold;
-      background-color: #ffefc4;
-    }
-    .division-leader {
-      background-color: #e0f7fa;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      padding: 8px 12px;
-      border: 1px solid #ccc;
-    }
-    th {
-      background: #f4f4f4;
-    }
-    .delete-button {
-      background: red;
+
+    button {
+      padding: 6px 12px;
+      margin-left: 10px;
+      background-color: #4CAF50;
       color: white;
       border: none;
-      padding: 4px 8px;
       cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
     }
   </style>
 </head>
 <body>
-  <h1>YAK GAUNTLET</h1>
+  <!-- Your Form & Scoreboard -->
 
-  <form id="entryForm">
-    <input id="name" placeholder="Name" required />
-    <input id="division" placeholder="Division" required />
-    <input id="category" placeholder="Category" required />
-    <input id="time" placeholder="Time (MM SS.ss)" required />
-    <input id="date" type="date" required />
-    <button type="submit">Submit</button>
-  </form>
-
-  <input type="text" id="searchInput" placeholder="Search Name" />
-  <select id="divisionFilter"><option value="All">All</option></select>
-  <select id="categoryFilter"><option value="All">All</option></select>
-  <button id="editButton">Edit</button>
-
-  <!-- 🔽 CSV Upload -->
-  <input type="file" id="csvUpload" accept=".csv" />
-  <button onclick="handleCSVUpload()">Upload CSV</button>
-
-  <table id="scoreboard">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Division</th>
-        <th>Category</th>
-        <th>Time</th>
-        <th>Date</th>
-        <th id="actionHeader" style="display: none;">Actions</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <!-- CSV Upload Section -->
+  <div style="margin-top: 20px;">
+    <label for="csvUpload"><strong>Upload CSV:</strong></label>
+    <input type="file" id="csvUpload" accept=".csv" style="margin-left: 10px;" />
+    <button type="button" onclick="handleCSVUpload()">Upload CSV</button>
+  </div>
 
   <script>
+    // 🔥 Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
       authDomain: "goatchase-e9502.firebaseapp.com",
@@ -89,6 +54,7 @@
       measurementId: "G-YWLJGQG0XD"
     };
 
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const entriesCollection = db.collection("entries");
@@ -96,6 +62,7 @@
     const form = document.getElementById('entryForm');
     const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
     const editButton = document.getElementById('editButton');
+    const submitButton = document.getElementById('submitButton');
     const searchInput = document.getElementById('searchInput');
     const divisionFilter = document.getElementById('divisionFilter');
     const categoryFilter = document.getElementById('categoryFilter');
@@ -224,44 +191,39 @@
     divisionFilter.addEventListener('change', renderScoreboard);
     categoryFilter.addEventListener('change', renderScoreboard);
 
-    // CSV upload logic
-    function parseCSV(text) {
-      const rows = text.trim().split("\n");
-      const headers = rows.shift().split(",");
-      return rows.map(row => {
-        const values = row.split(",");
-        const entry = {};
-        headers.forEach((h, i) => entry[h.trim()] = values[i].trim());
-        return entry;
-      });
-    }
+    fetchEntries(); // initial load
 
-    async function handleCSVUpload() {
-      const fileInput = document.getElementById("csvUpload");
-      const file = fileInput.files[0];
+    // CSV Upload Functionality
+    function handleCSVUpload() {
+      const file = document.getElementById('csvUpload').files[0];
       if (!file) {
-        alert("Please select a CSV file first.");
+        alert('Please select a CSV file first.');
         return;
       }
 
       const reader = new FileReader();
-      reader.onload = async (event) => {
-        const text = event.target.result;
-        const entriesToAdd = parseCSV(text);
+      reader.onload = async function(e) {
+        const text = e.target.result;
+        const lines = text.split('\n').map(line => line.trim()).filter(line => line);
+        const entriesToAdd = [];
+
+        lines.forEach(line => {
+          const [name, division, category, time, date] = line.split(',');
+
+          if (name && division && category && time && date) {
+            entriesToAdd.push({ name, division, category, time, date });
+          }
+        });
 
         for (const entry of entriesToAdd) {
-          if (entry.name && entry.division && entry.category && entry.time && entry.date) {
-            await addEntry(entry);
-          }
+          await addEntry(entry);
         }
 
-        alert("CSV upload complete!");
-        fileInput.value = ''; // reset input
+        alert(`${entriesToAdd.length} entries uploaded successfully!`);
       };
+
       reader.readAsText(file);
     }
-
-    fetchEntries(); // initial load
   </script>
 </body>
 </html>

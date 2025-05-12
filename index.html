@@ -11,31 +11,37 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
   <style>
+    :root {
+      --navy: #001f3f;
+      --dark-navy: #001533;
+      --cardinal: #8C1D40;
+      --light-blue: #d0e9ff;
+    }
+
     body {
       font-family: 'Roboto', sans-serif;
       margin: 0;
       padding: 20px;
       background-color: #f4f4f4;
-      font-size: 12px;
-      color: #1a2a3d; /* Darker navy color */
-      text-transform: uppercase; /* Make all text uppercase */
+      color: var(--dark-navy);
+      text-transform: uppercase;
+      font-size: 12pt;
     }
 
     h1 {
       font-size: 20pt;
-      font-weight: bold;
-      color: #1a2a3d; /* Darker navy */
       text-align: center;
-      margin-bottom: 10px;
+      color: var(--dark-navy);
+      margin-bottom: 4px;
+      font-weight: bold;
     }
 
-    h2 {
-      font-size: 10pt; /* Smaller font size for the subtitle */
-      font-style: italic;
+    .subtitle {
       text-align: center;
-      margin-top: 0;
+      font-style: italic;
+      font-size: 10pt;
       margin-bottom: 20px;
-      font-weight: normal; /* Remove bold from subtitle */
+      font-weight: normal;
     }
 
     form {
@@ -48,19 +54,19 @@
 
     form input, form button {
       padding: 10px;
-      font-size: 1em;
+      font-size: 12pt;
       border-radius: 4px;
       border: 1px solid #ccc;
     }
 
     form button {
-      background-color: #9e1b32; /* Cardinal color */
+      background-color: var(--cardinal);
       color: white;
       cursor: pointer;
     }
 
     form button:hover {
-      background-color: #7a0e23; /* Darker cardinal color */
+      background-color: #6f142f;
     }
 
     .top-bar {
@@ -104,7 +110,7 @@
 
     select, input[type="search"] {
       padding: 5px;
-      font-size: 1em;
+      font-size: 12pt;
       border-radius: 4px;
       border: 1px solid #ccc;
     }
@@ -117,41 +123,16 @@
     }
 
     th, td {
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
+      padding: 8px 10px;
+      text-align: left;
     }
 
     th {
-      background-color: #9e1b32; /* Cardinal color for table headers */
+      background-color: var(--cardinal);
       color: white;
-    }
-
-    td {
-      text-align: left; /* Left justify the text in table cells */
-    }
-
-    th, td:nth-child(1) {
-      width: 15%; /* Name column */
-    }
-
-    td:nth-child(2) {
-      width: 12%; /* Division column */
-    }
-
-    td:nth-child(3) {
-      width: 12%; /* Category column */
-    }
-
-    td:nth-child(4) {
-      width: 10%; /* Time column */
-    }
-
-    td:nth-child(5) {
-      width: 10%; /* Date column */
-    }
-
-    td:nth-child(6) {
-      width: 8%; /* Actions column */
+      position: sticky;
+      top: 0;
+      z-index: 1;
     }
 
     tr:nth-child(even) {
@@ -167,7 +148,7 @@
     }
 
     .division-leader {
-      background-color: #d1e7f1; /* Lighter blue for division leader */
+      background-color: var(--light-blue);
     }
 
     .actions {
@@ -199,21 +180,13 @@
       .top-controls button {
         width: 100%;
       }
-
-      table {
-        width: 100%;
-      }
-
-      th, td {
-        padding: 8px;
-      }
     }
   </style>
 </head>
 <body>
 
   <h1>THE YAK GAUNTLET</h1>
-  <h2>Cornhole • Soccer • Wiffle • Football • Basketball • SP@#$%&</h2>
+  <div class="subtitle">• Cornhole • Soccer • Wiffle • Football • Basketball • SP@#$%&</div>
 
   <form id="entryForm">
     <input id="name" placeholder="Name" required />
@@ -349,7 +322,7 @@
             <td>${entry.division}</td>
             <td>${entry.category}</td>
             <td>${formatTime(entry.totalSeconds)}</td>
-            <td>${formatDate(entry.date)}</td>
+            <td>${entry.date}</td>
             <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
               <button class="delete-button" data-id="${entry.id}">Delete</button>
             </td>

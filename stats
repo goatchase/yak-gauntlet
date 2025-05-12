@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YAK GAUNTLET Stats</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+
+  <!-- Firebase v8 SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+      color: #001f3f;
+      text-transform: uppercase;
+      font-size: 12pt;
+    }
+
+    h1 {
+      font-size: 20pt;
+      text-align: center;
+      color: #001f3f;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-style: italic;
+      font-size: 10pt;
+      margin-bottom: 20px;
+      color: #001f3f;
+      font-weight: normal;
+    }
+
+    .stats-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .stat-item {
+      background-color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      width: 80%;
+      text-align: center;
+    }
+
+    .stat-item h3 {
+      margin-bottom: 10px;
+      color: #001f3f;
+    }
+
+    .stat-item p {
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>YAK GAUNTLET Stats</h1>
+  <div class="subtitle">Statistical Breakdown by Division</div>
+
+  <div class="stats-container" id="statsContainer">
+    <!-- Stats will be dynamically inserted here -->
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const firebaseConfig = {
+        apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
+        authDomain: "goatchase-e9502.firebaseapp.com",
+        projectId: "goatchase-e9502",
+        storageBucket: "goatchase-e9502.firebasestorage.app",
+        messagingSenderId: "16998517478",
+        appId: "1:16998517478:web:6386aff8c1d1da2accc927",
+        measurementId: "G-YWLJGQG0XD"
+      };
+
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+      const entriesCollection = db.collection("entries");
+
+      const statsContainer = document.getElementById('statsContainer');
+
+      function parseTimeToSeconds(timeStr) {
+        const parts = timeStr.trim().split(" ");
+        if (parts.length !== 2) return NaN;
+        const [min, sec] = parts.map(parseFloat);
+        return min * 60 + sec;
+      }
+
+      async function fetchEntries() {
+        const snapshot = await entriesCollection.get();
+        const entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        const divisions = [...new Set(entries.map(entry => entry.division))];
+        const statsByDivision = {};
+
+        // Calculate min, avg, and max for each division
+        divisions.forEach(division => {
+          const divisionEntries = entries.filter(entry => entry.division === division);
+          const times = divisionEntries.map(entry => parseTimeToSeconds(entry.time));
+
+          const minTime = Math.min(...times);
+          const maxTime = Math.max(...times);
+          const avgTime = times.reduce((acc, time) => acc + time, 0) / times.length;
+
+          statsByDivision[division] = {
+            minTime: formatTime(minTime),
+            maxTime: formatTime(maxTime),
+            avgTime: formatTime(avgTime)
+          };
+        });
+
+        renderStats(statsByDivision);
+      }
+
+      function formatTime(seconds) {
+        const min = Math.floor(seconds / 60);
+        const sec = (seconds % 60).toFixed(2).padStart(5, '0');
+        return `${String(min).padStart(2, '0')} ${sec}`;
+      }
+
+      function renderStats(statsByDivision) {
+        statsContainer.innerHTML = '';
+        for (const [division, stats] of Object.entries(statsByDivision)) {
+          const statItem = document.createElement('div');
+          statItem.classList.add('stat-item');
+          statItem.innerHTML = `
+            <h3>${division}</h3>
+            <p>Min Time: ${stats.minTime}</p>
+            <p>Max Time: ${stats.maxTime}</p>
+            <p>Avg Time: ${stats.avgTime}</p>
+          `;
+          statsContainer.appendChild(statItem);
+        }
+      }
+
+      fetchEntries();
+    });
+  </script>
+
+</body>
+</html>

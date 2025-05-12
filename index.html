@@ -83,6 +83,18 @@
       font-size: 0.9em;
     }
 
+    .filter-group button {
+      background-color: #f44336;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    .filter-group button:hover {
+      background-color: #d32f2f;
+    }
+
     .top-controls {
       display: flex;
       gap: 10px;
@@ -200,12 +212,14 @@
         <select id="divisionFilter">
           <option value="All">All</option>
         </select>
+        <button id="deselectDivision" style="display:none;">Deselect</button>
       </div>
       <div class="filter-group">
         <label for="categoryFilter">Category</label>
         <select id="categoryFilter">
           <option value="All">All</option>
         </select>
+        <button id="deselectCategory" style="display:none;">Deselect</button>
       </div>
     </div>
 
@@ -251,6 +265,8 @@
       const searchInput = document.getElementById('searchInput');
       const divisionFilter = document.getElementById('divisionFilter');
       const categoryFilter = document.getElementById('categoryFilter');
+      const deselectDivision = document.getElementById('deselectDivision');
+      const deselectCategory = document.getElementById('deselectCategory');
       const actionHeader = document.getElementById('actionHeader');
 
       let entries = [];
@@ -385,6 +401,16 @@
       searchInput.addEventListener('input', renderScoreboard);
       divisionFilter.addEventListener('change', renderScoreboard);
       categoryFilter.addEventListener('change', renderScoreboard);
+
+      deselectDivision.addEventListener('click', () => {
+        divisionFilter.value = 'All';
+        renderScoreboard();
+      });
+
+      deselectCategory.addEventListener('click', () => {
+        categoryFilter.value = 'All';
+        renderScoreboard();
+      });
 
       fetchEntries();
     });

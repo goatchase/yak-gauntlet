@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>THE YAK GAUNTLET</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
 
   <!-- Firebase v8 SDK -->
@@ -126,7 +126,6 @@
 
     th {
       font-weight: bold;
-      background-color: transparent;
       position: sticky;
       top: 0;
       background-color: #f4f4f4;
@@ -299,12 +298,11 @@
 
         entries.sort((a, b) => a.totalSeconds - b.totalSeconds);
 
-        const filteredEntries = entries.filter(entry => {
-          const nameMatch = entry.name.toUpperCase().includes(searchInput.value.toUpperCase());
-          const divisionMatch = divisionFilter.value === 'All' || entry.division === divisionFilter.value;
-          const categoryMatch = categoryFilter.value === 'All' || entry.category === categoryFilter.value;
-          return nameMatch && divisionMatch && categoryMatch;
-        });
+        const filteredEntries = entries.filter(entry =>
+          entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
+          (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
+          (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
+        );
 
         filteredEntries.forEach((entry) => {
           const row = document.createElement('tr');
@@ -316,7 +314,7 @@
             <td contenteditable="${isEditMode}">${entry.division}</td>
             <td contenteditable="${isEditMode}">${entry.category}</td>
             <td contenteditable="${isEditMode}">${formatTime(entry.totalSeconds)}</td>
-            <td contenteditable="${isEditMode}">${entry.date}</td>
+            <td>${formatDate(entry.date)}</td>
             <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
               <button class="delete-button" data-id="${entry.id}">Delete</button>
             </td>

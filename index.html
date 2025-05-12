@@ -6,7 +6,7 @@
   <title>YAK GAUNTLET</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
 
-  <!-- Firebase v8 SDK (compatible syntax) -->
+  <!-- Firebase v8 SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
@@ -83,15 +83,23 @@
       background-color: lightblue;
     }
 
-    .actions {
-      display: none;
+    .edit-button {
+      background-color: #28a745;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      cursor: pointer;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      border-radius: 4px;
+      z-index: 10;
     }
 
-    #actionHeader {
-      display: table-cell;
+    .edit-button:hover {
+      background-color: #218838;
     }
 
-    /* Optional: Styling for filters */
     select, input[type="search"] {
       margin-right: 10px;
       padding: 5px;
@@ -99,23 +107,13 @@
       border-radius: 4px;
       border: 1px solid #ccc;
     }
-
-    .edit-button {
-      background-color: #28a745;
-      color: white;
-      padding: 5px 10px;
-      border: none;
-      cursor: pointer;
-    }
-
-    .edit-button:hover {
-      background-color: #218838;
-    }
   </style>
 </head>
 <body>
 
   <h1>YAK GAUNTLET</h1>
+
+  <button id="editButton" class="edit-button">Edit</button>
 
   <form id="entryForm">
     <input id="name" placeholder="Name" required />
@@ -126,7 +124,6 @@
     <button type="submit">Submit</button>
   </form>
 
-  <button id="editButton" class="edit-button">Edit</button>
   <input id="searchInput" type="search" placeholder="Search name" />
   <select id="divisionFilter"><option value="All">All</option></select>
   <select id="categoryFilter"><option value="All">All</option></select>
@@ -151,7 +148,7 @@
         apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
         authDomain: "goatchase-e9502.firebaseapp.com",
         projectId: "goatchase-e9502",
-        storageBucket: "goatchase-e9502.firebasestorage.app",
+        storageBucket: "goatchase-e9502.appspot.com",
         messagingSenderId: "16998517478",
         appId: "1:16998517478:web:6386aff8c1d1da2accc927",
         measurementId: "G-YWLJGQG0XD"
@@ -244,9 +241,7 @@
 
         updateFilterOptions();
 
-        // Add event listener for delete buttons
-        const deleteButtons = document.querySelectorAll('.delete-button');
-        deleteButtons.forEach(button => {
+        document.querySelectorAll('.delete-button').forEach(button => {
           button.addEventListener('click', (e) => {
             const entryId = e.target.dataset.id;
             deleteEntry(entryId);
@@ -266,34 +261,26 @@
       }
 
       async function deleteEntry(id) {
-        if (confirm("Delete this entry?")) {
-          await entriesCollection.doc(id).delete();
-          fetchEntries();
-        }
+        await entriesCollection.doc(id).delete();
+        fetchEntries();
       }
 
-      form.addEventListener('submit', async (e) => {
+      form.addEventListener('submit', e => {
         e.preventDefault();
-        const name = document.getElementById('name').value.trim();
-        const division = document.getElementById('division').value.trim();
-        const category = document.getElementById('category').value.trim();
-        const time = document.getElementById('time').value.trim();
-        const dateRaw = document.getElementById('date').value;
-        const date = formatDate(dateRaw);
-
-        if (!name || !division || !category || !time || !dateRaw) {
-          alert("Please fill in all fields.");
-          return;
-        }
-
-        await addEntry({ name, division, category, time, date });
+        const newEntry = {
+          name: form.name.value,
+          division: form.division.value,
+          category: form.category.value,
+          time: form.time.value,
+          date: formatDate(form.date.value)
+        };
+        addEntry(newEntry);
         form.reset();
       });
 
       editButton.addEventListener('click', () => {
         isEditMode = !isEditMode;
-        editButton.textContent = isEditMode ? 'Done' : 'Edit';
-        actionHeader.style.display = isEditMode ? '' : 'none';
+        actionHeader.style.display = isEditMode ? 'table-cell' : 'none';
         renderScoreboard();
       });
 

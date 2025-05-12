@@ -6,18 +6,19 @@
   <title>YAK GAUNTLET</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js"></script>
+  <!-- Firebase SDK v8 (legacy) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
   <style>
-    /* Include your existing CSS here */
+    /* (keep your same CSS here) */
   </style>
 </head>
 <body>
-  <!-- Your form and table go here -->
+  <!-- (your same HTML form/table layout here) -->
 
   <script>
+    // 🔥 Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
       authDomain: "goatchase-e9502.firebaseapp.com",
@@ -28,6 +29,7 @@
       measurementId: "G-YWLJGQG0XD"
     };
 
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const entriesCollection = db.collection("entries");
@@ -125,7 +127,7 @@
 
     async function addEntry(entry) {
       await entriesCollection.add(entry);
-      await fetchEntries();
+      fetchEntries();
     }
 
     async function deleteEntry(id) {
@@ -151,10 +153,6 @@
 
       await addEntry({ name, division, category, time, date });
       form.reset();
-      divisionFilter.value = "All";
-      categoryFilter.value = "All";
-      searchInput.value = "";
-      renderScoreboard();
     });
 
     editButton.addEventListener('click', () => {
@@ -168,12 +166,7 @@
     divisionFilter.addEventListener('change', renderScoreboard);
     categoryFilter.addEventListener('change', renderScoreboard);
 
-    fetchEntries().then(() => {
-      divisionFilter.value = "All";
-      categoryFilter.value = "All";
-      searchInput.value = "";
-      renderScoreboard();
-    });
+    fetchEntries(); // initial load
   </script>
 </body>
 </html>

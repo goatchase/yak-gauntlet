@@ -120,7 +120,6 @@
     th, td {
       padding: 8px;
       text-align: left;
-      border-bottom: 1px solid #ccc;
     }
 
     th {
@@ -130,6 +129,10 @@
       top: 0;
       background-color: #f4f4f4;
       z-index: 1;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
     }
 
     tr:hover {
@@ -253,16 +256,14 @@
       let entries = [];
       let isEditMode = false;
 
-      // Function to format date to MM/DD/YYYY
       function formatDate(input) {
         const d = new Date(input);
-        const mm = String(d.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
-        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth()+1).padStart(2,'0');
+        const dd = String(d.getDate()).padStart(2,'0');
         const yyyy = d.getFullYear();
         return `${mm}/${dd}/${yyyy}`;
       }
 
-      // Function to convert time to seconds
       function parseTimeToSeconds(timeStr) {
         if (!timeStr || typeof timeStr !== 'string') return NaN;
         const parts = timeStr.trim().split(" ");
@@ -320,7 +321,7 @@
             <td>${entry.division}</td>
             <td>${entry.category}</td>
             <td>${formatTime(entry.totalSeconds)}</td>
-            <td>${entry.date}</td> <!-- Ensure the date is shown in MM/DD/YYYY -->
+            <td>${entry.date}</td>
             <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
               <button class="delete-button" data-id="${entry.id}">Delete</button>
             </td>
@@ -350,11 +351,12 @@
       }
 
       async function deleteEntry(id) {
-        await entriesCollection.doc(id).delete();
-        fetchEntries();
+        if (confirm("Delete this entry?")) {
+          await entriesCollection.doc(id).delete();
+          fetchEntries();
+        }
       }
 
-      // Form submission event
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('name').value.trim();
@@ -362,7 +364,7 @@
         const category = document.getElementById('category').value.trim();
         const time = document.getElementById('time').value.trim();
         const dateRaw = document.getElementById('date').value;
-        const date = formatDate(dateRaw);  // Format the date properly
+        const date = formatDate(dateRaw);
 
         if (!name || !division || !category || !time || !dateRaw) {
           alert("Please fill in all fields.");
@@ -373,13 +375,16 @@
         form.reset();
       });
 
-      // Toggle Edit Mode
       editButton.addEventListener('click', () => {
         isEditMode = !isEditMode;
-        actionHeader.style.display = isEditMode ? 'table-cell' : 'none';
-        editButton.textContent = isEditMode ? 'View' : 'Edit';
+        editButton.textContent = isEditMode ? 'DONE' : 'EDIT';
+        actionHeader.style.display = isEditMode ? '' : 'none';
         renderScoreboard();
       });
+
+      searchInput.addEventListener('input', renderScoreboard);
+      divisionFilter.addEventListener('change', renderScoreboard);
+      categoryFilter.addEventListener('change', renderScoreboard);
 
       fetchEntries();
     });

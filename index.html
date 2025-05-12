@@ -6,19 +6,76 @@
   <title>YAK GAUNTLET</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js"></script>
-
+  <!-- You can keep your styles here -->
   <style>
-    /* (keep your same CSS here) */
+    body {
+      font-family: 'Roboto', sans-serif;
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .leader {
+      background-color: #d4edda;
+    }
+    .division-leader {
+      background-color: #fff3cd;
+    }
+    .delete-button {
+      background-color: red;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <!-- (your same HTML form/table layout here) -->
+  <h1>YAK GAUNTLET</h1>
 
-  <script>
-    // 🔥 Your Firebase config
+  <form id="entryForm">
+    <input type="text" id="name" placeholder="Name" required />
+    <input type="text" id="division" placeholder="Division" required />
+    <input type="text" id="category" placeholder="Category" required />
+    <input type="text" id="time" placeholder="Time (mm ss)" required />
+    <input type="date" id="date" required />
+    <button type="submit">Submit</button>
+  </form>
+
+  <button id="editButton">Edit</button>
+  <input type="text" id="searchInput" placeholder="Search by name" />
+  <select id="divisionFilter"></select>
+  <select id="categoryFilter"></select>
+
+  <table id="scoreboard">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Division</th>
+        <th>Category</th>
+        <th>Time</th>
+        <th>Date</th>
+        <th id="actionHeader" style="display: none;">Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Firebase Modular SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
       authDomain: "goatchase-e9502.firebaseapp.com",
@@ -29,10 +86,9 @@
       measurementId: "G-YWLJGQG0XD"
     };
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const entriesCollection = db.collection("entries");
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const entriesCollection = collection(db, "entries");
 
     const form = document.getElementById('entryForm');
     const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
@@ -120,19 +176,19 @@
     }
 
     async function fetchEntries() {
-      const snapshot = await entriesCollection.get();
+      const snapshot = await getDocs(entriesCollection);
       entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       renderScoreboard();
     }
 
     async function addEntry(entry) {
-      await entriesCollection.add(entry);
+      await addDoc(entriesCollection, entry);
       fetchEntries();
     }
 
     async function deleteEntry(id) {
       if (confirm("Delete this entry?")) {
-        await entriesCollection.doc(id).delete();
+        await deleteDoc(doc(db, "entries", id));
         fetchEntries();
       }
     }
@@ -167,6 +223,9 @@
     categoryFilter.addEventListener('change', renderScoreboard);
 
     fetchEntries(); // initial load
+
+    // expose deleteEntry globally for onclick
+    window.deleteEntry = deleteEntry;
   </script>
 </body>
 </html>

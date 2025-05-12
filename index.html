@@ -11,36 +11,11 @@
   <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js"></script>
 
   <style>
-    /* (keep your same CSS here) */
-    
-    /* CSV Upload Styling */
-    #csvUpload {
-      margin-left: 10px;
-    }
-
-    button {
-      padding: 6px 12px;
-      margin-left: 10px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #45a049;
-    }
+    /* Your CSS goes here */
   </style>
 </head>
 <body>
-  <!-- Your Form & Scoreboard -->
-
-  <!-- CSV Upload Section -->
-  <div style="margin-top: 20px;">
-    <label for="csvUpload"><strong>Upload CSV:</strong></label>
-    <input type="file" id="csvUpload" accept=".csv" style="margin-left: 10px;" />
-    <button type="button" onclick="handleCSVUpload()">Upload CSV</button>
-  </div>
+  <!-- Your form and table layout here -->
 
   <script>
     // 🔥 Your Firebase config
@@ -192,38 +167,6 @@
     categoryFilter.addEventListener('change', renderScoreboard);
 
     fetchEntries(); // initial load
-
-    // CSV Upload Functionality
-    function handleCSVUpload() {
-      const file = document.getElementById('csvUpload').files[0];
-      if (!file) {
-        alert('Please select a CSV file first.');
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = async function(e) {
-        const text = e.target.result;
-        const lines = text.split('\n').map(line => line.trim()).filter(line => line);
-        const entriesToAdd = [];
-
-        lines.forEach(line => {
-          const [name, division, category, time, date] = line.split(',');
-
-          if (name && division && category && time && date) {
-            entriesToAdd.push({ name, division, category, time, date });
-          }
-        });
-
-        for (const entry of entriesToAdd) {
-          await addEntry(entry);
-        }
-
-        alert(`${entriesToAdd.length} entries uploaded successfully!`);
-      };
-
-      reader.readAsText(file);
-    }
   </script>
 </body>
 </html>

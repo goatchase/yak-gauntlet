@@ -16,7 +16,7 @@
       margin: 0;
       padding: 20px;
       background-color: #f4f4f4;
-      font-size: 12px; /* Set font size for body */
+      font-size: 12px;
     }
 
     h1 {
@@ -99,19 +99,46 @@
     table {
       width: 100%;
       margin-top: 10px;
-      border-collapse: collapse; /* No vertical lines */
+      border-collapse: collapse;
       text-align: left;
     }
 
     th, td {
       padding: 10px;
-      border-bottom: 1px solid #ddd; /* Horizontal lines only */
-      text-align: center;
+      border-bottom: 1px solid #ddd;
     }
 
     th {
       background-color: #007bff;
       color: white;
+    }
+
+    td {
+      text-align: left; /* Left justify the text in table cells */
+    }
+
+    th, td:nth-child(1) {
+      width: 15%; /* Name column */
+    }
+
+    td:nth-child(2) {
+      width: 12%; /* Division column */
+    }
+
+    td:nth-child(3) {
+      width: 12%; /* Category column */
+    }
+
+    td:nth-child(4) {
+      width: 10%; /* Time column */
+    }
+
+    td:nth-child(5) {
+      width: 10%; /* Date column */
+    }
+
+    td:nth-child(6) {
+      width: 8%; /* Actions column */
     }
 
     tr:nth-child(even) {
@@ -158,6 +185,14 @@
       .top-controls input,
       .top-controls button {
         width: 100%;
+      }
+
+      table {
+        width: 100%;
+      }
+
+      th, td {
+        padding: 8px;
       }
     }
   </style>
@@ -300,7 +335,7 @@
             <td>${entry.division}</td>
             <td>${entry.category}</td>
             <td>${formatTime(entry.totalSeconds)}</td>
-            <td>${entry.date}</td>
+            <td>${formatDate(entry.date)}</td>
             <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
               <button class="delete-button" data-id="${entry.id}">Delete</button>
             </td>

@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>THE YAK GAUNTLET</title>
+  <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/3/36/Farm-Fresh_star.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
 
   <!-- Firebase v8 SDK -->
@@ -120,20 +121,15 @@
     th, td {
       padding: 8px;
       text-align: left;
-      border-bottom: 1px solid #ddd; /* Subtle horizontal line */
+      border-bottom: 1px solid #ccc;
     }
 
     th {
       font-weight: bold;
-      background-color: transparent;
       position: sticky;
       top: 0;
       background-color: #f4f4f4;
       z-index: 1;
-    }
-
-    tr:hover {
-      background-color: #f1f1f1;
     }
 
     .leader {
@@ -177,7 +173,6 @@
   </style>
 </head>
 <body>
-
   <h1>THE YAK GAUNTLET</h1>
   <div class="subtitle">CORNHOLE • SOCCER • WIFFLE • FOOTBALL • BASKETBALL • SP@#$%&</div>
 
@@ -232,7 +227,7 @@
         apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
         authDomain: "goatchase-e9502.firebaseapp.com",
         projectId: "goatchase-e9502",
-        storageBucket: "goatchase-e9502.firebasestorage.app",
+        storageBucket: "goatchase-e9502.appspot.com",
         messagingSenderId: "16998517478",
         appId: "1:16998517478:web:6386aff8c1d1da2accc927",
         measurementId: "G-YWLJGQG0XD"
@@ -243,7 +238,7 @@
       const entriesCollection = db.collection("entries");
 
       const form = document.getElementById('entryForm');
-      const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
+      const scoreboard = document.querySelector('#scoreboard tbody');
       const editButton = document.getElementById('editButton');
       const searchInput = document.getElementById('searchInput');
       const divisionFilter = document.getElementById('divisionFilter');
@@ -253,16 +248,14 @@
       let entries = [];
       let isEditMode = false;
 
-      // Function to format the date as MM/DD/YYYY
       function formatDate(input) {
         const d = new Date(input);
-        const mm = String(d.getMonth() + 1).padStart(2, '0'); // Month is 0-based
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
         const dd = String(d.getDate()).padStart(2, '0');
         const yyyy = d.getFullYear();
         return `${mm}/${dd}/${yyyy}`;
       }
 
-      // Function to parse time into seconds
       function parseTimeToSeconds(timeStr) {
         if (!timeStr || typeof timeStr !== 'string') return NaN;
         const parts = timeStr.trim().split(" ");
@@ -271,14 +264,12 @@
         return min * 60 + sec;
       }
 
-      // Function to format seconds into MM SS
       function formatTime(seconds) {
         const min = Math.floor(seconds / 60);
         const sec = (seconds % 60).toFixed(2).padStart(5, '0');
-        return `${String(min).padStart(2, '0')} ${sec}`;
+        return `${String(min).padStart(2,'0')} ${sec}`;
       }
 
-      // Function to update filter options
       function updateFilterOptions() {
         const divisions = [...new Set(entries.map(e => e.division))];
         const categories = [...new Set(entries.map(e => e.category))];
@@ -289,7 +280,6 @@
           categories.map(c => `<option value="${c}">${c}</option>`).join('');
       }
 
-      // Function to render the scoreboard
       async function renderScoreboard() {
         scoreboard.innerHTML = '';
         let bestOverall = null;
@@ -319,15 +309,16 @@
           else if (bestByDivision[entry.division] === entry) row.classList.add('division-leader');
 
           row.innerHTML = `
-            <td>${entry.name}</td>
-            <td>${entry.division}</td>
-            <td>${entry.category}</td>
-            <td>${formatTime(entry.totalSeconds)}</td>
-            <td>${formatDate(entry.date)}</td>  <!-- Ensuring date is formatted as MM/DD/YYYY -->
+            <td contenteditable="${isEditMode}">${entry.name}</td>
+            <td contenteditable="${isEditMode}">${entry.division}</td>
+            <td contenteditable="${isEditMode}">${entry.category}</td>
+            <td contenteditable="${isEditMode}">${formatTime(entry.totalSeconds)}</td>
+            <td contenteditable="${isEditMode}">${entry.date}</td>
             <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
               <button class="delete-button" data-id="${entry.id}">Delete</button>
             </td>
           `;
+
           scoreboard.appendChild(row);
         });
 
@@ -341,20 +332,17 @@
         });
       }
 
-      // Function to fetch entries from Firestore
       async function fetchEntries() {
         const snapshot = await entriesCollection.get();
         entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderScoreboard();
       }
 
-      // Function to add an entry
       async function addEntry(entry) {
         await entriesCollection.add(entry);
         fetchEntries();
       }
 
-      // Function to delete an entry
       async function deleteEntry(id) {
         if (confirm("Delete this entry?")) {
           await entriesCollection.doc(id).delete();
@@ -362,7 +350,6 @@
         }
       }
 
-      // Handling the form submission
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('name').value.trim();
@@ -381,7 +368,6 @@
         form.reset();
       });
 
-      // Edit button toggle
       editButton.addEventListener('click', () => {
         isEditMode = !isEditMode;
         editButton.textContent = isEditMode ? 'DONE' : 'EDIT';
@@ -389,12 +375,10 @@
         renderScoreboard();
       });
 
-      // Search input listener
       searchInput.addEventListener('input', renderScoreboard);
       divisionFilter.addEventListener('change', renderScoreboard);
       categoryFilter.addEventListener('change', renderScoreboard);
 
-      // Initial fetch of entries
       fetchEntries();
     });
   </script>

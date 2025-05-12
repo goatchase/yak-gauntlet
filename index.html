@@ -17,6 +17,9 @@
 <body>
   <!-- Your form and table layout here -->
 
+  <!-- CSV Upload Button -->
+  <input type="file" id="csvUpload" accept=".csv" />
+  
   <script>
     // 🔥 Your Firebase config
     const firebaseConfig = {
@@ -165,6 +168,28 @@
     searchInput.addEventListener('input', renderScoreboard);
     divisionFilter.addEventListener('change', renderScoreboard);
     categoryFilter.addEventListener('change', renderScoreboard);
+
+    // CSV Upload Handler
+    document.getElementById('csvUpload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file && file.name.endsWith('.csv')) {
+        const reader = new FileReader();
+        reader.onload = async function(event) {
+          const csvData = event.target.result;
+          const rows = csvData.split('\n');
+          const entriesToAdd = rows.slice(1).map(row => {
+            const [name, division, category, time, date] = row.split(',');
+            return { name, division, category, time, date };
+          });
+          for (let entry of entriesToAdd) {
+            await addEntry(entry);
+          }
+        };
+        reader.readAsText(file);
+      } else {
+        alert('Please upload a valid CSV file.');
+      }
+    });
 
     fetchEntries(); // initial load
   </script>

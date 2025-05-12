@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>THE YAK GAUNTLET</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
+  <link rel="icon" href="favicon.ico" type="image/x-icon"/>
 
   <!-- Firebase v8 SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -132,6 +132,10 @@
       z-index: 1;
     }
 
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
     .leader {
       background-color: gold;
     }
@@ -173,7 +177,6 @@
   </style>
 </head>
 <body>
-
   <h1>THE YAK GAUNTLET</h1>
   <div class="subtitle">CORNHOLE • SOCCER • WIFFLE • FOOTBALL • BASKETBALL • SP@#$%&</div>
 
@@ -181,7 +184,7 @@
     <input id="name" placeholder="Name" required />
     <input id="division" placeholder="Division" required />
     <input id="category" placeholder="Category" required />
-    <input id="time" placeholder="Time (mm ss)" required />
+    <input id="time" placeholder="Time (mm ss.ss)" required />
     <input id="date" type="date" required />
     <button type="submit">Submit</button>
   </form>
@@ -200,6 +203,7 @@
           <option value="All">All</option>
         </select>
       </div>
+      <button id="unfilterButton" class="edit-button" type="button">Unfilter</button>
     </div>
 
     <div class="top-controls">
@@ -244,6 +248,7 @@
       const searchInput = document.getElementById('searchInput');
       const divisionFilter = document.getElementById('divisionFilter');
       const categoryFilter = document.getElementById('categoryFilter');
+      const unfilterButton = document.getElementById('unfilterButton');
       const actionHeader = document.getElementById('actionHeader');
 
       let entries = [];
@@ -251,8 +256,8 @@
 
       function formatDate(input) {
         const d = new Date(input);
-        const mm = String(d.getMonth()+1).padStart(2,'0');
-        const dd = String(d.getDate()).padStart(2,'0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
         const yyyy = d.getFullYear();
         return `${mm}/${dd}/${yyyy}`;
       }
@@ -268,7 +273,7 @@
       function formatTime(seconds) {
         const min = Math.floor(seconds / 60);
         const sec = (seconds % 60).toFixed(2).padStart(5, '0');
-        return `${String(min).padStart(2,'0')} ${sec}`;
+        return `${String(min).padStart(2, '0')} ${sec}`;
       }
 
       function updateFilterOptions() {
@@ -314,7 +319,7 @@
             <td contenteditable="${isEditMode}">${entry.division}</td>
             <td contenteditable="${isEditMode}">${entry.category}</td>
             <td contenteditable="${isEditMode}">${formatTime(entry.totalSeconds)}</td>
-            <td>${formatDate(entry.date)}</td>
+            <td contenteditable="${isEditMode}">${entry.date}</td>
             <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
               <button class="delete-button" data-id="${entry.id}">Delete</button>
             </td>
@@ -378,6 +383,12 @@
       searchInput.addEventListener('input', renderScoreboard);
       divisionFilter.addEventListener('change', renderScoreboard);
       categoryFilter.addEventListener('change', renderScoreboard);
+
+      unfilterButton.addEventListener('click', () => {
+        divisionFilter.value = 'All';
+        categoryFilter.value = 'All';
+        renderScoreboard();
+      });
 
       fetchEntries();
     });

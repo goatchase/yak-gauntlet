@@ -134,6 +134,11 @@
       z-index: 1;
     }
 
+    td:nth-child(4) {
+      color: #990000;
+      font-weight: bold;
+    }
+
     tr:hover {
       background-color: #f1f1f1;
     }
@@ -183,6 +188,7 @@
   <h1>THE YAK GAUNTLET</h1>
   <div class="subtitle">CORNHOLE • SOCCER • WIFFLE • FOOTBALL • BASKETBALL • SP@#$%&</div>
 
+  <!-- form -->
   <form id="entryForm">
     <input id="name" placeholder="Name" required />
     <input id="division" placeholder="Division" required />
@@ -192,19 +198,16 @@
     <button type="submit">Submit</button>
   </form>
 
+  <!-- filters & buttons -->
   <div class="top-bar">
     <div class="filters">
       <div class="filter-group">
         <label for="divisionFilter">Division</label>
-        <select id="divisionFilter">
-          <option value="All">All</option>
-        </select>
+        <select id="divisionFilter"><option value="All">All</option></select>
       </div>
       <div class="filter-group">
         <label for="categoryFilter">Category</label>
-        <select id="categoryFilter">
-          <option value="All">All</option>
-        </select>
+        <select id="categoryFilter"><option value="All">All</option></select>
       </div>
     </div>
 
@@ -215,6 +218,7 @@
     </div>
   </div>
 
+  <!-- scoreboard table -->
   <table id="scoreboard">
     <thead>
       <tr>
@@ -229,13 +233,14 @@
     <tbody></tbody>
   </table>
 
+  <!-- scripts -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const firebaseConfig = {
         apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
         authDomain: "goatchase-e9502.firebaseapp.com",
         projectId: "goatchase-e9502",
-        storageBucket: "goatchase-e9502.firebasestorage.app",
+        storageBucket: "goatchase-e9502.appspot.com",
         messagingSenderId: "16998517478",
         appId: "1:16998517478:web:6386aff8c1d1da2accc927",
         measurementId: "G-YWLJGQG0XD"

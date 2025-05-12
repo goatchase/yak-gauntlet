@@ -111,6 +111,10 @@
     .edit-button:hover {
       background-color: #218838;
     }
+
+    #csvUpload {
+      margin: 20px 0;
+    }
   </style>
 </head>
 <body>
@@ -130,6 +134,9 @@
   <input id="searchInput" type="search" placeholder="Search name" />
   <select id="divisionFilter"><option value="All">All</option></select>
   <select id="categoryFilter"><option value="All">All</option></select>
+
+  <input type="file" id="csvUpload" accept=".csv" />
+  <button id="uploadCsvButton">Upload CSV</button>
 
   <table id="scoreboard">
     <thead>
@@ -169,6 +176,7 @@
       const divisionFilter = document.getElementById('divisionFilter');
       const categoryFilter = document.getElementById('categoryFilter');
       const actionHeader = document.getElementById('actionHeader');
+      const csvUploadInput = document.getElementById('csvUpload');
 
       let entries = [];
       let isEditMode = false;
@@ -292,6 +300,40 @@
       searchInput.addEventListener('input', renderScoreboard);
       divisionFilter.addEventListener('change', renderScoreboard);
       categoryFilter.addEventListener('change', renderScoreboard);
+
+      csvUploadInput.addEventListener('change', handleCsvUpload);
+
+      async function handleCsvUpload(event) {
+        const file = event.target.files[0];
+        if (!file || file.type !== 'text/csv') {
+          alert("Please upload a valid CSV file.");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          const csvData = e.target.result;
+          const entries = parseCsv(csvData);
+          for (const entry of entries) {
+            await addEntry(entry);
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      function parseCsv(csvData) {
+        const rows = csvData.trim().split('\n');
+        return rows.map(row => {
+          const [name, division, category, time, date] = row.split(',');
+          return {
+            name: name.trim(),
+            division: division.trim(),
+            category: category.trim(),
+            time: time.trim(),
+            date: date.trim()
+          };
+        });
+      }
 
       fetchEntries();
     });

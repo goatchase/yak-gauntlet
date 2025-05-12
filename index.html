@@ -6,44 +6,63 @@
   <title>YAK GAUNTLET</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
 
-  <!-- Firebase v8 SDK (compatible syntax) -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js"></script>
 
   <style>
     body {
       font-family: 'Roboto', sans-serif;
-      padding: 20px;
-    }
-    table, th, td {
-      border: 1px solid black;
-      border-collapse: collapse;
+      margin: 20px;
     }
     .leader {
-      background-color: gold;
+      font-weight: bold;
+      background-color: #ffefc4;
     }
     .division-leader {
-      background-color: lightblue;
+      background-color: #e0f7fa;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+    }
+    th {
+      background: #f4f4f4;
+    }
+    .delete-button {
+      background: red;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-
   <h1>YAK GAUNTLET</h1>
 
   <form id="entryForm">
     <input id="name" placeholder="Name" required />
     <input id="division" placeholder="Division" required />
     <input id="category" placeholder="Category" required />
-    <input id="time" placeholder="Time (mm ss)" required />
+    <input id="time" placeholder="Time (MM SS.ss)" required />
     <input id="date" type="date" required />
     <button type="submit">Submit</button>
   </form>
 
-  <button id="editButton">Edit</button>
-  <input id="searchInput" placeholder="Search name" />
+  <input type="text" id="searchInput" placeholder="Search Name" />
   <select id="divisionFilter"><option value="All">All</option></select>
   <select id="categoryFilter"><option value="All">All</option></select>
+  <button id="editButton">Edit</button>
+
+  <!-- 🔽 CSV Upload -->
+  <input type="file" id="csvUpload" accept=".csv" />
+  <button onclick="handleCSVUpload()">Upload CSV</button>
 
   <table id="scoreboard">
     <thead>
@@ -60,155 +79,189 @@
   </table>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const firebaseConfig = {
-        apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
-        authDomain: "goatchase-e9502.firebaseapp.com",
-        projectId: "goatchase-e9502",
-        storageBucket: "goatchase-e9502.firebasestorage.app",
-        messagingSenderId: "16998517478",
-        appId: "1:16998517478:web:6386aff8c1d1da2accc927",
-        measurementId: "G-YWLJGQG0XD"
-      };
+    const firebaseConfig = {
+      apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
+      authDomain: "goatchase-e9502.firebaseapp.com",
+      projectId: "goatchase-e9502",
+      storageBucket: "goatchase-e9502.firebasestorage.app",
+      messagingSenderId: "16998517478",
+      appId: "1:16998517478:web:6386aff8c1d1da2accc927",
+      measurementId: "G-YWLJGQG0XD"
+    };
 
-      firebase.initializeApp(firebaseConfig);
-      const db = firebase.firestore();
-      const entriesCollection = db.collection("entries");
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const entriesCollection = db.collection("entries");
 
-      const form = document.getElementById('entryForm');
-      const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
-      const editButton = document.getElementById('editButton');
-      const submitButton = document.getElementById('submitButton');
-      const searchInput = document.getElementById('searchInput');
-      const divisionFilter = document.getElementById('divisionFilter');
-      const categoryFilter = document.getElementById('categoryFilter');
-      const actionHeader = document.getElementById('actionHeader');
+    const form = document.getElementById('entryForm');
+    const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
+    const editButton = document.getElementById('editButton');
+    const searchInput = document.getElementById('searchInput');
+    const divisionFilter = document.getElementById('divisionFilter');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const actionHeader = document.getElementById('actionHeader');
 
-      let entries = [];
-      let isEditMode = false;
+    let entries = [];
+    let isEditMode = false;
 
-      function formatDate(input) {
-        const d = new Date(input);
-        return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
-      }
+    function formatDate(input) {
+      const d = new Date(input);
+      return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
+    }
 
-      function parseTimeToSeconds(timeStr) {
-        if (!timeStr || typeof timeStr !== 'string') return NaN;
-        const parts = timeStr.trim().split(" ");
-        if (parts.length !== 2) return NaN;
-        const [min, sec] = parts.map(parseFloat);
-        return min * 60 + sec;
-      }
+    function parseTimeToSeconds(timeStr) {
+      if (!timeStr || typeof timeStr !== 'string') return NaN;
+      const parts = timeStr.trim().split(" ");
+      if (parts.length !== 2) return NaN;
+      const [min, sec] = parts.map(parseFloat);
+      return min * 60 + sec;
+    }
 
-      function formatTime(seconds) {
-        const min = Math.floor(seconds / 60);
-        const sec = (seconds % 60).toFixed(2).padStart(5, '0');
-        return `${String(min).padStart(2,'0')} ${sec}`;
-      }
+    function formatTime(seconds) {
+      const min = Math.floor(seconds / 60);
+      const sec = (seconds % 60).toFixed(2).padStart(5, '0');
+      return `${String(min).padStart(2,'0')} ${sec}`;
+    }
 
-      function updateFilterOptions() {
-        const divisions = [...new Set(entries.map(e => e.division))];
-        const categories = [...new Set(entries.map(e => e.category))];
+    function updateFilterOptions() {
+      const divisions = [...new Set(entries.map(e => e.division))];
+      const categories = [...new Set(entries.map(e => e.category))];
 
-        divisionFilter.innerHTML = '<option value="All">All</option>' +
-          divisions.map(d => `<option value="${d}">${d}</option>`).join('');
-        categoryFilter.innerHTML = '<option value="All">All</option>' +
-          categories.map(c => `<option value="${c}">${c}</option>`).join('');
-      }
+      divisionFilter.innerHTML = '<option value="All">All</option>' +
+        divisions.map(d => `<option value="${d}">${d}</option>`).join('');
+      categoryFilter.innerHTML = '<option value="All">All</option>' +
+        categories.map(c => `<option value="${c}">${c}</option>`).join('');
+    }
 
-      async function renderScoreboard() {
-        scoreboard.innerHTML = '';
-        let bestOverall = null;
-        const bestByDivision = {};
+    async function renderScoreboard() {
+      scoreboard.innerHTML = '';
+      let bestOverall = null;
+      const bestByDivision = {};
 
-        entries.forEach(entry => {
-          entry.totalSeconds = parseTimeToSeconds(entry.time);
-          if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) {
-            bestOverall = entry;
-          }
-          if (!bestByDivision[entry.division] || entry.totalSeconds < bestByDivision[entry.division].totalSeconds) {
-            bestByDivision[entry.division] = entry;
-          }
-        });
+      entries.forEach(entry => {
+        entry.totalSeconds = parseTimeToSeconds(entry.time);
+        if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) {
+          bestOverall = entry;
+        }
+        if (!bestByDivision[entry.division] || entry.totalSeconds < bestByDivision[entry.division].totalSeconds) {
+          bestByDivision[entry.division] = entry;
+        }
+      });
 
-        entries.sort((a, b) => a.totalSeconds - b.totalSeconds);
+      entries.sort((a, b) => a.totalSeconds - b.totalSeconds);
 
-        const filteredEntries = entries.filter(entry =>
-          entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
-          (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
-          (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
-        );
+      const filteredEntries = entries.filter(entry =>
+        entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
+        (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
+        (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
+      );
 
-        filteredEntries.forEach((entry) => {
-          const row = document.createElement('tr');
-          if (entry === bestOverall) row.classList.add('leader');
-          else if (bestByDivision[entry.division] === entry) row.classList.add('division-leader');
+      filteredEntries.forEach((entry, index) => {
+        const row = document.createElement('tr');
+        if (entry === bestOverall) row.classList.add('leader');
+        else if (bestByDivision[entry.division] === entry) row.classList.add('division-leader');
 
-          row.innerHTML = `
-            <td>${entry.name}</td>
-            <td>${entry.division}</td>
-            <td>${entry.category}</td>
-            <td>${formatTime(entry.totalSeconds)}</td>
-            <td>${entry.date}</td>
-            <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
-              <button class="delete-button" onclick="deleteEntry('${entry.id}')">Delete</button>
-            </td>
-          `;
-          scoreboard.appendChild(row);
-        });
+        row.innerHTML = `
+          <td>${entry.name}</td>
+          <td>${entry.division}</td>
+          <td>${entry.category}</td>
+          <td>${formatTime(entry.totalSeconds)}</td>
+          <td>${entry.date}</td>
+          <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
+            <button class="delete-button" onclick="deleteEntry('${entry.id}')">Delete</button>
+          </td>
+        `;
+        scoreboard.appendChild(row);
+      });
 
-        updateFilterOptions();
-      }
+      updateFilterOptions();
+    }
 
-      async function fetchEntries() {
-        const snapshot = await entriesCollection.get();
-        entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        renderScoreboard();
-      }
+    async function fetchEntries() {
+      const snapshot = await entriesCollection.get();
+      entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderScoreboard();
+    }
 
-      async function addEntry(entry) {
-        await entriesCollection.add(entry);
+    async function addEntry(entry) {
+      await entriesCollection.add(entry);
+      fetchEntries();
+    }
+
+    async function deleteEntry(id) {
+      if (confirm("Delete this entry?")) {
+        await entriesCollection.doc(id).delete();
         fetchEntries();
       }
+    }
 
-      async function deleteEntry(id) {
-        if (confirm("Delete this entry?")) {
-          await entriesCollection.doc(id).delete();
-          fetchEntries();
-        }
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const division = document.getElementById('division').value.trim();
+      const category = document.getElementById('category').value.trim();
+      const time = document.getElementById('time').value.trim();
+      const dateRaw = document.getElementById('date').value;
+      const date = formatDate(dateRaw);
+
+      if (!name || !division || !category || !time || !dateRaw) {
+        alert("Please fill in all fields.");
+        return;
       }
 
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const name = document.getElementById('name').value.trim();
-        const division = document.getElementById('division').value.trim();
-        const category = document.getElementById('category').value.trim();
-        const time = document.getElementById('time').value.trim();
-        const dateRaw = document.getElementById('date').value;
-        const date = formatDate(dateRaw);
+      await addEntry({ name, division, category, time, date });
+      form.reset();
+    });
 
-        if (!name || !division || !category || !time || !dateRaw) {
-          alert("Please fill in all fields.");
-          return;
+    editButton.addEventListener('click', () => {
+      isEditMode = !isEditMode;
+      editButton.textContent = isEditMode ? 'Done' : 'Edit';
+      actionHeader.style.display = isEditMode ? '' : 'none';
+      renderScoreboard();
+    });
+
+    searchInput.addEventListener('input', renderScoreboard);
+    divisionFilter.addEventListener('change', renderScoreboard);
+    categoryFilter.addEventListener('change', renderScoreboard);
+
+    // CSV upload logic
+    function parseCSV(text) {
+      const rows = text.trim().split("\n");
+      const headers = rows.shift().split(",");
+      return rows.map(row => {
+        const values = row.split(",");
+        const entry = {};
+        headers.forEach((h, i) => entry[h.trim()] = values[i].trim());
+        return entry;
+      });
+    }
+
+    async function handleCSVUpload() {
+      const fileInput = document.getElementById("csvUpload");
+      const file = fileInput.files[0];
+      if (!file) {
+        alert("Please select a CSV file first.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const text = event.target.result;
+        const entriesToAdd = parseCSV(text);
+
+        for (const entry of entriesToAdd) {
+          if (entry.name && entry.division && entry.category && entry.time && entry.date) {
+            await addEntry(entry);
+          }
         }
 
-        await addEntry({ name, division, category, time, date });
-        form.reset();
-      });
+        alert("CSV upload complete!");
+        fileInput.value = ''; // reset input
+      };
+      reader.readAsText(file);
+    }
 
-      editButton.addEventListener('click', () => {
-        isEditMode = !isEditMode;
-        editButton.textContent = isEditMode ? 'Done' : 'Edit';
-        actionHeader.style.display = isEditMode ? '' : 'none';
-        renderScoreboard();
-      });
-
-      searchInput.addEventListener('input', renderScoreboard);
-      divisionFilter.addEventListener('change', renderScoreboard);
-      categoryFilter.addEventListener('change', renderScoreboard);
-
-      fetchEntries();
-    });
+    fetchEntries(); // initial load
   </script>
 </body>
 </html>

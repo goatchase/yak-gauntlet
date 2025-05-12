@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>THE YAK GAUNTLET</title>
-  <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/3/36/Farm-Fresh_star.png"/>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
 
   <!-- Firebase v8 SDK -->
@@ -126,6 +126,7 @@
 
     th {
       font-weight: bold;
+      background-color: transparent;
       position: sticky;
       top: 0;
       background-color: #f4f4f4;
@@ -173,6 +174,7 @@
   </style>
 </head>
 <body>
+
   <h1>THE YAK GAUNTLET</h1>
   <div class="subtitle">CORNHOLE • SOCCER • WIFFLE • FOOTBALL • BASKETBALL • SP@#$%&</div>
 
@@ -238,7 +240,7 @@
       const entriesCollection = db.collection("entries");
 
       const form = document.getElementById('entryForm');
-      const scoreboard = document.querySelector('#scoreboard tbody');
+      const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
       const editButton = document.getElementById('editButton');
       const searchInput = document.getElementById('searchInput');
       const divisionFilter = document.getElementById('divisionFilter');
@@ -250,8 +252,8 @@
 
       function formatDate(input) {
         const d = new Date(input);
-        const mm = String(d.getMonth() + 1).padStart(2, '0');
-        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth()+1).padStart(2,'0');
+        const dd = String(d.getDate()).padStart(2,'0');
         const yyyy = d.getFullYear();
         return `${mm}/${dd}/${yyyy}`;
       }
@@ -297,11 +299,12 @@
 
         entries.sort((a, b) => a.totalSeconds - b.totalSeconds);
 
-        const filteredEntries = entries.filter(entry =>
-          entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
-          (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
-          (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
-        );
+        const filteredEntries = entries.filter(entry => {
+          const nameMatch = entry.name.toUpperCase().includes(searchInput.value.toUpperCase());
+          const divisionMatch = divisionFilter.value === 'All' || entry.division === divisionFilter.value;
+          const categoryMatch = categoryFilter.value === 'All' || entry.category === categoryFilter.value;
+          return nameMatch && divisionMatch && categoryMatch;
+        });
 
         filteredEntries.forEach((entry) => {
           const row = document.createElement('tr');
@@ -318,7 +321,6 @@
               <button class="delete-button" data-id="${entry.id}">Delete</button>
             </td>
           `;
-
           scoreboard.appendChild(row);
         });
 

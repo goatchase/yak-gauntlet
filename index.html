@@ -127,10 +127,9 @@
 
     th {
       font-weight: bold;
-      background-color: transparent;
+      background-color: #f4f4f4;
       position: sticky;
       top: 0;
-      background-color: #f4f4f4;
       z-index: 1;
     }
 
@@ -139,11 +138,15 @@
     }
 
     .leader {
-      background-color: gold;
+      background-color: #d0f5e8; /* Light mint green */
     }
 
     .division-leader {
-      background-color: #dceeff;
+      background-color: #dceeff; /* Light blue */
+    }
+
+    .today {
+      background-color: #fffac8; /* Light yellow */
     }
 
     .actions {
@@ -152,6 +155,10 @@
 
     #actionHeader {
       display: table-cell;
+    }
+
+    .icon {
+      margin-left: 5px;
     }
 
     @media (max-width: 600px) {
@@ -293,6 +300,7 @@
         scoreboard.innerHTML = '';
         let bestOverall = null;
         const bestByDivision = {};
+        const today = new Date().toDateString();
 
         entries.forEach(entry => {
           entry.totalSeconds = parseTimeToSeconds(entry.time);
@@ -314,11 +322,18 @@
 
         filteredEntries.forEach((entry) => {
           const row = document.createElement('tr');
+          const entryDate = new Date(entry.date).toDateString();
+
           if (entry === bestOverall) row.classList.add('leader');
           else if (bestByDivision[entry.division] === entry) row.classList.add('division-leader');
+          if (entryDate === today) row.classList.add('today');
+
+          let nameCell = `${entry.name}`;
+          if (entry === bestOverall) nameCell += ' <span class="icon">⏱️</span>';
+          else if (bestByDivision[entry.division] === entry) nameCell += ' <span class="icon">🔵</span>';
 
           row.innerHTML = `
-            <td contenteditable="${isEditMode}">${entry.name}</td>
+            <td contenteditable="${isEditMode}">${nameCell}</td>
             <td contenteditable="${isEditMode}">${entry.division}</td>
             <td contenteditable="${isEditMode}">${entry.category}</td>
             <td contenteditable="${isEditMode}">${formatTime(entry.totalSeconds)}</td>

@@ -351,9 +351,7 @@
         const division = document.getElementById('division').value.trim();
         const category = document.getElementById('category').value.trim();
         const time = document.getElementById('time').value.trim();
-        const dateInput = document.getElementById('date').value;
-        const dateRaw = new Date(dateInput);
-        const dateString = dateRaw.toISOString().split('T')[0];
+        const dateString = document.getElementById('date').value; // already in 'YYYY-MM-DD'
 
         if (!name || !division || !category || !time || !dateRaw) {
           alert("Please fill in all fields.");

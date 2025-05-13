@@ -226,7 +226,7 @@
 
       function formatDate(input) {
         const d = new Date(input);
-        return ${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()};
+        return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
       }
 
       function parseTimeToSeconds(timeStr) {
@@ -239,7 +239,7 @@
       function formatTime(seconds) {
         const min = Math.floor(seconds / 60);
         const sec = (seconds % 60).toFixed(2).padStart(5, '0');
-        return ${String(min).padStart(2,'0')} ${sec};
+        return `${String(min).padStart(2,'0')} ${sec}`;
       }
 
       function getDaysSince(dateStr) {
@@ -254,9 +254,9 @@
         const categories = [...new Set(entries.map(e => e.category))];
 
         divisionFilter.innerHTML = '<option value="All">All</option>' +
-          divisions.map(d => <option value="${d}">${d}</option>).join('');
+          divisions.map(d => `<option value="${d}">${d}</option>`).join('');
         categoryFilter.innerHTML = '<option value="All">All</option>' +
-          categories.map(c => <option value="${c}">${c}</option>).join('');
+          categories.map(c => `<option value="${c}">${c}</option>`).join('');
       }
 
       async function renderScoreboard() {
@@ -298,12 +298,12 @@
           let iconHTML = '';
 
           if (isLeader) {
-            iconHTML = <span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince} days</span>;
+            iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince} days</span>`;
           } else if (isDivisionLeader) {
-            iconHTML = <span class="stopwatch blue" title="Days since: ${daysSince}">⏱️${daysSince} days</span>;
+            iconHTML = `<span class="stopwatch blue" title="Days since: ${daysSince}">⏱️${daysSince} days</span>`;
           }
 
-          row.innerHTML = 
+          row.innerHTML = `
             <td>${index + 1}</td>
             <td contenteditable="${isEditMode}">${entry.name}</td>
             <td contenteditable="${isEditMode}">${entry.division}</td>
@@ -313,7 +313,7 @@
             <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
               <button class="delete-button" data-id="${entry.id}">Delete</button>
             </td>
-          ;
+          `;
           scoreboard.appendChild(row);
         });
 
@@ -348,8 +348,18 @@
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('name').value.trim();
-        const division = document.getElementById('division').value.trim();
-        const category = document.getElementById('category').value.trim();
+	let division = divisionSelect.value;
+	if (division === 'Other') {
+  	  division = divisionOther.value.trim();
+	}        
+	let category = categorySelect.value;
+	if (category === 'Other') {
+	  category = categoryOther.value.trim();
+	}
+	if (!division || !category) {
+  	  alert("Please enter Division and Category.");
+  	  return;
+	}
         const time = document.getElementById('time').value.trim();
         const dateInput = document.getElementById('date').value;
         const dateRaw = new Date(dateInput);

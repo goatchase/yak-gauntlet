@@ -35,7 +35,6 @@
       font-size: 10pt;
       margin-bottom: 20px;
       color: #001f3f;
-      font-weight: normal;
     }
 
     form {
@@ -115,22 +114,20 @@
       width: 100%;
       margin-top: 10px;
       border-collapse: collapse;
-      text-align: left;
       table-layout: fixed;
     }
 
     th, td {
       padding: 8px;
-      text-align: left;
       border-bottom: 1px solid #ddd;
+      text-align: left;
     }
 
     th {
       font-weight: bold;
-      background-color: transparent;
+      background-color: #f4f4f4;
       position: sticky;
       top: 0;
-      background-color: #f4f4f4;
       z-index: 1;
     }
 
@@ -139,20 +136,24 @@
     }
 
     .leader {
-      background-color: gold;
+      background-color: #ccffcc !important;
     }
 
     .division-leader {
-      background-color: #dceeff;
+      background-color: #dceeff !important;
     }
 
-    .actions {
-      display: none;
+    .today-entry {
+      background-color: #fffacd !important;
     }
 
-    #actionHeader {
-      display: table-cell;
+    .stopwatch {
+      font-size: 1em;
+      margin-left: 6px;
     }
+
+    .gold { color: gold; }
+    .blue { color: #3399ff; }
 
     @media (max-width: 600px) {
       .top-bar {
@@ -235,7 +236,7 @@
         apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
         authDomain: "goatchase-e9502.firebaseapp.com",
         projectId: "goatchase-e9502",
-        storageBucket: "goatchase-e9502.firebasestorage.app",
+        storageBucket: "goatchase-e9502.appspot.com",
         messagingSenderId: "16998517478",
         appId: "1:16998517478:web:6386aff8c1d1da2accc927",
         measurementId: "G-YWLJGQG0XD"
@@ -259,14 +260,10 @@
 
       function formatDate(input) {
         const d = new Date(input);
-        const mm = String(d.getMonth() + 1).padStart(2, '0');
-        const dd = String(d.getDate()).padStart(2, '0');
-        const yyyy = d.getFullYear();
-        return `${mm}/${dd}/${yyyy}`;
+        return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
       }
 
       function parseTimeToSeconds(timeStr) {
-        if (!timeStr || typeof timeStr !== 'string') return NaN;
         const parts = timeStr.trim().split(" ");
         if (parts.length !== 2) return NaN;
         const [min, sec] = parts.map(parseFloat);
@@ -277,6 +274,13 @@
         const min = Math.floor(seconds / 60);
         const sec = (seconds % 60).toFixed(2).padStart(5, '0');
         return `${String(min).padStart(2,'0')} ${sec}`;
+      }
+
+      function getDaysSince(dateStr) {
+        const date = new Date(dateStr);
+        const now = new Date();
+        const diffTime = now - date;
+        return Math.floor(diffTime / (1000 * 60 * 60 * 24));
       }
 
       function updateFilterOptions() {
@@ -293,6 +297,8 @@
         scoreboard.innerHTML = '';
         let bestOverall = null;
         const bestByDivision = {};
+
+        const todayStr = new Date().toISOString().split('T')[0];
 
         entries.forEach(entry => {
           entry.totalSeconds = parseTimeToSeconds(entry.time);
@@ -312,16 +318,31 @@
           (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
         );
 
-        filteredEntries.forEach((entry) => {
+        filteredEntries.forEach(entry => {
           const row = document.createElement('tr');
-          if (entry === bestOverall) row.classList.add('leader');
-          else if (bestByDivision[entry.division] === entry) row.classList.add('division-leader');
+          const isToday = entry.date === todayStr;
+          const isLeader = entry === bestOverall;
+          const isDivisionLeader = bestByDivision[entry.division] === entry;
+
+          if (isLeader) row.classList.add('leader');
+          else if (isDivisionLeader) row.classList.add('division-leader');
+
+          if (isToday) row.classList.add('today-entry');
+
+          const daysSince = getDaysSince(entry.date);
+          let iconHTML = '';
+
+          if (isLeader) {
+            iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince}</span>`;
+          } else if (isDivisionLeader) {
+            iconHTML = `<span class="stopwatch blue" title="Days since: ${daysSince}">⏱️${daysSince}</span>`;
+          }
 
           row.innerHTML = `
             <td contenteditable="${isEditMode}">${entry.name}</td>
             <td contenteditable="${isEditMode}">${entry.division}</td>
             <td contenteditable="${isEditMode}">${entry.category}</td>
-            <td contenteditable="${isEditMode}">${formatTime(entry.totalSeconds)}</td>
+            <td contenteditable="${isEditMode}">${formatTime(entry.totalSeconds)} ${iconHTML}</td>
             <td contenteditable="${isEditMode}">${formatDate(entry.date)}</td>
             <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
               <button class="delete-button" data-id="${entry.id}">Delete</button>
@@ -364,19 +385,14 @@
         const division = document.getElementById('division').value.trim();
         const category = document.getElementById('category').value.trim();
         const time = document.getElementById('time').value.trim();
-        const dateInput = document.getElementById('date').value;
+        const dateRaw = document.getElementById('date').value;
 
-        // Fix for date
-        const dateRaw = new Date(dateInput);
-        const correctedDate = new Date(dateRaw.getTime() + Math.abs(dateRaw.getTimezoneOffset()*60000));
-        const dateString = correctedDate.toISOString().split('T')[0];
-
-        if (!name || !division || !category || !time || !dateInput) {
+        if (!name || !division || !category || !time || !dateRaw) {
           alert("Please fill in all fields.");
           return;
         }
 
-        await addEntry({ name, division, category, time, date: dateString });
+        await addEntry({ name, division, category, time, date: dateRaw });
         form.reset();
       });
 

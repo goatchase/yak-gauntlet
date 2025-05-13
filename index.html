@@ -348,8 +348,17 @@
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('name').value.trim();
-        const division = document.getElementById('division').value.trim();
-        const category = document.getElementById('category').value.trim();
+	
+	let division = divisionSelect.value;
+	if (division === 'Other') {
+  	  division = divisionOther.value.trim();
+	}        
+
+	let category = categorySelect.value;
+	if (category === 'Other') {
+	  category = categoryOther.value.trim();
+	}
+
         const time = document.getElementById('time').value.trim();
         const dateInput = document.getElementById('date').value;
         const dateRaw = new Date(dateInput);

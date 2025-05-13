@@ -52,47 +52,6 @@
     form button:hover {
       background-color: #770000;
     }
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      align-items: flex-start;
-      margin-bottom: 10px;
-    }
-    .filters {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .filter-group {
-      display: flex;
-      flex-direction: column;
-      font-size: 0.9em;
-    }
-    .top-controls {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: flex-end;
-    }
-    .edit-button, .unfilter-button {
-      background-color: #007bff;
-      color: white;
-      padding: 8px 16px;
-      border: none;
-      cursor: pointer;
-      border-radius: 4px;
-      font-size: 1em;
-    }
-    .edit-button:hover, .unfilter-button:hover {
-      background-color: #0056b3;
-    }
-    select, input[type="search"] {
-      padding: 5px;
-      font-size: 1em;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
     table {
       width: 100%;
       margin-top: 10px;
@@ -103,9 +62,9 @@
       padding: 8px;
       border-bottom: 1px solid #ddd;
       text-align: left;
+      white-space: nowrap;
     }
     th {
-      font-weight: bold;
       background-color: #f4f4f4;
       position: sticky;
       top: 0;
@@ -129,25 +88,6 @@
     }
     .gold { color: gold; }
     .blue { color: #3399ff; }
-    @media (max-width: 600px) {
-      .top-bar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .filters,
-      .top-controls {
-        flex-direction: column;
-        width: 100%;
-        gap: 5px;
-      }
-      .filter-group {
-        width: 100%;
-      }
-      .top-controls input,
-      .top-controls button {
-        width: 100%;
-      }
-    }
   </style>
 </head>
 <body>
@@ -163,24 +103,6 @@
     <button type="submit">Submit</button>
   </form>
 
-  <div class="top-bar">
-    <div class="filters">
-      <div class="filter-group">
-        <label for="divisionFilter">Division</label>
-        <select id="divisionFilter"><option value="All">All</option></select>
-      </div>
-      <div class="filter-group">
-        <label for="categoryFilter">Category</label>
-        <select id="categoryFilter"><option value="All">All</option></select>
-      </div>
-    </div>
-    <div class="top-controls">
-      <input id="searchInput" type="search" placeholder="Search name" />
-      <button id="editButton" class="edit-button">Edit</button>
-      <button id="unfilterButton" class="unfilter-button">Unfilter</button>
-    </div>
-  </div>
-
   <table id="scoreboard">
     <thead>
       <tr>
@@ -190,199 +112,116 @@
         <th>Category</th>
         <th>Time</th>
         <th>Date</th>
-        <th id="actionHeader" style="display: none;">Actions</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const firebaseConfig = {
-        apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
-        authDomain: "goatchase-e9502.firebaseapp.com",
-        projectId: "goatchase-e9502",
-        storageBucket: "goatchase-e9502.appspot.com",
-        messagingSenderId: "16998517478",
-        appId: "1:16998517478:web:6386aff8c1d1da2accc927",
-        measurementId: "G-YWLJGQG0XD"
-      };
+    const firebaseConfig = {
+      apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
+      authDomain: "goatchase-e9502.firebaseapp.com",
+      projectId: "goatchase-e9502",
+      storageBucket: "goatchase-e9502.appspot.com",
+      messagingSenderId: "16998517478",
+      appId: "1:16998517478:web:6386aff8c1d1da2accc927",
+      measurementId: "G-YWLJGQG0XD"
+    };
 
-      firebase.initializeApp(firebaseConfig);
-      const db = firebase.firestore();
-      const entriesCollection = db.collection("entries");
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const entriesCollection = db.collection("entries");
 
-      const form = document.getElementById('entryForm');
-      const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
-      const editButton = document.getElementById('editButton');
-      const unfilterButton = document.getElementById('unfilterButton');
-      const searchInput = document.getElementById('searchInput');
-      const divisionFilter = document.getElementById('divisionFilter');
-      const categoryFilter = document.getElementById('categoryFilter');
-      const actionHeader = document.getElementById('actionHeader');
+    const form = document.getElementById("entryForm");
+    const scoreboard = document.querySelector("#scoreboard tbody");
 
-      let entries = [];
-      let isEditMode = false;
+    function parseTimeToSeconds(timeStr) {
+      const [min, sec] = timeStr.trim().split(" ").map(parseFloat);
+      return min * 60 + sec;
+    }
 
-      function formatDate(input) {
-        const d = new Date(input);
-        return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
-      }
+    function formatTime(seconds) {
+      const min = Math.floor(seconds / 60);
+      const sec = (seconds % 60).toFixed(2).padStart(5, '0');
+      return `${String(min).padStart(2, '0')} ${sec}`;
+    }
 
-      function parseTimeToSeconds(timeStr) {
-        const parts = timeStr.trim().split(" ");
-        if (parts.length !== 2) return NaN;
-        const [min, sec] = parts.map(parseFloat);
-        return min * 60 + sec;
-      }
+    function getDaysSince(dateStr) {
+      const inputDate = new Date(dateStr + "T00:00:00Z");
+      const now = new Date();
+      const todayUTC = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+      const diff = todayUTC - inputDate;
+      return Math.floor(diff / (1000 * 60 * 60 * 24));
+    }
 
-      function formatTime(seconds) {
-        const min = Math.floor(seconds / 60);
-        const sec = (seconds % 60).toFixed(2).padStart(5, '0');
-        return `${String(min).padStart(2,'0')} ${sec}`;
-      }
+    function render(entries) {
+      scoreboard.innerHTML = "";
 
-      function getDaysSince(dateStr) {
-        const date = new Date(dateStr);
-        const now = new Date();
-        const diffTime = now - date;
-        return Math.floor(diffTime / (1000 * 60 * 60 * 24));
-      }
+      entries.forEach(e => e.totalSeconds = parseTimeToSeconds(e.time));
+      entries.sort((a, b) => a.totalSeconds - b.totalSeconds);
 
-      function updateFilterOptions() {
-        const divisions = [...new Set(entries.map(e => e.division))];
-        const categories = [...new Set(entries.map(e => e.category))];
-
-        divisionFilter.innerHTML = '<option value="All">All</option>' +
-          divisions.map(d => `<option value="${d}">${d}</option>`).join('');
-        categoryFilter.innerHTML = '<option value="All">All</option>' +
-          categories.map(c => `<option value="${c}">${c}</option>`).join('');
-      }
-
-      async function renderScoreboard() {
-        scoreboard.innerHTML = '';
-        let bestOverall = null;
-        const bestByDivision = {};
-
-        const todayStr = new Date().toISOString().split('T')[0];
-
-        entries.forEach(entry => {
-          entry.totalSeconds = parseTimeToSeconds(entry.time);
-          if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) {
-            bestOverall = entry;
-          }
-          if (!bestByDivision[entry.division] || entry.totalSeconds < bestByDivision[entry.division].totalSeconds) {
-            bestByDivision[entry.division] = entry;
-          }
-        });
-
-        entries.sort((a, b) => a.totalSeconds - b.totalSeconds);
-
-        const filteredEntries = entries.filter(entry =>
-          entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
-          (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
-          (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
-        );
-
-        filteredEntries.forEach((entry, index) => {
-          const row = document.createElement('tr');
-          const isToday = entry.date === todayStr;
-          const isLeader = entry === bestOverall;
-          const isDivisionLeader = bestByDivision[entry.division] === entry;
-
-          if (isLeader) row.classList.add('leader');
-          else if (isDivisionLeader) row.classList.add('division-leader');
-          if (isToday) row.classList.add('today-entry');
-
-          const daysSince = getDaysSince(entry.date);
-          let iconHTML = '';
-
-          if (isLeader) {
-            iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince} days</span>`;
-          } else if (isDivisionLeader) {
-            iconHTML = `<span class="stopwatch blue" title="Days since: ${daysSince}">⏱️${daysSince} days</span>`;
-          }
-
-          row.innerHTML = `
-            <td>${index + 1}</td>
-            <td contenteditable="${isEditMode}">${entry.name}</td>
-            <td contenteditable="${isEditMode}">${entry.division}</td>
-            <td contenteditable="${isEditMode}">${entry.category}</td>
-            <td contenteditable="${isEditMode}">${formatTime(entry.totalSeconds)} ${iconHTML}</td>
-            <td contenteditable="${isEditMode}">${formatDate(entry.date)}</td>
-            <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
-              <button class="delete-button" data-id="${entry.id}">Delete</button>
-            </td>
-          `;
-          scoreboard.appendChild(row);
-        });
-
-        updateFilterOptions();
-
-        document.querySelectorAll('.delete-button').forEach(button => {
-          button.addEventListener('click', (e) => {
-            const entryId = e.target.dataset.id;
-            deleteEntry(entryId);
-          });
-        });
-      }
-
-      async function fetchEntries() {
-        const snapshot = await entriesCollection.get();
-        entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        renderScoreboard();
-      }
-
-      async function addEntry(entry) {
-        await entriesCollection.add(entry);
-        fetchEntries();
-      }
-
-      async function deleteEntry(id) {
-        if (confirm("Delete this entry?")) {
-          await entriesCollection.doc(id).delete();
-          fetchEntries();
+      const bestOverall = entries[0];
+      const bestByDivision = {};
+      entries.forEach(e => {
+        if (!bestByDivision[e.division] || e.totalSeconds < bestByDivision[e.division].totalSeconds) {
+          bestByDivision[e.division] = e;
         }
+      });
+
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      entries.forEach((entry, index) => {
+        const row = document.createElement("tr");
+        const isToday = entry.date === todayStr;
+        const isLeader = entry === bestOverall;
+        const isDivisionLeader = bestByDivision[entry.division] === entry;
+
+        if (isLeader) row.classList.add("leader");
+        else if (isDivisionLeader) row.classList.add("division-leader");
+        if (isToday) row.classList.add("today-entry");
+
+        const daysSince = getDaysSince(entry.date);
+        let icon = "";
+        if (isLeader) icon = `<span class="stopwatch gold" title="${daysSince} days">🥇${daysSince} days</span>`;
+        else if (isDivisionLeader) icon = `<span class="stopwatch blue" title="${daysSince} days">⏱️${daysSince} days</span>`;
+
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${entry.name}</td>
+          <td>${entry.division}</td>
+          <td>${entry.category}</td>
+          <td>${formatTime(entry.totalSeconds)} ${icon}</td>
+          <td>${entry.date}</td>
+        `;
+        scoreboard.appendChild(row);
+      });
+    }
+
+    async function fetchAndRender() {
+      const snapshot = await entriesCollection.get();
+      const entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      render(entries);
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("name").value.trim();
+      const division = document.getElementById("division").value.trim();
+      const category = document.getElementById("category").value.trim();
+      const time = document.getElementById("time").value.trim();
+      const dateString = document.getElementById("date").value;
+
+      if (!name || !division || !category || !time || !dateString) {
+        alert("Please fill in all fields.");
+        return;
       }
 
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const name = document.getElementById('name').value.trim();
-        const division = document.getElementById('division').value.trim();
-        const category = document.getElementById('category').value.trim();
-        const time = document.getElementById('time').value.trim();
-        const dateInput = document.getElementById('date').value;
-        const dateRaw = new Date(dateInput);
-        const correctedDate = new Date(dateRaw.getTime() + Math.abs(dateRaw.getTimezoneOffset() * 60000));
-        const dateString = correctedDate.toISOString().split('T')[0];
-
-        if (!name || !division || !category || !time || !dateRaw) {
-          alert("Please fill in all fields.");
-          return;
-        }
-
-        await addEntry({ name, division, category, time, date: dateString });
-        form.reset();
-      });
-
-      editButton.addEventListener('click', () => {
-        isEditMode = !isEditMode;
-        editButton.textContent = isEditMode ? "Done" : "Edit";
-        renderScoreboard();
-      });
-
-      unfilterButton.addEventListener('click', () => {
-        divisionFilter.value = 'All';
-        categoryFilter.value = 'All';
-        renderScoreboard();
-      });
-
-      searchInput.addEventListener('input', renderScoreboard);
-      divisionFilter.addEventListener('change', renderScoreboard);
-      categoryFilter.addEventListener('change', renderScoreboard);
-
-      fetchEntries();
+      await entriesCollection.add({ name, division, category, time, date: dateString });
+      form.reset();
+      fetchAndRender();
     });
+
+    fetchAndRender();
   </script>
 </body>
 </html>

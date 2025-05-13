@@ -353,8 +353,7 @@
         const time = document.getElementById('time').value.trim();
         const dateInput = document.getElementById('date').value;
         const dateRaw = new Date(dateInput);
-        const correctedDate = new Date(dateRaw.getTime() + Math.abs(dateRaw.getTimezoneOffset() * 60000));
-        const dateString = correctedDate.toISOString().split('T')[0];
+        const dateString = dateRaw.toISOString().split('T')[0];
 
         if (!name || !division || !category || !time || !dateRaw) {
           alert("Please fill in all fields.");

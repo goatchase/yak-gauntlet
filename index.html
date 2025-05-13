@@ -38,7 +38,7 @@
       justify-content: center;
       margin-bottom: 20px;
     }
-    form input, form button {
+    form input, form select, form button {
       padding: 10px;
       font-size: 1em;
       border-radius: 4px;
@@ -156,8 +156,12 @@
 
   <form id="entryForm">
     <input id="name" placeholder="Name" required />
-    <input id="division" placeholder="Division" required />
-    <input id="category" placeholder="Category" required />
+    <select id="division" required>
+      <option value="" disabled selected>Select Division</option>
+    </select>
+    <select id="category" required>
+      <option value="" disabled selected>Select Category</option>
+    </select>
     <input id="time" placeholder="Time (mm ss.ss)" required />
     <input id="date" type="date" required />
     <button type="submit">Submit</button>
@@ -220,6 +224,8 @@
       const divisionFilter = document.getElementById('divisionFilter');
       const categoryFilter = document.getElementById('categoryFilter');
       const actionHeader = document.getElementById('actionHeader');
+      const divisionSelect = document.getElementById('division');
+      const categorySelect = document.getElementById('category');
 
       let entries = [];
       let isEditMode = false;
@@ -257,6 +263,12 @@
           divisions.map(d => `<option value="${d}">${d}</option>`).join('');
         categoryFilter.innerHTML = '<option value="All">All</option>' +
           categories.map(c => `<option value="${c}">${c}</option>`).join('');
+
+        divisionSelect.innerHTML = '<option value="" disabled selected>Select Division</option>' +
+          divisions.map(d => `<option value="${d}">${d}</option>`).join('');
+
+        categorySelect.innerHTML = '<option value="" disabled selected>Select Category</option>' +
+          categories.map(c => `<option value="${c}">${c}</option>`).join('');
       }
 
       async function renderScoreboard() {
@@ -293,11 +305,9 @@
 
           const daysSince = getDaysSince(entry.date);
           let iconHTML = '';
-          if (isLeader) {
-            iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince} days</span>`;
-          } else if (isDivisionLeader) {
-            iconHTML = `<span class="stopwatch blue" title="Days since: ${daysSince}">⏱️${daysSince} days</span>`;
-          }
+
+          if (isLeader) iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince} days</span>`;
+          else if (isDivisionLeader) iconHTML = `<span class="stopwatch blue" title="Days since: ${daysSince}">⏱️${daysSince} days</span>`;
 
           row.innerHTML = `
             <td>${index + 1}</td>
@@ -344,8 +354,8 @@
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('name').value.trim();
-        const division = document.getElementById('division').value.trim();
-        const category = document.getElementById('category').value.trim();
+        const division = divisionSelect.value;
+        const category = categorySelect.value;
         const time = document.getElementById('time').value.trim();
         const dateInput = document.getElementById('date').value;
         const dateRaw = new Date(dateInput);

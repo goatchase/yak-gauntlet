@@ -250,8 +250,8 @@
       }
 
       function updateFilterOptions() {
-        const divisions = [...new Set(entries.map(e => e.division))].sort((a, b) => a.localeCompare(b));
-        const categories = [...new Set(entries.map(e => e.category))].sort((a, b) => a.localeCompare(b));
+        const divisions = [...new Set(entries.map(e => e.division))];
+        const categories = [...new Set(entries.map(e => e.category))];
 
         divisionFilter.innerHTML = '<option value="All">All</option>' +
           divisions.map(d => `<option value="${d}">${d}</option>`).join('');
@@ -263,11 +263,14 @@
         scoreboard.innerHTML = '';
         let bestOverall = null;
         const bestByDivision = {};
+
         const todayStr = new Date().toISOString().split('T')[0];
 
         entries.forEach(entry => {
           entry.totalSeconds = parseTimeToSeconds(entry.time);
-          if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) bestOverall = entry;
+          if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) {
+            bestOverall = entry;
+          }
           if (!bestByDivision[entry.division] || entry.totalSeconds < bestByDivision[entry.division].totalSeconds) {
             bestByDivision[entry.division] = entry;
           }
@@ -293,6 +296,7 @@
 
           const daysSince = getDaysSince(entry.date);
           let iconHTML = '';
+
           if (isLeader) {
             iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince} days</span>`;
           } else if (isDivisionLeader) {

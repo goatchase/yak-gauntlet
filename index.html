@@ -5,11 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>THE YAK GAUNTLET</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
-
-  <!-- Firebase v8 SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
   <style>
     body {
       font-family: 'Roboto', sans-serif;
@@ -20,7 +17,6 @@
       text-transform: uppercase;
       font-size: 12pt;
     }
-
     h1 {
       font-size: 20pt;
       text-align: center;
@@ -28,7 +24,6 @@
       font-weight: bold;
       margin-bottom: 5px;
     }
-
     .subtitle {
       text-align: center;
       font-style: italic;
@@ -36,7 +31,6 @@
       margin-bottom: 20px;
       color: #001f3f;
     }
-
     form {
       display: flex;
       flex-wrap: wrap;
@@ -44,24 +38,20 @@
       justify-content: center;
       margin-bottom: 20px;
     }
-
     form input, form button {
       padding: 10px;
       font-size: 1em;
       border-radius: 4px;
       border: 1px solid #ccc;
     }
-
     form button {
       background-color: #990000;
       color: white;
       cursor: pointer;
     }
-
     form button:hover {
       background-color: #770000;
     }
-
     .top-bar {
       display: flex;
       justify-content: space-between;
@@ -69,26 +59,22 @@
       align-items: flex-start;
       margin-bottom: 10px;
     }
-
     .filters {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
     }
-
     .filter-group {
       display: flex;
       flex-direction: column;
       font-size: 0.9em;
     }
-
     .top-controls {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
       align-items: flex-end;
     }
-
     .edit-button, .unfilter-button {
       background-color: #007bff;
       color: white;
@@ -98,31 +84,26 @@
       border-radius: 4px;
       font-size: 1em;
     }
-
     .edit-button:hover, .unfilter-button:hover {
       background-color: #0056b3;
     }
-
     select, input[type="search"] {
       padding: 5px;
       font-size: 1em;
       border-radius: 4px;
       border: 1px solid #ccc;
     }
-
     table {
       width: 100%;
       margin-top: 10px;
       border-collapse: collapse;
       table-layout: fixed;
     }
-
     th, td {
       padding: 8px;
       border-bottom: 1px solid #ddd;
       text-align: left;
     }
-
     th {
       font-weight: bold;
       background-color: #f4f4f4;
@@ -130,48 +111,38 @@
       top: 0;
       z-index: 1;
     }
-
     tr:hover {
       background-color: #f1f1f1;
     }
-
     .leader {
       background-color: #ccffcc !important;
     }
-
     .division-leader {
       background-color: #dceeff !important;
     }
-
     .today-entry {
       background-color: #fffacd !important;
     }
-
     .stopwatch {
       font-size: 1em;
       margin-left: 6px;
     }
-
     .gold { color: gold; }
     .blue { color: #3399ff; }
-
     @media (max-width: 600px) {
       .top-bar {
         flex-direction: column;
         align-items: stretch;
       }
-
       .filters,
       .top-controls {
         flex-direction: column;
         width: 100%;
         gap: 5px;
       }
-
       .filter-group {
         width: 100%;
       }
-
       .top-controls input,
       .top-controls button {
         width: 100%;
@@ -180,7 +151,6 @@
   </style>
 </head>
 <body>
-
   <h1>THE YAK GAUNTLET</h1>
   <div class="subtitle">CORNHOLE • SOCCER • WIFFLE • FOOTBALL • BASKETBALL • SP@#$%&</div>
 
@@ -197,18 +167,13 @@
     <div class="filters">
       <div class="filter-group">
         <label for="divisionFilter">Division</label>
-        <select id="divisionFilter">
-          <option value="All">All</option>
-        </select>
+        <select id="divisionFilter"><option value="All">All</option></select>
       </div>
       <div class="filter-group">
         <label for="categoryFilter">Category</label>
-        <select id="categoryFilter">
-          <option value="All">All</option>
-        </select>
+        <select id="categoryFilter"><option value="All">All</option></select>
       </div>
     </div>
-
     <div class="top-controls">
       <input id="searchInput" type="search" placeholder="Search name" />
       <button id="editButton" class="edit-button">Edit</button>
@@ -219,6 +184,7 @@
   <table id="scoreboard">
     <thead>
       <tr>
+        <th>Rank</th>
         <th>Name</th>
         <th>Division</th>
         <th>Category</th>
@@ -318,7 +284,7 @@
           (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
         );
 
-        filteredEntries.forEach(entry => {
+        filteredEntries.forEach((entry, index) => {
           const row = document.createElement('tr');
           const isToday = entry.date === todayStr;
           const isLeader = entry === bestOverall;
@@ -326,7 +292,6 @@
 
           if (isLeader) row.classList.add('leader');
           else if (isDivisionLeader) row.classList.add('division-leader');
-
           if (isToday) row.classList.add('today-entry');
 
           const daysSince = getDaysSince(entry.date);
@@ -339,6 +304,7 @@
           }
 
           row.innerHTML = `
+            <td>${index + 1}</td>
             <td contenteditable="${isEditMode}">${entry.name}</td>
             <td contenteditable="${isEditMode}">${entry.division}</td>
             <td contenteditable="${isEditMode}">${entry.category}</td>
@@ -386,9 +352,9 @@
         const category = document.getElementById('category').value.trim();
         const time = document.getElementById('time').value.trim();
         const dateInput = document.getElementById('date').value;
-	const dateRaw = new Date(dateInput);
-	const correctedDate = new Date(dateRaw.getTime() + Math.abs(dateRaw.getTimezoneOffset()*60000));
-	const dateString = correctedDate.toISOString().split('T')[0];
+        const dateRaw = new Date(dateInput);
+        const correctedDate = new Date(dateRaw.getTime() + Math.abs(dateRaw.getTimezoneOffset() * 60000));
+        const dateString = correctedDate.toISOString().split('T')[0];
 
         if (!name || !division || !category || !time || !dateRaw) {
           alert("Please fill in all fields.");
@@ -418,6 +384,5 @@
       fetchEntries();
     });
   </script>
-
 </body>
 </html>

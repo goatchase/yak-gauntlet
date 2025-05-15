@@ -2,14 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>YAK GAUNTLET STATS</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
-
-  <!-- Firebase v8 SDK -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
   <style>
     body {
       font-family: 'Roboto', sans-serif;
@@ -17,155 +14,124 @@
       padding: 20px;
       background-color: #f4f4f4;
       color: #001f3f;
-      text-transform: uppercase;
-      font-size: 12pt;
+      font-size: 14px;
     }
-
     h1 {
-      font-size: 20pt;
       text-align: center;
-      color: #001f3f;
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-
-    .subtitle {
-      text-align: center;
-      font-style: italic;
-      font-size: 10pt;
       margin-bottom: 20px;
-      color: #001f3f;
-      font-weight: normal;
     }
-
-    .stats-table {
-      width: 90%;
-      margin: 0 auto;
+    table {
+      width: 100%;
       border-collapse: collapse;
-      background-color: #ffffff;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      border-radius: 5px;
-      overflow: hidden;
+      margin-top: 20px;
     }
-
-    .stats-table th,
-    .stats-table td {
-      padding: 12px 15px;
-      text-align: center;
+    th, td {
       border-bottom: 1px solid #ddd;
-      font-size: 1em;
+      text-align: left; /* Left justify all text */
+      padding: 8px;
     }
-
-    .stats-table th {
-      background-color: #001f3f;
-      color: white;
-      font-weight: bold;
+    th {
+      background-color: #f4f4f4;
     }
-
-    .stats-table tr:hover {
+    tr:hover {
       background-color: #f1f1f1;
     }
   </style>
 </head>
 <body>
-
-  <h1>YAK GAUNTLET Stats</h1>
-  <div class="subtitle">Statistical Breakdown by Division</div>
-
-  <table class="stats-table">
+  <h1>YAK GAUNTLET STATS</h1>
+  <table>
     <thead>
       <tr>
         <th>Division</th>
         <th>Min Time</th>
         <th>Avg Time</th>
         <th>Max Time</th>
-        <th>Entries</th>
+        <th>Leader</th>
       </tr>
     </thead>
-    <tbody id="statsTableBody">
-      <!-- Rows will be inserted here -->
-    </tbody>
+    <tbody id="statsBody"></tbody>
   </table>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const firebaseConfig = {
-        apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
-        authDomain: "goatchase-e9502.firebaseapp.com",
-        projectId: "goatchase-e9502",
-        storageBucket: "goatchase-e9502.firebasestorage.app",
-        messagingSenderId: "16998517478",
-        appId: "1:16998517478:web:6386aff8c1d1da2accc927",
-        measurementId: "G-YWLJGQG0XD"
-      };
+    const firebaseConfig = {
+      apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
+      authDomain: "goatchase-e9502.firebaseapp.com",
+      projectId: "goatchase-e9502",
+      storageBucket: "goatchase-e9502.appspot.com",
+      messagingSenderId: "16998517478",
+      appId: "1:16998517478:web:6386aff8c1d1da2accc927",
+      measurementId: "G-YWLJGQG0XD"
+    };
 
-      firebase.initializeApp(firebaseConfig);
-      const db = firebase.firestore();
-      const entriesCollection = db.collection("entries");
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const statsBody = document.getElementById('statsBody');
 
-      function parseTimeToSeconds(timeStr) {
-        const parts = timeStr.trim().split(/[:\s]/); // handle "03 15" or "03:15"
-        if (parts.length !== 2) return NaN;
-        const [min, sec] = parts.map(parseFloat);
-        return min * 60 + sec;
-      }
+    function parseTimeToSeconds(timeStr) {
+      const [min, sec] = timeStr.trim().split(" ").map(parseFloat);
+      return min * 60 + sec;
+    }
 
-      function formatTime(seconds) {
-        const min = Math.floor(seconds / 60);
-        const sec = (seconds % 60).toFixed(2).padStart(5, '0');
-        return `${String(min).padStart(2, '0')} ${sec}`;
-      }
+    function formatTime(seconds) {
+      const min = Math.floor(seconds / 60);
+      const sec = (seconds % 60).toFixed(2).padStart(5, '0');
+      return `${String(min).padStart(2, '0')} ${sec}`;
+    }
 
-      async function fetchEntries() {
-        const snapshot = await entriesCollection.get();
-        const entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    async function renderStats() {
+      const snapshot = await db.collection("entries").get();
+      const entries = snapshot.docs.map(doc => doc.data());
 
-        const divisions = [...new Set(entries.map(entry => entry.division))].sort();
-        const statsByDivision = {};
+      const statsMap = {};
 
-        divisions.forEach(division => {
-          const divisionEntries = entries.filter(entry => entry.division === division);
-          const times = divisionEntries
-            .map(entry => parseTimeToSeconds(entry.time))
-            .filter(time => !isNaN(time));
+      entries.forEach(entry => {
+        const division = entry.division;
+        const timeSec = parseTimeToSeconds(entry.time);
 
-          if (times.length === 0) return;
-
-          const minTime = Math.min(...times);
-          const maxTime = Math.max(...times);
-          const avgTime = times.reduce((acc, time) => acc + time, 0) / times.length;
-
-          statsByDivision[division] = {
-            minTime: formatTime(minTime),
-            maxTime: formatTime(maxTime),
-            avgTime: formatTime(avgTime),
-            count: times.length
+        if (!statsMap[division]) {
+          statsMap[division] = {
+            times: [],
+            leaderTime: timeSec,
+            leaderName: entry.name
           };
-        });
-
-        renderStats(statsByDivision);
-      }
-
-      function renderStats(statsByDivision) {
-        const tableBody = document.getElementById('statsTableBody');
-        tableBody.innerHTML = '';
-
-        for (const [division, stats] of Object.entries(statsByDivision)) {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${division}</td>
-            <td>${stats.minTime}</td>
-            <td>${stats.avgTime}</td>
-            <td>${stats.maxTime}</td>
-            <td>${stats.count}</td>
-          `;
-          tableBody.appendChild(row);
         }
-      }
 
-      fetchEntries();
-    });
+        statsMap[division].times.push(timeSec);
+
+        if (timeSec < statsMap[division].leaderTime) {
+          statsMap[division].leaderTime = timeSec;
+          statsMap[division].leaderName = entry.name;
+        }
+      });
+
+      const statsArray = Object.entries(statsMap).map(([division, data]) => {
+        const times = data.times;
+        const avg = times.reduce((a, b) => a + b, 0) / times.length;
+        return {
+          division,
+          min: Math.min(...times),
+          avg,
+          max: Math.max(...times),
+          leader: data.leaderName
+        };
+      });
+
+      // Sort by average time ascending
+      statsArray.sort((a, b) => a.avg - b.avg);
+
+      statsBody.innerHTML = statsArray.map(stat => `
+        <tr>
+          <td>${stat.division}</td>
+          <td>${formatTime(stat.min)}</td>
+          <td>${formatTime(stat.avg)}</td>
+          <td>${formatTime(stat.max)}</td>
+          <td>${stat.leader}</td>
+        </tr>
+      `).join('');
+    }
+
+    renderStats();
   </script>
-
 </body>
 </html>

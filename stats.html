@@ -19,8 +19,15 @@
     h1 {
       text-align: center;
       font-size: 32px;
-      margin: 40px 0 20px;
+      margin: 40px 0 10px;
       letter-spacing: 1px;
+    }
+    #groupSelector {
+      display: block;
+      margin: 0 auto 20px;
+      font-size: 16px;
+      padding: 8px;
+      text-transform: uppercase;
     }
     table {
       width: 100%;
@@ -46,6 +53,10 @@
 </head>
 <body>
   <h1>THE YAK GAUNTLET STATS</h1>
+  <select id="groupSelector">
+    <option value="division">Division</option>
+    <option value="category">Category</option>
+  </select>
   <table id="statsTable">
     <thead>
       <tr>
@@ -88,14 +99,14 @@
       return `${String(min).padStart(2, '0')} ${sec}`;
     }
 
-    async function loadStats() {
+    async function loadStats(groupBy = 'division') {
       const snapshot = await db.collection("entries").get();
       const entries = snapshot.docs.map(doc => doc.data());
 
       const groups = {};
 
       entries.forEach(entry => {
-        const key = entry.division;
+        const key = entry[groupBy];
         const timeSec = parseTimeToSeconds(entry.time);
         if (!groups[key]) {
           groups[key] = {
@@ -114,7 +125,7 @@
         const time = parseTimeToSeconds(entry.time);
         if (!overallFastest || time < overallFastest.time) {
           overallFastest = {
-            group: entry.division,
+            group: entry[groupBy],
             time: time,
             name: entry.name,
           };
@@ -152,6 +163,11 @@
       });
     }
 
+    document.getElementById("groupSelector").addEventListener("change", (e) => {
+      loadStats(e.target.value);
+    });
+
+    // Initial load
     loadStats();
   </script>
 </body>

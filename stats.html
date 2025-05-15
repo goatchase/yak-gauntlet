@@ -15,6 +15,7 @@
       background-color: #f4f4f4;
       color: #001f3f;
       font-size: 14px;
+      text-transform: uppercase;
     }
     h1 {
       text-align: center;
@@ -27,7 +28,7 @@
     }
     th, td {
       border-bottom: 1px solid #ddd;
-      text-align: left; /* Left justify all text */
+      text-align: left;
       padding: 8px;
     }
     th {
@@ -48,6 +49,7 @@
         <th>Avg Time</th>
         <th>Max Time</th>
         <th>Leader</th>
+        <th>Slowest</th>
       </tr>
     </thead>
     <tbody id="statsBody"></tbody>
@@ -86,14 +88,17 @@
       const statsMap = {};
 
       entries.forEach(entry => {
-        const division = entry.division;
+        const division = entry.division.toUpperCase();
+        const name = entry.name.toUpperCase();
         const timeSec = parseTimeToSeconds(entry.time);
 
         if (!statsMap[division]) {
           statsMap[division] = {
             times: [],
             leaderTime: timeSec,
-            leaderName: entry.name
+            leaderName: name,
+            slowestTime: timeSec,
+            slowestName: name
           };
         }
 
@@ -101,7 +106,12 @@
 
         if (timeSec < statsMap[division].leaderTime) {
           statsMap[division].leaderTime = timeSec;
-          statsMap[division].leaderName = entry.name;
+          statsMap[division].leaderName = name;
+        }
+
+        if (timeSec > statsMap[division].slowestTime) {
+          statsMap[division].slowestTime = timeSec;
+          statsMap[division].slowestName = name;
         }
       });
 
@@ -113,7 +123,8 @@
           min: Math.min(...times),
           avg,
           max: Math.max(...times),
-          leader: data.leaderName
+          leader: data.leaderName,
+          slowest: data.slowestName
         };
       });
 
@@ -127,6 +138,7 @@
           <td>${formatTime(stat.avg)}</td>
           <td>${formatTime(stat.max)}</td>
           <td>${stat.leader}</td>
+          <td>${stat.slowest}</td>
         </tr>
       `).join('');
     }

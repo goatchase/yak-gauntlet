@@ -4,59 +4,59 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>THE YAK GAUNTLET STATS</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <style>
     body {
-      font-family: 'Roboto', sans-serif;
-      margin: 0;
-      padding: 20px;
-      background-color: #f4f4f4;
-      color: #001f3f;
-      font-size: 14px;
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f9f9f9;
       text-transform: uppercase;
     }
     h1 {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 1rem;
+    }
+    label, select {
+      font-size: 1rem;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
+      margin-top: 1rem;
     }
     th, td {
-      border-bottom: 1px solid #ddd;
+      padding: 0.6rem;
       text-align: left;
-      padding: 8px;
-    }
-    th {
-      background-color: #f4f4f4;
-    }
-    tr:hover {
-      background-color: #f1f1f1;
+      border-bottom: 1px solid #ccc;
     }
     .highlight {
-      background-color: #ccffcc;
-      font-weight: bold;
+      background-color: #c8facc;
     }
     .icon {
-      font-style: normal;
-      margin-left: 6px;
+      font-size: 0.9rem;
+      color: #0077cc;
+      margin-left: 0.3rem;
     }
   </style>
 </head>
 <body>
   <h1>THE YAK GAUNTLET STATS</h1>
+
+  <div>
+    <label for="groupBy">Group by: </label>
+    <select id="groupBy">
+      <option value="division">Division</option>
+      <option value="category">Category</option>
+    </select>
+  </div>
+
   <table>
     <thead>
       <tr>
-        <th>Division</th>
+        <th>Group</th>
         <th>Runs</th>
-        <th>Min Time</th>
-        <th>Avg Time</th>
-        <th>Max Time</th>
+        <th>Min</th>
+        <th>Avg</th>
+        <th>Max</th>
         <th>Leader</th>
         <th>Slowest</th>
       </tr>
@@ -64,108 +64,115 @@
     <tbody id="statsBody"></tbody>
   </table>
 
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
-      authDomain: "goatchase-e9502.firebaseapp.com",
-      projectId: "goatchase-e9502",
-      storageBucket: "goatchase-e9502.appspot.com",
-      messagingSenderId: "16998517478",
-      appId: "1:16998517478:web:6386aff8c1d1da2accc927",
-      measurementId: "G-YWLJGQG0XD"
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    const statsBody = document.getElementById('statsBody');
+
+    const statsBody = document.getElementById("statsBody");
+    document.getElementById("groupBy").addEventListener("change", renderStats);
 
     function parseTimeToSeconds(timeStr) {
-      const [min, sec] = timeStr.trim().split(" ").map(parseFloat);
+      const [min, sec] = timeStr.split(":").map(Number);
       return min * 60 + sec;
     }
 
     function formatTime(seconds) {
       const min = Math.floor(seconds / 60);
-      const sec = (seconds % 60).toFixed(2).padStart(5, '0');
-      return `${String(min).padStart(2, '0')} ${sec}`;
+      const sec = Math.round(seconds % 60).toString().padStart(2, '0');
+      return `${min}:${sec}`;
     }
 
     function daysSince(dateStr) {
-      const entryDate = new Date(dateStr);
-      const today = new Date();
-      const diffTime = today - entryDate;
-      return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      const then = new Date(dateStr);
+      const now = new Date();
+      return Math.floor((now - then) / (1000 * 60 * 60 * 24));
     }
 
     async function renderStats() {
+      const groupBy = document.getElementById("groupBy").value;
       const snapshot = await db.collection("entries").get();
       const entries = snapshot.docs.map(doc => doc.data());
 
-      const statsMap = {};
+      const stats = {};
+      let overallFastest = { time: Infinity, group: "" };
 
       entries.forEach(entry => {
-        const division = entry.division.toUpperCase();
-        const name = entry.name.toUpperCase();
-        const timeSec = parseTimeToSeconds(entry.time);
+        const groupKey = (entry[groupBy] || "Unknown").toUpperCase();
+        const name = (entry.name || "Anon").toUpperCase();
+        const time = parseTimeToSeconds(entry.time);
         const date = entry.date || new Date().toISOString();
 
-        if (!statsMap[division]) {
-          statsMap[division] = {
+        if (time < overallFastest.time) {
+          overallFastest = { time, group: groupKey };
+        }
+
+        if (!stats[groupKey]) {
+          stats[groupKey] = {
             times: [],
-            leaderTime: timeSec,
+            leaderTime: time,
             leaderName: name,
             leaderDate: date,
-            slowestTime: timeSec,
+            slowestTime: time,
             slowestName: name
           };
         }
 
-        statsMap[division].times.push(timeSec);
+        stats[groupKey].times.push(time);
 
-        if (timeSec < statsMap[division].leaderTime) {
-          statsMap[division].leaderTime = timeSec;
-          statsMap[division].leaderName = name;
-          statsMap[division].leaderDate = date;
+        if (time < stats[groupKey].leaderTime) {
+          stats[groupKey].leaderTime = time;
+          stats[groupKey].leaderName = name;
+          stats[groupKey].leaderDate = date;
         }
 
-        if (timeSec > statsMap[division].slowestTime) {
-          statsMap[division].slowestTime = timeSec;
-          statsMap[division].slowestName = name;
+        if (time > stats[groupKey].slowestTime) {
+          stats[groupKey].slowestTime = time;
+          stats[groupKey].slowestName = name;
         }
       });
 
-      const statsArray = Object.entries(statsMap).map(([division, data]) => {
-        const times = data.times;
-        const avg = times.reduce((a, b) => a + b, 0) / times.length;
+      const rows = Object.entries(stats).map(([group, data]) => {
+        const min = Math.min(...data.times);
+        const avg = data.times.reduce((a, b) => a + b) / data.times.length;
+        const max = Math.max(...data.times);
+        const isFastest = min === overallFastest.time;
+
         return {
-          division,
-          runs: times.length,
-          min: Math.min(...times),
+          group,
+          runs: data.times.length,
+          min,
           avg,
-          max: Math.max(...times),
+          max,
           leader: data.leaderName,
+          leaderDate: data.leaderDate,
           slowest: data.slowestName,
-          leaderDate: data.leaderDate
+          highlight: isFastest
         };
       });
 
-      // Sort by minimum time ascending
-      statsArray.sort((a, b) => a.min - b.min);
+      rows.sort((a, b) => a.min - b.min);
 
-      statsBody.innerHTML = statsArray.map(stat => {
-        const days = daysSince(stat.leaderDate);
-        return `
-          <tr>
-            <td>${stat.division}</td>
-            <td>${stat.runs}</td>
-            <td>${formatTime(stat.min)}</td>
-            <td>${formatTime(stat.avg)}</td>
-            <td>${formatTime(stat.max)}</td>
-            <td class="highlight">${stat.leader} <span class="icon">⏱️ ${days}d</span></td>
-            <td>${stat.slowest}</td>
-          </tr>
-        `;
-      }).join('');
+      statsBody.innerHTML = rows.map(row => `
+        <tr${row.highlight ? ' class="highlight"' : ''}>
+          <td>${row.group}</td>
+          <td>${row.runs}</td>
+          <td>${formatTime(row.min)}</td>
+          <td>${formatTime(row.avg)}</td>
+          <td>${formatTime(row.max)}</td>
+          <td>${row.leader}<span class="icon">⏱️ ${daysSince(row.leaderDate)}d</span></td>
+          <td>${row.slowest}</td>
+        </tr>
+      `).join('');
     }
 
     renderStats();

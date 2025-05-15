@@ -11,34 +11,33 @@
     body {
       font-family: 'Roboto', sans-serif;
       text-transform: uppercase;
-      background-color: #f4f4f4;
+      background-color: #f9f9f9;
       color: #001f3f;
       padding: 20px;
+      margin: 0;
     }
     h1 {
       text-align: center;
-      font-size: 20pt;
-      margin-bottom: 20px;
+      font-size: 24px;
+      margin: 20px 0;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
       background-color: white;
+      margin: 0 auto;
     }
     th, td {
       text-align: left;
       padding: 10px;
-      border-bottom: 1px solid #ccc;
+      border-bottom: 1px solid #ddd;
       font-weight: normal;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
     }
     .leader {
       background-color: #ccffcc !important;
-    }
-    .stopwatch {
-      font-size: 1em;
-      margin-left: 6px;
-      color: gold;
     }
   </style>
 </head>
@@ -83,14 +82,7 @@
     function formatTime(seconds) {
       const min = Math.floor(seconds / 60);
       const sec = (seconds % 60).toFixed(2).padStart(5, '0');
-      return `${String(min).padStart(2,'0')} ${sec}`;
-    }
-
-    function getDaysSince(dateStr) {
-      const date = new Date(dateStr);
-      const now = new Date();
-      const diffTime = now - date;
-      return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      return `${String(min).padStart(2, '0')} ${sec}`;
     }
 
     async function loadStats() {
@@ -107,12 +99,10 @@
             name: key,
             times: [],
             names: [],
-            dates: [],
           };
         }
         groups[key].times.push(timeSec);
         groups[key].names.push({ time: timeSec, name: entry.name });
-        groups[key].dates.push({ time: timeSec, date: entry.date });
       });
 
       // Find overall fastest
@@ -124,7 +114,6 @@
             group: entry.division,
             time: time,
             name: entry.name,
-            date: entry.date,
           };
         }
       });
@@ -143,7 +132,6 @@
         const fastestEntry = group.names.find(n => n.time === minTime);
         const slowestEntry = group.names.find(n => n.time === maxTime);
         const isOverallFastest = group.name === overallFastest.group && minTime === overallFastest.time;
-        const daysSince = getDaysSince(overallFastest.date);
 
         const row = document.createElement("tr");
         if (isOverallFastest) row.classList.add("leader");
@@ -151,7 +139,7 @@
         row.innerHTML = `
           <td>${group.name}</td>
           <td>${group.times.length}</td>
-          <td>${formatTime(minTime)}${isOverallFastest ? `<span class="stopwatch" title="Days since: ${daysSince}">🥇 ${daysSince}d</span>` : ''}</td>
+          <td>${formatTime(minTime)}</td>
           <td>${formatTime(avgTime)}</td>
           <td>${formatTime(maxTime)}</td>
           <td>${fastestEntry?.name || ''}</td>

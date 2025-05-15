@@ -179,7 +179,7 @@
     <option value="" disabled selected>Select Category</option>
   </select>
   <input type="text" id="customCategory" placeholder="Enter custom category" />
-  <input id="time" placeholder="Time (mm ss.ss)" required />
+  <input id="time" placeholder="Time (MM SS.SS)" required pattern="^\\d{1,2} \\d{2}\\.\\d{2}$" title="Format: MM SS.SS (e.g., 03 45.67)" />
   <input id="date" type="date" required />
   <button type="submit">Submit</button>
 </form>
@@ -245,6 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const categorySelect = document.getElementById('category');
   const customDivisionInput = document.getElementById('customDivision');
   const customCategoryInput = document.getElementById('customCategory');
+  const timeInput = document.getElementById('time');
 
   let entries = [];
   let isEditMode = false;
@@ -252,20 +253,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function formatDate(input) {
     const d = new Date(input);
-    return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
+    return \`\${String(d.getMonth() + 1).padStart(2, '0')}/\${String(d.getDate()).padStart(2, '0')}/\${d.getFullYear()}\`;
   }
 
   function parseTimeToSeconds(timeStr) {
-    const parts = timeStr.trim().split(" ");
-    if (parts.length !== 2) return NaN;
-    const [min, sec] = parts.map(parseFloat);
+    const regex = /^(\\d{1,2}) (\\d{2}\\.\\d{2})$/;
+    const match = timeStr.trim().match(regex);
+    if (!match) return NaN;
+    const min = parseInt(match[1], 10);
+    const sec = parseFloat(match[2]);
     return min * 60 + sec;
   }
 
   function formatTime(seconds) {
     const min = Math.floor(seconds / 60);
     const sec = (seconds % 60).toFixed(2).padStart(5, '0');
-    return `${String(min).padStart(2,'0')} ${sec}`;
+    return \`\${String(min).padStart(2,'0')} \${sec}\`;
   }
 
   function getDaysSince(dateStr) {
@@ -280,16 +283,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const categories = [...new Set(entries.map(e => e.category))].sort();
 
     divisionFilter.innerHTML = '<option value="All">All</option>' +
-      divisions.map(d => `<option value="${d}">${d}</option>`).join('');
+      divisions.map(d => \`<option value="\${d}">\${d}</option>\`).join('');
     categoryFilter.innerHTML = '<option value="All">All</option>' +
-      categories.map(c => `<option value="${c}">${c}</option>`).join('');
+      categories.map(c => \`<option value="\${c}">\${c}</option>\`).join('');
 
     divisionSelect.innerHTML = '<option value="" disabled selected>Select Division</option>' +
-      divisions.map(d => `<option value="${d}">${d}</option>`).join('') +
+      divisions.map(d => \`<option value="\${d}">\${d}</option>\`).join('') +
       '<option value="Other">Other</option>';
 
     categorySelect.innerHTML = '<option value="" disabled selected>Select Category</option>' +
-      categories.map(c => `<option value="${c}">${c}</option>`).join('') +
+      categories.map(c => \`<option value="\${c}">\${c}</option>\`).join('') +
       '<option value="Other">Other</option>';
   }
 
@@ -347,91 +350,87 @@ document.addEventListener('DOMContentLoaded', () => {
     filteredEntries.forEach((entry, index) => {
       const tr = document.createElement('tr');
       const seconds = parseTimeToSeconds(entry.time);
+      tr.innerHTML = \`
+        <td>\${index + 1}</td>
+        <td>\${entry.name}</td>
+        <td>\${entry.division}</td>
+        <td>\${entry.category}</td>
+        <td>\${formatTime(seconds)}</td>
+        <td>\${formatDate(entry.date)}</td>
+      \`;
+
+      if (seconds === bestTimeOverall) tr.classList.add('leader');
+      if (seconds === bestTimesByDivision[entry.division]) tr.classList.add('division-leader');
+
       const daysSince = getDaysSince(entry.date);
-      const isOverallLeader = seconds === bestTimeOverall;
-      const isDivisionLeader = seconds === bestTimesByDivision[entry.division];
-      const isToday = new Date(entry.date).toDateString() === new Date().toDateString();
-
-      if (isOverallLeader) tr.classList.add('leader');
-      else if (isDivisionLeader) tr.classList.add('division-leader');
-      if (isToday) tr.classList.add('today-entry');
-
-      tr.innerHTML = `
-        <td>${index + 1}${isOverallLeader ? ' <span class="stopwatch gold">⏱️ ' + daysSince + 'd</span>' : isDivisionLeader ? ' <span class="stopwatch blue">⏱️ ' + daysSince + 'd</span>' : ''}</td>
-        <td>${entry.name}</td>
-        <td>${entry.division}</td>
-        <td>${entry.category}</td>
-        <td>${entry.time}</td>
-        <td>${formatDate(entry.date)}</td>
-        <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
-          <button data-id="${entry.id}" class="delete-btn">Delete</button>
-        </td>
-      `;
+      if (daysSince === 0) tr.classList.add('today-entry');
 
       scoreboard.appendChild(tr);
     });
-
-    actionHeader.style.display = isEditMode ? 'table-cell' : 'none';
-
-    if (isEditMode) {
-      document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.onclick = async () => {
-          if (confirm('Delete this entry?')) {
-            await entriesCollection.doc(btn.dataset.id).delete();
-            await fetchEntries();
-          }
-        };
-      });
-    }
   }
 
-  form.addEventListener('submit', async (e) => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
-    const name = document.getElementById('name').value.trim();
-    let division = divisionSelect.value;
-    let category = categorySelect.value;
-    const customDivision = customDivisionInput.value.trim();
-    const customCategory = customCategoryInput.value.trim();
-    const time = document.getElementById('time').value.trim();
-    const date = document.getElementById('date').value;
 
-    if (division === 'Other' && customDivision) division = customDivision;
-    if (category === 'Other' && customCategory) category = customCategory;
+    // Validate time format explicitly
+    const timeVal = timeInput.value.trim();
+    if (!/^\\d{1,2} \\d{2}\\.\\d{2}$/.test(timeVal)) {
+      alert("Time format invalid. Use MM SS.SS (e.g., 03 45.67)");
+      return;
+    }
 
-    if (!name || !division || !category || !time || !date) {
-      alert('Please fill out all fields.');
+    // Use custom inputs if "Other" selected
+    const divisionVal = divisionSelect.value === 'Other' ? customDivisionInput.value.trim() : divisionSelect.value;
+    const categoryVal = categorySelect.value === 'Other' ? customCategoryInput.value.trim() : categorySelect.value;
+
+    if (!divisionVal) {
+      alert("Please enter a division.");
+      return;
+    }
+    if (!categoryVal) {
+      alert("Please enter a category.");
       return;
     }
 
     const newEntry = {
-      name,
-      division,
-      category,
-      time,
-      date,
+      name: form.name.value.trim(),
+      division: divisionVal,
+      category: categoryVal,
+      time: timeVal,
+      date: form.date.value
     };
 
     await entriesCollection.add(newEntry);
     form.reset();
     customDivisionInput.style.display = 'none';
-    customDivisionInput.required = false;
     customCategoryInput.style.display = 'none';
+    customDivisionInput.required = false;
     customCategoryInput.required = false;
-    await fetchEntries();
+    updateFilterOptions();
+    fetchEntries();
   });
+
+  divisionFilter.addEventListener('change', renderScoreboard);
+  categoryFilter.addEventListener('change', renderScoreboard);
+  searchInput.addEventListener('input', renderScoreboard);
 
   editButton.addEventListener('click', () => {
     if (!isEditMode) {
-      const pw = prompt('Enter password to edit:');
-      if (pw === editPassword) {
-        isEditMode = true;
-        editButton.textContent = 'Exit Edit';
+      const pwd = prompt("Enter password to edit:");
+      if (pwd !== editPassword) {
+        alert("Incorrect password");
+        return;
       }
+      isEditMode = true;
+      actionHeader.style.display = 'table-cell';
+      editButton.textContent = 'Done';
+      renderScoreboard();
     } else {
       isEditMode = false;
+      actionHeader.style.display = 'none';
       editButton.textContent = 'Edit';
+      renderScoreboard();
     }
-    renderScoreboard();
   });
 
   unfilterButton.addEventListener('click', () => {
@@ -440,10 +439,6 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.value = '';
     renderScoreboard();
   });
-
-  divisionFilter.addEventListener('change', renderScoreboard);
-  categoryFilter.addEventListener('change', renderScoreboard);
-  searchInput.addEventListener('input', renderScoreboard);
 
   fetchEntries();
 });

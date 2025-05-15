@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>YAK GAUNTLET STATS</title>
+  <title>THE YAK GAUNTLET STATS</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -37,14 +37,23 @@
     tr:hover {
       background-color: #f1f1f1;
     }
+    .highlight {
+      background-color: #ccffcc;
+      font-weight: bold;
+    }
+    .icon {
+      font-style: normal;
+      margin-left: 6px;
+    }
   </style>
 </head>
 <body>
-  <h1>YAK GAUNTLET STATS</h1>
+  <h1>THE YAK GAUNTLET STATS</h1>
   <table>
     <thead>
       <tr>
         <th>Division</th>
+        <th>Runs</th>
         <th>Min Time</th>
         <th>Avg Time</th>
         <th>Max Time</th>
@@ -81,6 +90,13 @@
       return `${String(min).padStart(2, '0')} ${sec}`;
     }
 
+    function daysSince(dateStr) {
+      const entryDate = new Date(dateStr);
+      const today = new Date();
+      const diffTime = today - entryDate;
+      return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    }
+
     async function renderStats() {
       const snapshot = await db.collection("entries").get();
       const entries = snapshot.docs.map(doc => doc.data());
@@ -91,12 +107,14 @@
         const division = entry.division.toUpperCase();
         const name = entry.name.toUpperCase();
         const timeSec = parseTimeToSeconds(entry.time);
+        const date = entry.date || new Date().toISOString();
 
         if (!statsMap[division]) {
           statsMap[division] = {
             times: [],
             leaderTime: timeSec,
             leaderName: name,
+            leaderDate: date,
             slowestTime: timeSec,
             slowestName: name
           };
@@ -107,6 +125,7 @@
         if (timeSec < statsMap[division].leaderTime) {
           statsMap[division].leaderTime = timeSec;
           statsMap[division].leaderName = name;
+          statsMap[division].leaderDate = date;
         }
 
         if (timeSec > statsMap[division].slowestTime) {
@@ -120,27 +139,33 @@
         const avg = times.reduce((a, b) => a + b, 0) / times.length;
         return {
           division,
+          runs: times.length,
           min: Math.min(...times),
           avg,
           max: Math.max(...times),
           leader: data.leaderName,
-          slowest: data.slowestName
+          slowest: data.slowestName,
+          leaderDate: data.leaderDate
         };
       });
 
-      // Sort by average time ascending
-      statsArray.sort((a, b) => a.avg - b.avg);
+      // Sort by minimum time ascending
+      statsArray.sort((a, b) => a.min - b.min);
 
-      statsBody.innerHTML = statsArray.map(stat => `
-        <tr>
-          <td>${stat.division}</td>
-          <td>${formatTime(stat.min)}</td>
-          <td>${formatTime(stat.avg)}</td>
-          <td>${formatTime(stat.max)}</td>
-          <td>${stat.leader}</td>
-          <td>${stat.slowest}</td>
-        </tr>
-      `).join('');
+      statsBody.innerHTML = statsArray.map(stat => {
+        const days = daysSince(stat.leaderDate);
+        return `
+          <tr>
+            <td>${stat.division}</td>
+            <td>${stat.runs}</td>
+            <td>${formatTime(stat.min)}</td>
+            <td>${formatTime(stat.avg)}</td>
+            <td>${formatTime(stat.max)}</td>
+            <td class="highlight">${stat.leader} <span class="icon">⏱️ ${days}d</span></td>
+            <td>${stat.slowest}</td>
+          </tr>
+        `;
+      }).join('');
     }
 
     renderStats();

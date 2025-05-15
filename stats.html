@@ -16,6 +16,7 @@
       padding: 20px;
       margin: 0;
     }
+
     h1 {
       font-size: 20pt;
       text-align: center;
@@ -25,31 +26,44 @@
     }
 
     #groupSelector {
-      display: block;
-      margin: 0 auto 20px;
       font-size: 16px;
       padding: 8px;
       text-transform: uppercase;
+      margin-bottom: 20px;
+      float: left;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       background-color: #f9f9f9;
-      margin: 0 auto;
+      margin-top: 20px;
     }
+
     th, td {
       text-align: left;
       padding: 10px;
       border-bottom: 1px solid #ddd;
     }
+
     th {
       font-weight: bold;
     }
+
     tr:hover {
       background-color: #f1f1f1;
     }
+
     .leader {
       background-color: #ccffcc !important;
+    }
+
+    @media screen and (max-width: 600px) {
+      #groupSelector {
+        float: none;
+        display: block;
+        margin: 10px auto;
+      }
     }
   </style>
 </head>
@@ -59,9 +73,11 @@
     <option value="division">Division</option>
     <option value="category">Category</option>
   </select>
+
   <table id="statsTable">
     <thead>
       <tr>
+        <th>RANK</th>
         <th>GROUP</th>
         <th>RUNS</th>
         <th>MIN TIME</th>
@@ -140,7 +156,7 @@
       const groupArray = Object.values(groups);
       groupArray.sort((a, b) => Math.min(...a.times) - Math.min(...b.times));
 
-      groupArray.forEach(group => {
+      groupArray.forEach((group, index) => {
         const minTime = Math.min(...group.times);
         const maxTime = Math.max(...group.times);
         const avgTime = group.times.reduce((a, b) => a + b, 0) / group.times.length;
@@ -153,6 +169,7 @@
         if (isOverallFastest) row.classList.add("leader");
 
         row.innerHTML = `
+          <td>${index + 1}</td>
           <td>${group.name}</td>
           <td>${group.times.length}</td>
           <td>${formatTime(minTime)}</td>
@@ -169,7 +186,6 @@
       loadStats(e.target.value);
     });
 
-    // Initial load
     loadStats();
   </script>
 </body>

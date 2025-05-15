@@ -4,64 +4,59 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>THE YAK GAUNTLET STATS</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap" rel="stylesheet"/>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <style>
     body {
       font-family: 'Roboto', sans-serif;
-      margin: 0;
-      padding: 20px;
+      text-transform: uppercase;
       background-color: #f4f4f4;
       color: #001f3f;
-      font-size: 14px;
-      text-transform: uppercase;
+      padding: 20px;
     }
     h1 {
       text-align: center;
+      font-size: 20pt;
       margin-bottom: 20px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
+      background-color: white;
     }
     th, td {
-      border-bottom: 1px solid #ddd;
       text-align: left;
-      padding: 8px;
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      font-weight: normal;
     }
-    th {
-      background-color: #f4f4f4;
+    .leader {
+      background-color: #ccffcc !important;
     }
-    tr:hover {
-      background-color: #f1f1f1;
-    }
-    .highlight {
-      background-color: #ccffcc;
-      font-weight: bold;
-    }
-    .icon {
-      font-style: normal;
+    .stopwatch {
+      font-size: 1em;
       margin-left: 6px;
+      color: gold;
     }
   </style>
 </head>
 <body>
   <h1>THE YAK GAUNTLET STATS</h1>
-  <table>
+  <table id="statsTable">
     <thead>
       <tr>
-        <th>Division</th>
-        <th>Runs</th>
-        <th>Min Time</th>
-        <th>Avg Time</th>
-        <th>Max Time</th>
-        <th>Leader</th>
-        <th>Slowest</th>
+        <th>GROUP</th>
+        <th>RUNS</th>
+        <th>MIN TIME</th>
+        <th>AVG TIME</th>
+        <th>MAX TIME</th>
+        <th>FASTEST</th>
+        <th>SLOWEST</th>
       </tr>
     </thead>
-    <tbody id="statsBody"></tbody>
+    <tbody></tbody>
   </table>
 
   <script>
@@ -77,98 +72,96 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    const statsBody = document.getElementById('statsBody');
 
     function parseTimeToSeconds(timeStr) {
-      const [min, sec] = timeStr.trim().split(" ").map(parseFloat);
+      const parts = timeStr.trim().split(" ");
+      if (parts.length !== 2) return NaN;
+      const [min, sec] = parts.map(parseFloat);
       return min * 60 + sec;
     }
 
     function formatTime(seconds) {
       const min = Math.floor(seconds / 60);
       const sec = (seconds % 60).toFixed(2).padStart(5, '0');
-      return `${String(min).padStart(2, '0')} ${sec}`;
+      return `${String(min).padStart(2,'0')} ${sec}`;
     }
 
-    function daysSince(dateStr) {
-      const entryDate = new Date(dateStr);
-      const today = new Date();
-      const diffTime = today - entryDate;
+    function getDaysSince(dateStr) {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diffTime = now - date;
       return Math.floor(diffTime / (1000 * 60 * 60 * 24));
     }
 
-    async function renderStats() {
+    async function loadStats() {
       const snapshot = await db.collection("entries").get();
       const entries = snapshot.docs.map(doc => doc.data());
 
-      const statsMap = {};
+      const groups = {};
 
       entries.forEach(entry => {
-        const division = entry.division.toUpperCase();
-        const name = entry.name.toUpperCase();
+        const key = entry.division;
         const timeSec = parseTimeToSeconds(entry.time);
-        const date = entry.date || new Date().toISOString();
-
-        if (!statsMap[division]) {
-          statsMap[division] = {
+        if (!groups[key]) {
+          groups[key] = {
+            name: key,
             times: [],
-            leaderTime: timeSec,
-            leaderName: name,
-            leaderDate: date,
-            slowestTime: timeSec,
-            slowestName: name
+            names: [],
+            dates: [],
           };
         }
+        groups[key].times.push(timeSec);
+        groups[key].names.push({ time: timeSec, name: entry.name });
+        groups[key].dates.push({ time: timeSec, date: entry.date });
+      });
 
-        statsMap[division].times.push(timeSec);
-
-        if (timeSec < statsMap[division].leaderTime) {
-          statsMap[division].leaderTime = timeSec;
-          statsMap[division].leaderName = name;
-          statsMap[division].leaderDate = date;
-        }
-
-        if (timeSec > statsMap[division].slowestTime) {
-          statsMap[division].slowestTime = timeSec;
-          statsMap[division].slowestName = name;
+      // Find overall fastest
+      let overallFastest = null;
+      entries.forEach(entry => {
+        const time = parseTimeToSeconds(entry.time);
+        if (!overallFastest || time < overallFastest.time) {
+          overallFastest = {
+            group: entry.division,
+            time: time,
+            name: entry.name,
+            date: entry.date,
+          };
         }
       });
 
-      const statsArray = Object.entries(statsMap).map(([division, data]) => {
-        const times = data.times;
-        const avg = times.reduce((a, b) => a + b, 0) / times.length;
-        return {
-          division,
-          runs: times.length,
-          min: Math.min(...times),
-          avg,
-          max: Math.max(...times),
-          leader: data.leaderName,
-          slowest: data.slowestName,
-          leaderDate: data.leaderDate
-        };
-      });
+      const tableBody = document.querySelector("#statsTable tbody");
+      tableBody.innerHTML = "";
 
-      // Sort by minimum time ascending
-      statsArray.sort((a, b) => a.min - b.min);
+      const groupArray = Object.values(groups);
+      groupArray.sort((a, b) => Math.min(...a.times) - Math.min(...b.times));
 
-      statsBody.innerHTML = statsArray.map(stat => {
-        const days = daysSince(stat.leaderDate);
-        return `
-          <tr>
-            <td>${stat.division}</td>
-            <td>${stat.runs}</td>
-            <td>${formatTime(stat.min)}</td>
-            <td>${formatTime(stat.avg)}</td>
-            <td>${formatTime(stat.max)}</td>
-            <td class="highlight">${stat.leader} <span class="icon">⏱️ ${days}d</span></td>
-            <td>${stat.slowest}</td>
-          </tr>
+      groupArray.forEach(group => {
+        const minTime = Math.min(...group.times);
+        const maxTime = Math.max(...group.times);
+        const avgTime = group.times.reduce((a, b) => a + b, 0) / group.times.length;
+
+        const fastestEntry = group.names.find(n => n.time === minTime);
+        const slowestEntry = group.names.find(n => n.time === maxTime);
+        const isOverallFastest = group.name === overallFastest.group && minTime === overallFastest.time;
+        const daysSince = getDaysSince(overallFastest.date);
+
+        const row = document.createElement("tr");
+        if (isOverallFastest) row.classList.add("leader");
+
+        row.innerHTML = `
+          <td>${group.name}</td>
+          <td>${group.times.length}</td>
+          <td>${formatTime(minTime)}${isOverallFastest ? `<span class="stopwatch" title="Days since: ${daysSince}">🥇 ${daysSince}d</span>` : ''}</td>
+          <td>${formatTime(avgTime)}</td>
+          <td>${formatTime(maxTime)}</td>
+          <td>${fastestEntry?.name || ''}</td>
+          <td>${slowestEntry?.name || ''}</td>
         `;
-      }).join('');
+        tableBody.appendChild(row);
+      });
     }
 
-    renderStats();
+    loadStats();
   </script>
 </body>
 </html>

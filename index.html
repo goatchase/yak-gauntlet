@@ -12,21 +12,17 @@
     }
     h1 {
       text-align: center;
-      color: #333;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      background: white;
       margin-top: 20px;
+      background: white;
     }
     th, td {
       padding: 10px;
-      border-bottom: 1px solid #ccc;
+      border: 1px solid #ddd;
       text-align: left;
-    }
-    th {
-      background: #f2f2f2;
     }
     tr.leader {
       background-color: #d0f5c8; /* mint green */
@@ -34,16 +30,15 @@
     tr.today-entry {
       background-color: #fffac8; /* light yellow */
     }
-    .stopwatch {
-      margin-left: 5px;
+    .icon {
+      margin-left: 8px;
       font-size: 0.9em;
-      vertical-align: middle;
     }
-    .stopwatch.gold {
+    .icon.gold {
       color: goldenrod;
       font-weight: bold;
     }
-    .stopwatch.blue {
+    .icon.blue {
       color: steelblue;
     }
   </style>
@@ -79,7 +74,6 @@
         <th>Category</th>
         <th>Time</th>
         <th>Date</th>
-        <th id="actionHeader" style="display:none;">Actions</th>
       </tr>
     </thead>
     <tbody id="scoreboard"></tbody>
@@ -98,35 +92,26 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    const entriesCollection = db.collection("entries");
 
     const scoreboard = document.getElementById("scoreboard");
     const divisionFilter = document.getElementById("divisionFilter");
     const categoryFilter = document.getElementById("categoryFilter");
     const searchInput = document.getElementById("searchInput");
-    const actionHeader = document.getElementById("actionHeader");
 
     let entries = [];
-    let isEditMode = false;
 
     divisionFilter.addEventListener("change", renderTable);
     categoryFilter.addEventListener("change", renderTable);
     searchInput.addEventListener("input", renderTable);
 
-    entriesCollection.onSnapshot(snapshot => {
+    db.collection("entries").onSnapshot(snapshot => {
       entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       renderTable();
     });
 
     function parseTimeToSeconds(timeStr) {
-      const parts = timeStr.split(":").map(Number);
-      return parts.length === 2 ? parts[0] * 60 + parts[1] : parts[0];
-    }
-
-    function formatTime(seconds) {
-      const min = Math.floor(seconds / 60);
-      const sec = seconds % 60;
-      return `${min}:${sec.toString().padStart(2, '0')}`;
+      const [min, sec] = timeStr.split(":").map(Number);
+      return min * 60 + sec;
     }
 
     function formatDate(dateStr) {
@@ -136,75 +121,69 @@
 
     function getDaysSince(dateStr) {
       const past = new Date(dateStr);
-      const now = new Date();
-      const diff = Math.floor((now - past) / (1000 * 60 * 60 * 24));
+      const today = new Date();
+      const diff = Math.floor((today - past) / (1000 * 60 * 60 * 24));
       return diff;
     }
 
     function renderTable() {
       let filtered = entries.slice();
-      if (divisionFilter.value !== 'All') filtered = filtered.filter(e => e.division === divisionFilter.value);
-      if (categoryFilter.value !== 'All') filtered = filtered.filter(e => e.category === categoryFilter.value);
-      const searchTerm = searchInput.value.trim().toLowerCase();
-      if (searchTerm) filtered = filtered.filter(e => e.name.toLowerCase().includes(searchTerm));
+      if (divisionFilter.value !== 'All') {
+        filtered = filtered.filter(e => e.division === divisionFilter.value);
+      }
+      if (categoryFilter.value !== 'All') {
+        filtered = filtered.filter(e => e.category === categoryFilter.value);
+      }
+      const search = searchInput.value.toLowerCase();
+      if (search) {
+        filtered = filtered.filter(e => e.name.toLowerCase().includes(search));
+      }
 
       filtered.sort((a, b) => parseTimeToSeconds(a.time) - parseTimeToSeconds(b.time));
 
+      // Determine overall and division leaders
       const overallLeaderTime = filtered.length > 0 ? parseTimeToSeconds(filtered[0].time) : null;
       const divisionLeaders = {};
-      filtered.forEach(e => {
-        const t = parseTimeToSeconds(e.time);
-        if (!(e.division in divisionLeaders) || t < divisionLeaders[e.division].time) {
-          divisionLeaders[e.division] = { time: t, date: e.date };
+      filtered.forEach(entry => {
+        const t = parseTimeToSeconds(entry.time);
+        if (!divisionLeaders[entry.division] || t < divisionLeaders[entry.division].time) {
+          divisionLeaders[entry.division] = { time: t, date: entry.date };
         }
       });
 
       scoreboard.innerHTML = '';
-      filtered.forEach((e, i) => {
-        const tr = document.createElement('tr');
-        const timeSeconds = parseTimeToSeconds(e.time);
-        const isOverallLeader = timeSeconds === overallLeaderTime;
-        const isDivisionLeader = divisionLeaders[e.division]?.time === timeSeconds;
+      filtered.forEach((e, index) => {
+        const tr = document.createElement("tr");
+        const t = parseTimeToSeconds(e.time);
         const daysSince = getDaysSince(e.date);
 
-        if (isOverallLeader) tr.classList.add('leader');
-        if (isDivisionLeader) tr.classList.add('division-leader');
+        const isOverallLeader = t === overallLeaderTime;
+        const isDivisionLeader = divisionLeaders[e.division]?.time === t;
+
+        if (isOverallLeader) tr.classList.add("leader");
 
         const entryDate = new Date(e.date);
         const today = new Date();
         if (entryDate.toDateString() === today.toDateString()) {
-          tr.classList.add('today-entry');
+          tr.classList.add("today-entry");
         }
 
-        let extraIcon = '';
+        let iconHTML = "";
         if (isOverallLeader) {
-          extraIcon = `<span class="stopwatch gold" title="Overall Leader">🥇 ${daysSince} DAYS</span>`;
+          iconHTML = `<span class="icon gold" title="Overall Leader">🥇 ${daysSince} DAYS</span>`;
         } else if (isDivisionLeader) {
-          extraIcon = `<span class="stopwatch blue" title="Division Leader">⏱️ ${daysSince} DAYS</span>`;
+          iconHTML = `<span class="icon blue" title="Division Leader">⏱️ ${daysSince} DAYS</span>`;
         }
 
         tr.innerHTML = `
-          <td>${i + 1}</td>
+          <td>${index + 1}</td>
           <td>${e.name}</td>
           <td>${e.division}</td>
           <td>${e.category}</td>
-          <td>${formatTime(timeSeconds)} ${extraIcon}</td>
+          <td>${e.time} ${iconHTML}</td>
           <td>${formatDate(e.date)}</td>
-          <td style="display:${isEditMode ? 'table-cell' : 'none'};">
-            <button data-id="${e.id}" class="delete-btn">Delete</button>
-          </td>
         `;
         scoreboard.appendChild(tr);
-      });
-
-      actionHeader.style.display = isEditMode ? 'table-cell' : 'none';
-
-      document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.onclick = () => {
-          if (confirm('Delete this entry?')) {
-            entriesCollection.doc(btn.dataset.id).delete();
-          }
-        };
       });
     }
   </script>

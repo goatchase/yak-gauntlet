@@ -2,18 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>THE YAK GAUNTLET</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <style>
     body {
       font-family: 'Roboto', sans-serif;
-      margin: 20px;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+      color: #001f3f;
       text-transform: uppercase;
       font-size: 12pt;
-      color: #001f3f;
     }
     h1 {
       font-size: 20pt;
@@ -29,49 +31,77 @@
       margin-bottom: 20px;
       color: #001f3f;
     }
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
     form input, form select, form button {
-      margin: 5px;
       padding: 10px;
       font-size: 1em;
-      vertical-align: middle;
+      border-radius: 4px;
+      border: 1px solid #ccc;
     }
     form button {
       background-color: #990000;
       color: white;
-      border: none;
-      font-weight: 700;
       cursor: pointer;
     }
-    button.edit-button, button.unfilter-button, button.open-stats-button {
-      margin: 5px 5px 5px 0;
-      padding: 10px 16px;
-      font-weight: 700;
-      cursor: pointer;
-      border: none;
+    form button:hover {
+      background-color: #770000;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .filters {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.9em;
+    }
+    .top-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+    .edit-button, .unfilter-button, .open-stats-button {
       background-color: #007bff;
       color: white;
-      vertical-align: middle;
+      padding: 8px 16px;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 1em;
     }
-    button.edit-button:hover, button.unfilter-button:hover, button.open-stats-button:hover {
+    .edit-button:hover, .unfilter-button:hover, .open-stats-button:hover {
       background-color: #0056b3;
     }
-    #filterControls {
-      margin-top: 15px;
-      margin-bottom: 15px;
-    }
-    #filterControls select, #filterControls input {
-      margin-right: 10px;
-      padding: 6px;
+    select, input[type="search"] {
+      padding: 5px;
       font-size: 1em;
+      border-radius: 4px;
+      border: 1px solid #ccc;
     }
     table {
       width: 100%;
-      border-collapse: collapse;
       margin-top: 10px;
+      border-collapse: collapse;
+      table-layout: auto;
     }
     th, td {
-      border-bottom: 1px solid #ddd;
       padding: 8px;
+      border-bottom: 1px solid #ddd;
       text-align: left;
     }
     th {
@@ -99,6 +129,25 @@
     }
     .gold { color: gold; }
     .blue { color: #3399ff; }
+    @media (max-width: 600px) {
+      .top-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .filters,
+      .top-controls {
+        flex-direction: column;
+        width: 100%;
+        gap: 5px;
+      }
+      .filter-group {
+        width: 100%;
+      }
+      .top-controls input,
+      .top-controls button {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -117,16 +166,25 @@
     <input id="time" placeholder="Time (mm ss.ss)" required />
     <input id="date" type="date" required />
     <button type="submit">Submit</button>
-
-    <button id="editButton" class="edit-button" type="button">Edit</button>
-    <button id="unfilterButton" class="unfilter-button" type="button">Unfilter</button>
-    <button id="openStatsButton" class="open-stats-button" type="button">Stats</button>
   </form>
 
-  <div id="filterControls">
-    <select id="divisionFilter"><option value="All">All</option></select>
-    <select id="categoryFilter"><option value="All">All</option></select>
-    <input id="searchInput" type="search" placeholder="Search name" />
+  <div class="top-bar">
+    <div class="filters">
+      <div class="filter-group">
+        <label for="divisionFilter">Division</label>
+        <select id="divisionFilter"><option value="All">All</option></select>
+      </div>
+      <div class="filter-group">
+        <label for="categoryFilter">Category</label>
+        <select id="categoryFilter"><option value="All">All</option></select>
+      </div>
+    </div>
+    <div class="top-controls">
+      <input id="searchInput" type="search" placeholder="Search name" />
+      <button id="editButton" class="edit-button">Edit</button>
+      <button id="unfilterButton" class="unfilter-button">Unfilter</button>
+      <button id="openStatsButton" class="open-stats-button">Stats</button>
+    </div>
   </div>
 
   <table id="scoreboard">
@@ -144,164 +202,207 @@
     <tbody></tbody>
   </table>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const firebaseConfig = {
-        apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
-        authDomain: "goatchase-e9502.firebaseapp.com",
-        projectId: "goatchase-e9502",
-        storageBucket: "goatchase-e9502.appspot.com",
-        messagingSenderId: "16998517478",
-        appId: "1:16998517478:web:6386aff8c1d1da2accc927",
-        measurementId: "G-YWLJGQG0XD"
-      };
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const firebaseConfig = {
+      apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
+      authDomain: "goatchase-e9502.firebaseapp.com",
+      projectId: "goatchase-e9502",
+      storageBucket: "goatchase-e9502.appspot.com",
+      messagingSenderId: "16998517478",
+      appId: "1:16998517478:web:6386aff8c1d1da2accc927",
+      measurementId: "G-YWLJGQG0XD"
+    };
 
-      firebase.initializeApp(firebaseConfig);
-      const db = firebase.firestore();
-      const entriesCollection = db.collection("entries");
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const entriesCollection = db.collection("entries");
 
-      const form = document.getElementById('entryForm');
-      const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
-      const editButton = document.getElementById('editButton');
-      const unfilterButton = document.getElementById('unfilterButton');
-      const openStatsButton = document.getElementById('openStatsButton');
-      const searchInput = document.getElementById('searchInput');
-      const divisionFilter = document.getElementById('divisionFilter');
-      const categoryFilter = document.getElementById('categoryFilter');
-      const actionHeader = document.getElementById('actionHeader');
-      const divisionSelect = document.getElementById('division');
-      const categorySelect = document.getElementById('category');
+    const form = document.getElementById('entryForm');
+    const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
+    const editButton = document.getElementById('editButton');
+    const unfilterButton = document.getElementById('unfilterButton');
+    const openStatsButton = document.getElementById('openStatsButton');
+    const searchInput = document.getElementById('searchInput');
+    const divisionFilter = document.getElementById('divisionFilter');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const actionHeader = document.getElementById('actionHeader');
+    const divisionSelect = document.getElementById('division');
+    const categorySelect = document.getElementById('category');
 
-      let entries = [];
-      let isEditMode = false;
-      const editPassword = "benjaminmintz1";
+    let entries = [];
+    let isEditMode = false;
+    const editPassword = "benjaminmintz1"; // 🔐 Change this password as needed
 
-      function formatDate(input) {
-        const d = new Date(input);
-        return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
-      }
+    function formatDate(input) {
+      const d = new Date(input);
+      return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
+    }
 
-      function parseTimeToSeconds(timeStr) {
-        const parts = timeStr.trim().split(" ");
-        if (parts.length !== 2) return NaN;
-        const [min, sec] = parts.map(parseFloat);
-        return min * 60 + sec;
-      }
+    function parseTimeToSeconds(timeStr) {
+      const parts = timeStr.trim().split(" ");
+      if (parts.length !== 2) return NaN;
+      const [min, sec] = parts.map(parseFloat);
+      return min * 60 + sec;
+    }
 
-      function formatTime(seconds) {
-        const min = Math.floor(seconds / 60);
-        const sec = (seconds % 60).toFixed(2).padStart(5, '0');
-        return `${String(min).padStart(2,'0')} ${sec}`;
-      }
+    function formatTime(seconds) {
+      const min = Math.floor(seconds / 60);
+      const sec = (seconds % 60).toFixed(2).padStart(5, '0');
+      return `${String(min).padStart(2,'0')} ${sec}`;
+    }
 
-      function updateFilterOptions() {
-        const divisions = [...new Set(entries.map(e => e.division))].sort();
-        const categories = [...new Set(entries.map(e => e.category))].sort();
+    function getDaysSince(dateStr) {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diffTime = now - date;
+      return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    }
 
-        divisionFilter.innerHTML = '<option value="All">All</option>' +
-          divisions.map(d => `<option value="${d}">${d}</option>`).join('');
-        categoryFilter.innerHTML = '<option value="All">All</option>' +
-          categories.map(c => `<option value="${c}">${c}</option>`).join('');
+    function updateFilterOptions() {
+      const divisions = [...new Set(entries.map(e => e.division))].sort();
+      const categories = [...new Set(entries.map(e => e.category))].sort();
 
-        divisionSelect.innerHTML = '<option value="" disabled selected>Select Division</option>' +
-          divisions.map(d => `<option value="${d}">${d}</option>`).join('');
-        categorySelect.innerHTML = '<option value="" disabled selected>Select Category</option>' +
-          categories.map(c => `<option value="${c}">${c}</option>`).join('');
-      }
+      divisionFilter.innerHTML = '<option value="All">All</option>' +
+        divisions.map(d => `<option value="${d}">${d}</option>`).join('');
+      categoryFilter.innerHTML = '<option value="All">All</option>' +
+        categories.map(c => `<option value="${c}">${c}</option>`).join('');
 
-      function renderScoreboard() {
-        const divisionVal = divisionFilter.value;
-        const categoryVal = categoryFilter.value;
-        const searchVal = searchInput.value.trim().toLowerCase();
+      divisionSelect.innerHTML = '<option value="" disabled selected>Select Division</option>' +
+        divisions.map(d => `<option value="${d}">${d}</option>`).join('');
+      categorySelect.innerHTML = '<option value="" disabled selected>Select Category</option>' +
+        categories.map(c => `<option value="${c}">${c}</option>`).join('');
+    }
 
-        let filtered = entries.filter(e => {
-          const matchDivision = divisionVal === "All" || e.division === divisionVal;
-          const matchCategory = categoryVal === "All" || e.category === categoryVal;
-          const matchSearch = e.name.toLowerCase().includes(searchVal);
-          return matchDivision && matchCategory && matchSearch;
-        });
+    async function renderScoreboard() {
+      scoreboard.innerHTML = '';
+      let bestOverall = null;
+      const bestByDivision = {};
+      const todayStr = new Date().toISOString().split('T')[0];
 
-        filtered.sort((a, b) => parseTimeToSeconds(a.time) - parseTimeToSeconds(b.time));
-
-        scoreboard.innerHTML = '';
-        filtered.forEach((entry, idx) => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${idx + 1}</td>
-            <td>${entry.name}</td>
-            <td>${entry.division}</td>
-            <td>${entry.category}</td>
-            <td>${entry.time}</td>
-            <td>${formatDate(entry.date)}</td>
-          `;
-          scoreboard.appendChild(tr);
-        });
-      }
-
-      function fetchEntries() {
-        entriesCollection.get().then(snapshot => {
-          entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          updateFilterOptions();
-          renderScoreboard();
-        });
-      }
-
-      form.addEventListener('submit', e => {
-        e.preventDefault();
-        const name = form.name.value.trim();
-        const division = form.division.value;
-        const category = form.category.value;
-        const time = form.time.value.trim();
-        const date = form.date.value;
-
-        if (!name || !division || !category || !time || !date) {
-          alert("Please fill out all fields");
-          return;
-        }
-
-        const timeSeconds = parseTimeToSeconds(time);
-        if (isNaN(timeSeconds)) {
-          alert("Time must be in mm ss.ss format");
-          return;
-        }
-
-        entriesCollection.add({ name, division, category, time, date })
-          .then(() => {
-            form.reset();
-            fetchEntries();
-          })
-          .catch(console.error);
-      });
-
-      editButton.addEventListener('click', () => {
-        const pw = prompt("Enter edit mode password:");
-        if (pw === editPassword) {
-          isEditMode = !isEditMode;
-          alert(isEditMode ? "Edit mode enabled" : "Edit mode disabled");
-          actionHeader.style.display = isEditMode ? "table-cell" : "none";
-        } else {
-          alert("Incorrect password");
+      entries.forEach(entry => {
+        entry.totalSeconds = parseTimeToSeconds(entry.time);
+        if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) bestOverall = entry;
+        if (!bestByDivision[entry.division] || entry.totalSeconds < bestByDivision[entry.division].totalSeconds) {
+          bestByDivision[entry.division] = entry;
         }
       });
 
-      unfilterButton.addEventListener('click', () => {
-        divisionFilter.value = "All";
-        categoryFilter.value = "All";
-        searchInput.value = "";
-        renderScoreboard();
+      entries.sort((a, b) => a.totalSeconds - b.totalSeconds);
+
+      const filteredEntries = entries.filter(entry =>
+        entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
+        (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
+        (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
+      );
+
+      filteredEntries.forEach((entry, index) => {
+        const row = document.createElement('tr');
+        const isToday = entry.date === todayStr;
+        const isLeader = entry === bestOverall;
+        const isDivisionLeader = bestByDivision[entry.division] === entry;
+
+        if (isLeader) row.classList.add('leader');
+        else if (isDivisionLeader) row.classList.add('division-leader');
+        if (isToday) row.classList.add('today-entry');
+
+        const daysSince = getDaysSince(entry.date);
+        let iconHTML = '';
+
+        if (isLeader) iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince} days</span>`;
+        else if (isDivisionLeader) iconHTML = `<span class="stopwatch blue" title="Days since: ${daysSince}">⏱️${daysSince} days</span>`;
+
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td contenteditable="${isEditMode}">${entry.name}</td>
+          <td contenteditable="${isEditMode}">${entry.division}</td>
+          <td contenteditable="${isEditMode}">${entry.category}</td>
+          <td contenteditable="${isEditMode}">${formatTime(entry.totalSeconds)} ${iconHTML}</td>
+          <td contenteditable="${isEditMode}">${formatDate(entry.date)}</td>
+          <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
+            <button class="delete-button" data-id="${entry.id}">Delete</button>
+          </td>
+        `;
+        scoreboard.appendChild(row);
       });
 
-      openStatsButton.addEventListener('click', () => {
-        window.open('stats.html', '_blank');
+      updateFilterOptions();
+
+      document.querySelectorAll('.delete-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+          const entryId = e.target.dataset.id;
+          deleteEntry(entryId);
+        });
       });
+    }
 
-      divisionFilter.addEventListener('change', renderScoreboard);
-      categoryFilter.addEventListener('change', renderScoreboard);
-      searchInput.addEventListener('input', renderScoreboard);
+    async function fetchEntries() {
+      const snapshot = await entriesCollection.get();
+      entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderScoreboard();
+    }
 
+    async function addEntry(entry) {
+      await entriesCollection.add(entry);
       fetchEntries();
-    });
-  </script>
+    }
 
-</body>
-</html>
+    async function deleteEntry(id) {
+      if (confirm("Delete this entry?")) {
+        await entriesCollection.doc(id).delete();
+        fetchEntries();
+      }
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const division = divisionSelect.value;
+      const category = categorySelect.value;
+      const time = document.getElementById('time').value.trim();
+      const dateInput = document.getElementById('date').value;
+      const dateRaw = new Date(dateInput);
+      const correctedDate = new Date(dateRaw.getTime() + Math.abs(dateRaw.getTimezoneOffset() * 60000));
+      const dateString = correctedDate.toISOString().split('T')[0];
+
+      if (!name || !division || !category || !time || !dateRaw) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      await addEntry({ name, division, category, time, date: dateString });
+      form.reset();
+    });
+
+    // 🔐 Password-protected edit toggle
+    editButton.addEventListener('click', () => {
+      if (!isEditMode) {
+        const input = prompt("Enter edit password:");
+        if (input !== editPassword) {
+          alert("Incorrect password.");
+          return;
+        }
+      }
+      isEditMode = !isEditMode;
+      editButton.textContent = isEditMode ? "Done" : "Edit";
+      renderScoreboard();
+    });
+
+    unfilterButton.addEventListener('click', () => {
+      divisionFilter.value = 'All';
+      categoryFilter.value = 'All';
+      renderScoreboard();
+    });
+
+    searchInput.addEventListener('input', renderScoreboard);
+    divisionFilter.addEventListener('change', renderScoreboard);
+    categoryFilter.addEventListener('change', renderScoreboard);
+
+    // New: open stats page button
+    openStatsButton.addEventListener('click', () => {
+      window.open('stats.html', '_blank');
+    });
+
+    fetchEntries();
+  });
+</script>

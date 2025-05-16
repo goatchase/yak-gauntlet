@@ -301,7 +301,7 @@
           <td>${e.name}</td>
           <td>${e.division}</td>
           <td>${e.category}</td>
-          <td>${e.time}</td>
+          <td>${formatTime(parseTimeToSeconds(e.time))}</td>
           <td>${formatDate(e.date)}</td>
           <td style="display:${isEditMode ? 'table-cell' : 'none'};">
             <button data-id="${e.id}" class="delete-btn">Delete</button>

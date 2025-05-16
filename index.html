@@ -307,12 +307,6 @@
           <td>
             ${formatTime(parseTimeToSeconds(e.time))}
             ${parseTimeToSeconds(e.time) === overallLeaderTime ? 
-              `<span class="stopwatch gold">🏅 ${getDaysSince(e.date)}d</span>` 
-            : ''}
-          </td>
-          <td>
-            ${formatTime(parseTimeToSeconds(e.time))}
-            ${parseTimeToSeconds(e.time) === overallLeaderTime ? 
               `<span class="stopwatch gold">🏅 ${getDaysSince(e.date)} DAYS</span>` 
             : ''}
           </td>

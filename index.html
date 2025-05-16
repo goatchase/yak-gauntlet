@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>THE YAK GAUNTLET</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -43,6 +43,7 @@
       font-size: 1em;
       border-radius: 4px;
       border: 1px solid #ccc;
+      text-transform: none;
     }
     form button {
       background-color: #990000;
@@ -51,6 +52,18 @@
     }
     form button:hover {
       background-color: #770000;
+    }
+    #divisionContainer, #categoryContainer {
+      display: flex;
+      flex-direction: column;
+    }
+    #divisionOther, #categoryOther {
+      margin-top: 5px;
+      padding: 8px;
+      font-size: 1em;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      text-transform: none;
     }
     .top-bar {
       display: flex;
@@ -92,6 +105,7 @@
       font-size: 1em;
       border-radius: 4px;
       border: 1px solid #ccc;
+      text-transform: none;
     }
     table {
       width: 100%;
@@ -103,6 +117,7 @@
       padding: 8px;
       border-bottom: 1px solid #ddd;
       text-align: left;
+      text-transform: uppercase;
     }
     th {
       font-weight: bold;
@@ -157,12 +172,27 @@
 
   <form id="entryForm">
     <input id="name" placeholder="Name" required />
-    <select id="division" required>
-      <option value="" disabled selected>Select Division</option>
-    </select>
-    <select id="category" required>
-      <option value="" disabled selected>Select Category</option>
-    </select>
+
+    <div id="divisionContainer">
+      <select id="division" required>
+        <option value="" disabled selected>Select Division</option>
+        <option>Mens</option>
+        <option>Womens</option>
+        <option>Coed</option>
+        <option>Other</option>
+      </select>
+    </div>
+
+    <div id="categoryContainer">
+      <select id="category" required>
+        <option value="" disabled selected>Select Category</option>
+        <option>Novice</option>
+        <option>Intermediate</option>
+        <option>Advanced</option>
+        <option>Other</option>
+      </select>
+    </div>
+
     <input id="time" placeholder="Time (mm ss.ss)" required />
     <input id="date" type="date" required />
     <button type="submit">Submit</button>
@@ -229,11 +259,17 @@
     const actionHeader = document.getElementById('actionHeader');
     const divisionSelect = document.getElementById('division');
     const categorySelect = document.getElementById('category');
+    const nameInput = document.getElementById('name');
+    const timeInput = document.getElementById('time');
+    const dateInput = document.getElementById('date');
+    const divisionContainer = document.getElementById('divisionContainer');
+    const categoryContainer = document.getElementById('categoryContainer');
 
     let entries = [];
     let isEditMode = false;
-    const editPassword = "benjaminmintz1"; // 🔐 Change this password as needed
+    const editPassword = "benjaminmintz1"; // Change this as needed
 
+    // Utility functions
     function formatDate(input) {
       const d = new Date(input);
       return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
@@ -259,150 +295,214 @@
       return Math.floor(diffTime / (1000 * 60 * 60 * 24));
     }
 
-    function updateFilterOptions() {
-      const divisions = [...new Set(entries.map(e => e.division))].sort();
-      const categories = [...new Set(entries.map(e => e.category))].sort();
-
-      divisionFilter.innerHTML = '<option value="All">All</option>' +
-        divisions.map(d => `<option value="${d}">${d}</option>`).join('');
-      categoryFilter.innerHTML = '<option value="All">All</option>' +
-        categories.map(c => `<option value="${c}">${c}</option>`).join('');
-
-      divisionSelect.innerHTML = '<option value="" disabled selected>Select Division</option>' +
-        divisions.map(d => `<option value="${d}">${d}</option>`).join('');
-      categorySelect.innerHTML = '<option value="" disabled selected>Select Category</option>' +
-        categories.map(c => `<option value="${c}">${c}</option>`).join('');
-    }
-
-    async function renderScoreboard() {
-      scoreboard.innerHTML = '';
-      let bestOverall = null;
-      const bestByDivision = {};
-      const todayStr = new Date().toISOString().split('T')[0];
-
-      entries.forEach(entry => {
-        entry.totalSeconds = parseTimeToSeconds(entry.time);
-        if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) bestOverall = entry;
-        if (!bestByDivision[entry.division] || entry.totalSeconds < bestByDivision[entry.division].totalSeconds) {
-          bestByDivision[entry.division] = entry;
+    // Add or remove text input for "Other" in Division
+    function handleDivisionChange() {
+      const selected = divisionSelect.value;
+      let otherInput = document.getElementById('divisionOther');
+      if (selected === "Other") {
+        if (!otherInput) {
+          otherInput = document.createElement('input');
+          otherInput.id = 'divisionOther';
+          otherInput.placeholder = 'Enter Division';
+          otherInput.required = true;
+          divisionContainer.appendChild(otherInput);
         }
-      });
-
-      entries.sort((a, b) => a.totalSeconds - b.totalSeconds);
-
-      const filteredEntries = entries.filter(entry =>
-        entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
-        (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
-        (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
-      );
-
-      filteredEntries.forEach((entry, index) => {
-        const row = document.createElement('tr');
-        const isToday = entry.date === todayStr;
-        const isLeader = entry === bestOverall;
-        const isDivisionLeader = bestByDivision[entry.division] === entry;
-
-        if (isLeader) row.classList.add('leader');
-        else if (isDivisionLeader) row.classList.add('division-leader');
-        if (isToday) row.classList.add('today-entry');
-
-        const daysSince = getDaysSince(entry.date);
-        let iconHTML = '';
-
-        if (isLeader) iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince} days</span>`;
-        else if (isDivisionLeader) iconHTML = `<span class="stopwatch blue" title="Days since: ${daysSince}">⏱️${daysSince} days</span>`;
-
-        row.innerHTML = `
-          <td>${index + 1}</td>
-          <td contenteditable="${isEditMode}">${entry.name}</td>
-          <td contenteditable="${isEditMode}">${entry.division}</td>
-          <td contenteditable="${isEditMode}">${entry.category}</td>
-          <td contenteditable="${isEditMode}">${formatTime(entry.totalSeconds)} ${iconHTML}</td>
-          <td contenteditable="${isEditMode}">${formatDate(entry.date)}</td>
-          <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
-            <button class="delete-button" data-id="${entry.id}">Delete</button>
-          </td>
-        `;
-        scoreboard.appendChild(row);
-      });
-
-      updateFilterOptions();
-
-      document.querySelectorAll('.delete-button').forEach(button => {
-        button.addEventListener('click', (e) => {
-          const entryId = e.target.dataset.id;
-          deleteEntry(entryId);
-        });
-      });
-    }
-
-    async function fetchEntries() {
-      const snapshot = await entriesCollection.get();
-      entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      renderScoreboard();
-    }
-
-    async function addEntry(entry) {
-      await entriesCollection.add(entry);
-      fetchEntries();
-    }
-
-    async function deleteEntry(id) {
-      if (confirm("Delete this entry?")) {
-        await entriesCollection.doc(id).delete();
-        fetchEntries();
+      } else {
+        if (otherInput) {
+          otherInput.remove();
+        }
       }
     }
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('name').value.trim();
-      const division = divisionSelect.value;
-      const category = categorySelect.value;
-      const time = document.getElementById('time').value.trim();
-      const dateInput = document.getElementById('date').value;
-      const dateRaw = new Date(dateInput);
-      const correctedDate = new Date(dateRaw.getTime() + Math.abs(dateRaw.getTimezoneOffset() * 60000));
-      const dateString = correctedDate.toISOString().split('T')[0];
+    // Add or remove text input for "Other" in Category
+    function handleCategoryChange() {
+      const selected = categorySelect.value;
+      let otherInput = document.getElementById('categoryOther');
+      if (selected === "Other") {
+        if (!otherInput) {
+          otherInput = document.createElement('input');
+          otherInput.id = 'categoryOther';
+          otherInput.placeholder = 'Enter Category';
+          otherInput.required = true;
+          categoryContainer.appendChild(otherInput);
+        }
+      } else {
+        if (otherInput) {
+          otherInput.remove();
+        }
+      }
+    }
 
-      if (!name || !division || !category || !time || !dateRaw) {
-        alert("Please fill in all fields.");
+    divisionSelect.addEventListener('change', handleDivisionChange);
+    categorySelect.addEventListener('change', handleCategoryChange);
+
+    // Load entries from Firestore and render scoreboard
+    function loadEntries() {
+      entriesCollection.orderBy("time").get().then(snapshot => {
+        entries = [];
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          data.id = doc.id;
+          entries.push(data);
+        });
+        updateFilterOptions();
+        renderScoreboard();
+      });
+    }
+
+    function updateFilterOptions() {
+      const divisionsSet = new Set(entries.map(e => e.division));
+      const categoriesSet = new Set(entries.map(e => e.category));
+      
+      // Update division filter
+      const currentDivision = divisionFilter.value;
+      divisionFilter.innerHTML = '<option value="All">All</option>';
+      [...divisionsSet].sort().forEach(div => {
+        const opt = document.createElement('option');
+        opt.value = div;
+        opt.textContent = div;
+        divisionFilter.appendChild(opt);
+      });
+      divisionFilter.value = currentDivision || "All";
+
+      // Update category filter
+      const currentCategory = categoryFilter.value;
+      categoryFilter.innerHTML = '<option value="All">All</option>';
+      [...categoriesSet].sort().forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        categoryFilter.appendChild(opt);
+      });
+      categoryFilter.value = currentCategory || "All";
+    }
+
+    // Filter, sort, and render the scoreboard table
+    function renderScoreboard() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const divisionSelected = divisionFilter.value;
+      const categorySelected = categoryFilter.value;
+      const todayStr = new Date().toISOString().slice(0,10);
+
+      // Filter entries by search, division, and category
+      let filteredEntries = entries.filter(e => {
+        const matchName = e.name.toLowerCase().includes(searchTerm);
+        const matchDivision = (divisionSelected === "All") || (e.division === divisionSelected);
+        const matchCategory = (categorySelected === "All") || (e.category === categorySelected);
+        return matchName && matchDivision && matchCategory;
+      });
+
+      // Sort by time ascending
+      filteredEntries.sort((a,b) => parseTimeToSeconds(a.time) - parseTimeToSeconds(b.time));
+
+      // Render rows
+      scoreboard.innerHTML = "";
+      filteredEntries.forEach((entry, idx) => {
+        const tr = document.createElement('tr');
+
+        // Rank
+        const rankTd = document.createElement('td');
+        rankTd.textContent = idx + 1;
+        tr.appendChild(rankTd);
+
+        // Name
+        const nameTd = document.createElement('td');
+        nameTd.textContent = entry.name;
+        tr.appendChild(nameTd);
+
+        // Division
+        const divisionTd = document.createElement('td');
+        divisionTd.textContent = entry.division;
+        tr.appendChild(divisionTd);
+
+        // Category
+        const categoryTd = document.createElement('td');
+        categoryTd.textContent = entry.category;
+        tr.appendChild(categoryTd);
+
+        // Time
+        const timeTd = document.createElement('td');
+        timeTd.textContent = entry.time;
+        tr.appendChild(timeTd);
+
+        // Date
+        const dateTd = document.createElement('td');
+        dateTd.textContent = formatDate(entry.date);
+        tr.appendChild(dateTd);
+
+        scoreboard.appendChild(tr);
+      });
+    }
+
+    // Handle form submission
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+
+      let divisionValue = divisionSelect.value;
+      let categoryValue = categorySelect.value;
+
+      // If "Other" selected, get the input value instead
+      if (divisionValue === "Other") {
+        const otherInput = document.getElementById('divisionOther');
+        if (!otherInput || !otherInput.value.trim()) {
+          alert('Please enter a Division');
+          return;
+        }
+        divisionValue = otherInput.value.trim();
+      }
+
+      if (categoryValue === "Other") {
+        const otherInput = document.getElementById('categoryOther');
+        if (!otherInput || !otherInput.value.trim()) {
+          alert('Please enter a Category');
+          return;
+        }
+        categoryValue = otherInput.value.trim();
+      }
+
+      const nameValue = nameInput.value.trim();
+      const timeValue = timeInput.value.trim();
+      const dateValue = dateInput.value;
+
+      if (!nameValue || !timeValue || !dateValue || !divisionValue || !categoryValue) {
+        alert('Please fill in all fields');
         return;
       }
 
-      await addEntry({ name, division, category, time, date: dateString });
-      form.reset();
-    });
-
-    // 🔐 Password-protected edit toggle
-    editButton.addEventListener('click', () => {
-      if (!isEditMode) {
-        const input = prompt("Enter edit password:");
-        if (input !== editPassword) {
-          alert("Incorrect password.");
-          return;
-        }
+      if (isNaN(parseTimeToSeconds(timeValue))) {
+        alert('Invalid time format. Use mm ss.ss');
+        return;
       }
-      isEditMode = !isEditMode;
-      editButton.textContent = isEditMode ? "Done" : "Edit";
-      renderScoreboard();
+
+      // Save to Firestore
+      entriesCollection.add({
+        name: nameValue,
+        division: divisionValue,
+        category: categoryValue,
+        time: timeValue,
+        date: dateValue
+      }).then(() => {
+        form.reset();
+        // Remove "Other" inputs if present
+        const divisionOther = document.getElementById('divisionOther');
+        if (divisionOther) divisionOther.remove();
+        const categoryOther = document.getElementById('categoryOther');
+        if (categoryOther) categoryOther.remove();
+        loadEntries();
+      }).catch(err => {
+        alert('Error saving entry: ' + err.message);
+      });
     });
 
-    unfilterButton.addEventListener('click', () => {
-      divisionFilter.value = 'All';
-      categoryFilter.value = 'All';
-      renderScoreboard();
-    });
-
-    searchInput.addEventListener('input', renderScoreboard);
+    // Filters and search events
     divisionFilter.addEventListener('change', renderScoreboard);
     categoryFilter.addEventListener('change', renderScoreboard);
+    searchInput.addEventListener('input', renderScoreboard);
 
-    // New: open stats page button
-    openStatsButton.addEventListener('click', () => {
-      window.open('stats.html', '_blank');
-    });
-
-    fetchEntries();
+    // Initial load
+    loadEntries();
   });
 </script>
+
+</body>
+</html>

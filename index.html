@@ -355,24 +355,35 @@
     }
 
     form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('name').value.trim();
-      const division = divisionSelect.value;
-      const category = categorySelect.value;
-      const time = document.getElementById('time').value.trim();
-      const dateInput = document.getElementById('date').value;
-      const dateRaw = new Date(dateInput);
-      const correctedDate = new Date(dateRaw.getTime() + Math.abs(dateRaw.getTimezoneOffset() * 60000));
-      const dateString = correctedDate.toISOString().split('T')[0];
+  e.preventDefault();
+  const name = document.getElementById('name').value.trim();
 
-      if (!name || !division || !category || !time || !dateRaw) {
-        alert("Please fill in all fields.");
-        return;
-      }
+  let division = divisionSelect.value;
+  if (division === "Other") {
+    division = prompt("Enter custom division:")?.trim();
+    if (!division) return alert("Custom division required.");
+  }
 
-      await addEntry({ name, division, category, time, date: dateString });
-      form.reset();
-    });
+  let category = categorySelect.value;
+  if (category === "Other") {
+    category = prompt("Enter custom category:")?.trim();
+    if (!category) return alert("Custom category required.");
+  }
+
+  const time = document.getElementById('time').value.trim();
+  const dateInput = document.getElementById('date').value;
+  const dateRaw = new Date(dateInput);
+  const correctedDate = new Date(dateRaw.getTime() + Math.abs(dateRaw.getTimezoneOffset() * 60000));
+  const dateString = correctedDate.toISOString().split('T')[0];
+
+  if (!name || !division || !category || !time || !dateRaw) {
+    alert("Please fill in all fields.");
+    return;
+  }
+
+  await addEntry({ name, division, category, time, date: dateString });
+  form.reset();
+});
 
     // 🔐 Password-protected edit toggle
     editButton.addEventListener('click', () => {

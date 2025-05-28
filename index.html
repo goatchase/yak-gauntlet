@@ -357,25 +357,8 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('name').value.trim();
-
-  let division = divisionSelect.value;
-  if (division === "Other") {
-    division = prompt("Enter custom division:");
-    if (!division || !division.trim()) {
-      alert("Division is required.");
-      return;
-    }
-  }
-
-  let category = categorySelect.value;
-  if (category === "Other") {
-    category = prompt("Enter custom category:");
-    if (!category || !category.trim()) {
-      alert("Category is required.");
-      return;
-    }
-  }
-
+      const division = divisionSelect.value;
+      const category = categorySelect.value;
       const time = document.getElementById('time').value.trim();
       const dateInput = document.getElementById('date').value;
       const dateRaw = new Date(dateInput);

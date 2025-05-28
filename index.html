@@ -372,7 +372,7 @@
 
       await addEntry({ name, division, category, time, date: dateString });
       form.reset();
-    });
+    })
 
     // 🔐 Password-protected edit toggle
     editButton.addEventListener('click', () => {
@@ -385,6 +385,43 @@
       }
       isEditMode = !isEditMode;
       editButton.textContent = isEditMode ? "Done" : "Edit";
+if (isEditMode) {
+  const saveButton = document.createElement('button');
+  saveButton.textContent = 'Save Changes';
+  saveButton.id = 'saveChangesButton';
+  saveButton.className = 'edit-button';
+  editButton.after(saveButton);
+
+  saveButton.addEventListener('click', () => {
+    const rows = scoreboard.querySelectorAll('tr');
+    rows.forEach(async (row, index) => {
+      const entry = entries[index];
+      const cells = row.querySelectorAll('td');
+      const newName = cells[1].innerText.trim();
+      const newDivision = cells[2].innerText.trim();
+      const newCategory = cells[3].innerText.trim();
+      const newTime = cells[4].innerText.trim().split(" ")[0] + " " + cells[4].innerText.trim().split(" ")[1];
+      const newDate = cells[5].innerText.trim();
+
+      // Basic validation (optional)
+      if (newName && newDivision && newCategory && newTime && newDate) {
+        await entriesCollection.doc(entry.id).update({
+          name: newName,
+          division: newDivision,
+          category: newCategory,
+          time: newTime,
+          date: new Date(newDate).toISOString().split("T")[0]
+        });
+      }
+    });
+
+    alert("Changes saved.");
+    fetchEntries(); // Refresh the view with updated data
+  });
+} else {
+  const saveBtn = document.getElementById('saveChangesButton');
+  if (saveBtn) saveBtn.remove();
+}
       renderScoreboard();
     });
 

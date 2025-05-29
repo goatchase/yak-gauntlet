@@ -1,3 +1,6 @@
+5/28 9:44
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -392,32 +395,33 @@ if (isEditMode) {
   saveButton.className = 'edit-button';
   editButton.after(saveButton);
 
-  saveButton.addEventListener('click', () => {
-    const rows = scoreboard.querySelectorAll('tr');
-    rows.forEach(async (row, index) => {
-      const entry = entries[index];
-      const cells = row.querySelectorAll('td');
-      const newName = cells[1].innerText.trim();
-      const newDivision = cells[2].innerText.trim();
-      const newCategory = cells[3].innerText.trim();
-      const newTime = cells[4].innerText.trim().split(" ")[0] + " " + cells[4].innerText.trim().split(" ")[1];
-      const newDate = cells[5].innerText.trim();
+saveButton.addEventListener('click', () => {
+  const rows = scoreboard.querySelectorAll('tr');
+  rows.forEach(async (row, index) => {
+    const entry = entries[index];
+    const cells = row.querySelectorAll('td');
+    const newName = cells[1].innerText.trim();
+    const newDivision = cells[2].innerText.trim();
+    const newCategory = cells[3].innerText.trim();
+    const newTime = cells[4].innerText.trim().split(" ")[0] + " " + cells[4].innerText.trim().split(" ")[1];
+    const newDateParts = cells[5].innerText.trim().split('/');
+    const newDateISO = new Date(`${newDateParts[2]}-${newDateParts[0]}-${newDateParts[1]}`).toISOString().split('T')[0];
 
-      // Basic validation (optional)
-      if (newName && newDivision && newCategory && newTime && newDate) {
-        await entriesCollection.doc(entry.id).update({
-          name: newName,
-          division: newDivision,
-          category: newCategory,
-          time: newTime,
-          date: new Date(newDate).toISOString().split("T")[0]
-        });
-      }
-    });
-
-    alert("Changes saved.");
-    fetchEntries(); // Refresh the view with updated data
+    // Basic validation
+    if (newName && newDivision && newCategory && newTime && newDateISO) {
+      await entriesCollection.doc(entry.id).update({
+        name: newName,
+        division: newDivision,
+        category: newCategory,
+        time: newTime,
+        date: newDateISO
+      });
+    }
   });
+
+  alert('Changes saved.');
+  fetchEntries();
+});
 } else {
   const saveBtn = document.getElementById('saveChangesButton');
   if (saveBtn) saveBtn.remove();

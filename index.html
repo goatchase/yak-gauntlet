@@ -2,117 +2,190 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>YAK GAUNTLET SCOREBOARD</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>THE YAK GAUNTLET</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 1rem;
-      background: #f8f8f8;
-      color: #333;
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+      color: #001f3f;
+      text-transform: uppercase;
+      font-size: 12pt;
     }
     h1 {
+      font-size: 20pt;
       text-align: center;
+      color: #001f3f;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .subtitle {
+      text-align: center;
+      font-style: italic;
+      font-size: 10pt;
+      margin-bottom: 20px;
+      color: #001f3f;
     }
     form {
-      max-width: 400px;
-      margin: 0 auto 2rem;
-      background: #fff;
-      padding: 1rem;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
     }
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: bold;
-    }
-    input[type="text"],
-    input[type="date"],
-    select {
-      width: 100%;
-      padding: 0.4rem;
-      font-size: 1rem;
-      margin-top: 0.3rem;
-      box-sizing: border-box;
-    }
-    input[type="text"]:not(#divisionManual),
-    input[type="date"],
-    select {
+    form input, form select, form button {
+      padding: 10px;
+      font-size: 1em;
+      border-radius: 4px;
       border: 1px solid #ccc;
-      border-radius: 3px;
     }
-    #divisionManual {
-      margin-top: 0.5rem;
-      padding: 0.3rem;
-      border: 1px solid #666;
-      border-radius: 3px;
-      font-size: 1rem;
-      width: calc(100% - 2px);
-      display: none;
-    }
-    button {
-      margin-top: 1.5rem;
-      width: 100%;
-      padding: 0.7rem;
-      font-size: 1.1rem;
-      background: #28a745;
+    form button {
+      background-color: #990000;
       color: white;
-      border: none;
-      border-radius: 3px;
       cursor: pointer;
     }
-    button:hover {
-      background: #218838;
+    form button:hover {
+      background-color: #770000;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .filters {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.9em;
+    }
+    .top-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+    .edit-button, .unfilter-button, .open-stats-button {
+      background-color: #007bff;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 1em;
+    }
+    .edit-button:hover, .unfilter-button:hover, .open-stats-button:hover {
+      background-color: #0056b3;
+    }
+    select, input[type="search"] {
+      padding: 5px;
+      font-size: 1em;
+      border-radius: 4px;
+      border: 1px solid #ccc;
     }
     table {
       width: 100%;
+      margin-top: 10px;
       border-collapse: collapse;
-      background: white;
-      box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
+      table-layout: auto;
     }
     th, td {
-      text-align: left;
-      padding: 0.5rem;
+      padding: 8px;
       border-bottom: 1px solid #ddd;
+      text-align: left;
     }
     th {
-      background: #007bff;
-      color: white;
+      font-weight: bold;
+      background-color: #f4f4f4;
+      position: sticky;
+      top: 0;
+      z-index: 1;
     }
     tr:hover {
-      background: #f1f1f1;
+      background-color: #f1f1f1;
+    }
+    .leader {
+      background-color: #ccffcc !important;
+    }
+    .division-leader {
+      background-color: #dceeff !important;
+    }
+    .today-entry {
+      background-color: #fffacd !important;
+    }
+    .stopwatch {
+      font-size: 1em;
+      margin-left: 6px;
+    }
+    .gold { color: gold; }
+    .blue { color: #3399ff; }
+    @media (max-width: 600px) {
+      .top-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .filters,
+      .top-controls {
+        flex-direction: column;
+        width: 100%;
+        gap: 5px;
+      }
+      .filter-group {
+        width: 100%;
+      }
+      .top-controls input,
+      .top-controls button {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>YAK GAUNTLET SCOREBOARD</h1>
 
-  <form id="scoreForm">
-    <label for="name">Name</label>
-    <input type="text" id="name" name="name" required />
+  <h1>THE YAK GAUNTLET</h1>
+  <div class="subtitle">CORNHOLE • SOCCER • WIFFLE • FOOTBALL • BASKETBALL • SP@#$%&</div>
 
-    <label for="division">Division</label>
-    <select id="division" name="division" required>
+  <form id="entryForm">
+    <input id="name" placeholder="Name" required />
+    <select id="division" required>
       <option value="" disabled selected>Select Division</option>
-      <!-- divisions options dynamically populated -->
     </select>
-    <input type="text" id="divisionManual" name="divisionManual" placeholder="Enter division" />
-
-    <label for="category">Category</label>
-    <select id="category" name="category" required>
+    <select id="category" required>
       <option value="" disabled selected>Select Category</option>
-      <!-- categories options dynamically populated -->
     </select>
-
-    <label for="time">Time (seconds)</label>
-    <input type="text" id="time" name="time" required pattern="^\d+(\.\d+)?$" title="Enter a valid time in seconds (e.g., 123.45)" />
-
-    <label for="date">Date</label>
-    <input type="date" id="date" name="date" required />
-
-    <button type="submit">Add Entry</button>
+    <input id="time" placeholder="Time (mm ss.ss)" required />
+    <input id="date" type="date" required />
+    <button type="submit">Submit</button>
   </form>
+
+  <div class="top-bar">
+    <div class="filters">
+      <div class="filter-group">
+        <label for="divisionFilter">Division</label>
+        <select id="divisionFilter"><option value="All">All</option></select>
+      </div>
+      <div class="filter-group">
+        <label for="categoryFilter">Category</label>
+        <select id="categoryFilter"><option value="All">All</option></select>
+      </div>
+    </div>
+    <div class="top-controls">
+      <input id="searchInput" type="search" placeholder="Search name" />
+      <button id="editButton" class="edit-button">Edit</button>
+      <button id="unfilterButton" class="unfilter-button">Unfilter</button>
+      <button id="openStatsButton" class="open-stats-button">Stats</button>
+    </div>
+  </div>
 
   <table id="scoreboard">
     <thead>
@@ -123,119 +196,251 @@
         <th>Category</th>
         <th>Time</th>
         <th>Date</th>
+        <th id="actionHeader" style="display: none;">Actions</th>
       </tr>
     </thead>
-    <tbody>
-      <!-- entries will appear here -->
-    </tbody>
+    <tbody></tbody>
   </table>
 
-  <script>
-    // Example data to start with
-    let entries = [
-      { name: "Alice", division: "Pro", category: "Speedrun", time: 120.5, date: "2025-05-27" },
-      { name: "Bob", division: "Amateur", category: "Casual", time: 135.2, date: "2025-05-26" },
-    ];
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const firebaseConfig = {
+      apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
+      authDomain: "goatchase-e9502.firebaseapp.com",
+      projectId: "goatchase-e9502",
+      storageBucket: "goatchase-e9502.appspot.com",
+      messagingSenderId: "16998517478",
+      appId: "1:16998517478:web:6386aff8c1d1da2accc927",
+      measurementId: "G-YWLJGQG0XD"
+    };
 
-    const form = document.getElementById('scoreForm');
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const entriesCollection = db.collection("entries");
+
+    const form = document.getElementById('entryForm');
+    const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
+    const editButton = document.getElementById('editButton');
+    const unfilterButton = document.getElementById('unfilterButton');
+    const openStatsButton = document.getElementById('openStatsButton');
+    const searchInput = document.getElementById('searchInput');
+    const divisionFilter = document.getElementById('divisionFilter');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const actionHeader = document.getElementById('actionHeader');
     const divisionSelect = document.getElementById('division');
-    const divisionManualInput = document.getElementById('divisionManual');
     const categorySelect = document.getElementById('category');
-    const scoreboardBody = document.querySelector('#scoreboard tbody');
 
-    // Populate division and category selects dynamically
+    let entries = [];
+    let isEditMode = false;
+    const editPassword = "benjaminmintz1"; // 🔐 Change this password as needed
+
+    function formatDate(input) {
+      const d = new Date(input);
+      return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
+    }
+
+    function parseTimeToSeconds(timeStr) {
+      const parts = timeStr.trim().split(" ");
+      if (parts.length !== 2) return NaN;
+      const [min, sec] = parts.map(parseFloat);
+      return min * 60 + sec;
+    }
+
+    function formatTime(seconds) {
+      const min = Math.floor(seconds / 60);
+      const sec = (seconds % 60).toFixed(2).padStart(5, '0');
+      return `${String(min).padStart(2,'0')} ${sec}`;
+    }
+
+    function getDaysSince(dateStr) {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diffTime = now - date;
+      return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    }
+
     function updateFilterOptions() {
-      // Extract unique divisions and categories from entries
       const divisions = [...new Set(entries.map(e => e.division))].sort();
       const categories = [...new Set(entries.map(e => e.category))].sort();
 
-      // Populate division select with options + "Other"
-      divisionSelect.innerHTML =
-        '<option value="" disabled selected>Select Division</option>' +
-        divisions.map(d => `<option value="${d}">${d}</option>`).join('') +
-        '<option value="Other">Other</option>';
+      divisionFilter.innerHTML = '<option value="All">All</option>' +
+        divisions.map(d => `<option value="${d}">${d}</option>`).join('');
+      categoryFilter.innerHTML = '<option value="All">All</option>' +
+        categories.map(c => `<option value="${c}">${c}</option>`).join('');
 
-      // Populate category select with options
-      categorySelect.innerHTML =
-        '<option value="" disabled selected>Select Category</option>' +
+      divisionSelect.innerHTML = '<option value="" disabled selected>Select Division</option>' +
+        divisions.map(d => `<option value="${d}">${d}</option>`).join('');
+      categorySelect.innerHTML = '<option value="" disabled selected>Select Category</option>' +
         categories.map(c => `<option value="${c}">${c}</option>`).join('');
     }
 
-    // Render scoreboard table rows sorted by time ascending
-    function renderScoreboard() {
-      entries.sort((a, b) => a.time - b.time);
-      scoreboardBody.innerHTML = entries.map((entry, index) => `
-        <tr>
+    async function renderScoreboard() {
+      scoreboard.innerHTML = '';
+      let bestOverall = null;
+      const bestByDivision = {};
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      entries.forEach(entry => {
+        entry.totalSeconds = parseTimeToSeconds(entry.time);
+        if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) bestOverall = entry;
+        if (!bestByDivision[entry.division] || entry.totalSeconds < bestByDivision[entry.division].totalSeconds) {
+          bestByDivision[entry.division] = entry;
+        }
+      });
+
+      entries.sort((a, b) => a.totalSeconds - b.totalSeconds);
+
+      const filteredEntries = entries.filter(entry =>
+        entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
+        (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
+        (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
+      );
+
+      filteredEntries.forEach((entry, index) => {
+        const row = document.createElement('tr');
+        const isToday = entry.date === todayStr;
+        const isLeader = entry === bestOverall;
+        const isDivisionLeader = bestByDivision[entry.division] === entry;
+
+        if (isLeader) row.classList.add('leader');
+        else if (isDivisionLeader) row.classList.add('division-leader');
+        if (isToday) row.classList.add('today-entry');
+
+        const daysSince = getDaysSince(entry.date);
+        let iconHTML = '';
+
+        if (isLeader) iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince} days</span>`;
+        else if (isDivisionLeader) iconHTML = `<span class="stopwatch blue" title="Days since: ${daysSince}">⏱️${daysSince} days</span>`;
+
+        row.innerHTML = `
           <td>${index + 1}</td>
-          <td>${entry.name}</td>
-          <td>${entry.division}</td>
-          <td>${entry.category}</td>
-          <td>${entry.time.toFixed(2)}</td>
-          <td>${entry.date}</td>
-        </tr>
-      `).join('');
+          <td contenteditable="${isEditMode}">${entry.name}</td>
+          <td contenteditable="${isEditMode}">${entry.division}</td>
+          <td contenteditable="${isEditMode}">${entry.category}</td>
+          <td contenteditable="${isEditMode}">${formatTime(entry.totalSeconds)} ${iconHTML}</td>
+          <td contenteditable="${isEditMode}">${formatDate(entry.date)}</td>
+          <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
+            <button class="delete-button" data-id="${entry.id}">Delete</button>
+          </td>
+        `;
+        scoreboard.appendChild(row);
+      });
+
+      updateFilterOptions();
+
+      document.querySelectorAll('.delete-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+          const entryId = e.target.dataset.id;
+          deleteEntry(entryId);
+        });
+      });
     }
 
-    // Toggle manual division input visibility when division changes
-    divisionSelect.addEventListener('change', () => {
-      if (divisionSelect.value === 'Other') {
-        divisionManualInput.style.display = 'inline-block';
-        divisionManualInput.required = true;
-      } else {
-        divisionManualInput.style.display = 'none';
-        divisionManualInput.required = false;
-        divisionManualInput.value = '';
-      }
-    });
+    async function fetchEntries() {
+      const snapshot = await entriesCollection.get();
+      entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderScoreboard();
+    }
 
-    // Add new entry handler
-    form.addEventListener('submit', (e) => {
+    async function addEntry(entry) {
+      await entriesCollection.add(entry);
+      fetchEntries();
+    }
+
+    async function deleteEntry(id) {
+      if (confirm("Delete this entry?")) {
+        await entriesCollection.doc(id).delete();
+        fetchEntries();
+      }
+    }
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-
       const name = document.getElementById('name').value.trim();
-      let division = divisionSelect.value;
+      const division = divisionSelect.value;
       const category = categorySelect.value;
-      const timeStr = document.getElementById('time').value.trim();
+      const time = document.getElementById('time').value.trim();
       const dateInput = document.getElementById('date').value;
-
-      // Use manual division if "Other" selected
-      if (division === 'Other') {
-        division = divisionManualInput.value.trim();
-      }
-
-      // Validate inputs
-      if (!name || !division || !category || !timeStr || !dateInput) {
-        alert('Please fill in all fields.');
-        return;
-      }
-
-      const time = parseFloat(timeStr);
-      if (isNaN(time) || time <= 0) {
-        alert('Please enter a valid positive number for time.');
-        return;
-      }
-
-      // Correct date to avoid timezone issues
       const dateRaw = new Date(dateInput);
       const correctedDate = new Date(dateRaw.getTime() + Math.abs(dateRaw.getTimezoneOffset() * 60000));
       const dateString = correctedDate.toISOString().split('T')[0];
 
-      // Add the new entry
-      entries.push({ name, division, category, time, date: dateString });
+      if (!name || !division || !category || !time || !dateRaw) {
+        alert("Please fill in all fields.");
+        return;
+      }
 
-      // Reset form
+      await addEntry({ name, division, category, time, date: dateString });
       form.reset();
-      divisionManualInput.style.display = 'none';
-      divisionManualInput.required = false;
+    })
 
-      // Update selects and scoreboard
-      updateFilterOptions();
+    // 🔐 Password-protected edit toggle
+    editButton.addEventListener('click', () => {
+      if (!isEditMode) {
+        const input = prompt("Enter edit password:");
+        if (input !== editPassword) {
+          alert("Incorrect password.");
+          return;
+        }
+      }
+      isEditMode = !isEditMode;
+      editButton.textContent = isEditMode ? "Done" : "Edit";
+if (isEditMode) {
+  const saveButton = document.createElement('button');
+  saveButton.textContent = 'Save Changes';
+  saveButton.id = 'saveChangesButton';
+  saveButton.className = 'edit-button';
+  editButton.after(saveButton);
+
+saveButton.addEventListener('click', () => {
+  const rows = scoreboard.querySelectorAll('tr');
+  rows.forEach(async (row, index) => {
+    const entry = entries[index];
+    const cells = row.querySelectorAll('td');
+    const newName = cells[1].innerText.trim();
+    const newDivision = cells[2].innerText.trim();
+    const newCategory = cells[3].innerText.trim();
+    const newTime = cells[4].innerText.trim().split(" ")[0] + " " + cells[4].innerText.trim().split(" ")[1];
+    const newDateParts = cells[5].innerText.trim().split('/');
+    const newDateISO = new Date(`${newDateParts[2]}-${newDateParts[0]}-${newDateParts[1]}`).toISOString().split('T')[0];
+
+    // Basic validation
+    if (newName && newDivision && newCategory && newTime && newDateISO) {
+      await entriesCollection.doc(entry.id).update({
+        name: newName,
+        division: newDivision,
+        category: newCategory,
+        time: newTime,
+        date: newDateISO
+      });
+    }
+  });
+
+  alert('Changes saved.');
+  fetchEntries();
+});
+} else {
+  const saveBtn = document.getElementById('saveChangesButton');
+  if (saveBtn) saveBtn.remove();
+}
       renderScoreboard();
     });
 
-    // Initialize on page load
-    updateFilterOptions();
-    renderScoreboard();
-  </script>
-</body>
-</html>
+    unfilterButton.addEventListener('click', () => {
+      divisionFilter.value = 'All';
+      categoryFilter.value = 'All';
+      renderScoreboard();
+    });
+
+    searchInput.addEventListener('input', renderScoreboard);
+    divisionFilter.addEventListener('change', renderScoreboard);
+    categoryFilter.addEventListener('change', renderScoreboard);
+
+    // New: open stats page button
+    openStatsButton.addEventListener('click', () => {
+      window.open('stats.html', '_blank');
+    });
+
+    fetchEntries();
+  });
+</script>

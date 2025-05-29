@@ -1,3 +1,6 @@
+5/28 10:40
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -354,25 +357,40 @@
       }
     }
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('name').value.trim();
-      const division = divisionSelect.value;
-      const category = categorySelect.value;
-      const time = document.getElementById('time').value.trim();
-      const dateInput = document.getElementById('date').value;
-      const dateRaw = new Date(dateInput);
-      const correctedDate = new Date(dateRaw.getTime() + Math.abs(dateRaw.getTimezoneOffset() * 60000));
-      const dateString = correctedDate.toISOString().split('T')[0];
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-      if (!name || !division || !category || !time || !dateRaw) {
-        alert("Please fill in all fields.");
-        return;
-      }
+  const name = document.getElementById('name').value.trim();
+  const division = divisionSelect.value;
+  const category = categorySelect.value;
+  const time = document.getElementById('time').value.trim();
+  const dateInput = document.getElementById('date').value; // e.g. "2025-05-29"
 
-      await addEntry({ name, division, category, time, date: dateString });
-      form.reset();
-    })
+  if (!name || !division || !category || !time || !dateInput) {
+    alert("Please fill in all fields.");
+    return;
+  }
+
+  // Extract year, month, day from the dateInput string
+  const [year, month, day] = dateInput.split('-').map(Number);
+
+  // Get current time components
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const seconds = now.getSeconds();
+  const milliseconds = now.getMilliseconds();
+
+  // Create a Date object with local time on selected day + current time
+  const combinedDate = new Date(year, month - 1, day, hours, minutes, seconds, milliseconds);
+
+  // Convert to ISO string for Firestore (UTC)
+  const dateTimeString = combinedDate.toISOString();
+
+  await addEntry({ name, division, category, time, date: dateTimeString });
+
+  form.reset();
+});
 
     // 🔐 Password-protected edit toggle
     editButton.addEventListener('click', () => {

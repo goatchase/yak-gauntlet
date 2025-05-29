@@ -1,3 +1,6 @@
+5/28 10:36
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -354,25 +357,34 @@
       }
     }
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('name').value.trim();
-      const division = divisionSelect.value;
-      const category = categorySelect.value;
-      const time = document.getElementById('time').value.trim();
-      const dateInput = document.getElementById('date').value;
-      const dateRaw = new Date(dateInput);
-      const correctedDate = new Date(dateRaw.getTime() + Math.abs(dateRaw.getTimezoneOffset() * 60000));
-      const dateString = correctedDate.toISOString().split('T')[0];
+  form.addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-      if (!name || !division || !category || !time || !dateRaw) {
-        alert("Please fill in all fields.");
-        return;
-      }
+  const name = document.getElementById('name').value.trim();
+  const division = divisionSelect.value;
+  const category = categorySelect.value;
+  const time = document.getElementById('time').value.trim();
+  const dateInput = document.getElementById('date').value; // yyyy-mm-dd
 
-      await addEntry({ name, division, category, time, date: dateString });
-      form.reset();
-    })
+  if (!name || !division || !category || !time || !dateInput) {
+    alert("Please fill in all fields.");
+    return;
+  }
+
+  // Create a Date object for the selected date
+  const selectedDate = new Date(dateInput);
+
+  // Get current time
+  const now = new Date();
+  selectedDate.setHours(now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
+
+  // Convert to ISO string and get only the date part if you want, or save full timestamp
+  const dateTimeString = selectedDate.toISOString();
+
+  await addEntry({ name, division, category, time, date: dateTimeString });
+
+  form.reset();
+});
 
     // 🔐 Password-protected edit toggle
     editButton.addEventListener('click', () => {

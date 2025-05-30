@@ -155,37 +155,30 @@
   <h1>THE YAK GAUNTLET</h1>
   <div class="subtitle">CORNHOLE • SOCCER • WIFFLE • FOOTBALL • BASKETBALL • SPORCLE</div>
 
-<form id="entryForm">
-  <input id="name" placeholder="Name" required />
-  <select id="division" required>
-    <option value="" disabled selected>Select Division</option>
-  </select>
-  <select id="category" required>
-    <option value="" disabled selected>Select Category</option>
-  </select>
-  <div class="filters" style="margin-top: 10px;">
-    <div class="filter-group">
-      <label for="divisionFilter">Filter by Division</label>
-      <select id="divisionFilter"><option value="All">All</option></select>
-    </div>
-    <div class="filter-group">
-      <label for="categoryFilter">Filter by Category</label>
-      <select id="categoryFilter"><option value="All">All</option></select>
-    </div>
-  </div>
-  <input id="time" placeholder="Time (mm ss.ss)" required />
-  <input id="date" type="date" required />
-  <button type="submit">Submit</button>
-</form>
+  <form id="entryForm">
+    <input id="name" placeholder="Name" required />
+    <select id="division" required>
+      <option value="" disabled selected>Select Division</option>
+    </select>
+    <select id="category" required>
+      <option value="" disabled selected>Select Category</option>
+    </select>
+    <input id="time" placeholder="Time (mm ss.ss)" required />
+    <input id="date" type="date" required />
+    <button type="submit">Submit</button>
+  </form>
 
-<div class="top-bar">
-  <div class="top-controls">
-    <input id="searchInput" type="search" placeholder="Search name" />
-    <button id="editButton" class="edit-button">Edit</button>
-    <button id="unfilterButton" class="unfilter-button">Unfilter</button>
-    <button id="openStatsButton" class="open-stats-button">Stats</button>
-  </div>
-</div>  
+  <div class="top-bar">
+    <div class="filters">
+      <div class="filter-group">
+        <label for="divisionFilter">Division</label>
+        <select id="divisionFilter"><option value="All">All</option></select>
+      </div>
+      <div class="filter-group">
+        <label for="categoryFilter">Category</label>
+        <select id="categoryFilter"><option value="All">All</option></select>
+      </div>
+    </div>
     <div class="top-controls">
       <input id="searchInput" type="search" placeholder="Search name" />
       <button id="editButton" class="edit-button">Edit</button>

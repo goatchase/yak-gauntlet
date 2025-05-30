@@ -184,6 +184,7 @@
       <button id="editButton" class="edit-button">Edit</button>
       <button id="unfilterButton" class="unfilter-button">Unfilter</button>
       <button id="openStatsButton" class="open-stats-button">Stats</button>
+      <button id="randomButton" class="open-stats-button">Random</button>
     </div>
   </div>
 
@@ -455,6 +456,38 @@ saveButton.addEventListener('click', () => {
     openStatsButton.addEventListener('click', () => {
       window.open('stats.html', '_blank');
     });
+
+const randomButton = document.getElementById('randomButton');
+randomButton.addEventListener('click', () => {
+  if (entries.length === 0) {
+    alert("No entries available.");
+    return;
+  }
+
+  // Filtered entries based on current filters & search
+  const filteredEntries = entries.filter(entry =>
+    entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
+    (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
+    (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
+  );
+
+  if (filteredEntries.length === 0) {
+    alert("No entries match current filters.");
+    return;
+  }
+
+  const randomIndex = Math.floor(Math.random() * filteredEntries.length);
+  const entry = filteredEntries[randomIndex];
+
+  alert(
+    `Random Run:\n` +
+    `Name: ${entry.name}\n` +
+    `Division: ${entry.division}\n` +
+    `Category: ${entry.category}\n` +
+    `Time: ${entry.time}\n` +
+    `Date: ${formatDate(entry.date)}`
+  );
+});
 
     fetchEntries();
   });

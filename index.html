@@ -3,492 +3,142 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>THE YAK GAUNTLET</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <title>YAK GAUNTLET Scoreboard</title>
   <style>
     body {
-      font-family: 'Roboto', sans-serif;
-      margin: 0;
-      padding: 20px;
-      background-color: #f4f4f4;
-      color: #001f3f;
-      text-transform: uppercase;
-      font-size: 12pt;
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background-color: #f9f9f9;
     }
     h1 {
-      font-size: 20pt;
       text-align: center;
-      color: #001f3f;
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-    .subtitle {
-      text-align: center;
-      font-style: italic;
-      font-size: 12pt;
-      margin-bottom: 20px;
-      color: #001f3f;
-    }
-    form {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-    form input, form select, form button {
-      padding: 5px;
-      font-size: 1em;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-    form button {
-      background-color: #990000;
-      color: white;
-      cursor: pointer;
-    }
-    form button:hover {
-      background-color: #770000;
-    }
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      align-items: flex-end;
-      margin-bottom: 10px;
-    }
-    .filters {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .filter-group {
-      display: flex;
-      flex-direction: column;
-      font-size: 1em;
-    }
-    .top-controls {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: flex-end;
-    }
-    .edit-button, .unfilter-button, .open-stats-button {
-      background-color: #007bff;
-      color: white;
-      padding: 5px 10px;
-      border: none;
-      cursor: pointer;
-      border-radius: 4px;
-      font-size: 1em;
-    }
-    .edit-button:hover, .unfilter-button:hover, .open-stats-button:hover {
-      background-color: #0056b3;
-    }
-    select, input[type="search"] {
-      padding: 5px;
-      font-size: 1em;
-      border-radius: 4px;
-      border: 1px solid #ccc;
     }
     table {
       width: 100%;
-      margin-top: 10px;
       border-collapse: collapse;
-      table-layout: auto;
+      margin-top: 1rem;
     }
     th, td {
-      padding: 5px;
+      padding: 8px;
       border-bottom: 1px solid #ddd;
       text-align: left;
-    }
-    th {
-      font-weight: bold;
-      background-color: #f4f4f4;
-      position: sticky;
-      top: 0;
-      z-index: 1;
     }
     tr:hover {
       background-color: #f1f1f1;
     }
+    th.sortable {
+      cursor: pointer;
+    }
+    th.sortable::after {
+      content: ' ⇅';
+      font-size: 0.8em;
+      color: #aaa;
+    }
     .leader {
-      background-color: #ccffcc !important;
+      background-color: #98ff98 !important;
     }
-    .division-leader {
-      background-color: #dceeff !important;
-    }
-    .today-entry {
-      background-color: #fffacd !important;
-    }
-    .stopwatch {
-      font-size: 1em;
-      margin-left: 6px;
-    }
-    .gold { color: #001f3f; }
-    .blue { color: #001f3f; }
-    @media (max-width: 600px) {
-      .top-bar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .filters,
-      .top-controls {
-        flex-direction: column;
-        width: 100%;
-        gap: 5px;
-      }
-      .filter-group {
-        width: 100%;
-      }
-      .top-controls input,
-      .top-controls button {
-        width: 100%;
-      }
+    .today {
+      background-color: #ffffcc;
     }
   </style>
 </head>
 <body>
 
-  <h1>THE YAK GAUNTLET</h1>
-  <div class="subtitle">CORNHOLE • SOCCER • WIFFLE • FOOTBALL • BASKETBALL • SPORCLE</div>
-
-  <form id="entryForm">
-    <input id="name" placeholder="Name" required />
-    <select id="division" required>
-      <option value="" disabled selected>Select Division</option>
-    </select>
-    <select id="category" required>
-      <option value="" disabled selected>Select Category</option>
-    </select>
-    <input id="time" placeholder="Time (mm ss.ss)" required />
-    <input id="date" type="date" required />
-    <button type="submit">Submit</button>
-  </form>
-
-  <div class="top-bar">
-    <div class="filters">
-      <div class="filter-group">
-        <label for="divisionFilter">Division</label>
-        <select id="divisionFilter"><option value="All">All</option></select>
-      </div>
-      <div class="filter-group">
-        <label for="categoryFilter">Category</label>
-        <select id="categoryFilter"><option value="All">All</option></select>
-      </div>
-    </div>
-    <div class="top-controls">
-      <input id="searchInput" type="search" placeholder="Search name" />
-      <button id="editButton" class="edit-button">Edit</button>
-      <button id="unfilterButton" class="unfilter-button">Unfilter</button>
-      <button id="openStatsButton" class="open-stats-button">Stats</button>
-      <button id="randomButton" class="open-stats-button">Random</button>
-    </div>
-  </div>
+  <h1>YAK GAUNTLET Scoreboard</h1>
 
   <table id="scoreboard">
     <thead>
       <tr>
-        <th>Rank</th>
-        <th>Name</th>
-        <th>Division</th>
-        <th>Category</th>
-        <th>Time</th>
-        <th>Date</th>
-        <th id="actionHeader" style="display: none;">Actions</th>
+        <th class="sortable" data-key="rank">Rank</th>
+        <th class="sortable" data-key="name">Name</th>
+        <th class="sortable" data-key="division">Division</th>
+        <th class="sortable" data-key="category">Category</th>
+        <th class="sortable" data-key="time">Time</th>
+        <th class="sortable" data-key="date">Date</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const firebaseConfig = {
-      apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
-      authDomain: "goatchase-e9502.firebaseapp.com",
-      projectId: "goatchase-e9502",
-      storageBucket: "goatchase-e9502.appspot.com",
-      messagingSenderId: "16998517478",
-      appId: "1:16998517478:web:6386aff8c1d1da2accc927",
-      measurementId: "G-YWLJGQG0XD"
-    };
+  <script>
+    // Example data (replace with Firebase or dynamic loading)
+    let entries = [
+      { rank: 1, name: 'Alice', division: 'A', category: 'X', time: '23.4', date: '2025-06-10' },
+      { rank: 2, name: 'Bob', division: 'B', category: 'Y', time: '25.1', date: '2025-06-09' },
+      { rank: 3, name: 'Charlie', division: 'A', category: 'X', time: '26.0', date: '2025-06-10' },
+    ];
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const entriesCollection = db.collection("entries");
+    let filteredEntries = [...entries];
 
-    const form = document.getElementById('entryForm');
-    const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
-    const editButton = document.getElementById('editButton');
-    const unfilterButton = document.getElementById('unfilterButton');
-    const openStatsButton = document.getElementById('openStatsButton');
-    const searchInput = document.getElementById('searchInput');
-    const divisionFilter = document.getElementById('divisionFilter');
-    const categoryFilter = document.getElementById('categoryFilter');
-    const actionHeader = document.getElementById('actionHeader');
-    const divisionSelect = document.getElementById('division');
-    const categorySelect = document.getElementById('category');
+    let currentSort = { key: null, direction: 'asc' };
 
-    let entries = [];
-    let isEditMode = false;
-    const editPassword = "benjaminmintz1"; // 🔐 Change this password as needed
+    document.querySelectorAll('th.sortable').forEach(header => {
+      header.addEventListener('click', () => {
+        const key = header.dataset.key;
+        if (currentSort.key === key) {
+          currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+          currentSort.key = key;
+          currentSort.direction = 'asc';
+        }
+        sortAndRender();
+      });
+    });
 
-    function formatDate(input) {
-      const d = new Date(input);
-      return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
+    function sortAndRender() {
+      const sorted = [...filteredEntries].sort((a, b) => {
+        let aVal = a[currentSort.key];
+        let bVal = b[currentSort.key];
+
+        if (currentSort.key === 'time') {
+          aVal = parseFloat(aVal);
+          bVal = parseFloat(bVal);
+        } else if (currentSort.key === 'rank') {
+          aVal = parseInt(aVal);
+          bVal = parseInt(bVal);
+        } else if (currentSort.key === 'date') {
+          aVal = new Date(aVal);
+          bVal = new Date(bVal);
+        } else {
+          aVal = aVal.toLowerCase?.() ?? '';
+          bVal = bVal.toLowerCase?.() ?? '';
+        }
+
+        if (aVal < bVal) return currentSort.direction === 'asc' ? -1 : 1;
+        if (aVal > bVal) return currentSort.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      renderEntries(sorted);
     }
 
-    function parseTimeToSeconds(timeStr) {
-      const parts = timeStr.trim().split(" ");
-      if (parts.length !== 2) return NaN;
-      const [min, sec] = parts.map(parseFloat);
-      return min * 60 + sec;
-    }
+    function renderEntries(data) {
+      const tbody = document.querySelector('#scoreboard tbody');
+      tbody.innerHTML = '';
 
-    function formatTime(seconds) {
-      const min = Math.floor(seconds / 60);
-      const sec = (seconds % 60).toFixed(2).padStart(5, '0');
-      return `${String(min).padStart(2,'0')} ${sec}`;
-    }
-
-    function getDaysSince(dateStr) {
-      const date = new Date(dateStr);
-      const now = new Date();
-      const diffTime = now - date;
-      return Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    }
-
-    function updateFilterOptions() {
-      const divisions = [...new Set(entries.map(e => e.division))].sort();
-      const categories = [...new Set(entries.map(e => e.category))].sort();
-
-      divisionFilter.innerHTML = '<option value="All">All</option>' +
-        divisions.map(d => `<option value="${d}">${d}</option>`).join('');
-      categoryFilter.innerHTML = '<option value="All">All</option>' +
-        categories.map(c => `<option value="${c}">${c}</option>`).join('');
-
-      divisionSelect.innerHTML = '<option value="" disabled selected>Select Division</option>' +
-        divisions.map(d => `<option value="${d}">${d}</option>`).join('');
-      categorySelect.innerHTML = '<option value="" disabled selected>Select Category</option>' +
-        categories.map(c => `<option value="${c}">${c}</option>`).join('');
-    }
-
-    async function renderScoreboard() {
-      scoreboard.innerHTML = '';
-      let bestOverall = null;
-      const bestByDivision = {};
       const todayStr = new Date().toISOString().split('T')[0];
 
-      entries.forEach(entry => {
-        entry.totalSeconds = parseTimeToSeconds(entry.time);
-        if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) bestOverall = entry;
-        if (!bestByDivision[entry.division] || entry.totalSeconds < bestByDivision[entry.division].totalSeconds) {
-          bestByDivision[entry.division] = entry;
-        }
-      });
+      data.forEach(entry => {
+        const tr = document.createElement('tr');
 
-      entries.sort((a, b) => a.totalSeconds - b.totalSeconds);
+        if (entry.rank === 1) tr.classList.add('leader');
+        if (entry.date === todayStr) tr.classList.add('today');
 
-      const filteredEntries = entries.filter(entry =>
-        entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
-        (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
-        (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
-      );
-
-      filteredEntries.forEach((entry, index) => {
-        const row = document.createElement('tr');
-	const entryDateOnly = new Date(entry.date).toISOString().split('T')[0];
-	const isToday = entryDateOnly === todayStr;        const isLeader = entry === bestOverall;
-        const isDivisionLeader = bestByDivision[entry.division] === entry;
-
-        if (isLeader) row.classList.add('leader');
-        else if (isDivisionLeader) row.classList.add('division-leader');
-        if (isToday) row.classList.add('today-entry');
-
-        const daysSince = getDaysSince(entry.date);
-        let iconHTML = '';
-
-        if (isLeader) iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince} days</span>`;
-        else if (isDivisionLeader) iconHTML = `<span class="stopwatch blue" title="Days since: ${daysSince}">⏱️${daysSince} days</span>`;
-
-        row.innerHTML = `
-          <td>${index + 1}</td>
-          <td contenteditable="${isEditMode}">${entry.name}</td>
-          <td contenteditable="${isEditMode}">${entry.division}</td>
-          <td contenteditable="${isEditMode}">${entry.category}</td>
-          <td contenteditable="${isEditMode}">${formatTime(entry.totalSeconds)} ${iconHTML}</td>
-          <td contenteditable="${isEditMode}">${formatDate(entry.date)}</td>
-          <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
-            <button class="delete-button" data-id="${entry.id}">Delete</button>
-          </td>
+        tr.innerHTML = `
+          <td>${entry.rank}</td>
+          <td>${entry.name}</td>
+          <td>${entry.division}</td>
+          <td>${entry.category}</td>
+          <td>${entry.time}</td>
+          <td>${entry.date}</td>
         `;
-        scoreboard.appendChild(row);
-      });
-
-      updateFilterOptions();
-
-      document.querySelectorAll('.delete-button').forEach(button => {
-        button.addEventListener('click', (e) => {
-          const entryId = e.target.dataset.id;
-          deleteEntry(entryId);
-        });
+        tbody.appendChild(tr);
       });
     }
 
-    async function fetchEntries() {
-      const snapshot = await entriesCollection.get();
-      entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      renderScoreboard();
-    }
+    // Initial render
+    sortAndRender();
+  </script>
 
-    async function addEntry(entry) {
-      await entriesCollection.add(entry);
-      fetchEntries();
-    }
-
-    async function deleteEntry(id) {
-      if (confirm("Delete this entry?")) {
-        await entriesCollection.doc(id).delete();
-        fetchEntries();
-      }
-    }
-
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const name = document.getElementById('name').value.trim();
-  const division = divisionSelect.value;
-  const category = categorySelect.value;
-  const time = document.getElementById('time').value.trim();
-  const dateInput = document.getElementById('date').value; // e.g. "2025-05-29"
-
-  if (!name || !division || !category || !time || !dateInput) {
-    alert("Please fill in all fields.");
-    return;
-  }
-
-  // Extract year, month, day from the dateInput string
-  const [year, month, day] = dateInput.split('-').map(Number);
-
-  // Get current time components
-  const now = new Date();
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
-  const seconds = now.getSeconds();
-  const milliseconds = now.getMilliseconds();
-
-  // Create a Date object with local time on selected day + current time
-  const combinedDate = new Date(year, month - 1, day, hours, minutes, seconds, milliseconds);
-
-  // Convert to ISO string for Firestore (UTC)
-  const dateTimeString = combinedDate.toISOString();
-
-  await addEntry({ name, division, category, time, date: dateTimeString });
-
-  form.reset();
-});
-
-    // 🔐 Password-protected edit toggle
-    editButton.addEventListener('click', () => {
-      if (!isEditMode) {
-        const input = prompt("Enter edit password:");
-        if (input !== editPassword) {
-          alert("Incorrect password.");
-          return;
-        }
-      }
-      isEditMode = !isEditMode;
-      editButton.textContent = isEditMode ? "Done" : "Edit";
-if (isEditMode) {
-  const saveButton = document.createElement('button');
-  saveButton.textContent = 'Save Changes';
-  saveButton.id = 'saveChangesButton';
-  saveButton.className = 'edit-button';
-  editButton.after(saveButton);
-
-saveButton.addEventListener('click', () => {
-  const rows = scoreboard.querySelectorAll('tr');
-  rows.forEach(async (row, index) => {
-    const entry = entries[index];
-    const cells = row.querySelectorAll('td');
-    const newName = cells[1].innerText.trim();
-    const newDivision = cells[2].innerText.trim();
-    const newCategory = cells[3].innerText.trim();
-    const newTime = cells[4].innerText.trim().split(" ")[0] + " " + cells[4].innerText.trim().split(" ")[1];
-    const newDateParts = cells[5].innerText.trim().split('/');
-    const newDateISO = new Date(`${newDateParts[2]}-${newDateParts[0]}-${newDateParts[1]}`).toISOString().split('T')[0];
-
-    // Basic validation
-    if (newName && newDivision && newCategory && newTime && newDateISO) {
-      await entriesCollection.doc(entry.id).update({
-        name: newName,
-        division: newDivision,
-        category: newCategory,
-        time: newTime,
-        date: newDateISO
-      });
-    }
-  });
-
-  alert('Changes saved.');
-  fetchEntries();
-});
-} else {
-  const saveBtn = document.getElementById('saveChangesButton');
-  if (saveBtn) saveBtn.remove();
-}
-      renderScoreboard();
-    });
-
-    unfilterButton.addEventListener('click', () => {
-      divisionFilter.value = 'All';
-      categoryFilter.value = 'All';
-      renderScoreboard();
-    });
-
-    searchInput.addEventListener('input', renderScoreboard);
-    divisionFilter.addEventListener('change', renderScoreboard);
-    categoryFilter.addEventListener('change', renderScoreboard);
-
-    // New: open stats page button
-    openStatsButton.addEventListener('click', () => {
-      window.open('stats.html', '_blank');
-    });
-
-const randomButton = document.getElementById('randomButton');
-randomButton.addEventListener('click', () => {
-  if (entries.length === 0) {
-    alert("No entries available.");
-    return;
-  }
-
-  // Filtered entries based on current filters & search
-  const filteredEntries = entries.filter(entry =>
-    entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
-    (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
-    (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
-  );
-
-  if (filteredEntries.length === 0) {
-    alert("No entries match current filters.");
-    return;
-  }
-
-  const randomIndex = Math.floor(Math.random() * filteredEntries.length);
-  const entry = filteredEntries[randomIndex];
-
-  alert(
-    `BEAT THIS RUN...\n` +
-    `NAME: ${entry.name}\n` +
-    `DIVISION: ${entry.division}\n` +
-    `CATEGORY: ${entry.category}\n` +
-    `TIME: ${entry.time}\n` +
-    `DATE: ${formatDate(entry.date)}`
-  );
-});
-
-    fetchEntries();
-  });
-</script>
+</body>
+</html>

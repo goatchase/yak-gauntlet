@@ -178,10 +178,6 @@
         <label for="categoryFilter">Category</label>
         <select id="categoryFilter"><option value="All">All</option></select>
       </div>
-	  <div class="filter-group">
-    <label for="dateFilter">Date</label>
-    <input type="date" id="dateFilter" />
-  </div>
     </div>
     <div class="top-controls">
       <input id="searchInput" type="search" placeholder="Search name" />
@@ -231,7 +227,6 @@
     const searchInput = document.getElementById('searchInput');
     const divisionFilter = document.getElementById('divisionFilter');
     const categoryFilter = document.getElementById('categoryFilter');
-    const dateFilter = document.getElementById('dateFilter');
     const actionHeader = document.getElementById('actionHeader');
     const divisionSelect = document.getElementById('division');
     const categorySelect = document.getElementById('category');
@@ -477,7 +472,6 @@ randomButton.addEventListener('click', () => {
   );
 
   if (filteredEntries.length === 0) {
-
     alert("No entries match current filters.");
     return;
   }

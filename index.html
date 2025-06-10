@@ -489,6 +489,39 @@ randomButton.addEventListener('click', () => {
   );
 });
 
+// Sorting logic
+let currentSort = { column: null, asc: true };
+
+document.querySelectorAll('#scoreboard thead th').forEach((th, index) => {
+  if (index === 6) return; // Skip Actions column
+  th.style.cursor = 'pointer';
+  th.addEventListener('click', () => {
+    const columnMap = ['rank', 'name', 'division', 'category', 'time', 'date'];
+    const column = columnMap[index];
+    const asc = currentSort.column === column ? !currentSort.asc : true;
+    currentSort = { column, asc };
+
+    entries.sort((a, b) => {
+      const getVal = (e) => {
+        switch (column) {
+          case 'name': return e.name.toLowerCase();
+          case 'division': return e.division.toLowerCase();
+          case 'category': return e.category.toLowerCase();
+          case 'time': return parseTimeToSeconds(e.time);
+          case 'date': return new Date(e.date);
+          default: return parseTimeToSeconds(e.time); // default to time if rank
+        }
+      };
+      const aVal = getVal(a), bVal = getVal(b);
+      if (aVal < bVal) return asc ? -1 : 1;
+      if (aVal > bVal) return asc ? 1 : -1;
+      return 0;
+    });
+
+    renderScoreboard();
+  });
+});
+
     fetchEntries();
   });
 </script>

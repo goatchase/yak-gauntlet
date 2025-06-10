@@ -103,13 +103,22 @@
       padding: 5px;
       border-bottom: 1px solid #ddd;
       text-align: left;
+      cursor: default;
+      user-select: none;
     }
-    th {
-      font-weight: bold;
-      background-color: #f4f4f4;
-      position: sticky;
-      top: 0;
-      z-index: 1;
+    th.sortable {
+      cursor: pointer;
+    }
+    th.sortable:hover {
+      background-color: #e0e0e0;
+    }
+    th.sorted-asc::after {
+      content: " ▲";
+      font-size: 0.7em;
+    }
+    th.sorted-desc::after {
+      content: " ▼";
+      font-size: 0.7em;
     }
     tr:hover {
       background-color: #f1f1f1;
@@ -191,12 +200,12 @@
   <table id="scoreboard">
     <thead>
       <tr>
-        <th>Rank</th>
-        <th>Name</th>
-        <th>Division</th>
-        <th>Category</th>
-        <th>Time</th>
-        <th>Date</th>
+        <th class="sortable" data-column="rank">Rank</th>
+        <th class="sortable" data-column="name">Name</th>
+        <th class="sortable" data-column="division">Division</th>
+        <th class="sortable" data-column="category">Category</th>
+        <th class="sortable" data-column="time">Time</th>
+        <th class="sortable" data-column="date">Date</th>
         <th id="actionHeader" style="display: none;">Actions</th>
       </tr>
     </thead>
@@ -234,6 +243,12 @@
     let entries = [];
     let isEditMode = false;
     const editPassword = "benjaminmintz1"; // 🔐 Change this password as needed
+
+    // Sort state
+    let currentSort = {
+      column: 'rank', // default sorting by rank (time ascending)
+      direction: 'asc' // or 'desc'
+    };
 
     function formatDate(input) {
       const d = new Date(input);
@@ -275,32 +290,72 @@
         categories.map(c => `<option value="${c}">${c}</option>`).join('');
     }
 
+    function compareEntries(a, b, column) {
+      switch (column) {
+        case 'rank':
+        case 'time':
+          // sort by totalSeconds
+          return a.totalSeconds - b.totalSeconds;
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'division':
+          return a.division.localeCompare(b.division);
+        case 'category':
+          return a.category.localeCompare(b.category);
+        case 'date':
+          return new Date(a.date) - new Date(b.date);
+        default:
+          return 0;
+      }
+    }
+
     async function renderScoreboard() {
       scoreboard.innerHTML = '';
-      let bestOverall = null;
-      const bestByDivision = {};
-      const todayStr = new Date().toISOString().split('T')[0];
 
+      // Calculate totalSeconds for sorting & finding leaders
       entries.forEach(entry => {
         entry.totalSeconds = parseTimeToSeconds(entry.time);
+      });
+
+      // Find best overall and division leaders from all entries (unfiltered)
+      let bestOverall = null;
+      const bestByDivision = {};
+      entries.forEach(entry => {
         if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) bestOverall = entry;
         if (!bestByDivision[entry.division] || entry.totalSeconds < bestByDivision[entry.division].totalSeconds) {
           bestByDivision[entry.division] = entry;
         }
       });
 
-      entries.sort((a, b) => a.totalSeconds - b.totalSeconds);
-
-      const filteredEntries = entries.filter(entry =>
+      // Apply filters and search
+      let filteredEntries = entries.filter(entry =>
         entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
         (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
         (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
       );
 
+      // Sort filtered entries by current sort column and direction
+      filteredEntries.sort((a, b) => {
+        let cmp = compareEntries(a, b, currentSort.column);
+        return currentSort.direction === 'asc' ? cmp : -cmp;
+      });
+
+      // Add sorted-asc/desc classes to headers
+      document.querySelectorAll('th.sortable').forEach(th => {
+        th.classList.remove('sorted-asc', 'sorted-desc');
+        if (th.dataset.column === currentSort.column) {
+          th.classList.add(currentSort.direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
+        }
+      });
+
+      const todayStr = new Date().toISOString().split('T')[0];
+
       filteredEntries.forEach((entry, index) => {
         const row = document.createElement('tr');
-	const entryDateOnly = new Date(entry.date).toISOString().split('T')[0];
-	const isToday = entryDateOnly === todayStr;        const isLeader = entry === bestOverall;
+
+        const entryDateOnly = new Date(entry.date).toISOString().split('T')[0];
+        const isToday = entryDateOnly === todayStr;
+        const isLeader = entry === bestOverall;
         const isDivisionLeader = bestByDivision[entry.division] === entry;
 
         if (isLeader) row.classList.add('leader');
@@ -355,40 +410,40 @@
       }
     }
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-  const name = document.getElementById('name').value.trim();
-  const division = divisionSelect.value;
-  const category = categorySelect.value;
-  const time = document.getElementById('time').value.trim();
-  const dateInput = document.getElementById('date').value; // e.g. "2025-05-29"
+      const name = document.getElementById('name').value.trim();
+      const division = divisionSelect.value;
+      const category = categorySelect.value;
+      const time = document.getElementById('time').value.trim();
+      const dateInput = document.getElementById('date').value; // e.g. "2025-05-29"
 
-  if (!name || !division || !category || !time || !dateInput) {
-    alert("Please fill in all fields.");
-    return;
-  }
+      if (!name || !division || !category || !time || !dateInput) {
+        alert("Please fill in all fields.");
+        return;
+      }
 
-  // Extract year, month, day from the dateInput string
-  const [year, month, day] = dateInput.split('-').map(Number);
+      // Extract year, month, day from the dateInput string
+      const [year, month, day] = dateInput.split('-').map(Number);
 
-  // Get current time components
-  const now = new Date();
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
-  const seconds = now.getSeconds();
-  const milliseconds = now.getMilliseconds();
+      // Get current time components
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const seconds = now.getSeconds();
+      const milliseconds = now.getMilliseconds();
 
-  // Create a Date object with local time on selected day + current time
-  const combinedDate = new Date(year, month - 1, day, hours, minutes, seconds, milliseconds);
+      // Create a Date object with local time on selected day + current time
+      const combinedDate = new Date(year, month - 1, day, hours, minutes, seconds, milliseconds);
 
-  // Convert to ISO string for Firestore (UTC)
-  const dateTimeString = combinedDate.toISOString();
+      // Convert to ISO string for Firestore (UTC)
+      const dateTimeString = combinedDate.toISOString();
 
-  await addEntry({ name, division, category, time, date: dateTimeString });
+      await addEntry({ name, division, category, time, date: dateTimeString });
 
-  form.reset();
-});
+      form.reset();
+    });
 
     // 🔐 Password-protected edit toggle
     editButton.addEventListener('click', () => {
@@ -401,94 +456,87 @@ form.addEventListener('submit', async (e) => {
       }
       isEditMode = !isEditMode;
       editButton.textContent = isEditMode ? "Done" : "Edit";
-if (isEditMode) {
-  const saveButton = document.createElement('button');
-  saveButton.textContent = 'Save Changes';
-  saveButton.id = 'saveChangesButton';
-  saveButton.className = 'edit-button';
-  editButton.after(saveButton);
+      if (isEditMode) {
+        const saveButton = document.createElement('button');
+        saveButton.textContent = 'Save Changes';
+        saveButton.id = 'saveChangesButton';
+        saveButton.className = 'edit-button';
+        editButton.after(saveButton);
 
-saveButton.addEventListener('click', () => {
-  const rows = scoreboard.querySelectorAll('tr');
-  rows.forEach(async (row, index) => {
-    const entry = entries[index];
-    const cells = row.querySelectorAll('td');
-    const newName = cells[1].innerText.trim();
-    const newDivision = cells[2].innerText.trim();
-    const newCategory = cells[3].innerText.trim();
-    const newTime = cells[4].innerText.trim().split(" ")[0] + " " + cells[4].innerText.trim().split(" ")[1];
-    const newDateParts = cells[5].innerText.trim().split('/');
-    const newDateISO = new Date(`${newDateParts[2]}-${newDateParts[0]}-${newDateParts[1]}`).toISOString().split('T')[0];
+        saveButton.addEventListener('click', async () => {
+          const rows = scoreboard.querySelectorAll('tr');
+          for (let index = 0; index < rows.length; index++) {
+            const row = rows[index];
+            const entry = entries[index];
+            const cells = row.querySelectorAll('td');
+            const newName = cells[1].innerText.trim();
+            const newDivision = cells[2].innerText.trim();
+            const newCategory = cells[3].innerText.trim();
+            const newTime = cells[4].innerText.trim().split(' ')[0] + ' ' + cells[4].innerText.trim().split(' ')[1]; // "mm ss.ss"
+            const newDateText = cells[5].innerText.trim();
+            // Parse mm/dd/yyyy to yyyy-mm-dd
+            const [m, d, y] = newDateText.split('/');
+            const newDate = new Date(y, m - 1, d).toISOString();
 
-    // Basic validation
-    if (newName && newDivision && newCategory && newTime && newDateISO) {
-      await entriesCollection.doc(entry.id).update({
-        name: newName,
-        division: newDivision,
-        category: newCategory,
-        time: newTime,
-        date: newDateISO
-      });
-    }
-  });
-
-  alert('Changes saved.');
-  fetchEntries();
-});
-} else {
-  const saveBtn = document.getElementById('saveChangesButton');
-  if (saveBtn) saveBtn.remove();
-}
+            await entriesCollection.doc(entry.id).update({
+              name: newName,
+              division: newDivision,
+              category: newCategory,
+              time: newTime,
+              date: newDate,
+            });
+          }
+          alert('Changes saved.');
+          fetchEntries();
+          isEditMode = false;
+          editButton.textContent = "Edit";
+          saveButton.remove();
+        });
+      } else {
+        const saveButton = document.getElementById('saveChangesButton');
+        if (saveButton) saveButton.remove();
+      }
       renderScoreboard();
     });
 
     unfilterButton.addEventListener('click', () => {
       divisionFilter.value = 'All';
       categoryFilter.value = 'All';
+      searchInput.value = '';
       renderScoreboard();
     });
 
-    searchInput.addEventListener('input', renderScoreboard);
-    divisionFilter.addEventListener('change', renderScoreboard);
-    categoryFilter.addEventListener('change', renderScoreboard);
-
-    // New: open stats page button
     openStatsButton.addEventListener('click', () => {
       window.open('stats.html', '_blank');
     });
 
-const randomButton = document.getElementById('randomButton');
-randomButton.addEventListener('click', () => {
-  if (entries.length === 0) {
-    alert("No entries available.");
-    return;
-  }
+    document.getElementById('randomButton').addEventListener('click', () => {
+      if (entries.length === 0) return;
+      const randIndex = Math.floor(Math.random() * entries.length);
+      const randEntry = entries[randIndex];
+      alert(`Random Entry:\nName: ${randEntry.name}\nDivision: ${randEntry.division}\nCategory: ${randEntry.category}\nTime: ${randEntry.time}\nDate: ${formatDate(randEntry.date)}`);
+    });
 
-  // Filtered entries based on current filters & search
-  const filteredEntries = entries.filter(entry =>
-    entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
-    (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
-    (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
-  );
+    divisionFilter.addEventListener('change', renderScoreboard);
+    categoryFilter.addEventListener('change', renderScoreboard);
+    searchInput.addEventListener('input', renderScoreboard);
 
-  if (filteredEntries.length === 0) {
-    alert("No entries match current filters.");
-    return;
-  }
-
-  const randomIndex = Math.floor(Math.random() * filteredEntries.length);
-  const entry = filteredEntries[randomIndex];
-
-  alert(
-    `BEAT THIS RUN...\n` +
-    `NAME: ${entry.name}\n` +
-    `DIVISION: ${entry.division}\n` +
-    `CATEGORY: ${entry.category}\n` +
-    `TIME: ${entry.time}\n` +
-    `DATE: ${formatDate(entry.date)}`
-  );
-});
+    // Add sorting on header click
+    document.querySelectorAll('th.sortable').forEach(th => {
+      th.addEventListener('click', () => {
+        const col = th.dataset.column;
+        if (currentSort.column === col) {
+          currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+          currentSort.column = col;
+          currentSort.direction = 'asc';
+        }
+        renderScoreboard();
+      });
+    });
 
     fetchEntries();
   });
 </script>
+</body>
+</html>

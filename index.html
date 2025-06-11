@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>THE YAK GAUNTLET</title>
+  <title id=”page-header”>THE YAK GAUNTLET</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -100,10 +100,11 @@
   	background-color: #f4f4f4; /* or whatever your table header background is */
   	z-index: 10; /* make sure it stays above table rows */
   	border-bottom: 2px solid #ddd; /* optional: to visually separate header */
-	}
+    }
     #page-header {
   	position: sticky;
-	}
+    }
+
 
     table {
       width: 100%;
@@ -208,6 +209,7 @@
       <button id="randomButton" class="open-stats-button">Random</button>
     </div>
   </div>
+
 
   <table id="scoreboard">
     <thead>

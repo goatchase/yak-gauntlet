@@ -410,47 +410,40 @@
       }
     }
 
- function scrollToSubmittedTime() {
-      if (lastSubmittedTime === null) return;
-      const rows = scoreboard.querySelectorAll('tr');
-      for (const row of rows) {
-        const timeCell = parseFloat(row.cells[3].textContent);
-        if (timeCell === lastSubmittedTime) {
-          row.scrollIntoView({ behavior: "smooth", block: "center" });
-          row.classList.add("highlight");
-          setTimeout(() => {
-            row.classList.remove("highlight");
-          }, 3000);
-          break;
-        }
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const division = divisionSelect.value;
+      const category = categorySelect.value;
+      const time = document.getElementById('time').value.trim();
+      const dateInput = document.getElementById('date').value; // e.g. "2025-05-29"
+
+      if (!name || !division || !category || !time || !dateInput) {
+        alert("Please fill in all fields.");
+        return;
       }
-    }
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const name = nameInput.value.trim();
-  const division = divisionInput.value;
-  const time = parseFloat(timeInput.value);
+      // Extract year, month, day from the dateInput string
+      const [year, month, day] = dateInput.split('-').map(Number);
 
-  if (!name || !division || isNaN(time)) return;
+      // Get current time components
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const seconds = now.getSeconds();
+      const milliseconds = now.getMilliseconds();
 
-  // Save submitted time to match later
-  lastSubmittedTime = time;
+      // Create a Date object with local time on selected day + current time
+      const combinedDate = new Date(year, month - 1, day, hours, minutes, seconds, milliseconds);
 
-  // Add to Firestore
-  await db.collection('yakScores').add({
-    name,
-    division,
-    time,
-    date: firebase.firestore.Timestamp.now()
-  });
+      // Convert to ISO string for Firestore (UTC)
+      const dateTimeString = combinedDate.toISOString();
 
-  form.reset();
+      await addEntry({ name, division, category, time, date: dateTimeString });
 
-  // Reload table and scroll to the submitted row
-  await loadTable();
-  scrollToSubmittedTime();
-});
+      form.reset();
+    });
 
     // 🔐 Password-protected edit toggle
     editButton.addEventListener('click', () => {

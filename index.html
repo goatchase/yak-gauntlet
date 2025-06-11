@@ -36,19 +36,27 @@
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
-}
-.controls-block .row {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-}
-.form-row {
-	justify-content: flex-start;
+	margin-bottom: 15px;
 }
 .controls-row {
-	justify-content: flex-start;
-flex-wrap: wrap;
+	display: flex;
+	flex-wrap: wrap;
+	width: 100%;
 }
+.form-row {
+	justify-content: center;
+}
+.second-row {
+	justify-content: space-between;
+align-items: center;
+}
+.left-group,
+.right-group {
+	Display: flex;
+	Flex-wrap: wrap;
+	Gap: 10px;
+	Align-items: center;
+	}
 
     form input, form select, form button {
       padding: 5px;
@@ -191,7 +199,8 @@ flex-wrap: wrap;
   </form>
 	</div>
 
-	<div class=”row controls-row>
+	<div class=”second-row controls-row>
+		<div class=”left-group”>
  <div class="top-bar">
     <div class="filters">
       <div class="filter-group">
@@ -202,13 +211,16 @@ flex-wrap: wrap;
         <label for="categoryFilter">Category</label>
         <select id="categoryFilter"><option value="All">All</option></select>
       </div>
+      <button id="unfilterButton" class="unfilter-button">Unfilter</button>
     </div>
+    </div>
+    <div class=”right-group”>
     <div class="top-controls">
       <input id="searchInput" type="search" placeholder="Search name" />
       <button id="editButton" class="edit-button">Edit</button>
-      <button id="unfilterButton" class="unfilter-button">Unfilter</button>
       <button id="openStatsButton" class="open-stats-button">Stats</button>
       <button id="randomButton" class="open-stats-button">Random</button>
+    </div>
     </div>
   </div>
 	</div>

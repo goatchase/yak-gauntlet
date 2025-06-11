@@ -338,149 +338,139 @@
 
 
     async function renderScoreboard() {
-      scoreboard.innerHTML = '';
+  scoreboard.innerHTML = '';
 
-      // Calculate totalSeconds for sorting & finding leaders
-      entries.forEach(entry => {
-        entry.totalSeconds = parseTimeToSeconds(entry.time);
-      });
+  // Calculate totalSeconds for sorting & finding leaders
+  entries.forEach(entry => {
+    entry.totalSeconds = parseTimeToSeconds(entry.time);
+  });
 
-      // Find best overall and division leaders from all entries (unfiltered)
-      let bestOverall = null;
-      const bestByDivision = {};
-      entries.forEach(entry => {
-        if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) bestOverall = entry;
-        if (!bestByDivision[entry.division] || entry.totalSeconds < bestByDivision[entry.division].totalSeconds) {
-          bestByDivision[entry.division] = entry;
-        }
-      });
-
-      // Apply filters and search
-      let filteredEntries = entries.filter(entry =>
-        entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
-        (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
-        (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
-      );
-
-      // Sort filtered entries by current sort column and direction
-      filteredEntries.sort((a, b) => {
-        let cmp = compareEntries(a, b, currentSort.column);
-        return currentSort.direction === 'asc' ? cmp : -cmp;
-      });
-
-      // Add sorted-asc/desc classes to headers
-      document.querySelectorAll('th.sortable').forEach(th => {
-        th.classList.remove('sorted-asc', 'sorted-desc');
-        if (th.dataset.column === currentSort.column) {
-          th.classList.add(currentSort.direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
-        }
-      });
-
-      const todayStr = new Date().toISOString().split('T')[0];
-
-      filteredEntries.forEach((entry, index) => {
-        const row = document.createElement('tr');
-
-        const entryDateOnly = new Date(entry.date).toISOString().split('T')[0];
-        const isToday = entryDateOnly === todayStr;
-        const isLeader = entry === bestOverall;
-        const isDivisionLeader = bestByDivision[entry.division] === entry;
-
-        if (isLeader) row.classList.add('leader');
-        else if (isDivisionLeader) row.classList.add('division-leader');
-        if (isToday) row.classList.add('today-entry');
-
-        const daysSince = getDaysSince(entry.date);
-        let iconHTML = '';
-
-        if (isLeader) iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince} days</span>`;
-        else if (isDivisionLeader) iconHTML = `<span class="stopwatch blue" title="Days since: ${daysSince}">⏱️${daysSince} days</span>`;
-
-        row.innerHTML = `
-          <td>${index + 1}</td>
-          <td contenteditable="${isEditMode}">${entry.name}</td>
-          <td contenteditable="${isEditMode}">${entry.division}</td>
-          <td contenteditable="${isEditMode}">${entry.category}</td>
-          <td contenteditable="${isEditMode}">${formatTime(entry.totalSeconds)} ${iconHTML}</td>
-          <td contenteditable="${isEditMode}">${formatDate(entry.date)}</td>
-          <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
-            <button class="delete-button" data-id="${entry.id}">Delete</button>
-          </td>
-        `;
-        scoreboard.appendChild(row);
-      });
-
-      updateFilterOptions();
-
-      document.querySelectorAll('.delete-button').forEach(button => {
-        button.addEventListener('click', (e) => {
-          const entryId = e.target.dataset.id;
-          deleteEntry(entryId);
-        });
-      });
+  // Find best overall and division leaders from all entries (unfiltered)
+  let bestOverall = null;
+  const bestByDivision = {};
+  entries.forEach(entry => {
+    if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) bestOverall = entry;
+    if (!bestByDivision[entry.division] || entry.totalSeconds < bestByDivision[entry.division].totalSeconds) {
+      bestByDivision[entry.division] = entry;
     }
+  });
 
-    async function fetchEntries() {
-      const snapshot = await entriesCollection.get();
-      entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      renderScoreboard();
+  // Apply filters and search
+  let filteredEntries = entries.filter(entry =>
+    entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
+    (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
+    (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
+  );
+
+  // Sort filtered entries by current sort column and direction
+  filteredEntries.sort((a, b) => {
+    let cmp = compareEntries(a, b, currentSort.column);
+    return currentSort.direction === 'asc' ? cmp : -cmp;
+  });
+
+  // Add sorted-asc/desc classes to headers
+  document.querySelectorAll('th.sortable').forEach(th => {
+    th.classList.remove('sorted-asc', 'sorted-desc');
+    if (th.dataset.column === currentSort.column) {
+      th.classList.add(currentSort.direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
     }
+  });
 
-    async function addEntry(entry) {
-      await entriesCollection.add(entry);
-      fetchEntries();
-    }
+  const todayStr = new Date().toISOString().split('T')[0];
 
-    async function deleteEntry(id) {
-      if (confirm("Delete this entry?")) {
-        await entriesCollection.doc(id).delete();
-        fetchEntries();
-      }
-    }
+  filteredEntries.forEach((entry, index) => {
+    const row = document.createElement('tr');
+    row.setAttribute('data-id', entry.id);  // <-- ADD THIS
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+    const entryDateOnly = new Date(entry.date).toISOString().split('T')[0];
+    const isToday = entryDateOnly === todayStr;
+    const isLeader = entry === bestOverall;
+    const isDivisionLeader = bestByDivision[entry.division] === entry;
 
-      const name = document.getElementById('name').value.trim();
-      const division = divisionSelect.value;
-      const category = categorySelect.value;
-      const time = document.getElementById('time').value.trim();
-      const dateInput = document.getElementById('date').value; // e.g. "2025-05-29"
+    if (isLeader) row.classList.add('leader');
+    else if (isDivisionLeader) row.classList.add('division-leader');
+    if (isToday) row.classList.add('today-entry');
 
-      if (!name || !division || !category || !time || !dateInput) {
-        alert("Please fill in all fields.");
-        return;
-      }
+    const daysSince = getDaysSince(entry.date);
+    let iconHTML = '';
 
-      // Extract year, month, day from the dateInput string
-      const [year, month, day] = dateInput.split('-').map(Number);
+    if (isLeader) iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince} days</span>`;
+    else if (isDivisionLeader) iconHTML = `<span class="stopwatch blue" title="Days since: ${daysSince}">⏱️${daysSince} days</span>`;
 
-      // Get current time components
-      const now = new Date();
-      const hours = now.getHours();
-      const minutes = now.getMinutes();
-      const seconds = now.getSeconds();
-      const milliseconds = now.getMilliseconds();
+    row.innerHTML = `
+      <td>${index + 1}</td>
+      <td contenteditable="${isEditMode}">${entry.name}</td>
+      <td contenteditable="${isEditMode}">${entry.division}</td>
+      <td contenteditable="${isEditMode}">${entry.category}</td>
+      <td contenteditable="${isEditMode}">${formatTime(entry.totalSeconds)} ${iconHTML}</td>
+      <td contenteditable="${isEditMode}">${formatDate(entry.date)}</td>
+      <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
+        <button class="delete-button" data-id="${entry.id}">Delete</button>
+      </td>
+    `;
+    scoreboard.appendChild(row);
+  });
 
-      // Create a Date object with local time on selected day + current time
-      const combinedDate = new Date(year, month - 1, day, hours, minutes, seconds, milliseconds);
+  updateFilterOptions();
 
-      // Convert to ISO string for Firestore (UTC)
-      const dateTimeString = combinedDate.toISOString();
-
-      await addEntry({ name, division, category, time, date: dateTimeString });
-
-	// Assuming you have the new entry data available here:
-	const newEntry = { name, division, category, time, date: dateTimeString };
-
-	// Add the new row to the scoreboard table in the DOM
-	addRowToTable(newEntry);
-
-	// Scroll to that row
-	scrollToNewRow();
-
-      form.reset();
+  document.querySelectorAll('.delete-button').forEach(button => {
+    button.addEventListener('click', (e) => {
+      const entryId = e.target.dataset.id;
+      deleteEntry(entryId);
     });
+  });
+}
+
+async function fetchEntries() {
+  const snapshot = await entriesCollection.get();
+  entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  renderScoreboard();
+}
+
+// Modify addEntry to return the new Firestore doc id
+async function addEntry(entry) {
+  const docRef = await entriesCollection.add(entry);
+  return docRef.id; // Return the new doc ID
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById('name').value.trim();
+  const division = divisionSelect.value;
+  const category = categorySelect.value;
+  const time = document.getElementById('time').value.trim();
+  const dateInput = document.getElementById('date').value;
+
+  if (!name || !division || !category || !time || !dateInput) {
+    alert("Please fill in all fields.");
+    return;
+  }
+
+  const [year, month, day] = dateInput.split('-').map(Number);
+  const now = new Date();
+  const combinedDate = new Date(year, month - 1, day, now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
+  const dateTimeString = combinedDate.toISOString();
+
+  // Add the entry and get the new document id
+  const newId = await addEntry({ name, division, category, time, date: dateTimeString });
+
+  // Refresh entries and render table
+  await fetchEntries();
+
+  // Scroll to the new row after a small delay
+  setTimeout(() => {
+    const newRow = document.querySelector(`tr[data-id="${newId}"]`);
+    if (newRow) {
+      newRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      console.warn('New entry row not found to scroll to.');
+    }
+  }, 50);
+
+  form.reset();
+});
+
 
     // 🔐 Password-protected edit toggle
     editButton.addEventListener('click', () => {

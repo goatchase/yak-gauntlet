@@ -457,6 +457,22 @@
       form.reset();
     });
 
+	  const submittedTime = parseFloat(document.getElementById('timeInput').value);
+
+// Delay to ensure the table has re-rendered
+setTimeout(() => {
+  const rows = document.querySelectorAll('#scoreboardTable tbody tr');
+  for (const row of rows) {
+    const timeCell = parseFloat(row.children[3]?.innerText); // adjust index if needed
+    if (Math.abs(timeCell - submittedTime) < 0.01) {
+      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      row.classList.add('highlight-scroll');
+      break;
+    }
+  }
+}, 500);
+
+
     // 🔐 Password-protected edit toggle
     editButton.addEventListener('click', () => {
       if (!isEditMode) {

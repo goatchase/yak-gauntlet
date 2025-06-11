@@ -209,7 +209,9 @@
         <th id="actionHeader" style="display: none;">Actions</th>
       </tr>
     </thead>
-    <tbody></tbody>
+    <tbody id="scoreboard-body">
+       <!-- rows go here -->
+    </tbody>
   </table>
 
 <script>
@@ -308,6 +310,32 @@
           return 0;
       }
     }
+
+	function addRowToTable(entry) {
+  	const tbody = document.getElementById('scoreboard-body');
+  
+  	const tr = document.createElement('tr');
+  	tr.id = 'new-entry-row'; // assign an ID to scroll to
+  
+  	// Adjust columns according to your actual table layout:
+  	tr.innerHTML = `
+    	<td>${entry.name}</td>
+    	<td>${entry.division}</td>
+    	<td>${entry.category}</td>
+    	<td>${entry.time}</td>
+    	<td>${new Date(entry.date).toLocaleDateString()}</td>
+  `	;
+
+  	tbody.appendChild(tr);
+	}
+
+	function scrollToNewRow() {
+  	const row = document.getElementById('new-entry-row');
+  	if (row) {
+    	row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  	}
+	}
+
 
     async function renderScoreboard() {
       scoreboard.innerHTML = '';
@@ -441,6 +469,15 @@
       const dateTimeString = combinedDate.toISOString();
 
       await addEntry({ name, division, category, time, date: dateTimeString });
+
+	// Assuming you have the new entry data available here:
+	const newEntry = { name, division, category, time, date: dateTimeString };
+
+	// Add the new row to the scoreboard table in the DOM
+	addRowToTable(newEntry);
+
+	// Scroll to that row
+	scrollToNewRow();
 
       form.reset();
     });

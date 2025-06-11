@@ -321,6 +321,8 @@
       let bestOverall = null;
       const bestByDivision = {};
       entries.forEach(entry => {
+	const tr = document.createElement('tr');
+	tr.setAttribute('data-id', entry.id); // or whatever the unique ID is called
         if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) bestOverall = entry;
         if (!bestByDivision[entry.division] || entry.totalSeconds < bestByDivision[entry.division].totalSeconds) {
           bestByDivision[entry.division] = entry;
@@ -351,7 +353,8 @@
       const todayStr = new Date().toISOString().split('T')[0];
 
       filteredEntries.forEach((entry, index) => {
-        const row = document.createElement('tr');
+        const row = document.createElement("tr");
+	row.id = `entry-${doc.id}`; // Give it a unique id
 
         const entryDateOnly = new Date(entry.date).toISOString().split('T')[0];
         const isToday = entryDateOnly === todayStr;
@@ -411,39 +414,47 @@
     }
 
     form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+  e.preventDefault();
 
-      const name = document.getElementById('name').value.trim();
-      const division = divisionSelect.value;
-      const category = categorySelect.value;
-      const time = document.getElementById('time').value.trim();
-      const dateInput = document.getElementById('date').value; // e.g. "2025-05-29"
+  const name = document.getElementById('name').value.trim();
+  const division = divisionSelect.value;
+  const category = categorySelect.value;
+  const time = document.getElementById('time').value.trim();
+  const dateInput = document.getElementById('date').value; // e.g. "2025-05-29"
 
-      if (!name || !division || !category || !time || !dateInput) {
-        alert("Please fill in all fields.");
-        return;
-      }
+  if (!name || !division || !category || !time || !dateInput) {
+    alert("Please fill in all fields.");
+    return;
+  }
 
-      // Extract year, month, day from the dateInput string
-      const [year, month, day] = dateInput.split('-').map(Number);
+  const [year, month, day] = dateInput.split('-').map(Number);
 
-      // Get current time components
-      const now = new Date();
-      const hours = now.getHours();
-      const minutes = now.getMinutes();
-      const seconds = now.getSeconds();
-      const milliseconds = now.getMilliseconds();
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const seconds = now.getSeconds();
+  const milliseconds = now.getMilliseconds();
 
-      // Create a Date object with local time on selected day + current time
-      const combinedDate = new Date(year, month - 1, day, hours, minutes, seconds, milliseconds);
+  const combinedDate = new Date(year, month - 1, day, hours, minutes, seconds, milliseconds);
+  const dateTimeString = combinedDate.toISOString();
 
-      // Convert to ISO string for Firestore (UTC)
-      const dateTimeString = combinedDate.toISOString();
+  // Assume addEntry returns the new entry ID (or some unique identifier)
+  const newEntryId = await addEntry({ name, division, category, time, date: dateTimeString });
 
-      await addEntry({ name, division, category, time, date: dateTimeString });
+  form.reset();
 
-      form.reset();
-    });
+  // Scroll to the new entry row in the table
+  // Make sure your table rows have something like: <tr data-id="newEntryId">
+  const newRow = document.querySelector(`tr[data-id="${newEntryId}"]`);
+  if (newRow) {
+    newRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Optionally highlight the row briefly
+    newRow.style.backgroundColor = '#ffffcc';
+    setTimeout(() => {
+      newRow.style.backgroundColor = '';
+    }, 2000);
+  }
+});
 
     // 🔐 Password-protected edit toggle
     editButton.addEventListener('click', () => {

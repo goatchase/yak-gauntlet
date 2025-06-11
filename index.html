@@ -31,7 +31,26 @@
       margin-bottom: 20px;
       color: #001f3f;
     }
-    form {
+    
+.controls-block {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+.controls-block .row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+.form-row {
+	justify-content: flex-start;
+}
+.controls-row {
+	justify-content: flex-start;
+flex-wrap: wrap;
+}
+
+form {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
@@ -177,7 +196,9 @@
   <h1>THE YAK GAUNTLET</h1>
   <div class="subtitle">CORNHOLE • SOCCER • WIFFLE • FOOTBALL • BASKETBALL • SPORCLE</div>
 
-  <form id="entryForm">
+<div class=”controls-block”>  
+  	<div class=”row form-row”>
+<form id="entryForm">
     <input id="name" placeholder="Name" required />
     <select id="division" required>
       <option value="" disabled selected>Select Division</option>
@@ -189,8 +210,10 @@
     <input id="date" type="date" required />
     <button type="submit">Submit</button>
   </form>
+	</div>
 
-  <div class="top-bar">
+	<div class=”row controls-row>
+ <div class="top-bar">
     <div class="filters">
       <div class="filter-group">
         <label for="divisionFilter">Division</label>
@@ -209,7 +232,8 @@
       <button id="randomButton" class="open-stats-button">Random</button>
     </div>
   </div>
-
+	</div>
+</div>
 
   <table id="scoreboard">
     <thead>

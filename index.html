@@ -455,9 +455,8 @@
       await addEntry({ name, division, category, time, date: dateTimeString });
 
       form.reset();
-    });
 
-	  const submittedTime = parseFloat(document.getElementById('timeInput').value);
+	const submittedTime = parseFloat(document.getElementById('timeInput').value);
 
 // Delay to ensure the table has re-rendered
 setTimeout(() => {
@@ -471,7 +470,7 @@ setTimeout(() => {
     }
   }
 }, 500);
-
+    });
 
     // 🔐 Password-protected edit toggle
     editButton.addEventListener('click', () => {

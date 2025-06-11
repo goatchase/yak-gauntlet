@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title id=”page-header”>THE YAK GAUNTLET</title>
+  <title>THE YAK GAUNTLET</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -31,43 +31,13 @@
       margin-bottom: 20px;
       color: #001f3f;
     }
-    
-.controls-container {
-	Display: flex;
-	Justify-content: center;
-	Width: 100%;
-	}
-
-.controls-block {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-	margin-bottom: 15px;
-	justify-content: center;
-	width: 100%;
-}
-.controls-row {
-	display: flex;
-	flex-wrap: wrap;
-	width: 100%;
-}
-.form-row {
-	justify-content: center;
-}
-.second-row {
-	Display; flex;
-justify-content: space-between;
-align-items: center;
-gap: 10px;
-}
-.left-group,
-.right-group {
-	Display: flex;
-	Flex-wrap: wrap;
-	Gap: 10px;
-	Align-items: center;
-	}
-
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
     form input, form select, form button {
       padding: 5px;
       font-size: 1em;
@@ -82,14 +52,28 @@ gap: 10px;
     form button:hover {
       background-color: #770000;
     }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      margin-bottom: 10px;
+    }
     .filters {
+      display: flex;
       gap: 10px;
+      flex-wrap: wrap;
     }
     .filter-group {
+      display: flex;
+      flex-direction: column;
       font-size: 1em;
     }
     .top-controls {
+      display: flex;
       gap: 10px;
+      flex-wrap: wrap;
+      align-items: flex-end;
     }
     .edit-button, .unfilter-button, .open-stats-button {
       background-color: #007bff;
@@ -116,11 +100,10 @@ gap: 10px;
   	background-color: #f4f4f4; /* or whatever your table header background is */
   	z-index: 10; /* make sure it stays above table rows */
   	border-bottom: 2px solid #ddd; /* optional: to visually separate header */
-    }
+	}
     #page-header {
   	position: sticky;
-    }
-
+	}
 
     table {
       width: 100%;
@@ -193,9 +176,7 @@ gap: 10px;
   <h1>THE YAK GAUNTLET</h1>
   <div class="subtitle">CORNHOLE • SOCCER • WIFFLE • FOOTBALL • BASKETBALL • SPORCLE</div>
 
-<div class=”controls-block”>  
-  	<div class=”row form-row”>
-<form id="entryForm">
+  <form id="entryForm">
     <input id="name" placeholder="Name" required />
     <select id="division" required>
       <option value="" disabled selected>Select Division</option>
@@ -207,11 +188,8 @@ gap: 10px;
     <input id="date" type="date" required />
     <button type="submit">Submit</button>
   </form>
-	</div>
 
-	<div class=”second-row controls-row>
-		<div class=”left-group”>
- <div class="top-bar">
+  <div class="top-bar">
     <div class="filters">
       <div class="filter-group">
         <label for="divisionFilter">Division</label>
@@ -221,20 +199,15 @@ gap: 10px;
         <label for="categoryFilter">Category</label>
         <select id="categoryFilter"><option value="All">All</option></select>
       </div>
-      <button id="unfilterButton" class="unfilter-button">Unfilter</button>
     </div>
-    </div>
-    <div class=”right-group”>
     <div class="top-controls">
       <input id="searchInput" type="search" placeholder="Search name" />
       <button id="editButton" class="edit-button">Edit</button>
+      <button id="unfilterButton" class="unfilter-button">Unfilter</button>
       <button id="openStatsButton" class="open-stats-button">Stats</button>
       <button id="randomButton" class="open-stats-button">Random</button>
     </div>
-    </div>
   </div>
-	</div>
-</div>
 
   <table id="scoreboard">
     <thead>

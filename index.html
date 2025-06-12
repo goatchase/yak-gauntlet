@@ -262,7 +262,7 @@
       direction: 'asc' // or 'desc'
     };
 
-   let lastSubmittedTime = null;FF
+   let lastSubmittedTime = null;
 
     function formatDate(input) {
       const d = new Date(input);
@@ -424,6 +424,13 @@ if (lastSubmittedTime !== null) {
   }
   lastSubmittedTime = null;
 }
+
+document.querySelectorAll('.delete-button').forEach(button => {
+  button.addEventListener('click', (e) => {
+    const entryId = e.target.dataset.id;
+    deleteEntry(entryId);
+  });
+});
 
       document.querySelectorAll('.delete-button').forEach(button => {
         button.addEventListener('click', (e) => {

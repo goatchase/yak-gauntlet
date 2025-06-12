@@ -262,6 +262,8 @@
       direction: 'asc' // or 'desc'
     };
 
+   let lastSubmittedTime = null;FF
+
     function formatDate(input) {
       const d = new Date(input);
       return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
@@ -396,6 +398,23 @@
 
       updateFilterOptions();
 
+     if (lastSubmittedTime !== null) {
+const rows = scoreboard.querySelectorAll('tr');
+  	for (const row of rows) {
+   	 const timeCell = row.cells[4];
+   	if (!timeCell) continue;
+    	const timeText = timeCell.textContent.trim().split(' ')[0] + ' ' + timeCell.textContent.trim().split(' ')[1];
+    	const timeInRow = parseTimeToSeconds(timeText);
+    	if (Math.abs(timeInRow - lastSubmittedTime) < 0.01) {
+      	row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      	row.style.backgroundColor = '#ffffaa'; // optional highlight
+      	setTimeout(() => row.style.backgroundColor = '', 1500);
+      	break;
+    	}
+  	}
+  	lastSubmittedTime = null;
+}   
+
       document.querySelectorAll('.delete-button').forEach(button => {
         button.addEventListener('click', (e) => {
           const entryId = e.target.dataset.id;
@@ -452,6 +471,7 @@
       // Convert to ISO string for Firestore (UTC)
       const dateTimeString = combinedDate.toISOString();
 
+      lastSubmittedTime = parseTimeToSeconds(time);
       await addEntry({ name, division, category, time, date: dateTimeString });
 
       form.reset();

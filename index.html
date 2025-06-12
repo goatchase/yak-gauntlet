@@ -39,6 +39,7 @@
   width: 100%;
   margin-bottom: 20px;
   gap: 10px;
+  margin: 0 auto;
 }
 
 .controls-row {
@@ -50,16 +51,20 @@
   gap: 10px;
 }
 
+.form-row,
+.second-row {
+  width: 100%;
+}
+	  
 .form-row {
   display: flex;
   justify-content: center;
   flex-wrap: nowrap;
   gap: 10px;
-  width: 100%
-  margin: 0 auto
 }
 
 .second-row {
+  display: flex;
   justify-content: space-between;
   align-items: flex-end;
 }
@@ -168,9 +173,8 @@
 	}
 
     table {
-      justify-content: center;
       width: 75%;
-      margin-top: 10px;
+      margin-top: 10px auto 0;
       border-collapse: collapse;
       table-layout: auto;
     }

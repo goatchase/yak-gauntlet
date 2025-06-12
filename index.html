@@ -166,15 +166,19 @@
   	background-color: #f4f4f4; /* or whatever your table header background is */
   	z-index: 10; /* make sure it stays above table rows */
   	border-bottom: 2px solid #ddd; /* optional: to visually separate header */
-        justify-content: center;
+
 	}
     #page-header {
   	position: sticky;
 	}
-
+    .table-wrapper {
+      width: 75%;
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+    }
     table {
       width: 75%;
-      margin-top: 10px auto 0;
       border-collapse: collapse;
       table-layout: auto;
     }

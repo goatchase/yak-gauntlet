@@ -398,22 +398,32 @@
 
       updateFilterOptions();
 
-     if (lastSubmittedTime !== null) {
-const rows = scoreboard.querySelectorAll('tr');
-  	for (const row of rows) {
-   	 const timeCell = row.cells[4];
-   	if (!timeCell) continue;
-    	const timeText = timeCell.textContent.trim().split(' ')[0] + ' ' + timeCell.textContent.trim().split(' ')[1];
-    	const timeInRow = parseTimeToSeconds(timeText);
-    	if (Math.abs(timeInRow - lastSubmittedTime) < 0.01) {
-      	row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      	row.style.backgroundColor = '#ffffaa'; // optional highlight
-      	setTimeout(() => row.style.backgroundColor = '', 1500);
-      	break;
-    	}
-  	}
-  	lastSubmittedTime = null;
-}   
+if (lastSubmittedTime !== null) {
+  try {
+    const rows = scoreboard.querySelectorAll('tr');
+    for (const row of rows) {
+      const timeCell = row.cells[4];
+      if (!timeCell) continue;
+
+      const parts = timeCell.textContent.trim().split(' ');
+      if (parts.length < 2) continue;
+
+      const timeText = parts[0] + ' ' + parts[1]; // "mm ss.ss"
+      const timeInRow = parseTimeToSeconds(timeText);
+      if (isNaN(timeInRow)) continue;
+
+      if (Math.abs(timeInRow - lastSubmittedTime) < 0.01) {
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        row.style.backgroundColor = '#ffffaa';
+        setTimeout(() => row.style.backgroundColor = '', 1500);
+        break;
+      }
+    }
+  } catch (err) {
+    console.error("Scroll logic failed:", err);
+  }
+  lastSubmittedTime = null;
+}
 
       document.querySelectorAll('.delete-button').forEach(button => {
         button.addEventListener('click', (e) => {

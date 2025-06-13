@@ -202,38 +202,37 @@
         data: {
           datasets: chartDatasets,
         },
-        options: {
-          responsive: true,
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: (context) => {
-                  const point = context.raw;
-                  return `${point.name} (${point.division}): ${formatTime(point.y)}`;
-                },
-              },
-            },
-            legend: {
-              position: 'top',
-            },
-            title: {
-              display: true,
-              text: 'YAK Times Over Time by Division',
-            },
-          },
-          scales: {
-            x: {
-              type: 'time',
-              title: { display: true, text: 'Date' },
-              time: {
-                unit: 'day',
-              },
-            },
-            y: {
-              title: { display: true, text: 'Time (seconds)' },
-            },
-          },
+options: {
+  responsive: true,
+  plugins: {
+    tooltip: {
+      callbacks: {
+        label: (context) => {
+          const point = context.raw;
+          return `${point.name} (${point.division}): ${formatTime(point.y)}`;
         },
+      },
+    },
+    legend: {
+      position: 'top',
+    },
+    title: {
+      display: false
+    },
+  },
+  scales: {
+    x: {
+      type: 'time',
+      time: {
+        unit: 'day',
+      },
+      title: { display: false },
+    },
+    y: {
+      title: { display: true, text: 'Time (seconds)' },
+    },
+  },
+},
       });
 
       const groupArray = Object.values(groups);

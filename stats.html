@@ -18,6 +18,7 @@
       padding: 20px;
       margin: 0;
     }
+
     h1 {
       font-size: 20pt;
       text-align: center;
@@ -25,18 +26,27 @@
       font-weight: bold;
       margin-bottom: 5px;
     }
-    #groupSelector {
+
+    #filters {
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    select {
       font-size: 16px;
       padding: 8px;
       text-transform: uppercase;
-      margin-bottom: 20px;
-      float: left;
     }
+
     canvas {
       width: 100% !important;
       max-height: 400px;
       margin-bottom: 30px;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -45,35 +55,44 @@
       margin-left: auto;
       margin-right: auto;
     }
+
     th, td {
       text-align: left;
       padding: 10px;
       border-bottom: 1px solid #ddd;
     }
+
     th {
       font-weight: bold;
     }
+
     tr:hover {
       background-color: #f1f1f1;
     }
+
     .leader {
       background-color: #ccffcc !important;
     }
+
     @media screen and (max-width: 600px) {
-      #groupSelector {
-        float: none;
-        display: block;
-        margin: 10px auto;
+      #filters {
+        flex-direction: column;
+        align-items: center;
       }
     }
   </style>
 </head>
 <body>
   <h1>THE YAK GAUNTLET STATS</h1>
-  <select id="groupSelector">
-    <option value="division">Division</option>
-    <option value="category">Category</option>
-  </select>
+
+  <div id="filters">
+    <label for="divisionFilter">Division:</label>
+    <select id="divisionFilter"><option value="All">All</option></select>
+
+    <label for="nameFilter">Name:</label>
+    <select id="nameFilter"><option value="All">All</option></select>
+  </div>
+
   <canvas id="timeChart"></canvas>
 
   <table id="statsTable">
@@ -93,7 +112,6 @@
   </table>
 
   <script>
-    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
       authDomain: "goatchase-e9502.firebaseapp.com",
@@ -107,6 +125,7 @@
     const db = firebase.firestore();
 
     let chartInstance = null;
+    let allEntries = [];
 
     function parseTimeToSeconds(timeStr) {
       const parts = timeStr.trim().split(" ");
@@ -114,14 +133,17 @@
       const [min, sec] = parts.map(parseFloat);
       return min * 60 + sec;
     }
+
     function formatTime(seconds) {
       const min = Math.floor(seconds / 60);
       const sec = (seconds % 60).toFixed(2).padStart(5, '0');
       return `${String(min).padStart(2, '0')} ${sec}`;
     }
+
     function parseDate(entry) {
       return entry.date?.toDate?.() || new Date(entry.date);
     }
+
     function getDivisionColor(division) {
       const colors = {
         "EAST": "#ff6384",
@@ -133,65 +155,73 @@
       return colors[division] || `hsl(${Math.random() * 360}, 70%, 60%)`;
     }
 
-    async function loadStats(groupBy = 'division') {
+    async function fetchAndPrepareData() {
       const snapshot = await db.collection("entries").get();
-      const entries = snapshot.docs.map(doc => doc.data());
+      allEntries = snapshot.docs.map(doc => doc.data());
 
-      // Grouping stats for the table
-      const groups = {};
+      populateFilters(allEntries);
+      loadStats('division');
+      updateChart();
+    }
 
-      // For chart: group points by division for colors
+    function populateFilters(entries) {
+      const divisionSet = new Set(entries.map(e => e.division));
+      const nameSet = new Set(entries.map(e => e.name));
+      const divisionSelect = document.getElementById("divisionFilter");
+      const nameSelect = document.getElementById("nameFilter");
+
+      divisionSelect.innerHTML = '<option value="All">All</option>' +
+        [...divisionSet].sort().map(d => `<option value="${d}">${d}</option>`).join('');
+      nameSelect.innerHTML = '<option value="All">All</option>' +
+        [...nameSet].sort().map(n => `<option value="${n}">${n}</option>`).join('');
+    }
+
+    document.getElementById("divisionFilter").addEventListener("change", () => {
+      const selectedDivision = document.getElementById("divisionFilter").value;
+      const filtered = selectedDivision === "All" ? allEntries : allEntries.filter(e => e.division === selectedDivision);
+      const names = [...new Set(filtered.map(e => e.name))].sort();
+
+      document.getElementById("nameFilter").innerHTML = `<option value="All">All</option>` + names.map(n => `<option value="${n}">${n}</option>`).join('');
+      updateChart();
+    });
+
+    document.getElementById("nameFilter").addEventListener("change", updateChart);
+
+    function updateChart() {
+      const division = document.getElementById("divisionFilter").value;
+      const name = document.getElementById("nameFilter").value;
+
+      let filteredEntries = allEntries;
+      if (division !== "All") filteredEntries = filteredEntries.filter(e => e.division === division);
+      if (name !== "All") filteredEntries = filteredEntries.filter(e => e.name === name);
+
       const divisionGroups = {};
-
-      entries.forEach(entry => {
-        const key = entry[groupBy];
-        const timeSec = parseTimeToSeconds(entry.time);
-        const dateObj = parseDate(entry);
-
-        if (!groups[key]) {
-          groups[key] = {
-            name: key,
-            times: [],
-            names: [],
-          };
-        }
-        groups[key].times.push(timeSec);
-        groups[key].names.push({ time: timeSec, name: entry.name });
-
-        // For chart grouping by division (color)
-        const division = entry.division || "Other";
-        if (!divisionGroups[division]) divisionGroups[division] = [];
-
-        divisionGroups[division].push({
-          x: dateObj,
-          y: timeSec,
+      filteredEntries.forEach(entry => {
+        const div = entry.division || "Other";
+        if (!divisionGroups[div]) divisionGroups[div] = [];
+        divisionGroups[div].push({
+          x: parseDate(entry),
+          y: parseTimeToSeconds(entry.time),
           name: entry.name,
-          division,
+          division: div,
         });
       });
 
-      // Build chart datasets array
       const chartDatasets = Object.entries(divisionGroups).map(([division, points]) => ({
         label: division,
         data: points,
-        parsing: {
-          xAxisKey: 'x',
-          yAxisKey: 'y',
-        },
+        parsing: { xAxisKey: 'x', yAxisKey: 'y' },
         pointRadius: 5,
         backgroundColor: getDivisionColor(division),
         borderWidth: 1,
       }));
 
-      // Render chart
       const ctx = document.getElementById("timeChart").getContext("2d");
       if (chartInstance) chartInstance.destroy();
 
       chartInstance = new Chart(ctx, {
         type: 'scatter',
-        data: {
-          datasets: chartDatasets,
-        },
+        data: { datasets: chartDatasets },
         options: {
           responsive: true,
           plugins: {
@@ -203,31 +233,33 @@
                 }
               }
             },
-            legend: { display: false }, // <-- Hide legend here
-            title: { display: false },
+            legend: { display: false },
+            title: { display: false }
           },
           scales: {
-            x: {
-              type: 'time',
-              time: { unit: 'day' },
-              title: { display: false },
-            },
-            y: {
-              title: { display: false },
-            }
-          },
-        },
+            x: { type: 'time', time: { unit: 'day' }, title: { display: false } },
+            y: { title: { display: false } }
+          }
+        }
+      });
+    }
+
+    function loadStats(groupBy = 'division') {
+      const groups = {};
+      allEntries.forEach(entry => {
+        const key = entry[groupBy];
+        const timeSec = parseTimeToSeconds(entry.time);
+        if (!groups[key]) groups[key] = { name: key, times: [], names: [] };
+        groups[key].times.push(timeSec);
+        groups[key].names.push({ time: timeSec, name: entry.name });
       });
 
-      // Populate stats table
-      const groupArray = Object.values(groups);
-      groupArray.sort((a,b) => Math.min(...a.times) - Math.min(...b.times));
+      const groupArray = Object.values(groups).sort((a, b) => Math.min(...a.times) - Math.min(...b.times));
       const tbody = document.querySelector("#statsTable tbody");
       tbody.innerHTML = "";
 
-      // Find overall fastest
       let overallFastest = null;
-      entries.forEach(entry => {
+      allEntries.forEach(entry => {
         const time = parseTimeToSeconds(entry.time);
         if (!overallFastest || time < overallFastest.time) {
           overallFastest = { group: entry[groupBy], time, name: entry.name };
@@ -237,16 +269,16 @@
       groupArray.forEach((group, idx) => {
         const minTime = Math.min(...group.times);
         const maxTime = Math.max(...group.times);
-        const avgTime = group.times.reduce((a,b) => a+b, 0)/group.times.length;
+        const avgTime = group.times.reduce((a, b) => a + b, 0) / group.times.length;
         const fastestEntry = group.names.find(n => n.time === minTime);
         const slowestEntry = group.names.find(n => n.time === maxTime);
         const isLeader = group.name === overallFastest.group && minTime === overallFastest.time;
 
         const tr = document.createElement("tr");
-        if(isLeader) tr.classList.add("leader");
+        if (isLeader) tr.classList.add("leader");
 
         tr.innerHTML = `
-          <td>${idx+1}</td>
+          <td>${idx + 1}</td>
           <td>${group.name}</td>
           <td>${group.times.length}</td>
           <td>${formatTime(minTime)}</td>
@@ -259,12 +291,7 @@
       });
     }
 
-    document.getElementById("groupSelector").addEventListener("change", e => {
-      loadStats(e.target.value);
-    });
-
-    loadStats(); // Initial load
-
+    fetchAndPrepareData();
   </script>
 </body>
 </html>

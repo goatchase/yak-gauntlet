@@ -7,6 +7,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap" rel="stylesheet"/>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
   <style>
     body {
       font-family: 'Roboto', sans-serif;
@@ -31,6 +33,12 @@
       text-transform: uppercase;
       margin-bottom: 20px;
       float: left;
+    }
+
+    canvas {
+      width: 100% !important;
+      max-height: 400px;
+      margin-bottom: 30px;
     }
 
     table {
@@ -71,6 +79,7 @@
 </head>
 <body>
   <h1>THE YAK GAUNTLET STATS</h1>
+  <canvas id="timeChart"></canvas>
   <select id="groupSelector">
     <option value="division">Division</option>
     <option value="category">Category</option>
@@ -106,6 +115,8 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    let chartInstance = null;
+
     function parseTimeToSeconds(timeStr) {
       const parts = timeStr.trim().split(" ");
       if (parts.length !== 2) return NaN;
@@ -119,15 +130,33 @@
       return `${String(min).padStart(2, '0')} ${sec}`;
     }
 
+    function parseDate(entry) {
+      return entry.date?.toDate?.() || new Date(entry.date);
+    }
+
+    function getDivisionColor(division) {
+      const colors = {
+        "EAST": "#ff6384",
+        "WEST": "#36a2eb",
+        "NORTH": "#cc65fe",
+        "SOUTH": "#ffce56",
+        "Other": "#999999",
+      };
+      return colors[division] || `hsl(${Math.random() * 360}, 70%, 60%)`;
+    }
+
     async function loadStats(groupBy = 'division') {
       const snapshot = await db.collection("entries").get();
       const entries = snapshot.docs.map(doc => doc.data());
 
       const groups = {};
+      const chartDataPoints = [];
 
       entries.forEach(entry => {
         const key = entry[groupBy];
         const timeSec = parseTimeToSeconds(entry.time);
+        const dateObj = parseDate(entry);
+
         if (!groups[key]) {
           groups[key] = {
             name: key,
@@ -135,11 +164,83 @@
             names: [],
           };
         }
+
         groups[key].times.push(timeSec);
         groups[key].names.push({ time: timeSec, name: entry.name });
+
+        chartDataPoints.push({
+          x: dateObj,
+          y: timeSec,
+          name: entry.name,
+          division: entry.division,
+        });
       });
 
-      // Find overall fastest
+      const divisionGroups = {};
+      chartDataPoints.forEach(dp => {
+        if (!divisionGroups[dp.division]) divisionGroups[dp.division] = [];
+        divisionGroups[dp.division].push(dp);
+      });
+
+      const chartDatasets = Object.entries(divisionGroups).map(([division, points]) => ({
+        label: division,
+        data: points,
+        parsing: {
+          xAxisKey: 'x',
+          yAxisKey: 'y',
+        },
+        pointRadius: 5,
+        backgroundColor: getDivisionColor(division),
+        borderWidth: 1,
+      }));
+
+      const ctx = document.getElementById("timeChart").getContext("2d");
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+          datasets: chartDatasets,
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: (context) => {
+                  const point = context.raw;
+                  return `${point.name} (${point.division}): ${formatTime(point.y)}`;
+                },
+              },
+            },
+            legend: {
+              position: 'top',
+            },
+            title: {
+              display: true,
+              text: 'YAK Times Over Time by Division',
+            },
+          },
+          scales: {
+            x: {
+              type: 'time',
+              title: { display: true, text: 'Date' },
+              time: {
+                unit: 'day',
+              },
+            },
+            y: {
+              title: { display: true, text: 'Time (seconds)' },
+            },
+          },
+        },
+      });
+
+      const groupArray = Object.values(groups);
+      groupArray.sort((a, b) => Math.min(...a.times) - Math.min(...b.times));
+      const tableBody = document.querySelector("#statsTable tbody");
+      tableBody.innerHTML = "";
+
       let overallFastest = null;
       entries.forEach(entry => {
         const time = parseTimeToSeconds(entry.time);
@@ -151,12 +252,6 @@
           };
         }
       });
-
-      const tableBody = document.querySelector("#statsTable tbody");
-      tableBody.innerHTML = "";
-
-      const groupArray = Object.values(groups);
-      groupArray.sort((a, b) => Math.min(...a.times) - Math.min(...b.times));
 
       groupArray.forEach((group, index) => {
         const minTime = Math.min(...group.times);

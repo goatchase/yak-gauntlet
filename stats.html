@@ -160,8 +160,7 @@
       allEntries = snapshot.docs.map(doc => doc.data());
 
       populateFilters(allEntries);
-      loadStats('division');
-      updateChart();
+      updateAll(); // chart + table
     }
 
     function populateFilters(entries) {
@@ -177,26 +176,41 @@
     }
 
     document.getElementById("divisionFilter").addEventListener("change", () => {
-      const selectedDivision = document.getElementById("divisionFilter").value;
-      const filtered = selectedDivision === "All" ? allEntries : allEntries.filter(e => e.division === selectedDivision);
-      const names = [...new Set(filtered.map(e => e.name))].sort();
-
-      document.getElementById("nameFilter").innerHTML = `<option value="All">All</option>` + names.map(n => `<option value="${n}">${n}</option>`).join('');
-      updateChart();
+      updateNameOptions();
+      updateAll();
     });
 
-    document.getElementById("nameFilter").addEventListener("change", updateChart);
+    document.getElementById("nameFilter").addEventListener("change", updateAll);
 
-    function updateChart() {
+    function updateNameOptions() {
+      const division = document.getElementById("divisionFilter").value;
+      let filtered = division === "All" ? allEntries : allEntries.filter(e => e.division === division);
+      const nameSet = new Set(filtered.map(e => e.name));
+      const nameSelect = document.getElementById("nameFilter");
+
+      nameSelect.innerHTML = '<option value="All">All</option>' +
+        [...nameSet].sort().map(n => `<option value="${n}">${n}</option>`).join('');
+    }
+
+    function getFilteredEntries() {
       const division = document.getElementById("divisionFilter").value;
       const name = document.getElementById("nameFilter").value;
 
-      let filteredEntries = allEntries;
-      if (division !== "All") filteredEntries = filteredEntries.filter(e => e.division === division);
-      if (name !== "All") filteredEntries = filteredEntries.filter(e => e.name === name);
+      return allEntries.filter(entry => {
+        return (division === "All" || entry.division === division) &&
+               (name === "All" || entry.name === name);
+      });
+    }
 
+    function updateAll() {
+      const filtered = getFilteredEntries();
+      updateChart(filtered);
+      updateStats(filtered);
+    }
+
+    function updateChart(entries) {
       const divisionGroups = {};
-      filteredEntries.forEach(entry => {
+      entries.forEach(entry => {
         const div = entry.division || "Other";
         if (!divisionGroups[div]) divisionGroups[div] = [];
         divisionGroups[div].push({
@@ -244,10 +258,10 @@
       });
     }
 
-    function loadStats(groupBy = 'division') {
+    function updateStats(entries) {
       const groups = {};
-      allEntries.forEach(entry => {
-        const key = entry[groupBy];
+      entries.forEach(entry => {
+        const key = entry.division;
         const timeSec = parseTimeToSeconds(entry.time);
         if (!groups[key]) groups[key] = { name: key, times: [], names: [] };
         groups[key].times.push(timeSec);
@@ -259,10 +273,10 @@
       tbody.innerHTML = "";
 
       let overallFastest = null;
-      allEntries.forEach(entry => {
+      entries.forEach(entry => {
         const time = parseTimeToSeconds(entry.time);
         if (!overallFastest || time < overallFastest.time) {
-          overallFastest = { group: entry[groupBy], time, name: entry.name };
+          overallFastest = { group: entry.division, time, name: entry.name };
         }
       });
 

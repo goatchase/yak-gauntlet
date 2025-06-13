@@ -386,16 +386,23 @@
           }
         }
       },
-      scales: {
-        x: {
-          type: 'time',
-          time: { unit: 'month' }, // monthly vertical lines
-          title: { display: false }
-        },
-        y: {
-          title: { display: false }
-        }
+scales: {
+  x: {
+    type: 'time',
+    time: { unit: 'month' },
+    title: { display: false }
+  },
+  y: {
+    title: { display: false },
+    ticks: {
+      callback: function(value) {
+        const min = Math.floor(value / 60);
+        const sec = (value % 60).toFixed(2).padStart(5, '0');
+        return `${String(min).padStart(2, '0')} ${sec}`;
       }
+    }
+  }
+}
     }
   });
 }

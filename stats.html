@@ -275,7 +275,24 @@ function getFilteredEntries() {
             title: { display: false }
           },
           scales: {
-            x: { type: 'time', time: { unit: 'day' }, title: { display: false } },
+            x: {
+  type: 'time',
+  time: {
+    unit: 'month',
+    displayFormats: {
+      month: 'MMM yyyy'
+    }
+  },
+  ticks: {
+    source: 'auto'
+  },
+  grid: {
+    drawOnChartArea: true
+  },
+  title: {
+    display: false
+  }
+},
             y: { title: { display: false } }
           }
         }

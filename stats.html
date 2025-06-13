@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>THE YAK GAUNTLET STATS</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap" rel="stylesheet"/>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -12,80 +12,82 @@
   <style>
     body {
       font-family: 'Roboto', sans-serif;
-      background-color: #ffffff;
-      color: #000;
       margin: 0;
-      padding: 0 20px 50px;
+      padding-left: 80px;
+      padding-right: 80px;
+      padding-top: 20px;
+      background-color: #f4f4f4;
+      color: #001f3f;
       text-transform: uppercase;
+      font-size: 12pt;
     }
 
     h1 {
-      font-size: 26px;
+      font-size: 28pt;
       text-align: center;
+      color: #001f3f;
       font-weight: bold;
-      margin: 30px 0 10px;
+      margin-bottom: 5px;
     }
-
+    .subtitle {
+      text-align: center;
+      font-size: 10pt;
+      margin-bottom: 20px;
+      color: #001f3f;
+    }
     #filters {
+      margin-bottom: 20px;
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
       gap: 10px;
-      margin-bottom: 20px;
+      justify-content: center;
     }
 
     select {
-      font-size: 16px;
-      padding: 6px 10px;
+      font-size: 1em;
+      padding: 5px;
+      text-transform: uppercase;
+      border-radius: 4px;
       border: 1px solid #ccc;
-      border-radius: 6px;
-      min-width: 160px;
-      height: auto;
     }
 
     canvas {
       width: 100% !important;
-      max-width: 900px;
-      margin: 0 auto 30px;
-      display: block;
+      max-height: 400px;
+      margin-bottom: 30px;
     }
 
     table {
       width: 100%;
-      max-width: 900px;
-      margin: 0 auto;
       border-collapse: collapse;
-      background-color: #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      background-color: #f4f4f4;
+      margin-top: 20px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     th, td {
       text-align: left;
       padding: 10px;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid #ddd;
     }
 
     th {
       font-weight: bold;
-      background-color: #f4f4f4;
     }
 
     tr:hover {
-      background-color: #fafafa;
+      background-color: #f1f1f1;
     }
 
     .leader {
-      background-color: #d8ffd8 !important;
+      background-color: #ccffcc !important;
     }
 
     @media screen and (max-width: 600px) {
       #filters {
         flex-direction: column;
         align-items: center;
-      }
-
-      table {
-        font-size: 14px;
       }
     }
   </style>
@@ -94,11 +96,11 @@
   <h1>THE YAK GAUNTLET STATS</h1>
 
   <div id="filters">
-    <label for="divisionFilter">Division:</label>
-    <select id="divisionFilter" multiple size="4"></select>
+    <label for="divisionFilter">Division</label>
+    <select id="divisionFilter"><option value="All">All</option></select>
 
-    <label for="nameFilter">Name:</label>
-    <select id="nameFilter" multiple size="4"></select>
+    <label for="nameFilter">Name</label>
+    <select id="nameFilter"><option value="All">All</option></select>
   </div>
 
   <canvas id="timeChart"></canvas>
@@ -129,11 +131,11 @@
       appId: "1:16998517478:web:6386aff8c1d1da2accc927",
       measurementId: "G-YWLJGQG0XD"
     };
-    
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
     let chartInstance = null;
+    let allEntries = [];
 
     function parseTimeToSeconds(timeStr) {
       const parts = timeStr.trim().split(" ");
@@ -163,58 +165,70 @@
       return colors[division] || `hsl(${Math.random() * 360}, 70%, 60%)`;
     }
 
-    function getSelectedOptions(selectEl) {
-      return Array.from(selectEl.selectedOptions).map(opt => opt.value);
+    async function fetchAndPrepareData() {
+      const snapshot = await db.collection("entries").get();
+      allEntries = snapshot.docs.map(doc => doc.data());
+
+      populateFilters(allEntries);
+      updateAll(); // chart + table
     }
 
-    async function loadStats() {
-      const snapshot = await db.collection("entries").get();
-      const entries = snapshot.docs.map(doc => doc.data());
-
+    function populateFilters(entries) {
+      const divisionSet = new Set(entries.map(e => e.division));
+      const nameSet = new Set(entries.map(e => e.name));
       const divisionSelect = document.getElementById("divisionFilter");
       const nameSelect = document.getElementById("nameFilter");
 
-      const divisions = [...new Set(entries.map(e => e.division))];
-      const names = [...new Set(entries.map(e => e.name))];
+      divisionSelect.innerHTML = '<option value="All">All</option>' +
+        [...divisionSet].sort().map(d => `<option value="${d}">${d}</option>`).join('');
+      nameSelect.innerHTML = '<option value="All">All</option>' +
+        [...nameSet].sort().map(n => `<option value="${n}">${n}</option>`).join('');
+    }
 
-      divisionSelect.innerHTML = divisions.map(d => `<option value="${d}">${d}</option>`).join("");
-      nameSelect.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join("");
+    document.getElementById("divisionFilter").addEventListener("change", () => {
+      updateNameOptions();
+      updateAll();
+    });
 
-      const selectedDivisions = getSelectedOptions(divisionSelect);
-      const selectedNames = getSelectedOptions(nameSelect);
+    document.getElementById("nameFilter").addEventListener("change", updateAll);
 
-      const filteredEntries = entries.filter(entry => {
-        const divisionMatch = selectedDivisions.length === 0 || selectedDivisions.includes(entry.division);
-        const nameMatch = selectedNames.length === 0 || selectedNames.includes(entry.name);
-        return divisionMatch && nameMatch;
+    function updateNameOptions() {
+      const division = document.getElementById("divisionFilter").value;
+      let filtered = division === "All" ? allEntries : allEntries.filter(e => e.division === division);
+      const nameSet = new Set(filtered.map(e => e.name));
+      const nameSelect = document.getElementById("nameFilter");
+
+      nameSelect.innerHTML = '<option value="All">All</option>' +
+        [...nameSet].sort().map(n => `<option value="${n}">${n}</option>`).join('');
+    }
+
+    function getFilteredEntries() {
+      const division = document.getElementById("divisionFilter").value;
+      const name = document.getElementById("nameFilter").value;
+
+      return allEntries.filter(entry => {
+        return (division === "All" || entry.division === division) &&
+               (name === "All" || entry.name === name);
       });
+    }
 
-      const groups = {};
-      const chartDataPoints = [];
+    function updateAll() {
+      const filtered = getFilteredEntries();
+      updateChart(filtered);
+      updateStats(filtered);
+    }
 
-      filteredEntries.forEach(entry => {
-        const key = entry.division;
-        const timeSec = parseTimeToSeconds(entry.time);
-        const dateObj = parseDate(entry);
-
-        if (!groups[key]) {
-          groups[key] = {
-            name: key,
-            times: [],
-            names: [],
-          };
-        }
-
-        groups[key].times.push(timeSec);
-        groups[key].names.push({ time: timeSec, name: entry.name });
-
-        chartDataPoints.push({ x: dateObj, y: timeSec, name: entry.name, division: entry.division });
-      });
-
+    function updateChart(entries) {
       const divisionGroups = {};
-      chartDataPoints.forEach(dp => {
-        if (!divisionGroups[dp.division]) divisionGroups[dp.division] = [];
-        divisionGroups[dp.division].push(dp);
+      entries.forEach(entry => {
+        const div = entry.division || "Other";
+        if (!divisionGroups[div]) divisionGroups[div] = [];
+        divisionGroups[div].push({
+          x: parseDate(entry),
+          y: parseTimeToSeconds(entry.time),
+          name: entry.name,
+          division: div,
+        });
       });
 
       const chartDatasets = Object.entries(divisionGroups).map(([division, points]) => ({
@@ -237,49 +251,58 @@
           plugins: {
             tooltip: {
               callbacks: {
-                label: context => {
-                  const point = context.raw;
-                  return `${point.name} (${point.division}): ${formatTime(point.y)}`;
-                },
-              },
+                label: ctx => {
+                  const pt = ctx.raw;
+                  return `${pt.name} (${pt.division}): ${formatTime(pt.y)}`;
+                }
+              }
             },
             legend: { display: false },
-            title: { display: false },
+            title: { display: false }
           },
           scales: {
             x: { type: 'time', time: { unit: 'day' }, title: { display: false } },
-            y: { title: { display: true, text: 'Time (s)' } }
+            y: { title: { display: false } }
           }
         }
       });
+    }
 
-      const groupArray = Object.values(groups);
-      groupArray.sort((a, b) => Math.min(...a.times) - Math.min(...b.times));
-      const tableBody = document.querySelector("#statsTable tbody");
-      tableBody.innerHTML = "";
+    function updateStats(entries) {
+      const groups = {};
+      entries.forEach(entry => {
+        const key = entry.division;
+        const timeSec = parseTimeToSeconds(entry.time);
+        if (!groups[key]) groups[key] = { name: key, times: [], names: [] };
+        groups[key].times.push(timeSec);
+        groups[key].names.push({ time: timeSec, name: entry.name });
+      });
+
+      const groupArray = Object.values(groups).sort((a, b) => Math.min(...a.times) - Math.min(...b.times));
+      const tbody = document.querySelector("#statsTable tbody");
+      tbody.innerHTML = "";
 
       let overallFastest = null;
-      filteredEntries.forEach(entry => {
+      entries.forEach(entry => {
         const time = parseTimeToSeconds(entry.time);
         if (!overallFastest || time < overallFastest.time) {
-          overallFastest = { group: entry.division, time: time, name: entry.name };
+          overallFastest = { group: entry.division, time, name: entry.name };
         }
       });
 
-      groupArray.forEach((group, index) => {
+      groupArray.forEach((group, idx) => {
         const minTime = Math.min(...group.times);
         const maxTime = Math.max(...group.times);
         const avgTime = group.times.reduce((a, b) => a + b, 0) / group.times.length;
-
         const fastestEntry = group.names.find(n => n.time === minTime);
         const slowestEntry = group.names.find(n => n.time === maxTime);
-        const isOverallFastest = group.name === overallFastest.group && minTime === overallFastest.time;
+        const isLeader = group.name === overallFastest.group && minTime === overallFastest.time;
 
-        const row = document.createElement("tr");
-        if (isOverallFastest) row.classList.add("leader");
+        const tr = document.createElement("tr");
+        if (isLeader) tr.classList.add("leader");
 
-        row.innerHTML = `
-          <td>${index + 1}</td>
+        tr.innerHTML = `
+          <td>${idx + 1}</td>
           <td>${group.name}</td>
           <td>${group.times.length}</td>
           <td>${formatTime(minTime)}</td>
@@ -288,14 +311,11 @@
           <td>${fastestEntry?.name || ''}</td>
           <td>${slowestEntry?.name || ''}</td>
         `;
-        tableBody.appendChild(row);
+        tbody.appendChild(tr);
       });
     }
 
-    document.getElementById("divisionFilter").addEventListener("change", loadStats);
-    document.getElementById("nameFilter").addEventListener("change", loadStats);
-
-    loadStats();
+    fetchAndPrepareData();
   </script>
 </body>
 </html>

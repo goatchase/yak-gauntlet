@@ -97,10 +97,10 @@
 
   <div id="filters">
     <label for="divisionFilter">Division</label>
-    <select id="divisionFilter"><option value="All">All</option></select>
+    <select id="divisionFilter" multiple size="3"><option value="All">All</option></select>
 
     <label for="nameFilter">Name</label>
-    <select id="nameFilter"><option value="All">All</option></select>
+    <select id="nameFilter" multiple size="3"><option value="All">All</option></select>
   </div>
 
   <canvas id="timeChart"></canvas>
@@ -183,6 +183,9 @@
         [...divisionSet].sort().map(d => `<option value="${d}">${d}</option>`).join('');
       nameSelect.innerHTML = '<option value="All">All</option>' +
         [...nameSet].sort().map(n => `<option value="${n}">${n}</option>`).join('');
+
+      divisionSelect.querySelector('option[value="All"]').selected = true;
+      nameSelect.querySelector('option[value="All"]').selected = true;
     }
 
     document.getElementById("divisionFilter").addEventListener("change", () => {
@@ -202,15 +205,26 @@
         [...nameSet].sort().map(n => `<option value="${n}">${n}</option>`).join('');
     }
 
-    function getFilteredEntries() {
-      const division = document.getElementById("divisionFilter").value;
-      const name = document.getElementById("nameFilter").value;
+function getSelectedValues(selectElement) {
+  return Array.from(selectElement.selectedOptions).map(option => option.value);
+}
 
-      return allEntries.filter(entry => {
-        return (division === "All" || entry.division === division) &&
-               (name === "All" || entry.name === name);
-      });
-    }
+function getFilteredEntries() {
+  const divisionSelect = document.getElementById("divisionFilter");
+  const nameSelect = document.getElementById("nameFilter");
+
+  const selectedDivisions = getSelectedValues(divisionSelect);
+  const selectedNames = getSelectedValues(nameSelect);
+
+  const allDivisions = selectedDivisions.includes("All");
+  const allNames = selectedNames.includes("All");
+
+  return allEntries.filter(entry => {
+    const matchDivision = allDivisions || selectedDivisions.includes(entry.division);
+    const matchName = allNames || selectedNames.includes(entry.name);
+    return matchDivision && matchName;
+  });
+}
 
     function updateAll() {
       const filtered = getFilteredEntries();

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>THE YAK GAUNTLET STATS</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.1.0"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -293,58 +294,112 @@
     }
 
     function updateChart(entries) {
-      const divisionGroups = {};
-      entries.forEach(entry => {
-        const div = entry.division || "Other";
-        if (!divisionGroups[div]) divisionGroups[div] = [];
-        divisionGroups[div].push({
-          x: parseDate(entry),
-          y: parseTimeToSeconds(entry.time),
-          name: entry.name,
-          division: div,
-        });
-      });
+  const divisionGroups = {};
+  let allTimes = [];
 
-      const chartDatasets = Object.entries(divisionGroups).map(([division, points]) => ({
-        label: division,
-        data: points,
-        parsing: { xAxisKey: 'x', yAxisKey: 'y' },
-        pointRadius: 5,
-        backgroundColor: getDivisionColor(division),
-        borderWidth: 1,
-      }));
+  entries.forEach(entry => {
+    const div = entry.division || "Other";
+    const time = parseTimeToSeconds(entry.time);
+    const date = parseDate(entry);
 
-      const ctx = document.getElementById("timeChart").getContext("2d");
-      if (chartInstance) chartInstance.destroy();
+    if (!divisionGroups[div]) divisionGroups[div] = [];
+    divisionGroups[div].push({ x: date, y: time, name: entry.name, division: div });
+    allTimes.push(time);
+  });
 
-      chartInstance = new Chart(ctx, {
-        type: 'scatter',
-        data: { datasets: chartDatasets },
-        options: {
-          responsive: true,
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: ctx => {
-                  const pt = ctx.raw;
-                  return `${pt.name} (${pt.division}): ${formatTime(pt.y)}`;
-                }
+  // Calculate mean and stdev
+  const mean = allTimes.reduce((a, b) => a + b, 0) / allTimes.length;
+  const variance = allTimes.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / allTimes.length;
+  const stdev = Math.sqrt(variance);
+
+  const chartDatasets = Object.entries(divisionGroups).map(([division, points]) => ({
+    label: division,
+    data: points,
+    parsing: { xAxisKey: 'x', yAxisKey: 'y' },
+    pointRadius: 5,
+    backgroundColor: getDivisionColor(division),
+    borderWidth: 1,
+  }));
+
+  const ctx = document.getElementById("timeChart").getContext("2d");
+  if (chartInstance) chartInstance.destroy();
+
+  chartInstance = new Chart(ctx, {
+    type: 'scatter',
+    data: { datasets: chartDatasets },
+    options: {
+      responsive: true,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const pt = ctx.raw;
+              return `${pt.name} (${pt.division}): ${formatTime(pt.y)}`;
+            }
+          }
+        },
+        legend: { display: false },
+        annotation: {
+          annotations: {
+            mean: {
+              type: 'line',
+              yMin: mean,
+              yMax: mean,
+              borderColor: 'black',
+              borderWidth: 1,
+              label: {
+                content: 'Mean',
+                enabled: true,
+                position: 'end',
+                backgroundColor: 'black',
+                color: 'white'
               }
             },
-            legend: { display: false },
-            title: { display: false }
-          },
-          scales: {
-            x: {
-              type: 'time',
-              time: { unit: 'month' },
-              title: { display: false }
+            plus1: {
+              type: 'line',
+              yMin: mean + stdev,
+              yMax: mean + stdev,
+              borderColor: 'green',
+              borderWidth: 1,
+              label: {
+                content: '+1σ',
+                enabled: true,
+                position: 'end',
+                backgroundColor: 'green',
+                color: 'white'
+              }
             },
-            y: { title: { display: false } }
+            minus1: {
+              type: 'line',
+              yMin: mean - stdev,
+              yMax: mean - stdev,
+              borderColor: 'red',
+              borderWidth: 1,
+              label: {
+                content: '-1σ',
+                enabled: true,
+                position: 'end',
+                backgroundColor: 'red',
+                color: 'white'
+              }
+            }
           }
         }
-      });
+      },
+      scales: {
+        x: {
+          type: 'time',
+          time: { unit: 'month' }, // monthly vertical lines
+          title: { display: false }
+        },
+        y: {
+          title: { display: false }
+        }
+      }
     }
+  });
+}
+
 
     function updateStats(entries) {
       const groups = {};

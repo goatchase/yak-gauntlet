@@ -18,7 +18,6 @@
       padding: 20px;
       margin: 0;
     }
-
     h1 {
       font-size: 20pt;
       text-align: center;
@@ -26,7 +25,6 @@
       font-weight: bold;
       margin-bottom: 5px;
     }
-
     #groupSelector {
       font-size: 16px;
       padding: 8px;
@@ -34,13 +32,11 @@
       margin-bottom: 20px;
       float: left;
     }
-
     canvas {
       width: 100% !important;
       max-height: 400px;
       margin-bottom: 30px;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
@@ -49,25 +45,20 @@
       margin-left: auto;
       margin-right: auto;
     }
-
     th, td {
       text-align: left;
       padding: 10px;
       border-bottom: 1px solid #ddd;
     }
-
     th {
       font-weight: bold;
     }
-
     tr:hover {
       background-color: #f1f1f1;
     }
-
     .leader {
       background-color: #ccffcc !important;
     }
-
     @media screen and (max-width: 600px) {
       #groupSelector {
         float: none;
@@ -79,11 +70,11 @@
 </head>
 <body>
   <h1>THE YAK GAUNTLET STATS</h1>
-  <canvas id="timeChart"></canvas>
   <select id="groupSelector">
     <option value="division">Division</option>
     <option value="category">Category</option>
   </select>
+  <canvas id="timeChart"></canvas>
 
   <table id="statsTable">
     <thead>
@@ -102,6 +93,7 @@
   </table>
 
   <script>
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
       authDomain: "goatchase-e9502.firebaseapp.com",
@@ -111,7 +103,6 @@
       appId: "1:16998517478:web:6386aff8c1d1da2accc927",
       measurementId: "G-YWLJGQG0XD"
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
@@ -123,17 +114,14 @@
       const [min, sec] = parts.map(parseFloat);
       return min * 60 + sec;
     }
-
     function formatTime(seconds) {
       const min = Math.floor(seconds / 60);
       const sec = (seconds % 60).toFixed(2).padStart(5, '0');
       return `${String(min).padStart(2, '0')} ${sec}`;
     }
-
     function parseDate(entry) {
       return entry.date?.toDate?.() || new Date(entry.date);
     }
-
     function getDivisionColor(division) {
       const colors = {
         "EAST": "#ff6384",
@@ -149,8 +137,11 @@
       const snapshot = await db.collection("entries").get();
       const entries = snapshot.docs.map(doc => doc.data());
 
+      // Grouping stats for the table
       const groups = {};
-      const chartDataPoints = [];
+
+      // For chart: group points by division for colors
+      const divisionGroups = {};
 
       entries.forEach(entry => {
         const key = entry[groupBy];
@@ -164,24 +155,22 @@
             names: [],
           };
         }
-
         groups[key].times.push(timeSec);
         groups[key].names.push({ time: timeSec, name: entry.name });
 
-        chartDataPoints.push({
+        // For chart grouping by division (color)
+        const division = entry.division || "Other";
+        if (!divisionGroups[division]) divisionGroups[division] = [];
+
+        divisionGroups[division].push({
           x: dateObj,
           y: timeSec,
           name: entry.name,
-          division: entry.division,
+          division,
         });
       });
 
-      const divisionGroups = {};
-      chartDataPoints.forEach(dp => {
-        if (!divisionGroups[dp.division]) divisionGroups[dp.division] = [];
-        divisionGroups[dp.division].push(dp);
-      });
-
+      // Build chart datasets array
       const chartDatasets = Object.entries(divisionGroups).map(([division, points]) => ({
         label: division,
         data: points,
@@ -194,6 +183,7 @@
         borderWidth: 1,
       }));
 
+      // Render chart
       const ctx = document.getElementById("timeChart").getContext("2d");
       if (chartInstance) chartInstance.destroy();
 
@@ -207,63 +197,56 @@
           plugins: {
             tooltip: {
               callbacks: {
-                label: (context) => {
-                  const point = context.raw;
-                  return `${point.name} (${point.division}): ${formatTime(point.y)}`;
-                },
-              },
+                label: ctx => {
+                  const pt = ctx.raw;
+                  return `${pt.name} (${pt.division}): ${formatTime(pt.y)}`;
+                }
+              }
             },
-            title: {
-              display: true,
-              text: 'YAK Times Over Time by Division',
-            },
+            legend: { display: false }, // <-- Hide legend here
+            title: { display: false },
           },
           scales: {
             x: {
               type: 'time',
-              title: { display: true, text: 'Date' },
-              time: {
-                unit: 'day',
-              },
+              time: { unit: 'day' },
+              title: { display: false },
             },
             y: {
-              title: { display: true, text: 'Time (seconds)' },
-            },
+              title: { display: false },
+            }
           },
         },
       });
 
+      // Populate stats table
       const groupArray = Object.values(groups);
-      groupArray.sort((a, b) => Math.min(...a.times) - Math.min(...b.times));
-      const tableBody = document.querySelector("#statsTable tbody");
-      tableBody.innerHTML = "";
+      groupArray.sort((a,b) => Math.min(...a.times) - Math.min(...b.times));
+      const tbody = document.querySelector("#statsTable tbody");
+      tbody.innerHTML = "";
 
+      // Find overall fastest
       let overallFastest = null;
       entries.forEach(entry => {
         const time = parseTimeToSeconds(entry.time);
         if (!overallFastest || time < overallFastest.time) {
-          overallFastest = {
-            group: entry[groupBy],
-            time: time,
-            name: entry.name,
-          };
+          overallFastest = { group: entry[groupBy], time, name: entry.name };
         }
       });
 
-      groupArray.forEach((group, index) => {
+      groupArray.forEach((group, idx) => {
         const minTime = Math.min(...group.times);
         const maxTime = Math.max(...group.times);
-        const avgTime = group.times.reduce((a, b) => a + b, 0) / group.times.length;
-
+        const avgTime = group.times.reduce((a,b) => a+b, 0)/group.times.length;
         const fastestEntry = group.names.find(n => n.time === minTime);
         const slowestEntry = group.names.find(n => n.time === maxTime);
-        const isOverallFastest = group.name === overallFastest.group && minTime === overallFastest.time;
+        const isLeader = group.name === overallFastest.group && minTime === overallFastest.time;
 
-        const row = document.createElement("tr");
-        if (isOverallFastest) row.classList.add("leader");
+        const tr = document.createElement("tr");
+        if(isLeader) tr.classList.add("leader");
 
-        row.innerHTML = `
-          <td>${index + 1}</td>
+        tr.innerHTML = `
+          <td>${idx+1}</td>
           <td>${group.name}</td>
           <td>${group.times.length}</td>
           <td>${formatTime(minTime)}</td>
@@ -272,15 +255,16 @@
           <td>${fastestEntry?.name || ''}</td>
           <td>${slowestEntry?.name || ''}</td>
         `;
-        tableBody.appendChild(row);
+        tbody.appendChild(tr);
       });
     }
 
-    document.getElementById("groupSelector").addEventListener("change", (e) => {
+    document.getElementById("groupSelector").addEventListener("change", e => {
       loadStats(e.target.value);
     });
 
-    loadStats();
+    loadStats(); // Initial load
+
   </script>
 </body>
 </html>

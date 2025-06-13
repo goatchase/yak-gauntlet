@@ -2,109 +2,171 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>THE YAK GAUNTLET</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>THE YAK GAUNTLET STATS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.1.0"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
   <style>
     body {
       font-family: 'Roboto', sans-serif;
-      margin: 20px;
-      background: #f9f9f9;
-      color: #333;
+      margin: 0;
+      padding-left: 80px;
+      padding-right: 80px;
+      padding-top: 20px;
+      background-color: #f4f4f4;
+      color: #001f3f;
+      text-transform: uppercase;
+      font-size: 12pt;
     }
+
     h1 {
+      font-size: 28pt;
       text-align: center;
-      margin-bottom: 20px;
+      color: #001f3f;
+      font-weight: bold;
+      margin-bottom: 5px;
     }
-    .filters {
+    .subtitle {
+      text-align: center;
+      font-size: 10pt;
+      margin-bottom: 20px;
+      color: #001f3f;
+    }
+    #filters {
+      margin-bottom: 20px;
       display: flex;
-      gap: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
       justify-content: center;
-      margin-bottom: 20px;
     }
-    select {
-      min-width: 150px;
-      height: 110px;
+
+    .custom-select-wrapper {
+      position: relative;
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-btn {
+      padding: 5px 10px;
       border: 1px solid #ccc;
+      background-color: white;
+      cursor: pointer;
+      text-transform: uppercase;
+      font-size: 1em;
       border-radius: 4px;
-      font-size: 14px;
-      padding: 4px;
-      user-select: none;
     }
-    table {
-      margin: 0 auto;
-      border-collapse: collapse;
-      width: 90%;
-      max-width: 900px;
-      background: white;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      width: 100%;
+      min-width: 200px;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      z-index: 1;
+      padding: 10px;
     }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px 12px;
-      text-align: center;
-    }
-    th {
-      background-color: #222;
-      color: white;
-      font-weight: 700;
-    }
-    tr.leader {
-      background-color: #d7f0d1; /* light green highlight */
-      font-weight: 700;
-    }
-    canvas {
+
+    .dropdown-content label {
       display: block;
-      margin: 20px auto;
-      max-width: 90%;
-      height: 400px;
+      font-size: 0.9em;
+      margin-bottom: 5px;
+    }
+
+    .dropdown.open .dropdown-content {
+      display: block;
+    }
+
+    canvas {
+      width: 100% !important;
+      max-height: 400px;
+      margin-bottom: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #f4f4f4;
+      margin-top: 20px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      font-weight: bold;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .leader {
+      background-color: #ccffcc !important;
+    }
+
+    @media screen and (max-width: 600px) {
+      #filters {
+        flex-direction: column;
+        align-items: center;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>THE YAK GAUNTLET</h1>
-  <div class="filters">
-    <div>
-      <label for="divisionFilter"><strong>Division Filter</strong><br />
-        <select id="divisionFilter" multiple size="5"></select>
-      </label>
+  <h1>THE YAK GAUNTLET STATS</h1>
+
+  <div id="filters">
+    <div class="custom-select-wrapper">
+      <label>Division</label>
+      <div class="dropdown" id="divisionDropdown">
+        <button class="dropdown-btn">All</button>
+        <div class="dropdown-content" id="divisionFilter"></div>
+      </div>
     </div>
-    <div>
-      <label for="nameFilter"><strong>Name Filter</strong><br />
-        <select id="nameFilter" multiple size="5"></select>
-      </label>
+
+    <div class="custom-select-wrapper">
+      <label>Name</label>
+      <div class="dropdown" id="nameDropdown">
+        <button class="dropdown-btn">All</button>
+        <div class="dropdown-content" id="nameFilter"></div>
+      </div>
     </div>
   </div>
+
   <canvas id="timeChart"></canvas>
+
   <table id="statsTable">
     <thead>
       <tr>
-        <th>Rank</th>
-        <th>Division</th>
-        <th># Runs</th>
-        <th>Min Time</th>
-        <th>Avg Time</th>
-        <th>Max Time</th>
-        <th>Fastest</th>
-        <th>Slowest</th>
+        <th>RANK</th>
+        <th>GROUP</th>
+        <th>RUNS</th>
+        <th>MIN TIME</th>
+        <th>AVG TIME</th>
+        <th>MAX TIME</th>
+        <th>FASTEST</th>
+        <th>SLOWEST</th>
       </tr>
     </thead>
-    <tbody>
-      <!-- Stats rows inserted dynamically -->
-    </tbody>
+    <tbody></tbody>
   </table>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
-  <!-- Chart.js & plugin -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
-
   <script>
-    Chart.register(window['chartjs-plugin-annotation']);
-
     const firebaseConfig = {
       apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
       authDomain: "goatchase-e9502.firebaseapp.com",
@@ -151,53 +213,77 @@
     async function fetchAndPrepareData() {
       const snapshot = await db.collection("entries").get();
       allEntries = snapshot.docs.map(doc => doc.data());
-
       populateFilters(allEntries);
       updateAll();
     }
 
     function populateFilters(entries) {
-      const divisionSet = new Set(entries.map(e => e.division));
-      const nameSet = new Set(entries.map(e => e.name));
-      const divisionSelect = document.getElementById("divisionFilter");
-      const nameSelect = document.getElementById("nameFilter");
-
-      // Insert "All" option + all options selected by default
-      divisionSelect.innerHTML = '<option value="All" selected>All</option>' +
-        [...divisionSet].sort().map(d => `<option value="${d}" selected>${d}</option>`).join('');
-      nameSelect.innerHTML = '<option value="All" selected>All</option>' +
-        [...nameSet].sort().map(n => `<option value="${n}" selected>${n}</option>`).join('');
+      const divisions = [...new Set(entries.map(e => e.division))].sort();
+      const names = [...new Set(entries.map(e => e.name))].sort();
+      renderMultiSelectOptions("divisionFilter", divisions);
+      renderMultiSelectOptions("nameFilter", names);
     }
 
-    document.getElementById("divisionFilter").addEventListener("change", () => {
-      updateNameOptions();
-      updateAll();
-    });
+    function renderMultiSelectOptions(containerId, values) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
 
-    document.getElementById("nameFilter").addEventListener("change", updateAll);
+      const allLabel = document.createElement("label");
+      allLabel.innerHTML = `<input type="checkbox" value="All" checked> All`;
+      container.appendChild(allLabel);
 
-    function updateNameOptions() {
-      const divisionSelect = document.getElementById("divisionFilter");
-      const selectedDivisions = [...divisionSelect.selectedOptions].map(o => o.value);
-      let filtered = selectedDivisions.includes("All") ? allEntries : allEntries.filter(e => selectedDivisions.includes(e.division));
-      const nameSet = new Set(filtered.map(e => e.name));
-      const nameSelect = document.getElementById("nameFilter");
+      values.forEach(val => {
+        const label = document.createElement("label");
+        label.innerHTML = `<input type="checkbox" value="${val}"> ${val}`;
+        container.appendChild(label);
+      });
 
-      // Preserve "All" selected
-      nameSelect.innerHTML = '<option value="All" selected>All</option>' +
-        [...nameSet].sort().map(n => `<option value="${n}" selected>${n}</option>`).join('');
+      container.querySelectorAll("input").forEach(input => {
+        input.addEventListener("change", () => {
+          const checkboxes = [...container.querySelectorAll("input")];
+          const allBox = checkboxes.find(cb => cb.value === "All");
+
+          if (input.value === "All" && input.checked) {
+            checkboxes.forEach(cb => { if (cb.value !== "All") cb.checked = false; });
+          } else {
+            allBox.checked = false;
+          }
+
+          if (![...checkboxes].some(cb => cb.checked)) {
+            allBox.checked = true;
+          }
+
+          updateAll();
+          updateDropdownButtonLabel(containerId);
+        });
+      });
+
+      updateDropdownButtonLabel(containerId);
+    }
+
+    function updateDropdownButtonLabel(containerId) {
+      const parent = document.getElementById(containerId).closest('.dropdown');
+      const checked = [...parent.querySelectorAll("input:checked")].map(cb => cb.value);
+      const btn = parent.querySelector(".dropdown-btn");
+
+      btn.textContent = checked.includes("All") || checked.length === 0
+        ? "All"
+        : checked.join(", ");
+    }
+
+    function getSelectedFilterValues(containerId) {
+      const checked = [...document.getElementById(containerId).querySelectorAll("input:checked")].map(cb => cb.value);
+      return checked.includes("All") || checked.length === 0 ? ["All"] : checked;
     }
 
     function getFilteredEntries() {
-      const divisionSelect = document.getElementById("divisionFilter");
-      const nameSelect = document.getElementById("nameFilter");
-      const selectedDivisions = [...divisionSelect.selectedOptions].map(o => o.value);
-      const selectedNames = [...nameSelect.selectedOptions].map(o => o.value);
+      const selectedDivisions = getSelectedFilterValues("divisionFilter");
+      const selectedNames = getSelectedFilterValues("nameFilter");
 
       return allEntries.filter(entry => {
-        const divisionMatch = selectedDivisions.includes("All") || selectedDivisions.includes(entry.division);
-        const nameMatch = selectedNames.includes("All") || selectedNames.includes(entry.name);
-        return divisionMatch && nameMatch;
+        const matchDivision = selectedDivisions.includes("All") || selectedDivisions.includes(entry.division);
+        const matchName = selectedNames.includes("All") || selectedNames.includes(entry.name);
+        return matchDivision && matchName;
       });
     }
 
@@ -208,127 +294,112 @@
     }
 
     function updateChart(entries) {
-      const divisionGroups = {};
-      entries.forEach(entry => {
-        const div = entry.division || "Other";
-        if (!divisionGroups[div]) divisionGroups[div] = [];
-        divisionGroups[div].push({
-          x: parseDate(entry),
-          y: parseTimeToSeconds(entry.time),
-          name: entry.name,
-          division: div,
-        });
-      });
+  const divisionGroups = {};
+  let allTimes = [];
 
-      // Compute mean and std dev for all filtered data
-      const yValues = entries.map(e => parseTimeToSeconds(e.time)).filter(v => !isNaN(v));
-      if (yValues.length === 0) {
-        if (chartInstance) chartInstance.destroy();
-        return;
-      }
-      const mean = yValues.reduce((a, b) => a + b, 0) / yValues.length;
-      const stdev = Math.sqrt(yValues.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / yValues.length);
+  entries.forEach(entry => {
+    const div = entry.division || "Other";
+    const time = parseTimeToSeconds(entry.time);
+    const date = parseDate(entry);
 
-      const chartDatasets = Object.entries(divisionGroups).map(([division, points]) => ({
-        label: division,
-        data: points,
-        parsing: { xAxisKey: 'x', yAxisKey: 'y' },
-        pointRadius: 5,
-        backgroundColor: getDivisionColor(division),
-        borderWidth: 1,
-      }));
+    if (!divisionGroups[div]) divisionGroups[div] = [];
+    divisionGroups[div].push({ x: date, y: time, name: entry.name, division: div });
+    allTimes.push(time);
+  });
 
-      const ctx = document.getElementById("timeChart").getContext("2d");
-      if (chartInstance) chartInstance.destroy();
+  // Calculate mean and stdev
+  const mean = allTimes.reduce((a, b) => a + b, 0) / allTimes.length;
+  const variance = allTimes.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / allTimes.length;
+  const stdev = Math.sqrt(variance);
 
-      chartInstance = new Chart(ctx, {
-        type: 'scatter',
-        data: { datasets: chartDatasets },
-        options: {
-          responsive: true,
-          plugins: {
-            annotation: {
-              annotations: {
-                highlightBand: {
-                  type: 'box',
-                  yMin: mean - stdev,
-                  yMax: mean + stdev,
-                  backgroundColor: 'rgba(255, 255, 0, 0.15)', // soft yellow
-                  borderWidth: 0
-                },
-                meanLine: {
-                  type: 'line',
-                  yMin: mean,
-                  yMax: mean,
-                  borderColor: 'black',
-                  borderWidth: 1,
-                  label: {
-                    content: 'Mean',
-                    enabled: true,
-                    position: 'end',
-                    backgroundColor: 'black',
-                    color: 'white'
-                  }
-                },
-                plus1Line: {
-                  type: 'line',
-                  yMin: mean + stdev,
-                  yMax: mean + stdev,
-                  borderColor: 'green',
-                  borderWidth: 1,
-                  label: {
-                    content: '+1σ',
-                    enabled: true,
-                    position: 'end',
-                    backgroundColor: 'green',
-                    color: 'white'
-                  }
-                },
-                minus1Line: {
-                  type: 'line',
-                  yMin: mean - stdev,
-                  yMax: mean - stdev,
-                  borderColor: 'red',
-                  borderWidth: 1,
-                  label: {
-                    content: '-1σ',
-                    enabled: true,
-                    position: 'end',
-                    backgroundColor: 'red',
-                    color: 'white'
-                  }
-                }
+  const chartDatasets = Object.entries(divisionGroups).map(([division, points]) => ({
+    label: division,
+    data: points,
+    parsing: { xAxisKey: 'x', yAxisKey: 'y' },
+    pointRadius: 5,
+    backgroundColor: getDivisionColor(division),
+    borderWidth: 1,
+  }));
+
+  const ctx = document.getElementById("timeChart").getContext("2d");
+  if (chartInstance) chartInstance.destroy();
+
+  chartInstance = new Chart(ctx, {
+    type: 'scatter',
+    data: { datasets: chartDatasets },
+    options: {
+      responsive: true,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const pt = ctx.raw;
+              return `${pt.name} (${pt.division}): ${formatTime(pt.y)}`;
+            }
+          }
+        },
+        legend: { display: false },
+        annotation: {
+          annotations: {
+            mean: {
+              type: 'line',
+              yMin: mean,
+              yMax: mean,
+              borderColor: 'black',
+              borderWidth: 1,
+              label: {
+                content: 'Mean',
+                enabled: true,
+                position: 'end',
+                backgroundColor: 'black',
+                color: 'white'
               }
             },
-            tooltip: {
-              callbacks: {
-                label: ctx => {
-                  const pt = ctx.raw;
-                  return `${pt.name} (${pt.division}): ${formatTime(pt.y)}`;
-                }
+            plus1: {
+              type: 'line',
+              yMin: mean + stdev,
+              yMax: mean + stdev,
+              borderColor: 'green',
+              borderWidth: 1,
+              label: {
+                content: '+1σ',
+                enabled: true,
+                position: 'end',
+                backgroundColor: 'green',
+                color: 'white'
               }
             },
-            legend: { display: false }
-          },
-          scales: {
-            x: {
-              type: 'time',
-              time: { unit: 'month' },
-              grid: {
-                color: '#ccc',
-                borderColor: '#aaa',
-                tickColor: '#aaa',
-                drawTicks: true,
-                drawOnChartArea: true,
+            minus1: {
+              type: 'line',
+              yMin: mean - stdev,
+              yMax: mean - stdev,
+              borderColor: 'red',
+              borderWidth: 1,
+              label: {
+                content: '-1σ',
+                enabled: true,
+                position: 'end',
+                backgroundColor: 'red',
+                color: 'white'
               }
-            },
-            y: {
-              title: { display: false }
             }
           }
         }
-      });
+      },
+      scales: {
+        x: {
+          type: 'time',
+          time: { unit: 'month' }, // monthly vertical lines
+          title: { display: false }
+        },
+        y: {
+          title: { display: false }
+        }
+      }
     }
+  });
+}
+
 
     function updateStats(entries) {
       const groups = {};
@@ -376,6 +447,22 @@
         tbody.appendChild(tr);
       });
     }
+
+    document.querySelectorAll(".dropdown-btn").forEach(btn => {
+      btn.addEventListener("click", e => {
+        const dropdown = e.target.closest(".dropdown");
+        dropdown.classList.toggle("open");
+        document.querySelectorAll(".dropdown").forEach(other => {
+          if (other !== dropdown) other.classList.remove("open");
+        });
+      });
+    });
+
+    document.addEventListener("click", e => {
+      if (!e.target.closest(".dropdown")) {
+        document.querySelectorAll(".dropdown").forEach(d => d.classList.remove("open"));
+      }
+    });
 
     fetchAndPrepareData();
   </script>

@@ -150,7 +150,18 @@
 
     async function loadStats(groupBy = 'division') {
       const snapshot = await db.collection("entries").get();
-      const entries = snapshot.docs.map(doc => doc.data());
+const allEntries = snapshot.docs.map(doc => doc.data());
+
+// Get filter values
+const divisionFilter = document.getElementById("divisionFilter").value || "all";
+const nameFilter = document.getElementById("nameFilter").value || "all";
+
+// Filter entries
+const entries = allEntries.filter(entry => {
+  const divisionMatch = divisionFilter === "all" || entry.division === divisionFilter;
+  const nameMatch = nameFilter === "all" || entry.name === nameFilter;
+  return divisionMatch && nameMatch;
+});
 
       const divisionFilter = document.getElementById("divisionFilter").value || "all";
       const nameFilter = document.getElementById("nameFilter").value || "all";

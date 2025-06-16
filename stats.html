@@ -323,8 +323,6 @@
 
   const ctx = document.getElementById("timeChart").getContext("2d");
   if (chartInstance) chartInstance.destroy();
-
-  Chart.register(window['chartjs-plugin-annotation']);
     
   chartInstance = new Chart(ctx, {
     type: 'scatter',

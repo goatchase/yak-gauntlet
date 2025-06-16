@@ -6,9 +6,6 @@
   <title>THE YAK GAUNTLET STATS</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.1.0"></script>
-  <script>
-  const ChartAnnotation = window['chartjs-plugin-annotation'];
-  </script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -150,7 +147,7 @@
       </div>
     </div>
   </div>
-  
+
   <canvas id="timeChart"></canvas>
 
   <table id="statsTable">
@@ -327,8 +324,6 @@
   const ctx = document.getElementById("timeChart").getContext("2d");
   if (chartInstance) chartInstance.destroy();
 
-  Chart.register(ChartAnnotation);
-      
   chartInstance = new Chart(ctx, {
     type: 'scatter',
     data: { datasets: chartDatasets },

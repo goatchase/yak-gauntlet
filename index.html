@@ -548,22 +548,18 @@ async function addEntry(entry) {
     .filter(e => e.division === entry.division)
     .sort((a, b) => parseTimeToSeconds(a.time) - parseTimeToSeconds(b.time));
 
-  const overallRank = allSorted.findIndex(e => Math.abs(parseTimeToSeconds(e.time) - lastSubmittedTime) < 0.01) + 1;
-  const overallTotal = allSorted.length;
+  // Match based on exact name + time + division
+  const matchFn = e => 
+    e.name === entry.name &&
+    e.time === entry.time &&
+    e.division === entry.division &&
+    e.category === entry.category;
 
-  const divisionRank = divSorted.findIndex(e => Math.abs(parseTimeToSeconds(e.time) - lastSubmittedTime) < 0.01) + 1;
-  const divisionTotal = divSorted.length;
+  const overallRank = allSorted.findIndex(matchFn) + 1;
+  const divisionRank = divSorted.findIndex(matchFn) + 1;
 
-  showRankPopup(overallRank, overallTotal, divisionRank, divisionTotal);
+  showRankPopup(overallRank, allSorted.length, divisionRank, divSorted.length);
 }
-
-// Helper to format 1st, 2nd, 3rd, etc.
-function getOrdinal(n) {
-  const s = ["th", "st", "nd", "rd"];
-  const v = n % 100;
-  return s[(v - 20) % 10] || s[v] || s[0];
-}
-	
 
 function showRankPopup(overallRank, overallTotal, divisionRank, divisionTotal) {
   const popup = document.createElement('div');
@@ -582,8 +578,8 @@ function showRankPopup(overallRank, overallTotal, divisionRank, divisionTotal) {
       text-align: center;
       font-weight: bold;
     ">
-      You're ranked ${overallRank}${getOrdinal(overallRank)} out of ${overallTotal} entries overall.<br><br>
-      You're ranked ${divisionRank}${getOrdinal(divisionRank)} out of ${divisionTotal} in your division.<br><br>
+      ${overallRank}${getOrdinal(overallRank)} of ${overallTotal} entries overall.<br><br>
+      ${divisionRank}${getOrdinal(divisionRank)} of ${divisionTotal} in your division.<br><br>
       <button id="closePopup" style="
         margin-top: 10px;
         padding: 6px 12px;

@@ -539,31 +539,10 @@ document.querySelectorAll('.delete-button').forEach(button => {
       renderScoreboard();
     }
 
-async function addEntry(entry) {
-  await entriesCollection.add(entry);
-
-  // Get all entries *after* adding
-  const snapshot = await entriesCollection.get();
-  const all = snapshot.docs.map(doc => doc.data());
-
-  // Sort by time (fastest first)
-  const sorted = all.sort((a, b) => parseTimeToSeconds(a.time) - parseTimeToSeconds(b.time));
-
-  // Find rank of the newly submitted time
-  const entrySeconds = parseTimeToSeconds(entry.time);
-  const rank = sorted.findIndex(e => parseTimeToSeconds(e.time) === entrySeconds) + 1;
-  const total = sorted.length;
-
-  // Simple fallback if rank wasn't found exactly (due to float issues)
-  const safeRank = rank > 0 ? rank : '?';
-
-  // Show popup
-  alert(`Rank: ${safeRank} out of ${total} total entries`);
-
-  // Refresh display
-  fetchEntries();
-}
-
+    async function addEntry(entry) {
+      await entriesCollection.add(entry);
+      fetchEntries();
+    }
 
     async function deleteEntry(id) {
       if (confirm("Delete this entry?")) {

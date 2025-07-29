@@ -539,66 +539,10 @@ document.querySelectorAll('.delete-button').forEach(button => {
       renderScoreboard();
     }
 
-async function addEntry(entry) {
-  await entriesCollection.add(entry);
-  await fetchEntries();
-
-  const allSorted = [...entries].sort((a, b) => parseTimeToSeconds(a.time) - parseTimeToSeconds(b.time));
-  const divSorted = entries
-    .filter(e => e.division === entry.division)
-    .sort((a, b) => parseTimeToSeconds(a.time) - parseTimeToSeconds(b.time));
-
-  // Match based on exact name + time + division
-  const matchFn = e => 
-    e.name === entry.name &&
-    e.time === entry.time &&
-    e.division === entry.division &&
-    e.category === entry.category;
-
-  const overallRank = allSorted.findIndex(matchFn) + 1;
-  const divisionRank = divSorted.findIndex(matchFn) + 1;
-
-  showRankPopup(overallRank, allSorted.length, divisionRank, divSorted.length);
-}
-
-function showRankPopup(overallRank, overallTotal, divisionRank, divisionTotal) {
-  const popup = document.createElement('div');
-  popup.innerHTML = `
-    <div style="
-      position: fixed;
-      top: 30%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      border: 3px solid #001f3f;
-      padding: 20px 30px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      z-index: 1000;
-      font-size: 20px;
-      text-align: center;
-      font-weight: bold;
-    ">
-      ${overallRank}${getOrdinal(overallRank)} of ${overallTotal} entries overall.<br><br>
-      ${divisionRank}${getOrdinal(divisionRank)} of ${divisionTotal} in your division.<br><br>
-      <button id="closePopup" style="
-        margin-top: 10px;
-        padding: 6px 12px;
-        font-size: 16px;
-        background-color: #001f3f;
-        color: white;
-        border: none;
-        cursor: pointer;
-        border-radius: 4px;
-      ">Close</button>
-    </div>
-  `;
-  document.body.appendChild(popup);
-
-  document.getElementById('closePopup').addEventListener('click', () => {
-    popup.remove();
-  });
-}
-
+    async function addEntry(entry) {
+      await entriesCollection.add(entry);
+      fetchEntries();
+    }
 
     async function deleteEntry(id) {
       if (confirm("Delete this entry?")) {

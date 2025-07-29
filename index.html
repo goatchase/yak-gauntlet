@@ -539,10 +539,70 @@ document.querySelectorAll('.delete-button').forEach(button => {
       renderScoreboard();
     }
 
-    async function addEntry(entry) {
-      await entriesCollection.add(entry);
-      fetchEntries();
-    }
+async function addEntry(entry) {
+  await entriesCollection.add(entry);
+  await fetchEntries();
+
+  const allSorted = [...entries].sort((a, b) => parseTimeToSeconds(a.time) - parseTimeToSeconds(b.time));
+  const divSorted = entries
+    .filter(e => e.division === entry.division)
+    .sort((a, b) => parseTimeToSeconds(a.time) - parseTimeToSeconds(b.time));
+
+  const overallRank = allSorted.findIndex(e => Math.abs(parseTimeToSeconds(e.time) - lastSubmittedTime) < 0.01) + 1;
+  const overallTotal = allSorted.length;
+
+  const divisionRank = divSorted.findIndex(e => Math.abs(parseTimeToSeconds(e.time) - lastSubmittedTime) < 0.01) + 1;
+  const divisionTotal = divSorted.length;
+
+  showRankPopup(overallRank, overallTotal, divisionRank, divisionTotal);
+}
+
+// Helper to format 1st, 2nd, 3rd, etc.
+function getOrdinal(n) {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return s[(v - 20) % 10] || s[v] || s[0];
+}
+	
+
+function showRankPopup(overallRank, overallTotal, divisionRank, divisionTotal) {
+  const popup = document.createElement('div');
+  popup.innerHTML = `
+    <div style="
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border: 3px solid #001f3f;
+      padding: 20px 30px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      z-index: 1000;
+      font-size: 20px;
+      text-align: center;
+      font-weight: bold;
+    ">
+      You're ranked ${overallRank}${getOrdinal(overallRank)} out of ${overallTotal} entries overall.<br><br>
+      You're ranked ${divisionRank}${getOrdinal(divisionRank)} out of ${divisionTotal} in your division.<br><br>
+      <button id="closePopup" style="
+        margin-top: 10px;
+        padding: 6px 12px;
+        font-size: 16px;
+        background-color: #001f3f;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+      ">Close</button>
+    </div>
+  `;
+  document.body.appendChild(popup);
+
+  document.getElementById('closePopup').addEventListener('click', () => {
+    popup.remove();
+  });
+}
+
 
     async function deleteEntry(id) {
       if (confirm("Delete this entry?")) {

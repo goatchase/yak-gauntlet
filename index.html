@@ -269,9 +269,7 @@
       </select>
       <select id="category" required>
         <option value="" disabled selected>Select Category</option>
-        <option value=”Other”>Other</option>
       </select>
-      <input type=”text” id=”customCategory” placeholder=”Enter Category” style=”display:none;” />
       <input id="time" placeholder="Time (mm ss.ss)" required />
       <input id="date" type="date" required />
       <button type="submit">Submit</button>
@@ -330,18 +328,6 @@
       appId: "1:16998517478:web:6386aff8c1d1da2accc927",
       measurementId: "G-YWLJGQG0XD"
     };
-    
-    const customCategoryInput = document.getElementById(‘customCategory’);
-
-    categorySelect.addEventListener(‘change’, () => {
-       if (categorySelect.value === ‘Other’) {
-          customCategoryInput.style.display = ‘inline-block’;
-          customCategoryInput.required = true;
-     } else {
-          customCategoryInput.style.display = ‘none’;
-          customCategoryInput.required = false;
-     }
-    });
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
@@ -570,9 +556,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
 
       const name = document.getElementById('name').value.trim();
       const division = divisionSelect.value;
-      const category = categorySelect.value === ‘Other’
-	? customCategoryInput.value.trim()
-	: categorySelect.value;
+      const category = categorySelect.value;
       const time = document.getElementById('time').value.trim();
       const dateInput = document.getElementById('date').value; // e.g. "2025-05-29"
 

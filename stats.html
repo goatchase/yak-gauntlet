@@ -154,7 +154,8 @@
     <thead>
       <tr>
         <th>RANK</th>
-        <th>GROUP</th>
+        <th>DIVISION</th>
+        <th>CATEGORY</th>
         <th>RUNS</th>
         <th>MIN TIME</th>
         <th>AVG TIME</th>
@@ -294,164 +295,180 @@
     }
 
     function updateChart(entries) {
-  const divisionGroups = {};
-  let allTimes = [];
+      const divisionGroups = {};
+      let allTimes = [];
 
-  entries.forEach(entry => {
-    const div = entry.division || "Other";
-    const time = parseTimeToSeconds(entry.time);
-    const date = parseDate(entry);
+      entries.forEach(entry => {
+        const div = entry.division || "Other";
+        const time = parseTimeToSeconds(entry.time);
+        const date = parseDate(entry);
 
-    if (!divisionGroups[div]) divisionGroups[div] = [];
-    divisionGroups[div].push({ x: date, y: time, name: entry.name, division: div });
-    allTimes.push(time);
-  });
+        if (!divisionGroups[div]) divisionGroups[div] = [];
+        divisionGroups[div].push({ x: date, y: time, name: entry.name, division: div });
+        allTimes.push(time);
+      });
 
-  // Calculate mean and stdev
-  const mean = allTimes.reduce((a, b) => a + b, 0) / allTimes.length;
-  const variance = allTimes.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / allTimes.length;
-  const stdev = Math.sqrt(variance);
+      // Calculate mean and stdev
+      const mean = allTimes.reduce((a, b) => a + b, 0) / allTimes.length;
+      const variance = allTimes.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / allTimes.length;
+      const stdev = Math.sqrt(variance);
 
-  const chartDatasets = Object.entries(divisionGroups).map(([division, points]) => ({
-    label: division,
-    data: points,
-    parsing: { xAxisKey: 'x', yAxisKey: 'y' },
-    pointRadius: 5,
-    backgroundColor: getDivisionColor(division),
-    borderWidth: 1,
-  }));
+      const chartDatasets = Object.entries(divisionGroups).map(([division, points]) => ({
+        label: division,
+        data: points,
+        parsing: { xAxisKey: 'x', yAxisKey: 'y' },
+        pointRadius: 5,
+        backgroundColor: getDivisionColor(division),
+        borderWidth: 1,
+      }));
 
-  const ctx = document.getElementById("timeChart").getContext("2d");
-  if (chartInstance) chartInstance.destroy();
+      const ctx = document.getElementById("timeChart").getContext("2d");
+      if (chartInstance) chartInstance.destroy();
 
-  chartInstance = new Chart(ctx, {
-    type: 'scatter',
-    data: { datasets: chartDatasets },
-    options: {
-      responsive: true,
-      plugins: {
-        tooltip: {
-          callbacks: {
-            label: ctx => {
-              const pt = ctx.raw;
-              return `${pt.name} (${pt.division}): ${formatTime(pt.y)}`;
+      chartInstance = new Chart(ctx, {
+        type: 'scatter',
+        data: { datasets: chartDatasets },
+        options: {
+          responsive: true,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: ctx => {
+                  const pt = ctx.raw;
+                  return `${pt.name} (${pt.division}): ${formatTime(pt.y)}`;
+                }
+              }
+            },
+            legend: { display: false },
+            annotation: {
+              annotations: {
+                mean: {
+                  type: 'line',
+                  yMin: mean,
+                  yMax: mean,
+                  borderColor: 'black',
+                  borderWidth: 1,
+                  label: {
+                    content: 'Mean',
+                    enabled: true,
+                    position: 'end',
+                    backgroundColor: 'black',
+                    color: 'white'
+                  }
+                },
+                plus1: {
+                  type: 'line',
+                  yMin: mean + stdev,
+                  yMax: mean + stdev,
+                  borderColor: 'green',
+                  borderWidth: 1,
+                  label: {
+                    content: '+1σ',
+                    enabled: true,
+                    position: 'end',
+                    backgroundColor: 'green',
+                    color: 'white'
+                  }
+                },
+                minus1: {
+                  type: 'line',
+                  yMin: mean - stdev,
+                  yMax: mean - stdev,
+                  borderColor: 'red',
+                  borderWidth: 1,
+                  label: {
+                    content: '-1σ',
+                    enabled: true,
+                    position: 'end',
+                    backgroundColor: 'red',
+                    color: 'white'
+                  }
+                }
+              }
             }
-          }
-        },
-        legend: { display: false },
-        annotation: {
-          annotations: {
-            mean: {
-              type: 'line',
-              yMin: mean,
-              yMax: mean,
-              borderColor: 'black',
-              borderWidth: 1,
-              label: {
-                content: 'Mean',
-                enabled: true,
-                position: 'end',
-                backgroundColor: 'black',
-                color: 'white'
-              }
+          },
+          scales: {
+            x: {
+              type: 'time',
+              time: { unit: 'month' },
+              title: { display: false }
             },
-            plus1: {
-              type: 'line',
-              yMin: mean + stdev,
-              yMax: mean + stdev,
-              borderColor: 'green',
-              borderWidth: 1,
-              label: {
-                content: '+1σ',
-                enabled: true,
-                position: 'end',
-                backgroundColor: 'green',
-                color: 'white'
-              }
-            },
-            minus1: {
-              type: 'line',
-              yMin: mean - stdev,
-              yMax: mean - stdev,
-              borderColor: 'red',
-              borderWidth: 1,
-              label: {
-                content: '-1σ',
-                enabled: true,
-                position: 'end',
-                backgroundColor: 'red',
-                color: 'white'
+            y: {
+              title: { display: false },
+              ticks: {
+                callback: function(value) {
+                  const min = Math.floor(value / 60);
+                  const sec = (value % 60).toFixed(2).padStart(5, '0');
+                  return `${String(min).padStart(2, '0')} ${sec}`;
+                }
               }
             }
           }
         }
-      },
-scales: {
-  x: {
-    type: 'time',
-    time: { unit: 'month' },
-    title: { display: false }
-  },
-  y: {
-    title: { display: false },
-    ticks: {
-      callback: function(value) {
-        const min = Math.floor(value / 60);
-        const sec = (value % 60).toFixed(2).padStart(5, '0');
-        return `${String(min).padStart(2, '0')} ${sec}`;
-      }
+      });
     }
-  }
-}
-    }
-  });
-}
-
 
     function updateStats(entries) {
-      const groups = {};
+      const selectedDivisions = getSelectedFilterValues("divisionFilter");
+      const statsGroups = {};
+
       entries.forEach(entry => {
-        const key = entry.division;
+        const division = entry.division || "Other";
+        const category = entry.category || "Uncategorized";
         const timeSec = parseTimeToSeconds(entry.time);
-        if (!groups[key]) groups[key] = { name: key, times: [], names: [] };
-        groups[key].times.push(timeSec);
-        groups[key].names.push({ time: timeSec, name: entry.name });
+
+        // Only include entries for selected divisions
+        if (!selectedDivisions.includes("All") && !selectedDivisions.includes(division)) return;
+
+        const key = `${division}||${category}`;
+        if (!statsGroups[key]) {
+          statsGroups[key] = {
+            division,
+            category,
+            times: [],
+            names: []
+          };
+        }
+
+        statsGroups[key].times.push(timeSec);
+        statsGroups[key].names.push({ time: timeSec, name: entry.name });
       });
 
-      const groupArray = Object.values(groups).sort((a, b) => Math.min(...a.times) - Math.min(...b.times));
+      // Group by division for ranking reset
+      const groupedByDivision = {};
+      Object.values(statsGroups).forEach(group => {
+        if (!groupedByDivision[group.division]) groupedByDivision[group.division] = [];
+        groupedByDivision[group.division].push(group);
+      });
+
       const tbody = document.querySelector("#statsTable tbody");
       tbody.innerHTML = "";
 
-      let overallFastest = null;
-      entries.forEach(entry => {
-        const time = parseTimeToSeconds(entry.time);
-        if (!overallFastest || time < overallFastest.time) {
-          overallFastest = { group: entry.division, time, name: entry.name };
-        }
-      });
+      Object.entries(groupedByDivision).forEach(([division, groups]) => {
+        // Sort groups within division by min time ascending
+        const sortedGroups = groups.sort((a, b) => Math.min(...a.times) - Math.min(...b.times));
 
-      groupArray.forEach((group, idx) => {
-        const minTime = Math.min(...group.times);
-        const maxTime = Math.max(...group.times);
-        const avgTime = group.times.reduce((a, b) => a + b, 0) / group.times.length;
-        const fastestEntry = group.names.find(n => n.time === minTime);
-        const slowestEntry = group.names.find(n => n.time === maxTime);
-        const isLeader = group.name === overallFastest.group && minTime === overallFastest.time;
+        sortedGroups.forEach((group, idx) => {
+          const minTime = Math.min(...group.times);
+          const maxTime = Math.max(...group.times);
+          const avgTime = group.times.reduce((a, b) => a + b, 0) / group.times.length;
+          const fastestEntry = group.names.find(n => n.time === minTime);
+          const slowestEntry = group.names.find(n => n.time === maxTime);
 
-        const tr = document.createElement("tr");
-        if (isLeader) tr.classList.add("leader");
-
-        tr.innerHTML = `
-          <td>${idx + 1}</td>
-          <td>${group.name}</td>
-          <td>${group.times.length}</td>
-          <td>${formatTime(minTime)}</td>
-          <td>${formatTime(avgTime)}</td>
-          <td>${formatTime(maxTime)}</td>
-          <td>${fastestEntry?.name || ''}</td>
-          <td>${slowestEntry?.name || ''}</td>
-        `;
-        tbody.appendChild(tr);
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${idx + 1}</td>
+            <td>${division}</td>
+            <td>${group.category}</td>
+            <td>${group.times.length}</td>
+            <td>${formatTime(minTime)}</td>
+            <td>${formatTime(avgTime)}</td>
+            <td>${formatTime(maxTime)}</td>
+            <td>${fastestEntry?.name || ''}</td>
+            <td>${slowestEntry?.name || ''}</td>
+          `;
+          tbody.appendChild(tr);
+        });
       });
     }
 

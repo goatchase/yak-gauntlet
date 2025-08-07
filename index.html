@@ -267,7 +267,9 @@
       <select id="division" required>
         <option value="" disabled selected>Select Division</option>
       </select>
-	  <input id="category" placeholder="Category" required />
+      <select id="category" required>
+        <option value="" disabled selected>Select Category</option>
+      </select>
       <input id="time" placeholder="Time (mm ss.ss)" required />
       <input id="date" type="date" required />
       <button type="submit">Submit</button>
@@ -341,7 +343,7 @@
     const categoryFilter = document.getElementById('categoryFilter');
     const actionHeader = document.getElementById('actionHeader');
     const divisionSelect = document.getElementById('division');
-    const categoryInput = document.getElementById('category');
+    const categorySelect = document.getElementById('category');
 
     let entries = [];
     let isEditMode = false;
@@ -391,6 +393,8 @@
 
       divisionSelect.innerHTML = '<option value="" disabled selected>Select Division</option>' +
         divisions.map(d => `<option value="${d}">${d}</option>`).join('');
+      categorySelect.innerHTML = '<option value="" disabled selected>Select Category</option>' +
+        categories.map(c => `<option value="${c}">${c}</option>`).join('');
     }
 
     function compareEntries(a, b, column) {
@@ -552,7 +556,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
 
       const name = document.getElementById('name').value.trim();
       const division = divisionSelect.value;
-      const category = categoryInput.value.trim();=
+      const category = categorySelect.value;
       const time = document.getElementById('time').value.trim();
       const dateInput = document.getElementById('date').value; // e.g. "2025-05-29"
 

@@ -1,324 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>THE YAK GAUNTLET</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>THE YAK GAUNTLET - Win95</title>
+
+  <!-- Fonts: fallback to Tahoma / MS Sans -->
   <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      margin: 0;
-      padding-left: 80px;
-      padding-right: 80px;
-      padding-top: 20px;
-      background-color: #f4f4f4;
-      color: #001f3f;
-      text-transform: uppercase;
-      font-size: 12pt;
+    /* Win95 look - straight, no fancy shadows */
+    :root{
+      --bg:#c0c0c0;
+      --window:#e0e0e0;
+      --frame:#808080;
+      --highlight:#000080;
+      --text:#000;
+      --bevel-light:#ffffff;
+      --bevel-dark:#404040;
+      --btn-face:#d4d0c8;
+      --btn-pressed:#a0a0a0;
+      --leader-green:#b0f0b0;
+      --leader-blue:#cfe3ff;
+      --today-yellow:#fff8b0;
     }
-    h1 {
-      font-size: 20pt;
-      text-align: center;
-      color: #001f3f;
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-    .subtitle {
-      text-align: center;
-      font-size: 10pt;
-      margin-bottom: 20px;
-      color: #001f3f;
+    html,body{height:100%;margin:0;background:var(--bg);font-family:"MS Sans Serif", Tahoma, Arial, sans-serif;color:var(--text);font-size:12px;user-select:none}
+    /* page container */
+    .desktop {
+      padding: 20px;
+      box-sizing: border-box;
+      min-height: calc(100vh - 40px - 30px);
     }
 
-.controls-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 20px;
-  gap: 10px;
-  margin: 0 auto;
-}
-
-.controls-row {
-  display: flex;
-  width: 100%;
-  max-width: 3000px;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-}
-	  
-.form-row {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  flex-wrap: nowrap;
-  gap: 10px;
-}
-
-.second-row {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-}
-
-.left-group,
-.right-group {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 10px;
-}
-
-.left-group {
-  justify-content: left;
-}
-
-.right-group {
-  justify-content: right;
-}
-
-@media (max-width: 768px) {
-  .second-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-  .left-group,
-  .right-group {
-    justify-content: center;
-  }
-}
-
-    form {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-    form input, form select, form button {
-      padding: 5px;
-      font-size: 1em;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-    form button {
-      background-color: #990000;
-      color: white;
-      cursor: pointer;
-    }
-    form button:hover {
-      background-color: #770000;
-    }
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      align-items: flex-end;
-      margin-bottom: 10px;
-    }
-    .filters {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .filter-group {
-      display: flex;
-      flex-direction: column;
-      font-size: 1em;
-    }
-    .top-controls {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: flex-end;
-    }
-    .edit-button, .unfilter-button, .open-stats-button {
-      background-color: #007bff;
-      color: white;
-      padding: 5px 10px;
-      border: none;
-      cursor: pointer;
-      border-radius: 4px;
-      font-size: 1em;
-    }
-    .edit-button:hover, .unfilter-button:hover, .open-stats-button:hover {
-      background-color: #0056b3;
-    }
-    select, input[type="search"] {
-      padding: 5px;
-      font-size: 1em;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-
-    #scoreboard thead th {
-  	position: sticky;
-  	top: 0;
-  	background-color: #f4f4f4; /* or whatever your table header background is */
-  	z-index: 10; /* make sure it stays above table rows */
-  	border-bottom: 2px solid #ddd; /* optional: to visually separate header */
-	}
-    #page-header {
-  	position: sticky;
-	}
-    .table-wrapper {
+    /* Title bar (large app window) */
+    .app-window {
       width: 100%;
-      display: flex;
-      justify-content: center;
+      max-width: 1100px;
+      margin: 0 auto 20px;
+      background:var(--window);
+      border:3px solid var(--frame);
+      box-sizing: border-box;
     }
-    table#scoreboard {
-      width: 100%;
-      margin: 0 auto;
-      border-collapse: collapse;
-      table-layout: auto;
+    .titlebar {
+      background:linear-gradient(#000080, #000060);
+      color:#fff;
+      padding:4px 6px;
+      display:flex;
+      align-items:center;
+      gap:8px;
     }
-    table {
-      width: 100%;
-      margin: 0 auto;
-      border-collapse: collapse;
-      table-layout: auto;
+    .titlebar .icon {
+      width:18px;height:18px;background:#fff;border:1px solid #000;display:inline-block;
     }
-    th, td {
-      padding: 5px;
-      border-bottom: 1px solid #ddd;
-      text-align: left;
-      cursor: default;
-      user-select: none;
+    .titlebar h2 { margin:0;font-size:13px; text-transform:uppercase; font-weight:700; font-family:"MS Sans Serif"; }
+    .titlebar .win-controls { margin-left:auto; display:flex; gap:6px; }
+    .win-btn {
+      width:18px;height:14px;background:var(--btn-face);border:2px solid var(--bevel-dark);display:inline-flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer;
+      box-sizing:border-box;
     }
-    th.sortable {
-      cursor: pointer;
+    .win-btn:active{background:var(--btn-pressed);}
+
+    /* toolbar inside window */
+    .toolbar {
+      padding:8px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      border-bottom:2px solid var(--bevel-dark);
+      background:linear-gradient(#f0f0f0,#dcdcdc);
     }
-    th.sortable:hover {
-      background-color: #e0e0e0;
+    .btn {
+      padding:4px 8px;
+      background:var(--btn-face);
+      border:2px solid var(--bevel-light);
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      cursor:pointer;
+      box-sizing:border-box;
+      font-size:12px;
     }
-    th.sorted-asc::after {
-      content: " ▲";
-      font-size: 0.7em;
+    .btn:active{ background:var(--btn-pressed); border-color:var(--bevel-dark) var(--bevel-light) var(--bevel-light) var(--bevel-dark); }
+    .btn .emoji { font-size:14px; }
+
+    /* filters */
+    .filters { margin-left:auto; display:flex; gap:8px; align-items:center; }
+    select,input[type="search"]{ font-family:"MS Sans Serif", Tahoma; padding:4px; border:2px solid var(--bevel-dark); background:#fff; font-size:12px; outline:none; }
+    .filter-group{ display:flex; flex-direction:column; font-size:11px; }
+
+    /* scoreboard area */
+    .content { padding:12px; box-sizing:border-box; }
+    .table-wrapper { width:100%; overflow:auto; background:#fff; border:2px solid var(--bevel-dark); padding:6px; box-sizing:border-box; }
+    table { width:100%; border-collapse:collapse; font-size:12px; }
+    th,td { padding:6px 8px; border-bottom:1px solid #b0b0b0; text-align:left; white-space:nowrap; }
+    th { background:linear-gradient(#f6f6f6,#e6e6e6); border-bottom:2px solid var(--bevel-dark); cursor:default; }
+    th.sortable{ cursor:pointer; }
+    tr:hover td{ background:#f0f8ff; }
+    .leader { background:var(--leader-green) !important; }
+    .division-leader { background:var(--leader-blue) !important; }
+    .today-entry { background:var(--today-yellow) !important; }
+
+    /* small footer area for taskbar */
+    .taskbar {
+      position:fixed;
+      left:0;right:0;bottom:0;height:30px;
+      background:linear-gradient(#808080,#606060);
+      display:flex;align-items:center;gap:10px;padding:2px 6px;box-sizing:border-box;border-top:2px solid #000;
+      user-select:none;
     }
-    th.sorted-desc::after {
-      content: " ▼";
-      font-size: 0.7em;
+    .start-btn {
+      display:flex;align-items:center;gap:8px;padding:4px 10px;background:var(--btn-face);border:2px solid var(--bevel-light);cursor:pointer;
+      font-weight:700;
     }
-    tr:hover {
-      background-color: #f1f1f1;
+    .taskbar .clock { margin-left:auto;color:#fff;font-weight:700;margin-right:12px; }
+
+    /* dialogs (draggable) */
+    .dialog {
+      position:fixed;
+      width:420px;
+      background:var(--window);
+      border:3px solid var(--frame);
+      z-index:1000;
+      box-sizing:border-box;
+      display:none;
     }
-    .leader {
-      background-color: #ccffcc !important;
+    .dialog .titlebar {
+      cursor:move;
+      display:flex;align-items:center;padding:4px 6px; background:linear-gradient(#000080,#000060); color:#fff;
     }
-    .division-leader {
-      background-color: #dceeff !important;
-    }
-    .today-entry {
-      background-color: #fffacd !important;
-    }
-    .stopwatch {
-      font-size: 1em;
-      margin-left: 6px;
-    }
-    .gold { color: #001f3f; }
-    .blue { color: #001f3f; }
-    @media (max-width: 600px) {
-      .top-bar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .filters,
-      .top-controls {
-        flex-direction: column;
-        width: 100%;
-        gap: 5px;
-      }
-      .filter-group {
-        width: 100%;
-      }
-      .top-controls input,
-      .top-controls button {
-        width: 100%;
-      }
-      .subtitle-img {
-      	height: auto;
-	width: 50%;
-	max-width: 50px;
-	vertical-align: middle;
-	margin-right: 8px;
-      }
+    .dialog .content { padding:10px; }
+    .dialog .controls { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+
+    label { font-size:12px; display:block; margin-bottom:4px; }
+    input[type="text"], input[type="date"], select { width:100%; padding:6px; box-sizing:border-box; border:2px solid var(--bevel-dark); background:#fff; }
+    textarea { width:100%; height:180px; box-sizing:border-box; border:2px solid var(--bevel-dark); padding:6px; font-family:monospace; }
+
+    /* make small icon-like squares for pixel icons (leaders) */
+    .pixel-icon { width:18px;height:12px;display:inline-block;border:1px solid #000;margin-left:6px;vertical-align:middle;background-image:linear-gradient(90deg,#0000,#0002);}
+    .pixel-gold { background:linear-gradient(#ffd27f,#f0a000);border:1px solid #7a4f00;}
+    .pixel-blue { background:linear-gradient(#cfe3ff,#9cc7ff);border:1px solid #4a76a8; }
+
+    /* responsive */
+    @media (max-width:800px){
+      .app-window{max-width:95%}
+      .dialog{ width:92% }
     }
   </style>
+
+  <!-- Firebase v8 (same as original) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
 <body>
-
-  <h1>THE YAK GAUNTLET</h1>
-  <div class="subtitle">
-	<img src="YG2.png" class="subtitle-img" />
-  </div>
-
-  <div class="controls-wrapper">
-  <!-- First row: form centered -->
-  <div class="controls-row form-row">
-    <form id="entryForm">
-      <input id="name" placeholder="Name" required />
-      <select id="division" required>
-        <option value="" disabled selected>Select Division</option>
-      </select>
-      <select id="category" required>
-        <option value="" disabled selected>Select Category</option>
-      </select>
-      <input id="time" placeholder="Time (mm ss.ss)" required />
-      <input id="date" type="date" required />
-      <button type="submit">Submit</button>
-    </form>
-  </div>
-
-  <!-- Second row: filters left, controls right -->
-  <div class="controls-row second-row">
-    <div class="left-group">
-      <div class="filter-group">
-        <label for="divisionFilter">Division</label>
-        <select id="divisionFilter"><option value="All">All</option></select>
+  <div class="desktop">
+    <!-- Main win95 app window -->
+    <div class="app-window" id="mainWindow">
+      <div class="titlebar">
+        <div class="icon"></div>
+        <h2>YAK_GAUNTLET.EXE</h2>
+        <div class="win-controls">
+          <div class="win-btn" title="Minimize">_</div>
+          <div class="win-btn" title="Maximize">□</div>
+          <div class="win-btn" title="Close">X</div>
+        </div>
       </div>
-      <div class="filter-group">
-        <label for="categoryFilter">Category</label>
-        <select id="categoryFilter"><option value="All">All</option></select>
-      </div>
-      <button id="unfilterButton" class="unfilter-button">Unfilter</button>
-    </div>
 
-    <div class="right-group">
-      <input id="searchInput" type="search" placeholder="Search name" />
-      <button id="editButton" class="edit-button">Edit</button>
-      <button id="randomButton" class="open-stats-button">Random</button>
-      <button id="openStatsButton" class="open-stats-button">Stats</button>
+      <div class="toolbar">
+        <div class="btn" id="openFormBtn"><span class="emoji">📥</span> Add Entry</div>
+        <div class="btn" id="openImportExportBtn"><span class="emoji">💾</span> Import/Export</div>
+        <div class="btn" id="randomBtnTop"><span class="emoji">🎲</span> Random</div>
+        <div class="btn" id="editBtnTop"><span class="emoji">✎</span> Edit</div>
+
+        <div class="filters">
+          <div class="filter-group"><label>Division</label><select id="divisionFilter"><option value="All">All</option></select></div>
+          <div class="filter-group"><label>Category</label><select id="categoryFilter"><option value="All">All</option></select></div>
+          <div class="filter-group"><label>Search</label><input id="searchInput" type="search" placeholder="Search name" /></div>
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="table-wrapper">
+          <table id="scoreboard">
+            <thead>
+              <tr>
+                <th class="sortable" data-column="rank">Rank</th>
+                <th class="sortable" data-column="name">Name</th>
+                <th class="sortable" data-column="division">Division</th>
+                <th class="sortable" data-column="category">Category</th>
+                <th class="sortable" data-column="time">Time</th>
+                <th class="sortable" data-column="date">Date</th>
+                <th id="actionHeader" style="display:none">Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="table-wrapper">
-  <table id="scoreboard">
-    <thead>
-      <tr>
-        <th class="sortable" data-column="rank">Rank</th>
-        <th class="sortable" data-column="name">Name</th>
-        <th class="sortable" data-column="division">Division</th>
-        <th class="sortable" data-column="category">Category</th>
-        <th class="sortable" data-column="time">Time</th>
-        <th class="sortable" data-column="date">Date</th>
-        <th id="actionHeader" style="display: none;">Actions</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
+  <!-- NEW_ENTRY.EXE dialog (form) -->
+  <div class="dialog" id="entryDialog" role="dialog" aria-hidden="true">
+    <div class="titlebar">
+      <div class="icon"></div>
+      <div style="margin-left:8px;font-weight:700;">NEW_ENTRY.EXE</div>
+      <div style="margin-left:auto;display:flex;gap:6px;">
+        <div class="win-btn" id="entryMin">_</div>
+        <div class="win-btn" id="entryClose">X</div>
+      </div>
+    </div>
+    <div class="content">
+      <form id="entryForm" style="margin:0">
+        <label for="name">Name</label>
+        <input id="name" type="text" required />
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('date').valueAsDate = new Date();
+        <label for="division">Division</label>
+        <select id="division" required><option value="" disabled selected>Select Division</option></select>
+
+        <label for="category">Category</label>
+        <select id="category" required><option value="" disabled selected>Select Category</option></select>
+
+        <label for="time">Time (mm ss.ss)</label>
+        <input id="time" type="text" placeholder="01 23.45" required />
+
+        <label for="date">Date</label>
+        <input id="date" type="date" required />
+
+        <div class="controls">
+          <button type="button" class="btn" id="cancelEntry">Cancel</button>
+          <button type="submit" class="btn" id="submitEntry"><span class="emoji">💾</span> Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- IMPORT/EXPORT.EXE dialog -->
+  <div class="dialog" id="importExportDialog" role="dialog" aria-hidden="true">
+    <div class="titlebar">
+      <div class="icon"></div>
+      <div style="margin-left:8px;font-weight:700;">IMPORT_EXPORT.EXE</div>
+      <div style="margin-left:auto;display:flex;gap:6px;">
+        <div class="win-btn" id="impMin">_</div>
+        <div class="win-btn" id="impClose">X</div>
+      </div>
+    </div>
+    <div class="content">
+      <label for="jsonArea">Entries JSON</label>
+      <textarea id="jsonArea" placeholder='[{"name":"Bob","division":"A","category":"X","time":"01 23.45","date":"2025-10-26T14:52:00.000Z"}]'></textarea>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+        <button class="btn" id="exportJSONBtn">Export JSON</button>
+        <button class="btn" id="importJSONBtn">Import JSON</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Taskbar -->
+  <div class="taskbar">
+    <div class="start-btn" id="startBtn"><span style="width:16px;height:16px;background:#000;border:1px solid #fff;display:inline-block"></span> Start</div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div class="btn" id="taskAdd">Add Entry</div>
+      <div class="btn" id="taskImport">Import/Export</div>
+    </div>
+    <div class="clock" id="clockEl"></div>
+  </div>
+
+  <script>
+    // ------- Firebase init (same config you used) -------
     const firebaseConfig = {
       apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
       authDomain: "goatchase-e9502.firebaseapp.com",
@@ -328,357 +273,450 @@
       appId: "1:16998517478:web:6386aff8c1d1da2accc927",
       measurementId: "G-YWLJGQG0XD"
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const entriesCollection = db.collection("entries");
 
-    const form = document.getElementById('entryForm');
-    const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
-    const editButton = document.getElementById('editButton');
-    const unfilterButton = document.getElementById('unfilterButton');
-    const openStatsButton = document.getElementById('openStatsButton');
-    const searchInput = document.getElementById('searchInput');
+    // ------- State -------
+    let entries = [];
+    let isEditMode = false;
+    const editPassword = "benjaminmintz1";
+    let currentSort = { column: 'rank', direction: 'asc' };
+    let lastSubmittedTime = null;
+
+    // Element refs
+    const scoreboardBody = document.querySelector('#scoreboard tbody');
     const divisionFilter = document.getElementById('divisionFilter');
     const categoryFilter = document.getElementById('categoryFilter');
-    const actionHeader = document.getElementById('actionHeader');
+    const searchInput = document.getElementById('searchInput');
     const divisionSelect = document.getElementById('division');
     const categorySelect = document.getElementById('category');
 
-    let entries = [];
-    let isEditMode = false;
-    const editPassword = "benjaminmintz1"; // 🔐 Change this password as needed
+    // Dialog refs
+    const entryDialog = document.getElementById('entryDialog');
+    const importExportDialog = document.getElementById('importExportDialog');
+    const jsonArea = document.getElementById('jsonArea');
 
-    // Sort state
-    let currentSort = {
-      column: 'rank', // default sorting by rank (time ascending)
-      direction: 'asc' // or 'desc'
-    };
-
-   let lastSubmittedTime = null;
-
-    function formatDate(input) {
-      const d = new Date(input);
-      return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
-    }
-
-    function parseTimeToSeconds(timeStr) {
-      const parts = timeStr.trim().split(" ");
-      if (parts.length !== 2) return NaN;
+    // Utility functions
+    function parseTimeToSeconds(timeStr){
+      if(!timeStr) return NaN;
+      const parts = timeStr.trim().split(/\s+/);
+      if(parts.length !== 2) return NaN;
       const [min, sec] = parts.map(parseFloat);
-      return min * 60 + sec;
+      if(Number.isNaN(min) || Number.isNaN(sec)) return NaN;
+      return min*60 + sec;
     }
-
-    function formatTime(seconds) {
-      const min = Math.floor(seconds / 60);
-      const sec = (seconds % 60).toFixed(2).padStart(5, '0');
+    function formatTime(seconds){
+      if(isNaN(seconds)) return '00 00.00';
+      const min = Math.floor(seconds/60);
+      const sec = (seconds%60).toFixed(2).padStart(5,'0');
       return `${String(min).padStart(2,'0')} ${sec}`;
     }
-
-    function getDaysSince(dateStr) {
+    function formatDate(input){
+      const d = new Date(input);
+      return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${d.getFullYear()}`;
+    }
+    function getDaysSince(dateStr){
       const date = new Date(dateStr);
       const now = new Date();
-      const diffTime = now - date;
-      return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      return Math.floor((now - date)/(1000*60*60*24));
     }
 
-    function updateFilterOptions() {
-      const divisions = [...new Set(entries.map(e => e.division))].sort();
-      const categories = [...new Set(entries.map(e => e.category))].sort();
-
-      divisionFilter.innerHTML = '<option value="All">All</option>' +
-        divisions.map(d => `<option value="${d}">${d}</option>`).join('');
-      categoryFilter.innerHTML = '<option value="All">All</option>' +
-        categories.map(c => `<option value="${c}">${c}</option>`).join('');
-
-      divisionSelect.innerHTML = '<option value="" disabled selected>Select Division</option>' +
-        divisions.map(d => `<option value="${d}">${d}</option>`).join('');
-      categorySelect.innerHTML = '<option value="" disabled selected>Select Category</option>' +
-        categories.map(c => `<option value="${c}">${c}</option>`).join('');
+    // Draggable helper
+    function makeDraggable(el, handle){
+      handle = handle || el.querySelector('.titlebar');
+      let offsetX=0, offsetY=0, dragging=false;
+      handle.addEventListener('pointerdown', (e)=>{
+        dragging=true;
+        el.style.touchAction='none';
+        offsetX = e.clientX - el.offsetLeft;
+        offsetY = e.clientY - el.offsetTop;
+        handle.setPointerCapture(e.pointerId);
+      });
+      window.addEventListener('pointermove',(e)=>{
+        if(!dragging) return;
+        el.style.left = (e.clientX - offsetX) + 'px';
+        el.style.top = (e.clientY - offsetY) + 'px';
+      });
+      window.addEventListener('pointerup',(e)=>{
+        dragging=false;
+      });
     }
 
-    function compareEntries(a, b, column) {
-      switch (column) {
+    // Open/close dialogs
+    function openDialog(dialog){
+      dialog.style.display='block';
+      dialog.style.left = (window.innerWidth/2 - dialog.offsetWidth/2) + 'px';
+      dialog.style.top = (window.innerHeight/2 - dialog.offsetHeight/2 - 30) + 'px';
+      dialog.setAttribute('aria-hidden','false');
+    }
+    function closeDialog(dialog){
+      dialog.style.display='none';
+      dialog.setAttribute('aria-hidden','true');
+    }
+
+    // Render UI lists (filters & selects)
+    function updateFilterOptions(){
+      const divisions = [...new Set(entries.map(e=>e.division))].sort();
+      const categories = [...new Set(entries.map(e=>e.category))].sort();
+
+      divisionFilter.innerHTML = '<option value="All">All</option>' + divisions.map(d=>`<option value="${d}">${d}</option>`).join('');
+      categoryFilter.innerHTML = '<option value="All">All</option>' + categories.map(c=>`<option value="${c}">${c}</option>`).join('');
+
+      divisionSelect.innerHTML = '<option value="" disabled selected>Select Division</option>' + divisions.map(d=>`<option value="${d}">${d}</option>`).join('');
+      categorySelect.innerHTML = '<option value="" disabled selected>Select Category</option>' + categories.map(c=>`<option value="${c}">${c}</option>`).join('');
+    }
+
+    // Compare for sorting
+    function compareEntries(a,b,column){
+      switch(column){
         case 'rank':
-        case 'time':
-          // sort by totalSeconds
-          return a.totalSeconds - b.totalSeconds;
-        case 'name':
-          return a.name.localeCompare(b.name);
-        case 'division':
-          return a.division.localeCompare(b.division);
-        case 'category':
-          return a.category.localeCompare(b.category);
-        case 'date':
-          return new Date(a.date) - new Date(b.date);
-        default:
-          return 0;
+        case 'time': return a.totalSeconds - b.totalSeconds;
+        case 'name': return a.name.localeCompare(b.name);
+        case 'division': return a.division.localeCompare(b.division);
+        case 'category': return a.category.localeCompare(b.category);
+        case 'date': return new Date(a.date) - new Date(b.date);
+        default: return 0;
       }
     }
 
-    async function renderScoreboard() {
-      scoreboard.innerHTML = '';
+    // Render scoreboard
+    function renderScoreboard(){
+      scoreboardBody.innerHTML='';
+      entries.forEach(e => e.totalSeconds = parseTimeToSeconds(e.time));
 
-      // Calculate totalSeconds for sorting & finding leaders
-      entries.forEach(entry => {
-        entry.totalSeconds = parseTimeToSeconds(entry.time);
-      });
-
-      // Find best overall and division leaders from all entries (unfiltered)
+      // find leaders from all entries
       let bestOverall = null;
       const bestByDivision = {};
       entries.forEach(entry => {
-        if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) bestOverall = entry;
-        if (!bestByDivision[entry.division] || entry.totalSeconds < bestByDivision[entry.division].totalSeconds) {
+        if(!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) bestOverall = entry;
+        if(!bestByDivision[entry.division] || entry.totalSeconds < bestByDivision[entry.division].totalSeconds){
           bestByDivision[entry.division] = entry;
         }
       });
 
-      // Apply filters and search
-      let filteredEntries = entries.filter(entry =>
+      // apply filters/search
+      const filtered = entries.filter(entry =>
         entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
         (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
         (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
       );
 
-      // Sort filtered entries by current sort column and direction
-      filteredEntries.sort((a, b) => {
-        let cmp = compareEntries(a, b, currentSort.column);
+      // sort
+      filtered.sort((a,b)=>{
+        const cmp = compareEntries(a,b,currentSort.column);
         return currentSort.direction === 'asc' ? cmp : -cmp;
       });
 
-      // Add sorted-asc/desc classes to headers
-      document.querySelectorAll('th.sortable').forEach(th => {
-        th.classList.remove('sorted-asc', 'sorted-desc');
-        if (th.dataset.column === currentSort.column) {
+      // update headers sorted class
+      document.querySelectorAll('th.sortable').forEach(th=>{
+        th.classList.remove('sorted-asc','sorted-desc');
+        if(th.dataset.column === currentSort.column){
           th.classList.add(currentSort.direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
         }
       });
 
       const todayStr = new Date().toISOString().split('T')[0];
 
-      filteredEntries.forEach((entry, index) => {
+      filtered.forEach((entry, idx)=>{
         const row = document.createElement('tr');
-
         const entryDateOnly = new Date(entry.date).toISOString().split('T')[0];
         const isToday = entryDateOnly === todayStr;
-        const isLeader = entry === bestOverall;
-        const isDivisionLeader = bestByDivision[entry.division] === entry;
+        const isLeader = bestOverall && entry.id === bestOverall.id;
+        const isDivisionLeader = bestByDivision[entry.division] && bestByDivision[entry.division].id === entry.id;
 
-        if (isLeader) row.classList.add('leader');
-        else if (isDivisionLeader) row.classList.add('division-leader');
-        if (isToday) row.classList.add('today-entry');
+        if(isLeader) row.classList.add('leader');
+        else if(isDivisionLeader) row.classList.add('division-leader');
+        if(isToday) row.classList.add('today-entry');
 
         const daysSince = getDaysSince(entry.date);
         let iconHTML = '';
-
-        if (isLeader) iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince} days</span>`;
-        else if (isDivisionLeader) iconHTML = `<span class="stopwatch blue" title="Days since: ${daysSince}">⏱️${daysSince} days</span>`;
+        if(isLeader) iconHTML = `<span class="pixel-icon pixel-gold" title="${daysSince} days"></span>`;
+        else if(isDivisionLeader) iconHTML = `<span class="pixel-icon pixel-blue" title="${daysSince} days"></span>`;
 
         row.innerHTML = `
-          <td>${index + 1}</td>
-          <td contenteditable="${isEditMode}">${entry.name}</td>
-          <td contenteditable="${isEditMode}">${entry.division}</td>
-          <td contenteditable="${isEditMode}">${entry.category}</td>
-          <td contenteditable="${isEditMode}">${formatTime(entry.totalSeconds)} ${iconHTML}</td>
-          <td contenteditable="${isEditMode}">${formatDate(entry.date)}</td>
-          <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
-            <button class="delete-button" data-id="${entry.id}">Delete</button>
+          <td>${idx+1}</td>
+          <td ${isEditMode ? 'contenteditable="true"': ''}>${entry.name}</td>
+          <td ${isEditMode ? 'contenteditable="true"': ''}>${entry.division}</td>
+          <td ${isEditMode ? 'contenteditable="true"': ''}>${entry.category}</td>
+          <td ${isEditMode ? 'contenteditable="true"': ''}>${formatTime(entry.totalSeconds)} ${iconHTML}</td>
+          <td ${isEditMode ? 'contenteditable="true"': ''}>${formatDate(entry.date)}</td>
+          <td style="display:${isEditMode ? 'table-cell' : 'none'}">
+            <button class="btn deleteBtn" data-id="${entry.id}">Delete</button>
           </td>
         `;
-        scoreboard.appendChild(row);
+        scoreboardBody.appendChild(row);
       });
 
+      // update filters/selects
       updateFilterOptions();
 
-if (lastSubmittedTime !== null) {
-  try {
-    const rows = scoreboard.querySelectorAll('tr');
-    for (const row of rows) {
-      const timeCell = row.cells[4];
-      if (!timeCell) continue;
-
-      const parts = timeCell.textContent.trim().split(' ');
-      if (parts.length < 2) continue;
-
-      const timeText = parts[0] + ' ' + parts[1]; // "mm ss.ss"
-      const timeInRow = parseTimeToSeconds(timeText);
-      if (isNaN(timeInRow)) continue;
-
-      if (Math.abs(timeInRow - lastSubmittedTime) < 0.01) {
-        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        row.style.backgroundColor = '#ffffaa';
-        setTimeout(() => row.style.backgroundColor = '', 1500);
-        break;
+      // highlight and scroll to last submitted if exists
+      if(lastSubmittedTime !== null){
+        try{
+          const rows = scoreboardBody.querySelectorAll('tr');
+          for(const row of rows){
+            const timeCell = row.cells[4];
+            if(!timeCell) continue;
+            // extract mm ss.ss
+            const parts = timeCell.textContent.trim().split(/\s+/);
+            if(parts.length < 2) continue;
+            const timeText = parts[0] + ' ' + parts[1];
+            const timeInRow = parseTimeToSeconds(timeText);
+            if(isNaN(timeInRow)) continue;
+            if(Math.abs(timeInRow - lastSubmittedTime) < 0.02){
+              row.scrollIntoView({behavior:'smooth', block:'center'});
+              row.style.outline = '2px solid #ffd24d';
+              setTimeout(()=>row.style.outline='none',1400);
+              break;
+            }
+          }
+        }catch(err){ console.error(err); }
+        lastSubmittedTime = null;
       }
-    }
-  } catch (err) {
-    console.error("Scroll logic failed:", err);
-  }
-  lastSubmittedTime = null;
-}
 
-document.querySelectorAll('.delete-button').forEach(button => {
-  button.addEventListener('click', (e) => {
-    const entryId = e.target.dataset.id;
-    deleteEntry(entryId);
-  });
-});
-
-      document.querySelectorAll('.delete-button').forEach(button => {
-        button.addEventListener('click', (e) => {
-          const entryId = e.target.dataset.id;
-          deleteEntry(entryId);
+      // attach delete listeners
+      document.querySelectorAll('.deleteBtn').forEach(b=>{
+        b.addEventListener('click', async (e)=>{
+          const id = e.currentTarget.dataset.id;
+          if(confirm('Delete this entry?')){
+            await entriesCollection.doc(id).delete();
+            fetchEntries();
+          }
         });
       });
     }
 
-    async function fetchEntries() {
+    // Fetch from Firestore
+    async function fetchEntries(){
       const snapshot = await entriesCollection.get();
-      entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      entries = snapshot.docs.map(doc=>({ id: doc.id, ...doc.data() }));
       renderScoreboard();
     }
 
-    async function addEntry(entry) {
-      await entriesCollection.add(entry);
+    // Add new entry
+    async function addEntryToDB(obj){
+      await entriesCollection.add(obj);
       fetchEntries();
     }
 
-    async function deleteEntry(id) {
-      if (confirm("Delete this entry?")) {
-        await entriesCollection.doc(id).delete();
-        fetchEntries();
-      }
+    // Export JSON
+    function exportJSON(){
+      // create a plain JSON array from entries (non-Firestore meta)
+      const arr = entries.map(e => ({ name:e.name, division:e.division, category:e.category, time:e.time, date:e.date }));
+      jsonArea.value = JSON.stringify(arr, null, 2);
+      // automatically select for easy copy
+      jsonArea.focus(); jsonArea.select();
     }
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const name = document.getElementById('name').value.trim();
-      const division = divisionSelect.value;
-      const category = categorySelect.value;
-      const time = document.getElementById('time').value.trim();
-      const dateInput = document.getElementById('date').value; // e.g. "2025-05-29"
-
-      if (!name || !division || !category || !time || !dateInput) {
-        alert("Please fill in all fields.");
+    // Import JSON into Firestore (destructive: deletes existing then writes new)
+    async function importJSON(){
+      let parsed;
+      try{
+        parsed = JSON.parse(jsonArea.value);
+        if(!Array.isArray(parsed)) throw new Error('JSON must be an array of entries');
+      }catch(err){
+        alert('Invalid JSON: ' + err.message);
         return;
       }
+      if(!confirm('This will REPLACE all entries in Firestore with the provided JSON. Continue?')) return;
 
-      // Extract year, month, day from the dateInput string
-      const [year, month, day] = dateInput.split('-').map(Number);
+      // delete all docs then batch add
+      const snap = await entriesCollection.get();
+      const batch = db.batch();
+      snap.docs.forEach(d => batch.delete(d.ref));
+      await batch.commit();
 
-      // Get current time components
-      const now = new Date();
-      const hours = now.getHours();
-      const minutes = now.getMinutes();
-      const seconds = now.getSeconds();
-      const milliseconds = now.getMilliseconds();
+      // add new docs (sequentially)
+      for(const item of parsed){
+        // validate minimal fields
+        const obj = {
+          name: item.name || 'Unknown',
+          division: item.division || 'Unknown',
+          category: item.category || 'Unknown',
+          time: item.time || '00 00.00',
+          date: item.date || new Date().toISOString()
+        };
+        await entriesCollection.add(obj);
+      }
+      fetchEntries();
+      alert('Import complete.');
+      closeDialog(importExportDialog);
+    }
 
-      // Create a Date object with local time on selected day + current time
-      const combinedDate = new Date(year, month - 1, day, hours, minutes, seconds, milliseconds);
+    // ---------- Wiring up UI ----------
+    // Open dialogs
+    document.getElementById('openFormBtn').addEventListener('click', ()=>openDialog(entryDialog));
+    document.getElementById('taskAdd').addEventListener('click', ()=>openDialog(entryDialog));
+    document.getElementById('startBtn').addEventListener('click', ()=>{ /* optional start menu */});
+    document.getElementById('openImportExportBtn').addEventListener('click', ()=>openDialog(importExportDialog));
+    document.getElementById('taskImport').addEventListener('click', ()=>openDialog(importExportDialog));
 
-      // Convert to ISO string for Firestore (UTC)
-      const dateTimeString = combinedDate.toISOString();
-
-      lastSubmittedTime = parseTimeToSeconds(time);
-      await addEntry({ name, division, category, time, date: dateTimeString });
-
-      form.reset();
+    // top toolbar buttons
+    document.getElementById('randomBtnTop').addEventListener('click', ()=>{
+      if(entries.length===0) return alert('No entries.');
+      const rand = entries[Math.floor(Math.random()*entries.length)];
+      alert(`Random Entry:\n${rand.name} — ${rand.division} — ${rand.category}\n${rand.time}\n${formatDate(rand.date)}`);
     });
 
-    // 🔐 Password-protected edit toggle
-    editButton.addEventListener('click', () => {
-      if (!isEditMode) {
-        const input = prompt("Enter edit password:");
-        if (input !== editPassword) {
-          alert("Incorrect password.");
-          return;
-        }
-      }
-      isEditMode = !isEditMode;
-      editButton.textContent = isEditMode ? "Done" : "Edit";
-      if (isEditMode) {
-        const saveButton = document.createElement('button');
-        saveButton.textContent = 'Save Changes';
-        saveButton.id = 'saveChangesButton';
-        saveButton.className = 'edit-button';
-        editButton.after(saveButton);
-
-        saveButton.addEventListener('click', async () => {
-          const rows = scoreboard.querySelectorAll('tr');
-          for (let index = 0; index < rows.length; index++) {
-            const row = rows[index];
-            const entry = entries[index];
-            const cells = row.querySelectorAll('td');
-            const newName = cells[1].innerText.trim();
-            const newDivision = cells[2].innerText.trim();
-            const newCategory = cells[3].innerText.trim();
-            const newTime = cells[4].innerText.trim().split(' ')[0] + ' ' + cells[4].innerText.trim().split(' ')[1]; // "mm ss.ss"
-            const newDateText = cells[5].innerText.trim();
-            // Parse mm/dd/yyyy to yyyy-mm-dd
-            const [m, d, y] = newDateText.split('/');
-            const newDate = new Date(y, m - 1, d).toISOString();
-
-            await entriesCollection.doc(entry.id).update({
-              name: newName,
-              division: newDivision,
-              category: newCategory,
-              time: newTime,
-              date: newDate,
-            });
+    const editBtnTop = document.getElementById('editBtnTop');
+    editBtnTop.addEventListener('click', async ()=>{
+      if(!isEditMode){
+        const p = prompt('Enter edit password:');
+        if(p !== editPassword){ alert('Incorrect password.'); return; }
+        // enter edit mode
+        isEditMode = true;
+        editBtnTop.textContent = 'Done';
+        document.getElementById('actionHeader').style.display = 'table-cell';
+        // create save button
+        const saveBtn = document.createElement('div');
+        saveBtn.className='btn';
+        saveBtn.id='saveChanges';
+        saveBtn.textContent='Save Changes';
+        editBtnTop.after(saveBtn);
+        saveBtn.addEventListener('click', async ()=>{
+          const rows = scoreboardBody.querySelectorAll('tr');
+          // careful: rows correspond to filtered/sorted view; update underlying entries by id mapping
+          for(let i=0;i<rows.length;i++){
+            const row = rows[i];
+            const name = row.cells[1].innerText.trim();
+            const division = row.cells[2].innerText.trim();
+            const category = row.cells[3].innerText.trim();
+            // time cell contains time + icon; we take first two tokens
+            const timeParts = row.cells[4].innerText.trim().split(/\s+/);
+            const newTime = (timeParts[0] || '00') + ' ' + (timeParts[1] || '00.00');
+            const dateParts = row.cells[5].innerText.trim().split('/');
+            let newDateIso = new Date().toISOString();
+            if(dateParts.length===3){
+              const m = parseInt(dateParts[0],10), d = parseInt(dateParts[1],10), y = parseInt(dateParts[2],10);
+              newDateIso = new Date(y, m-1, d).toISOString();
+            }
+            // find corresponding entry id by matching name/time/date — better to store id in hidden attribute; we'll match index from render
+            const filtered = entries.filter(entry =>
+              entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
+              (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
+              (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
+            );
+            const entryObj = filtered[i];
+            if(entryObj){
+              await entriesCollection.doc(entryObj.id).update({
+                name, division, category, time: newTime, date: newDateIso
+              });
+            }
           }
           alert('Changes saved.');
+          isEditMode=false;
+          editBtnTop.textContent='Edit';
+          const sb = document.getElementById('saveChanges');
+          if(sb) sb.remove();
+          document.getElementById('actionHeader').style.display='none';
           fetchEntries();
-          isEditMode = false;
-          editButton.textContent = "Edit";
-          saveButton.remove();
         });
       } else {
-        const saveButton = document.getElementById('saveChangesButton');
-        if (saveButton) saveButton.remove();
+        // leave edit mode
+        isEditMode=false;
+        editBtnTop.textContent='Edit';
+        const sb = document.getElementById('saveChanges');
+        if(sb) sb.remove();
+        document.getElementById('actionHeader').style.display='none';
+        renderScoreboard();
       }
-      renderScoreboard();
     });
 
-    unfilterButton.addEventListener('click', () => {
-      divisionFilter.value = 'All';
-      categoryFilter.value = 'All';
-      searchInput.value = '';
-      renderScoreboard();
+    // entry dialog controls
+    document.getElementById('entryClose').addEventListener('click', ()=>closeDialog(entryDialog));
+    document.getElementById('cancelEntry').addEventListener('click', (e)=>{ e.preventDefault(); closeDialog(entryDialog); });
+    document.getElementById('entryMin').addEventListener('click', ()=>entryDialog.style.display='none');
+
+    // import/export dialog controls
+    document.getElementById('impClose').addEventListener('click', ()=>closeDialog(importExportDialog));
+    document.getElementById('impMin').addEventListener('click', ()=>importExportDialog.style.display='none');
+    document.getElementById('exportJSONBtn').addEventListener('click', exportJSON);
+    document.getElementById('importJSONBtn').addEventListener('click', importJSON);
+
+    // submit entry
+    document.getElementById('entryForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const division = document.getElementById('division').value;
+      const category = document.getElementById('category').value;
+      const time = document.getElementById('time').value.trim();
+      const dateInput = document.getElementById('date').value;
+      if(!name || !division || !category || !time || !dateInput){ alert('Please fill all fields.'); return; }
+
+      // build combined local datetime on selected date (preserve local time)
+      const [y,m,d] = dateInput.split('-').map(Number);
+      const now = new Date();
+      const combined = new Date(y, m-1, d, now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
+      const iso = combined.toISOString();
+
+      lastSubmittedTime = parseTimeToSeconds(time);
+      await addEntryToDB({ name, division, category, time, date: iso });
+
+      // reset & close
+      document.getElementById('entryForm').reset();
+      closeDialog(entryDialog);
     });
 
-    openStatsButton.addEventListener('click', () => {
-      window.open('stats.html', '_blank');
-    });
-
-    document.getElementById('randomButton').addEventListener('click', () => {
-      if (entries.length === 0) return;
-      const randIndex = Math.floor(Math.random() * entries.length);
-      const randEntry = entries[randIndex];
-      alert(`Random Entry:\nName: ${randEntry.name}\nDivision: ${randEntry.division}\nCategory: ${randEntry.category}\nTime: ${randEntry.time}\nDate: ${formatDate(randEntry.date)}`);
-    });
-
-    divisionFilter.addEventListener('change', renderScoreboard);
-    categoryFilter.addEventListener('change', renderScoreboard);
-    searchInput.addEventListener('input', renderScoreboard);
-
-    // Add sorting on header click
-    document.querySelectorAll('th.sortable').forEach(th => {
-      th.addEventListener('click', () => {
+    // sorting headers
+    document.querySelectorAll('th.sortable').forEach(th=>{
+      th.addEventListener('click', ()=>{
         const col = th.dataset.column;
-        if (currentSort.column === col) {
-          currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-        } else {
-          currentSort.column = col;
-          currentSort.direction = 'asc';
-        }
+        if(currentSort.column === col) currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+        else { currentSort.column = col; currentSort.direction = 'asc'; }
         renderScoreboard();
       });
     });
 
-    fetchEntries();
-  });
-</script>
+    // filters & search
+    divisionFilter.addEventListener('change', renderScoreboard);
+    categoryFilter.addEventListener('change', renderScoreboard);
+    searchInput.addEventListener('input', renderScoreboard);
+
+    // random top button duplicate handler (top toolbar uses different id)
+    document.getElementById('randomBtnTop').addEventListener('click', ()=>{
+      if(entries.length===0) return alert('No entries.');
+      const r = entries[Math.floor(Math.random()*entries.length)];
+      alert(`Random: ${r.name} — ${r.division} — ${r.category}\n${r.time}`);
+    });
+
+    // import/export open prefill export on open
+    document.getElementById('openImportExportBtn').addEventListener('click', exportJSON);
+    document.getElementById('taskImport').addEventListener('click', exportJSON);
+
+    // make dialogs draggable
+    makeDraggable(entryDialog);
+    makeDraggable(importExportDialog);
+
+    // make dialogs open on page load (entry auto-open)
+    window.addEventListener('load', ()=>{
+      fetchEntries();
+      openDialog(entryDialog); // auto-open form on load
+      // set date to today
+      const dateEl = document.getElementById('date');
+      dateEl.valueAsDate = new Date();
+      // center dialogs if needed
+      importExportDialog.style.display='none';
+    });
+
+    // small helper for exporting (when someone clicks export)
+    document.getElementById('exportJSONBtn').addEventListener('click', exportJSON);
+
+    // ------------- Clock in taskbar (real-time) -------------
+    function updateClock(){
+      const now = new Date();
+      const h = now.getHours();
+      const m = String(now.getMinutes()).padStart(2,'0');
+      const ap = h>=12?'PM':'AM';
+      const hh = ((h+11)%12 + 1);
+      document.getElementById('clockEl').textContent = `${hh}:${m} ${ap}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // ----------------- Fetch initially ---------------
+    // fetchEntries() called on load
+
+  </script>
 </body>
 </html>

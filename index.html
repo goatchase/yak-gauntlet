@@ -1,684 +1,276 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>THE YAK GAUNTLET</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      margin: 0;
-      padding-left: 80px;
-      padding-right: 80px;
-      padding-top: 20px;
-      background-color: #f4f4f4;
-      color: #001f3f;
-      text-transform: uppercase;
-      font-size: 12pt;
-    }
-    h1 {
-      font-size: 20pt;
-      text-align: center;
-      color: #001f3f;
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-    .subtitle {
-      text-align: center;
-      font-size: 10pt;
-      margin-bottom: 20px;
-      color: #001f3f;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>YAK GAUNTLET Scoreboard</title>
 
-.controls-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 20px;
-  gap: 10px;
-  margin: 0 auto;
-}
-
-.controls-row {
-  display: flex;
-  width: 100%;
-  max-width: 3000px;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-}
-	  
-.form-row {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  flex-wrap: nowrap;
-  gap: 10px;
-}
-
-.second-row {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-}
-
-.left-group,
-.right-group {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 10px;
-}
-
-.left-group {
-  justify-content: left;
-}
-
-.right-group {
-  justify-content: right;
-}
-
-@media (max-width: 768px) {
-  .second-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    margin: 0;
+    padding: 20px;
   }
-  .left-group,
-  .right-group {
-    justify-content: center;
+  h1 {
+    text-align: center;
   }
-}
-
-    form {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-    form input, form select, form button {
-      padding: 5px;
-      font-size: 1em;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-    form button {
-      background-color: #990000;
-      color: white;
-      cursor: pointer;
-    }
-    form button:hover {
-      background-color: #770000;
-    }
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      align-items: flex-end;
-      margin-bottom: 10px;
-    }
-    .filters {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .filter-group {
-      display: flex;
-      flex-direction: column;
-      font-size: 1em;
-    }
-    .top-controls {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: flex-end;
-    }
-    .edit-button, .unfilter-button, .open-stats-button {
-      background-color: #007bff;
-      color: white;
-      padding: 5px 10px;
-      border: none;
-      cursor: pointer;
-      border-radius: 4px;
-      font-size: 1em;
-    }
-    .edit-button:hover, .unfilter-button:hover, .open-stats-button:hover {
-      background-color: #0056b3;
-    }
-    select, input[type="search"] {
-      padding: 5px;
-      font-size: 1em;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-
-    #scoreboard thead th {
-  	position: sticky;
-  	top: 0;
-  	background-color: #f4f4f4; /* or whatever your table header background is */
-  	z-index: 10; /* make sure it stays above table rows */
-  	border-bottom: 2px solid #ddd; /* optional: to visually separate header */
-	}
-    #page-header {
-  	position: sticky;
-	}
-    .table-wrapper {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-    }
-    table#scoreboard {
-      width: 100%;
-      margin: 0 auto;
-      border-collapse: collapse;
-      table-layout: auto;
-    }
-    table {
-      width: 100%;
-      margin: 0 auto;
-      border-collapse: collapse;
-      table-layout: auto;
-    }
-    th, td {
-      padding: 5px;
-      border-bottom: 1px solid #ddd;
-      text-align: left;
-      cursor: default;
-      user-select: none;
-    }
-    th.sortable {
-      cursor: pointer;
-    }
-    th.sortable:hover {
-      background-color: #e0e0e0;
-    }
-    th.sorted-asc::after {
-      content: " ▲";
-      font-size: 0.7em;
-    }
-    th.sorted-desc::after {
-      content: " ▼";
-      font-size: 0.7em;
-    }
-    tr:hover {
-      background-color: #f1f1f1;
-    }
-    .leader {
-      background-color: #ccffcc !important;
-    }
-    .division-leader {
-      background-color: #dceeff !important;
-    }
-    .today-entry {
-      background-color: #fffacd !important;
-    }
-    .stopwatch {
-      font-size: 1em;
-      margin-left: 6px;
-    }
-    .gold { color: #001f3f; }
-    .blue { color: #001f3f; }
-    @media (max-width: 600px) {
-      .top-bar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .filters,
-      .top-controls {
-        flex-direction: column;
-        width: 100%;
-        gap: 5px;
-      }
-      .filter-group {
-        width: 100%;
-      }
-      .top-controls input,
-      .top-controls button {
-        width: 100%;
-      }
-      .subtitle-img {
-      	height: auto;
-	width: 50%;
-	max-width: 50px;
-	vertical-align: middle;
-	margin-right: 8px;
-      }
-    }
-  </style>
+  .form-container,
+  .filter-container,
+  .table-container {
+    background: white;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  label {
+    display: block;
+    margin-top: 10px;
+  }
+  input, select, button {
+    padding: 8px;
+    margin-top: 5px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    text-align: left;
+  }
+  tr.highlight-overall {
+    background-color: #c4f7c4 !important;
+  }
+  tr.highlight-today {
+    background-color: #fff7c4 !important;
+  }
+  .stopwatch {
+    font-size: 18px;
+    margin-left: 6px;
+  }
+  .gold { color: gold; }
+  .blue { color: dodgerblue; }
+</style>
 </head>
+
 <body>
 
-  <h1>THE YAK GAUNTLET</h1>
-  <div class="subtitle">
-	<img src="YG2.png" class="subtitle-img" />
-  </div>
+<h1>YAK GAUNTLET Scoreboard</h1>
 
-  <div class="controls-wrapper">
-  <!-- First row: form centered -->
-  <div class="controls-row form-row">
-    <form id="entryForm">
-      <input id="name" placeholder="Name" required />
-      <select id="division" required>
-        <option value="" disabled selected>Select Division</option>
-      </select>
-      <select id="category" required>
-        <option value="" disabled selected>Select Category</option>
-      </select>
-      <input id="time" placeholder="Time (mm ss.ss)" required />
-      <input id="date" type="date" required />
-      <button type="submit">Submit</button>
-    </form>
-  </div>
+<!-- ---------------- FORM ---------------- -->
+<div class="form-container">
+  <h2>Add Entry</h2>
+  
+  <label for="name">Name</label>
+  <input id="name" required />
 
-  <!-- Second row: filters left, controls right -->
-  <div class="controls-row second-row">
-    <div class="left-group">
-      <div class="filter-group">
-        <label for="divisionFilter">Division</label>
-        <select id="divisionFilter"><option value="All">All</option></select>
-      </div>
-      <div class="filter-group">
-        <label for="categoryFilter">Category</label>
-        <select id="categoryFilter"><option value="All">All</option></select>
-      </div>
-      <button id="unfilterButton" class="unfilter-button">Unfilter</button>
-    </div>
+  <label for="division">Division</label>
+  <select id="division" required>
+    <option value="" disabled selected>Select Division</option>
+  </select>
 
-    <div class="right-group">
-      <input id="searchInput" type="search" placeholder="Search name" />
-      <button id="editButton" class="edit-button">Edit</button>
-      <button id="randomButton" class="open-stats-button">Random</button>
-      <button id="openStatsButton" class="open-stats-button">Stats</button>
-    </div>
-  </div>
+  <label for="category">Category</label>
+  <input id="category" placeholder="Category" required />
+
+  <label for="time">Time (seconds)</label>
+  <input id="time" type="number" step="0.01" required />
+
+  <label for="date">Date</label>
+  <input id="date" type="date" required />
+
+  <button id="addEntryBtn">Add Entry</button>
 </div>
 
-<div class="table-wrapper">
-  <table id="scoreboard">
+<!-- ---------------- FILTERS ---------------- -->
+<div class="filter-container">
+  <h2>Filters</h2>
+
+  <label for="searchInput">Search Name</label>
+  <input id="searchInput" type="search" placeholder="Search..." />
+
+  <label for="divisionFilter">Division</label>
+  <select id="divisionFilter">
+    <option value="All">All</option>
+  </select>
+
+  <label for="categoryFilter">Category</label>
+  <input id="categoryFilter" type="search" placeholder="All" />
+</div>
+
+<!-- ---------------- TABLE ---------------- -->
+<div class="table-container">
+  <table id="scoreTable">
     <thead>
       <tr>
-        <th class="sortable" data-column="rank">Rank</th>
-        <th class="sortable" data-column="name">Name</th>
-        <th class="sortable" data-column="division">Division</th>
-        <th class="sortable" data-column="category">Category</th>
-        <th class="sortable" data-column="time">Time</th>
-        <th class="sortable" data-column="date">Date</th>
-        <th id="actionHeader" style="display: none;">Actions</th>
+        <th>Rank</th>
+        <th>Name</th>
+        <th>Division</th>
+        <th>Category</th>
+        <th>Time</th>
+        <th>Date</th>
+        <th>Days</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 </div>
 
+<!-- Firebase v8 -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('date').valueAsDate = new Date();
-    const firebaseConfig = {
-      apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
-      authDomain: "goatchase-e9502.firebaseapp.com",
-      projectId: "goatchase-e9502",
-      storageBucket: "goatchase-e9502.appspot.com",
-      messagingSenderId: "16998517478",
-      appId: "1:16998517478:web:6386aff8c1d1da2accc927",
-      measurementId: "G-YWLJGQG0XD"
-    };
+/* ----------------------------------------------------
+   FIREBASE INIT
+---------------------------------------------------- */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const entriesCollection = db.collection("entries");
+/* ----------------------------------------------------
+   DOM ELEMENTS
+---------------------------------------------------- */
+const nameInput = document.getElementById("name");
+const divisionSelect = document.getElementById("division");
+const categoryInput = document.getElementById("category");
+const timeInput = document.getElementById("time");
+const dateInput = document.getElementById("date");
 
-    const form = document.getElementById('entryForm');
-    const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
-    const editButton = document.getElementById('editButton');
-    const unfilterButton = document.getElementById('unfilterButton');
-    const openStatsButton = document.getElementById('openStatsButton');
-    const searchInput = document.getElementById('searchInput');
-    const divisionFilter = document.getElementById('divisionFilter');
-    const categoryFilter = document.getElementById('categoryFilter');
-    const actionHeader = document.getElementById('actionHeader');
-    const divisionSelect = document.getElementById('division');
-    const categorySelect = document.getElementById('category');
+const addEntryBtn = document.getElementById("addEntryBtn");
 
-    let entries = [];
-    let isEditMode = false;
-    const editPassword = "benjaminmintz1"; // 🔐 Change this password as needed
+const searchInput = document.getElementById("searchInput");
+const divisionFilter = document.getElementById("divisionFilter");
+const categoryFilter = document.getElementById("categoryFilter");
 
-    // Sort state
-    let currentSort = {
-      column: 'rank', // default sorting by rank (time ascending)
-      direction: 'asc' // or 'desc'
-    };
+const tableBody = document.querySelector("#scoreTable tbody");
 
-   let lastSubmittedTime = null;
+let entries = [];
 
-    function formatDate(input) {
-      const d = new Date(input);
-      return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
-    }
+/* ----------------------------------------------------
+   LOAD DIVISIONS FROM DATABASE
+---------------------------------------------------- */
+function loadDivisions() {
+  db.collection("divisions")
+    .orderBy("name")
+    .get()
+    .then(snapshot => {
+      divisionSelect.innerHTML = `<option value="" disabled selected>Select Division</option>`;
+      divisionFilter.innerHTML = `<option value="All">All</option>`;
 
-    function parseTimeToSeconds(timeStr) {
-      const parts = timeStr.trim().split(" ");
-      if (parts.length !== 2) return NaN;
-      const [min, sec] = parts.map(parseFloat);
-      return min * 60 + sec;
-    }
-
-    function formatTime(seconds) {
-      const min = Math.floor(seconds / 60);
-      const sec = (seconds % 60).toFixed(2).padStart(5, '0');
-      return `${String(min).padStart(2,'0')} ${sec}`;
-    }
-
-    function getDaysSince(dateStr) {
-      const date = new Date(dateStr);
-      const now = new Date();
-      const diffTime = now - date;
-      return Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    }
-
-    function updateFilterOptions() {
-      const divisions = [...new Set(entries.map(e => e.division))].sort();
-      const categories = [...new Set(entries.map(e => e.category))].sort();
-
-      divisionFilter.innerHTML = '<option value="All">All</option>' +
-        divisions.map(d => `<option value="${d}">${d}</option>`).join('');
-      categoryFilter.innerHTML = '<option value="All">All</option>' +
-        categories.map(c => `<option value="${c}">${c}</option>`).join('');
-
-      divisionSelect.innerHTML = '<option value="" disabled selected>Select Division</option>' +
-        divisions.map(d => `<option value="${d}">${d}</option>`).join('');
-      categorySelect.innerHTML = '<option value="" disabled selected>Select Category</option>' +
-        categories.map(c => `<option value="${c}">${c}</option>`).join('');
-    }
-
-    function compareEntries(a, b, column) {
-      switch (column) {
-        case 'rank':
-        case 'time':
-          // sort by totalSeconds
-          return a.totalSeconds - b.totalSeconds;
-        case 'name':
-          return a.name.localeCompare(b.name);
-        case 'division':
-          return a.division.localeCompare(b.division);
-        case 'category':
-          return a.category.localeCompare(b.category);
-        case 'date':
-          return new Date(a.date) - new Date(b.date);
-        default:
-          return 0;
-      }
-    }
-
-    async function renderScoreboard() {
-      scoreboard.innerHTML = '';
-
-      // Calculate totalSeconds for sorting & finding leaders
-      entries.forEach(entry => {
-        entry.totalSeconds = parseTimeToSeconds(entry.time);
+      snapshot.forEach(doc => {
+        const division = doc.data().name;
+        divisionSelect.innerHTML += `<option value="${division}">${division}</option>`;
+        divisionFilter.innerHTML += `<option value="${division}">${division}</option>`;
       });
-
-      // Find best overall and division leaders from all entries (unfiltered)
-      let bestOverall = null;
-      const bestByDivision = {};
-      entries.forEach(entry => {
-        if (!bestOverall || entry.totalSeconds < bestOverall.totalSeconds) bestOverall = entry;
-        if (!bestByDivision[entry.division] || entry.totalSeconds < bestByDivision[entry.division].totalSeconds) {
-          bestByDivision[entry.division] = entry;
-        }
-      });
-
-      // Apply filters and search
-      let filteredEntries = entries.filter(entry =>
-        entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
-        (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
-        (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
-      );
-
-      // Sort filtered entries by current sort column and direction
-      filteredEntries.sort((a, b) => {
-        let cmp = compareEntries(a, b, currentSort.column);
-        return currentSort.direction === 'asc' ? cmp : -cmp;
-      });
-
-      // Add sorted-asc/desc classes to headers
-      document.querySelectorAll('th.sortable').forEach(th => {
-        th.classList.remove('sorted-asc', 'sorted-desc');
-        if (th.dataset.column === currentSort.column) {
-          th.classList.add(currentSort.direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
-        }
-      });
-
-      const todayStr = new Date().toISOString().split('T')[0];
-
-      filteredEntries.forEach((entry, index) => {
-        const row = document.createElement('tr');
-
-        const entryDateOnly = new Date(entry.date).toISOString().split('T')[0];
-        const isToday = entryDateOnly === todayStr;
-        const isLeader = entry === bestOverall;
-        const isDivisionLeader = bestByDivision[entry.division] === entry;
-
-        if (isLeader) row.classList.add('leader');
-        else if (isDivisionLeader) row.classList.add('division-leader');
-        if (isToday) row.classList.add('today-entry');
-
-        const daysSince = getDaysSince(entry.date);
-        let iconHTML = '';
-
-        if (isLeader) iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince} days</span>`;
-        else if (isDivisionLeader) iconHTML = `<span class="stopwatch blue" title="Days since: ${daysSince}">⏱️${daysSince} days</span>`;
-
-        row.innerHTML = `
-          <td>${index + 1}</td>
-          <td contenteditable="${isEditMode}">${entry.name}</td>
-          <td contenteditable="${isEditMode}">${entry.division}</td>
-          <td contenteditable="${isEditMode}">${entry.category}</td>
-          <td contenteditable="${isEditMode}">${formatTime(entry.totalSeconds)} ${iconHTML}</td>
-          <td contenteditable="${isEditMode}">${formatDate(entry.date)}</td>
-          <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
-            <button class="delete-button" data-id="${entry.id}">Delete</button>
-          </td>
-        `;
-        scoreboard.appendChild(row);
-      });
-
-      updateFilterOptions();
-
-if (lastSubmittedTime !== null) {
-  try {
-    const rows = scoreboard.querySelectorAll('tr');
-    for (const row of rows) {
-      const timeCell = row.cells[4];
-      if (!timeCell) continue;
-
-      const parts = timeCell.textContent.trim().split(' ');
-      if (parts.length < 2) continue;
-
-      const timeText = parts[0] + ' ' + parts[1]; // "mm ss.ss"
-      const timeInRow = parseTimeToSeconds(timeText);
-      if (isNaN(timeInRow)) continue;
-
-      if (Math.abs(timeInRow - lastSubmittedTime) < 0.01) {
-        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        row.style.backgroundColor = '#ffffaa';
-        setTimeout(() => row.style.backgroundColor = '', 1500);
-        break;
-      }
-    }
-  } catch (err) {
-    console.error("Scroll logic failed:", err);
-  }
-  lastSubmittedTime = null;
+    });
 }
 
-document.querySelectorAll('.delete-button').forEach(button => {
-  button.addEventListener('click', (e) => {
-    const entryId = e.target.dataset.id;
-    deleteEntry(entryId);
-  });
+/* ----------------------------------------------------
+   FETCH ENTRIES
+---------------------------------------------------- */
+function loadEntries() {
+  db.collection("entries")
+    .orderBy("time")
+    .get()
+    .then(snapshot => {
+      entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderTable();
+    });
+}
+
+/* ----------------------------------------------------
+   ADD ENTRY
+---------------------------------------------------- */
+addEntryBtn.addEventListener("click", () => {
+  const name = nameInput.value.trim();
+  const division = divisionSelect.value;
+  const category = categoryInput.value.trim();
+  const time = parseFloat(timeInput.value);
+  const date = dateInput.value;
+
+  if (!name || !division || !category || !time || !date) return;
+
+  db.collection("entries").add({ name, division, category, time, date })
+    .then(() => {
+      nameInput.value = "";
+      categoryInput.value = "";
+      timeInput.value = "";
+      dateInput.value = "";
+      divisionSelect.value = "";
+      loadEntries();
+    });
 });
 
-      document.querySelectorAll('.delete-button').forEach(button => {
-        button.addEventListener('click', (e) => {
-          const entryId = e.target.dataset.id;
-          deleteEntry(entryId);
-        });
-      });
-    }
+/* ----------------------------------------------------
+   RENDER TABLE
+---------------------------------------------------- */
+function renderTable() {
+  const today = new Date().toISOString().split("T")[0];
 
-    async function fetchEntries() {
-      const snapshot = await entriesCollection.get();
-      entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      renderScoreboard();
-    }
+  let filtered = entries.filter(entry =>
+    entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
+    (divisionFilter.value === "All" || entry.division === divisionFilter.value) &&
+    (categoryFilter.value.trim() === "" ||
+     entry.category.toUpperCase().includes(categoryFilter.value.toUpperCase()))
+  );
 
-    async function addEntry(entry) {
-      await entriesCollection.add(entry);
-      fetchEntries();
-    }
+  // Rank based on time
+  filtered.sort((a, b) => a.time - b.time);
 
-    async function deleteEntry(id) {
-      if (confirm("Delete this entry?")) {
-        await entriesCollection.doc(id).delete();
-        fetchEntries();
-      }
-    }
+  // Determine overall leader
+  const bestOverall = filtered.length > 0 ? filtered[0].time : null;
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+  tableBody.innerHTML = "";
 
-      const name = document.getElementById('name').value.trim();
-      const division = divisionSelect.value;
-      const category = categorySelect.value;
-      const time = document.getElementById('time').value.trim();
-      const dateInput = document.getElementById('date').value; // e.g. "2025-05-29"
+  filtered.forEach((e, index) => {
+    const dateObj = new Date(e.date);
+    const daysSince = Math.floor((Date.now() - dateObj.getTime()) / (1000 * 60 * 60 * 24));
 
-      if (!name || !division || !category || !time || !dateInput) {
-        alert("Please fill in all fields.");
-        return;
-      }
+    const isToday = e.date === today;
+    const isOverallLeader = e.time === bestOverall;
 
-      // Extract year, month, day from the dateInput string
-      const [year, month, day] = dateInput.split('-').map(Number);
+    const row = document.createElement("tr");
 
-      // Get current time components
-      const now = new Date();
-      const hours = now.getHours();
-      const minutes = now.getMinutes();
-      const seconds = now.getSeconds();
-      const milliseconds = now.getMilliseconds();
+    if (isOverallLeader) row.classList.add("highlight-overall");
+    if (isToday) row.classList.add("highlight-today");
 
-      // Create a Date object with local time on selected day + current time
-      const combinedDate = new Date(year, month - 1, day, hours, minutes, seconds, milliseconds);
+    row.innerHTML = `
+      <td>${index + 1} ${isOverallLeader ? `<span class="stopwatch gold">⏱</span>` : ""}</td>
+      <td>${e.name}</td>
+      <td>${e.division}</td>
+      <td>${e.category}</td>
+      <td>${e.time.toFixed(2)}</td>
+      <td>${e.date}</td>
+      <td>${daysSince}</td>
+    `;
 
-      // Convert to ISO string for Firestore (UTC)
-      const dateTimeString = combinedDate.toISOString();
-
-      lastSubmittedTime = parseTimeToSeconds(time);
-      await addEntry({ name, division, category, time, date: dateTimeString });
-
-      form.reset();
-    });
-
-    // 🔐 Password-protected edit toggle
-    editButton.addEventListener('click', () => {
-      if (!isEditMode) {
-        const input = prompt("Enter edit password:");
-        if (input !== editPassword) {
-          alert("Incorrect password.");
-          return;
-        }
-      }
-      isEditMode = !isEditMode;
-      editButton.textContent = isEditMode ? "Done" : "Edit";
-      if (isEditMode) {
-        const saveButton = document.createElement('button');
-        saveButton.textContent = 'Save Changes';
-        saveButton.id = 'saveChangesButton';
-        saveButton.className = 'edit-button';
-        editButton.after(saveButton);
-
-        saveButton.addEventListener('click', async () => {
-          const rows = scoreboard.querySelectorAll('tr');
-          for (let index = 0; index < rows.length; index++) {
-            const row = rows[index];
-            const entry = entries[index];
-            const cells = row.querySelectorAll('td');
-            const newName = cells[1].innerText.trim();
-            const newDivision = cells[2].innerText.trim();
-            const newCategory = cells[3].innerText.trim();
-            const newTime = cells[4].innerText.trim().split(' ')[0] + ' ' + cells[4].innerText.trim().split(' ')[1]; // "mm ss.ss"
-            const newDateText = cells[5].innerText.trim();
-            // Parse mm/dd/yyyy to yyyy-mm-dd
-            const [m, d, y] = newDateText.split('/');
-            const newDate = new Date(y, m - 1, d).toISOString();
-
-            await entriesCollection.doc(entry.id).update({
-              name: newName,
-              division: newDivision,
-              category: newCategory,
-              time: newTime,
-              date: newDate,
-            });
-          }
-          alert('Changes saved.');
-          fetchEntries();
-          isEditMode = false;
-          editButton.textContent = "Edit";
-          saveButton.remove();
-        });
-      } else {
-        const saveButton = document.getElementById('saveChangesButton');
-        if (saveButton) saveButton.remove();
-      }
-      renderScoreboard();
-    });
-
-    unfilterButton.addEventListener('click', () => {
-      divisionFilter.value = 'All';
-      categoryFilter.value = 'All';
-      searchInput.value = '';
-      renderScoreboard();
-    });
-
-    openStatsButton.addEventListener('click', () => {
-      window.open('stats.html', '_blank');
-    });
-
-    document.getElementById('randomButton').addEventListener('click', () => {
-      if (entries.length === 0) return;
-      const randIndex = Math.floor(Math.random() * entries.length);
-      const randEntry = entries[randIndex];
-      alert(`Random Entry:\nName: ${randEntry.name}\nDivision: ${randEntry.division}\nCategory: ${randEntry.category}\nTime: ${randEntry.time}\nDate: ${formatDate(randEntry.date)}`);
-    });
-
-    divisionFilter.addEventListener('change', renderScoreboard);
-    categoryFilter.addEventListener('change', renderScoreboard);
-    searchInput.addEventListener('input', renderScoreboard);
-
-    // Add sorting on header click
-    document.querySelectorAll('th.sortable').forEach(th => {
-      th.addEventListener('click', () => {
-        const col = th.dataset.column;
-        if (currentSort.column === col) {
-          currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-        } else {
-          currentSort.column = col;
-          currentSort.direction = 'asc';
-        }
-        renderScoreboard();
-      });
-    });
-
-    fetchEntries();
+    tableBody.appendChild(row);
   });
+}
+
+/* ----------------------------------------------------
+   FILTER LISTENERS
+---------------------------------------------------- */
+searchInput.addEventListener("input", renderTable);
+divisionFilter.addEventListener("change", renderTable);
+categoryFilter.addEventListener("input", renderTable);
+
+/* ----------------------------------------------------
+   INITIAL LOAD
+---------------------------------------------------- */
+loadDivisions();
+loadEntries();
 </script>
+
 </body>
 </html>

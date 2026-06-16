@@ -135,15 +135,37 @@
       width: 14px;
       height: 14px;
       display: inline-block;
+      position: relative;
+      flex: 0 0 auto;
+      background: #fff;
       border-top: 1px solid #fff;
       border-left: 1px solid #fff;
       border-right: 1px solid #404040;
       border-bottom: 1px solid #404040;
-      background:
-        linear-gradient(90deg, #ff0 0 50%, #f00 50%),
-        linear-gradient(#00f 0 50%, #0f0 50%);
-      image-rendering: pixelated;
-      flex: 0 0 auto;
+      box-shadow: inset 0 0 0 1px #c0c0c0;
+    }
+
+    .window-icon::before {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 5px;
+      height: 5px;
+      background: linear-gradient(135deg, #c0c0c0 0 50%, #fff 50%);
+      border-left: 1px solid #808080;
+      border-bottom: 1px solid #808080;
+    }
+
+    .window-icon::after {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 5px;
+      width: 7px;
+      height: 1px;
+      background: #000080;
+      box-shadow: 0 3px 0 #000080;
     }
 
     .window-controls {
@@ -476,6 +498,40 @@
       border-bottom: 2px solid #fff;
     }
 
+
+    .quartile-row td {
+      padding: 4px 8px;
+      color: #fff;
+      background: #000080;
+      border-top: 2px solid #fff;
+      border-bottom: 2px solid #404040;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 0;
+    }
+
+    .run-stats-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 5px 10px;
+      min-width: min(260px, 100%);
+      padding: 6px;
+      background: #fff;
+      border-top: 2px solid #404040;
+      border-left: 2px solid #404040;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+    }
+
+    .run-stats-grid dt {
+      font-weight: 700;
+    }
+
+    .run-stats-grid dd {
+      margin: 0;
+      text-align: right;
+    }
+
     .desktop-taskbar {
       position: fixed;
       left: 0;
@@ -724,18 +780,40 @@
         </div>
       </div>
     </section>
+
+    <section class="desktop-window minimized" data-window-id="runStats" data-window-title="RUN STATISTICS">
+      <div class="window-titlebar">
+        <span class="titlebar-label"><span class="window-icon"></span>RUN STATISTICS</span>
+        <div class="window-controls">
+          <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
+          <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </div>
+      <div class="window-body">
+        <dl class="run-stats-grid" id="runStatsContent">
+          <dt>Overall Rank</dt><dd>--</dd>
+          <dt>Overall Percentile</dt><dd>--</dd>
+          <dt>Division Rank</dt><dd>--</dd>
+          <dt>Category Rank</dt><dd>--</dd>
+          <dt>Monthly Rank</dt><dd>--</dd>
+        </dl>
+      </div>
+    </section>
   </main>
 
   <div class="start-menu" id="startMenu">
     <div class="start-menu-title">YakOS 95</div>
     <button type="button" data-window-restore="gauntlet">The Yak Gauntlet</button>
     <button type="button" data-window-restore="scoreboard">Scoreboard</button>
+    <button type="button" data-window-restore="runStats">Run Statistics</button>
   </div>
 
   <div class="desktop-taskbar">
     <button type="button" class="start-button" id="startButton">Start</button>
     <button type="button" class="taskbar-button" data-window-restore="gauntlet">THE YAK GAUNTLET</button>
     <button type="button" class="taskbar-button" data-window-restore="scoreboard">SCOREBOARD</button>
+    <button type="button" class="taskbar-button" data-window-restore="runStats">RUN STATISTICS</button>
     <div class="taskbar-spacer"></div>
     <div class="taskbar-clock" id="taskbarClock">--:--</div>
   </div>
@@ -747,6 +825,7 @@
     const stellaPopup = document.getElementById('stellaPopup');
     const taskbarClock = document.getElementById('taskbarClock');
     const desktopWindows = [...document.querySelectorAll('.desktop-window')];
+    const runStatsContent = document.getElementById('runStatsContent');
     let activeZ = 30;
 
     function scheduleStellaPopup() {
@@ -841,7 +920,7 @@
           const action = button.dataset.windowAction;
           if (action === 'minimize') win.classList.add('minimized');
           if (action === 'maximize') toggleMaximize(win);
-          if (action === 'close') alert('NO!');
+          if (action === 'close') alert('FUCK NO BABY!');
         });
       });
     });
@@ -897,6 +976,7 @@
     let entries = [];
     let isEditMode = false;
     let audienceFilter = 'All';
+    let pendingStatsEntryId = null;
     const editPassword = "benjaminmintz1"; // 🔐 Change this password as needed
 
     // Sort state
@@ -948,6 +1028,71 @@
       return Math.floor(diffTime / (1000 * 60 * 60 * 24));
     }
 
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[char]));
+    }
+
+    function rankInGroup(entry, group) {
+      const sorted = group
+        .filter(item => !isNaN(item.totalSeconds))
+        .sort((a, b) => a.totalSeconds - b.totalSeconds);
+      return sorted.findIndex(item => item.id === entry.id) + 1;
+    }
+
+    function sameMonth(a, b) {
+      const first = new Date(a);
+      const second = new Date(b);
+      return first.getFullYear() === second.getFullYear() && first.getMonth() === second.getMonth();
+    }
+
+    function formatRank(rank, total) {
+      return rank > 0 ? `${rank} / ${total}` : '--';
+    }
+
+    function showRunStats(entryId) {
+      const entry = entries.find(item => item.id === entryId);
+      if (!entry || !runStatsContent) return;
+
+      entries.forEach(item => {
+        item.totalSeconds = parseTimeToSeconds(item.time);
+      });
+
+      const validEntries = entries.filter(item => !isNaN(item.totalSeconds));
+      const overallRank = rankInGroup(entry, validEntries);
+      const divisionEntries = validEntries.filter(item => item.division === entry.division);
+      const categoryEntries = validEntries.filter(item => item.category === entry.category);
+      const monthlyEntries = validEntries.filter(item => sameMonth(item.date, entry.date));
+      const percentile = overallRank > 0 && validEntries.length > 1
+        ? Math.round(((validEntries.length - overallRank) / (validEntries.length - 1)) * 100)
+        : 100;
+
+      runStatsContent.innerHTML = `
+        <dt>Name</dt><dd>${escapeHTML(entry.name)}</dd>
+        <dt>Overall Rank</dt><dd>${formatRank(overallRank, validEntries.length)}</dd>
+        <dt>Overall Percentile</dt><dd>${percentile}th</dd>
+        <dt>Division Rank</dt><dd>${formatRank(rankInGroup(entry, divisionEntries), divisionEntries.length)}</dd>
+        <dt>Category Rank</dt><dd>${formatRank(rankInGroup(entry, categoryEntries), categoryEntries.length)}</dd>
+        <dt>Monthly Rank</dt><dd>${formatRank(rankInGroup(entry, monthlyEntries), monthlyEntries.length)}</dd>
+      `;
+
+      const statsWindow = document.querySelector('[data-window-id="runStats"]');
+      if (statsWindow) {
+        statsWindow.classList.remove('minimized', 'maximized');
+        statsWindow.classList.add('detached');
+        statsWindow.style.position = 'fixed';
+        statsWindow.style.width = '320px';
+        statsWindow.style.left = `${Math.max(8, window.innerWidth - 344)}px`;
+        statsWindow.style.top = '86px';
+        bringWindowToFront(statsWindow);
+      }
+    }
+
     function updateFilterOptions() {
       const divisions = [...new Set(entries.map(e => e.division))].sort();
       const categories = [...new Set(entries.map(e => e.category))].sort();
@@ -958,9 +1103,11 @@
         categories.map(c => `<option value="${c}">${c}</option>`).join('');
 
       divisionSelect.innerHTML = '<option value="" disabled selected>Select Division</option>' +
-        divisions.map(d => `<option value="${d}">${d}</option>`).join('');
+        divisions.map(d => `<option value="${d}">${d}</option>`).join('') +
+        '<option value="__add_new__">+ Add New Division</option>';
       categorySelect.innerHTML = '<option value="" disabled selected>Select Category</option>' +
-        categories.map(c => `<option value="${c}">${c}</option>`).join('');
+        categories.map(c => `<option value="${c}">${c}</option>`).join('') +
+        '<option value="__add_new__">+ Add New Category</option>';
     }
 
     function compareEntries(a, b, column) {
@@ -1024,8 +1171,24 @@
 
       const todayStr = new Date().toISOString().split('T')[0];
 
+      const quartileMarkers = [
+        { index: Math.ceil(filteredEntries.length * 0.25), label: '25% Mark' },
+        { index: Math.ceil(filteredEntries.length * 0.50), label: '50% Mark' },
+        { index: Math.ceil(filteredEntries.length * 0.75), label: '75% Mark' },
+      ].filter(marker => marker.index > 0 && marker.index < filteredEntries.length);
+
       filteredEntries.forEach((entry, index) => {
+        quartileMarkers
+          .filter(marker => marker.index === index)
+          .forEach(marker => {
+            const markerRow = document.createElement('tr');
+            markerRow.className = 'quartile-row';
+            markerRow.innerHTML = `<td colspan="${isEditMode ? 7 : 6}">${marker.label}</td>`;
+            scoreboard.appendChild(markerRow);
+          });
+
         const row = document.createElement('tr');
+        row.dataset.entryId = entry.id;
 
         const entryDateOnly = new Date(entry.date).toISOString().split('T')[0];
         const isToday = entryDateOnly === todayStr;
@@ -1104,11 +1267,16 @@ document.querySelectorAll('.delete-button').forEach(button => {
       const snapshot = await entriesCollection.get();
       entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       renderScoreboard();
+      if (pendingStatsEntryId) {
+        showRunStats(pendingStatsEntryId);
+        pendingStatsEntryId = null;
+      }
     }
 
     async function addEntry(entry) {
-      await entriesCollection.add(entry);
-      fetchEntries();
+      const docRef = await entriesCollection.add(entry);
+      pendingStatsEntryId = docRef.id;
+      await fetchEntries();
     }
 
     async function deleteEntry(id) {
@@ -1173,10 +1341,11 @@ document.querySelectorAll('.delete-button').forEach(button => {
         editButton.after(saveButton);
 
         saveButton.addEventListener('click', async () => {
-          const rows = scoreboard.querySelectorAll('tr');
+          const rows = [...scoreboard.querySelectorAll('tr')].filter(row => row.dataset.entryId);
           for (let index = 0; index < rows.length; index++) {
             const row = rows[index];
-            const entry = entries[index];
+            const entry = entries.find(item => item.id === row.dataset.entryId);
+            if (!entry) continue;
             const cells = row.querySelectorAll('td');
             const newName = cells[1].innerText.trim();
             const newDivision = cells[2].innerText.trim();
@@ -1207,6 +1376,25 @@ document.querySelectorAll('.delete-button').forEach(button => {
       }
       renderScoreboard();
     });
+
+
+    function handleAddNewOption(select, label) {
+      if (select.value !== '__add_new__') return;
+      const newValue = prompt(`Enter new ${label}:`);
+      if (newValue && newValue.trim()) {
+        const cleanValue = newValue.trim();
+        const option = document.createElement('option');
+        option.value = cleanValue;
+        option.textContent = cleanValue;
+        select.insertBefore(option, select.querySelector('option[value="__add_new__"]'));
+        select.value = cleanValue;
+      } else {
+        select.value = '';
+      }
+    }
+
+    divisionSelect.addEventListener('change', () => handleAddNewOption(divisionSelect, 'division'));
+    categorySelect.addEventListener('change', () => handleAddNewOption(categorySelect, 'category'));
 
     unfilterButton.addEventListener('click', () => {
       divisionFilter.value = 'All';

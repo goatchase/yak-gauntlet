@@ -1272,8 +1272,6 @@
     let wheelAudioContext = null;
     let lastWheelTickAt = 0;
     let lastWheelSliceIndex = null;
-    let wheelWhirOsc = null;
-    let wheelWhirGain = null;
     const wheelConfigStorageKey = 'yakQuartileWheelConfigV1';
     const defaultWheelConfig = {
       q25: {
@@ -1440,105 +1438,54 @@
       return wheelAudioContext;
     }
 
-    function startWheelWhir() {
-      const ctx = getWheelAudioContext();
-      if (!ctx) return;
-      stopWheelWhir();
-      wheelWhirOsc = ctx.createOscillator();
-      wheelWhirGain = ctx.createGain();
-      wheelWhirOsc.type = 'sawtooth';
-      wheelWhirOsc.frequency.setValueAtTime(90, ctx.currentTime);
-      wheelWhirGain.gain.setValueAtTime(0.0001, ctx.currentTime);
-      wheelWhirGain.gain.exponentialRampToValueAtTime(0.035, ctx.currentTime + 0.08);
-      wheelWhirOsc.connect(wheelWhirGain);
-      wheelWhirGain.connect(ctx.destination);
-      wheelWhirOsc.start();
-    }
-
-    function updateWheelWhir(progress) {
-      const ctx = wheelAudioContext;
-      if (!ctx || !wheelWhirOsc || !wheelWhirGain) return;
-      const speed = Math.max(0.08, 1 - progress);
-      wheelWhirOsc.frequency.setTargetAtTime(55 + speed * 210, ctx.currentTime, 0.035);
-      wheelWhirGain.gain.setTargetAtTime(0.008 + speed * 0.045, ctx.currentTime, 0.035);
-    }
-
-    function stopWheelWhir() {
-      const ctx = wheelAudioContext;
-      if (!ctx || !wheelWhirOsc || !wheelWhirGain) return;
-      try {
-        wheelWhirGain.gain.cancelScheduledValues(ctx.currentTime);
-        wheelWhirGain.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.04);
-        wheelWhirOsc.stop(ctx.currentTime + 0.12);
-      } catch (error) {
-        // Audio nodes can already be stopped if the browser interrupts playback.
-      }
-      wheelWhirOsc = null;
-      wheelWhirGain = null;
-    }
-
     function playWheelTick(now, progress = 0) {
       const ctx = getWheelAudioContext();
-      const minGap = 22 + progress * 110;
+      const minGap = 34 + progress * 90;
       if (!ctx || now - lastWheelTickAt < minGap) return;
       lastWheelTickAt = now;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       const filter = ctx.createBiquadFilter();
-      osc.type = 'square';
-      osc.frequency.value = 1200 - progress * 620 + Math.random() * 80;
-      filter.type = 'highpass';
-      filter.frequency.value = 650;
+      osc.type = 'sine';
+      osc.frequency.value = 520 - progress * 170 + Math.random() * 35;
+      filter.type = 'lowpass';
+      filter.frequency.value = 900;
       gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.085, ctx.currentTime + 0.005);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.038 + progress * 0.035);
+      gain.gain.exponentialRampToValueAtTime(0.028, ctx.currentTime + 0.006);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.045 + progress * 0.035);
       osc.connect(filter);
       filter.connect(gain);
       gain.connect(ctx.destination);
       osc.start();
-      osc.stop(ctx.currentTime + 0.075);
+      osc.stop(ctx.currentTime + 0.085);
     }
 
     function playWheelCheer() {
       const ctx = getWheelAudioContext();
       if (!ctx) return;
-      stopWheelWhir();
-      for (let hit = 0; hit < 5; hit++) {
-        const length = Math.floor(ctx.sampleRate * 0.13);
+      for (let hit = 0; hit < 4; hit++) {
+        const length = Math.floor(ctx.sampleRate * 0.11);
         const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
         const data = buffer.getChannelData(0);
         for (let i = 0; i < length; i++) {
-          data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 1.7);
+          data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2.4);
         }
         const noise = ctx.createBufferSource();
         const filter = ctx.createBiquadFilter();
         const gain = ctx.createGain();
         noise.buffer = buffer;
         filter.type = 'bandpass';
-        filter.frequency.value = 1200 + hit * 170;
-        gain.gain.setValueAtTime(0.0001, ctx.currentTime + hit * 0.055);
-        gain.gain.exponentialRampToValueAtTime(0.22, ctx.currentTime + hit * 0.055 + 0.01);
-        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + hit * 0.055 + 0.16);
+        filter.frequency.value = 900 + hit * 120;
+        filter.Q.value = 0.8;
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime + hit * 0.07);
+        gain.gain.exponentialRampToValueAtTime(0.075, ctx.currentTime + hit * 0.07 + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + hit * 0.07 + 0.13);
         noise.connect(filter);
         filter.connect(gain);
         gain.connect(ctx.destination);
-        noise.start(ctx.currentTime + hit * 0.055);
-        noise.stop(ctx.currentTime + hit * 0.055 + 0.18);
+        noise.start(ctx.currentTime + hit * 0.07);
+        noise.stop(ctx.currentTime + hit * 0.07 + 0.15);
       }
-      [0.02, 0.16, 0.31].forEach((offset, index) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(620 + index * 170, ctx.currentTime + offset);
-        osc.frequency.exponentialRampToValueAtTime(980 + index * 190, ctx.currentTime + offset + 0.16);
-        gain.gain.setValueAtTime(0.0001, ctx.currentTime + offset);
-        gain.gain.exponentialRampToValueAtTime(0.055, ctx.currentTime + offset + 0.03);
-        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + offset + 0.2);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(ctx.currentTime + offset);
-        osc.stop(ctx.currentTime + offset + 0.22);
-      });
     }
 
     function cleanWheelItem(text) {
@@ -1710,7 +1657,6 @@
 
       wheelSpinning = true;
       getWheelAudioContext();
-      startWheelWhir();
       lastWheelTickAt = 0;
       lastWheelSliceIndex = null;
       if (wheelResult) wheelResult.textContent = 'SPINNING...';
@@ -1727,7 +1673,6 @@
         const eased = 1 - Math.pow(1 - t, 3);
         wheelRotation = start + (finish - start) * eased;
         drawNameWheel(wheelRotation);
-        updateWheelWhir(t);
         const currentSliceIndex = Math.floor((((Math.PI * 2 - (wheelRotation % (Math.PI * 2))) % (Math.PI * 2)) / slice));
         if (currentSliceIndex !== lastWheelSliceIndex) {
           playWheelTick(now, t);

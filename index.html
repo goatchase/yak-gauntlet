@@ -8,321 +8,520 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: 'Roboto', sans-serif;
+      font-family: "MS Sans Serif", Tahoma, Arial, sans-serif;
       margin: 0;
-      padding-left: 80px;
-      padding-right: 80px;
-      padding-top: 20px;
-      background-color: #f4f4f4;
-      color: #001f3f;
+      min-height: 100vh;
+      padding: 18px;
+      background:
+        linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(0,0,0,0.05) 25%, transparent 25%),
+        #008080;
+      background-size: 18px 18px;
+      color: #000;
       text-transform: uppercase;
-      font-size: 12pt;
+      font-size: 12px;
+      letter-spacing: 0;
     }
+
+    .desktop-shell {
+      width: min(1500px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 14px;
+    }
+
+    .desktop-window {
+      background-color: #c0c0c0;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      box-shadow: 2px 2px 0 #000;
+    }
+
+    .window-titlebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 26px;
+      padding: 3px 4px 3px 7px;
+      color: #fff;
+      font-weight: 700;
+      background: linear-gradient(90deg, #000080, #1084d0);
+    }
+
+    .titlebar-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .window-icon {
+      width: 16px;
+      height: 16px;
+      display: inline-block;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      background:
+        linear-gradient(90deg, #ff0 0 50%, #f00 50%),
+        linear-gradient(#00f 0 50%, #0f0 50%);
+      image-rendering: pixelated;
+      flex: 0 0 auto;
+    }
+
+    .window-controls {
+      display: flex;
+      gap: 3px;
+      flex: 0 0 auto;
+    }
+
+    .window-controls span {
+      width: 18px;
+      height: 17px;
+      display: inline-grid;
+      place-items: center;
+      line-height: 1;
+      color: #000;
+      background-color: #c0c0c0;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .window-body {
+      padding: 12px;
+      border-top: 1px solid #808080;
+      border-left: 1px solid #808080;
+      border-right: 1px solid #fff;
+      border-bottom: 1px solid #fff;
+    }
+
+    .app-header {
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding: 12px;
+      background-color: #dcdcdc;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+    }
+
     h1 {
-      font-size: 20pt;
+      margin: 0;
       text-align: center;
-      color: #001f3f;
-      font-weight: bold;
-      margin-bottom: 5px;
+      color: #000080;
+      font-size: clamp(24px, 4vw, 46px);
+      line-height: 1;
+      font-weight: 700;
+      text-shadow: 2px 2px 0 #fff;
     }
+
     .subtitle {
       text-align: center;
-      font-size: 10pt;
-      margin-bottom: 20px;
-      color: #001f3f;
+      min-height: 36px;
     }
 
-.controls-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 20px;
-  gap: 10px;
-  margin: 0 auto;
-}
+    .subtitle-img {
+      max-width: min(180px, 48vw);
+      max-height: 92px;
+      height: auto;
+      image-rendering: auto;
+    }
 
-.controls-row {
-  display: flex;
-  width: 100%;
-  max-width: 3000px;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-}
-	  
-.form-row {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  flex-wrap: nowrap;
-  gap: 10px;
-}
+    .status-strip,
+    .status-bar {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
+      justify-content: space-between;
+      color: #000;
+      font-size: 11px;
+    }
 
-.second-row {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-}
+    .status-strip span,
+    .status-bar span {
+      flex: 1 1 160px;
+      min-height: 20px;
+      padding: 4px 7px;
+      background-color: #c0c0c0;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+    }
 
-.left-group,
-.right-group {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 10px;
-}
+    .controls-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      width: 100%;
+      gap: 10px;
+      margin: 0 auto;
+    }
 
-.left-group {
-  justify-content: left;
-}
+    .controls-row {
+      display: flex;
+      width: 100%;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
 
-.right-group {
-  justify-content: right;
-}
+    .form-row {
+      flex-wrap: nowrap;
+    }
 
-@media (max-width: 768px) {
-  .second-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-  .left-group,
-  .right-group {
-    justify-content: center;
-  }
-}
+    .second-row {
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-top: 10px;
+      border-top: 1px solid #808080;
+      box-shadow: inset 0 1px 0 #fff;
+    }
 
+    .left-group,
+    .right-group,
     form {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-    form input, form select, form button {
-      padding: 5px;
-      font-size: 1em;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-    form button {
-      background-color: #990000;
-      color: white;
-      cursor: pointer;
-    }
-    form button:hover {
-      background-color: #770000;
-    }
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
       align-items: flex-end;
-      margin-bottom: 10px;
+      gap: 8px;
     }
-    .filters {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+
+    form {
+      justify-content: center;
+      width: 100%;
+      margin: 0;
     }
+
+    .left-group {
+      justify-content: flex-start;
+    }
+
+    .right-group {
+      justify-content: flex-end;
+    }
+
     .filter-group {
       display: flex;
       flex-direction: column;
-      font-size: 1em;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 700;
     }
-    .top-controls {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: flex-end;
+
+    label {
+      color: #000;
     }
-    .edit-button, .unfilter-button, .open-stats-button, .audience-button {
-      background-color: #007bff;
-      color: white;
-      padding: 5px 10px;
-      border: none;
+
+    input,
+    select {
+      min-height: 28px;
+      padding: 4px 6px;
+      color: #000;
+      background-color: #fff;
+      border-top: 2px solid #404040;
+      border-left: 2px solid #404040;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      border-radius: 0;
+      font: inherit;
+      text-transform: uppercase;
+    }
+
+    input[type="search"] {
+      min-width: 190px;
+    }
+
+    button,
+    .edit-button,
+    .unfilter-button,
+    .open-stats-button,
+    .audience-button {
+      min-height: 28px;
+      padding: 4px 12px;
+      color: #000;
+      background-color: #c0c0c0;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      border-radius: 0;
       cursor: pointer;
-      border-radius: 4px;
-      font-size: 1em;
+      font: inherit;
+      font-weight: 700;
+      text-transform: uppercase;
     }
-    .edit-button:hover, .unfilter-button:hover, .open-stats-button:hover, .audience-button:hover {
-      background-color: #0056b3;
+
+    button:hover,
+    .edit-button:hover,
+    .unfilter-button:hover,
+    .open-stats-button:hover,
+    .audience-button:hover {
+      background-color: #dcdcdc;
     }
+
+    button:active,
     .audience-button.active {
-      background-color: #990000;
+      color: #fff;
+      background-color: #000080;
+      border-top: 2px solid #404040;
+      border-left: 2px solid #404040;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
     }
+
     .audience-button.active:hover {
-      background-color: #770000;
+      background-color: #1084d0;
     }
-    select, input[type="search"] {
-      padding: 5px;
-      font-size: 1em;
-      border-radius: 4px;
-      border: 1px solid #ccc;
+
+    .table-wrapper {
+      width: 100%;
+      overflow: auto;
+      background-color: #fff;
+      border-top: 2px solid #404040;
+      border-left: 2px solid #404040;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+    }
+
+    table#scoreboard,
+    table {
+      width: 100%;
+      min-width: 760px;
+      margin: 0;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: auto;
+      background-color: #fff;
     }
 
     #scoreboard thead th {
-  	position: sticky;
-  	top: 0;
-  	background-color: #f4f4f4; /* or whatever your table header background is */
-  	z-index: 10; /* make sure it stays above table rows */
-  	border-bottom: 2px solid #ddd; /* optional: to visually separate header */
-	}
-    #page-header {
-  	position: sticky;
-	}
-    .table-wrapper {
-      width: 100%;
-      display: flex;
-      justify-content: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      color: #000;
+      background-color: #c0c0c0;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #808080;
+      border-bottom: 2px solid #808080;
     }
-    table#scoreboard {
-      width: 100%;
-      margin: 0 auto;
-      border-collapse: collapse;
-      table-layout: auto;
-    }
-    table {
-      width: 100%;
-      margin: 0 auto;
-      border-collapse: collapse;
-      table-layout: auto;
-    }
-    th, td {
-      padding: 5px;
-      border-bottom: 1px solid #ddd;
+
+    th,
+    td {
+      padding: 7px 8px;
       text-align: left;
       cursor: default;
       user-select: none;
+      border-right: 1px solid #c0c0c0;
+      border-bottom: 1px solid #dcdcdc;
+      white-space: nowrap;
     }
+
     th.sortable {
       cursor: pointer;
     }
+
     th.sortable:hover {
-      background-color: #e0e0e0;
+      background-color: #dcdcdc;
     }
+
     th.sorted-asc::after {
       content: " ▲";
-      font-size: 0.7em;
+      font-size: 0.8em;
     }
+
     th.sorted-desc::after {
       content: " ▼";
-      font-size: 0.7em;
+      font-size: 0.8em;
     }
+
+    tbody tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
     tr:hover {
-      background-color: #f1f1f1;
+      color: #fff;
+      background-color: #000080;
     }
+
     .leader {
-      background-color: #ccffcc !important;
+      background-color: #fff79a !important;
     }
+
     .division-leader {
-      background-color: #dceeff !important;
+      background-color: #c7ddff !important;
     }
+
     .today-entry {
-      background-color: #fffacd !important;
+      background-color: #ffd8a8 !important;
     }
+
     .stopwatch {
-      font-size: 1em;
+      display: inline-block;
       margin-left: 6px;
+      color: #000;
+      font-size: 11px;
     }
-    .gold { color: #001f3f; }
-    .blue { color: #001f3f; }
-    @media (max-width: 600px) {
-      .top-bar {
+
+    .gold,
+    .blue {
+      color: #000;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 8px;
+      }
+
+      .window-body {
+        padding: 8px;
+      }
+
+      .form-row,
+      .second-row,
+      .left-group,
+      .right-group,
+      form {
         flex-direction: column;
         align-items: stretch;
       }
-      .filters,
-      .top-controls {
+
+      input,
+      select,
+      button,
+      input[type="search"] {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .status-strip,
+      .status-bar {
         flex-direction: column;
-        width: 100%;
-        gap: 5px;
+        align-items: stretch;
       }
-      .filter-group {
-        width: 100%;
+
+      .window-titlebar {
+        font-size: 11px;
       }
-      .top-controls input,
-      .top-controls button {
-        width: 100%;
-      }
-      .subtitle-img {
-      	height: auto;
-	width: 50%;
-	max-width: 50px;
-	vertical-align: middle;
-	margin-right: 8px;
+
+      .window-controls span {
+        width: 16px;
       }
     }
   </style>
 </head>
 <body>
 
-  <h1>THE YAK GAUNTLET</h1>
-  <div class="subtitle">
-	<img src="YG2.png" class="subtitle-img" />
-  </div>
-
-  <div class="controls-wrapper">
-  <!-- First row: form centered -->
-  <div class="controls-row form-row">
-    <form id="entryForm">
-      <input id="name" placeholder="Name" required />
-      <select id="division" required>
-        <option value="" disabled selected>Select Division</option>
-      </select>
-      <select id="category" required>
-        <option value="" disabled selected>Select Category</option>
-      </select>
-      <input id="time" placeholder="Time (mm ss.ss)" required />
-      <input id="date" type="date" required />
-      <button type="submit">Submit</button>
-    </form>
-  </div>
-
-  <!-- Second row: filters left, controls right -->
-  <div class="controls-row second-row">
-    <div class="left-group">
-      <div class="filter-group">
-        <label for="divisionFilter">Division</label>
-        <select id="divisionFilter"><option value="All">All</option></select>
+  <main class="desktop-shell">
+    <section class="desktop-window">
+      <div class="window-titlebar">
+        <span class="titlebar-label"><span class="window-icon"></span>THE YAK GAUNTLET.EXE</span>
+        <div class="window-controls" aria-hidden="true"><span>_</span><span>□</span><span>×</span></div>
       </div>
-      <div class="filter-group">
-        <label for="categoryFilter">Category</label>
-        <select id="categoryFilter"><option value="All">All</option></select>
+      <div class="window-body">
+        <header class="app-header">
+          <h1>THE YAK GAUNTLET</h1>
+          <div class="subtitle">
+            <img src="YG2.png" class="subtitle-img" />
+          </div>
+          <div class="status-strip">
+            <span>READY</span>
+            <span>RUNNERS ONLINE</span>
+            <span>MODE: GAUNTLET</span>
+          </div>
+        </header>
+
+        <div class="controls-wrapper">
+          <!-- First row: form centered -->
+          <div class="controls-row form-row">
+            <form id="entryForm">
+              <input id="name" placeholder="Name" required />
+              <select id="division" required>
+                <option value="" disabled selected>Select Division</option>
+              </select>
+              <select id="category" required>
+                <option value="" disabled selected>Select Category</option>
+              </select>
+              <input id="time" placeholder="Time (mm ss.ss)" required />
+              <input id="date" type="date" required />
+              <button type="submit">Submit</button>
+            </form>
+          </div>
+
+          <!-- Second row: filters left, controls right -->
+          <div class="controls-row second-row">
+            <div class="left-group">
+              <div class="filter-group">
+                <label for="divisionFilter">Division</label>
+                <select id="divisionFilter"><option value="All">All</option></select>
+              </div>
+              <div class="filter-group">
+                <label for="categoryFilter">Category</label>
+                <select id="categoryFilter"><option value="All">All</option></select>
+              </div>
+              <button id="unfilterButton" class="unfilter-button">Unfilter</button>
+              <button id="barstoolButton" class="audience-button">Barstool</button>
+              <button id="guestsButton" class="audience-button">Guests</button>
+            </div>
+
+            <div class="right-group">
+              <input id="searchInput" type="search" placeholder="Search name" />
+              <button id="editButton" class="edit-button">Edit</button>
+              <button id="randomButton" class="open-stats-button">Random</button>
+              <button id="openStatsButton" class="open-stats-button">Stats</button>
+            </div>
+          </div>
+        </div>
       </div>
-      <button id="unfilterButton" class="unfilter-button">Unfilter</button>
-      <button id="barstoolButton" class="audience-button">Barstool</button>
-      <button id="guestsButton" class="audience-button">Guests</button>
-    </div>
+    </section>
 
-    <div class="right-group">
-      <input id="searchInput" type="search" placeholder="Search name" />
-      <button id="editButton" class="edit-button">Edit</button>
-      <button id="randomButton" class="open-stats-button">Random</button>
-      <button id="openStatsButton" class="open-stats-button">Stats</button>
-    </div>
-  </div>
-</div>
-
-<div class="table-wrapper">
-  <table id="scoreboard">
-    <thead>
-      <tr>
-        <th class="sortable" data-column="rank">Rank</th>
-        <th class="sortable" data-column="name">Name</th>
-        <th class="sortable" data-column="division">Division</th>
-        <th class="sortable" data-column="category">Category</th>
-        <th class="sortable" data-column="time">Time</th>
-        <th class="sortable" data-column="date">Date</th>
-        <th id="actionHeader" style="display: none;">Actions</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
+    <section class="desktop-window scoreboard-window">
+      <div class="window-titlebar">
+        <span class="titlebar-label"><span class="window-icon"></span>SCOREBOARD.DAT</span>
+        <div class="window-controls" aria-hidden="true"><span>_</span><span>□</span><span>×</span></div>
+      </div>
+      <div class="window-body">
+        <div class="table-wrapper">
+          <table id="scoreboard">
+            <thead>
+              <tr>
+                <th class="sortable" data-column="rank">Rank</th>
+                <th class="sortable" data-column="name">Name</th>
+                <th class="sortable" data-column="division">Division</th>
+                <th class="sortable" data-column="category">Category</th>
+                <th class="sortable" data-column="time">Time</th>
+                <th class="sortable" data-column="date">Date</th>
+                <th id="actionHeader" style="display: none;">Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="status-bar">
+          <span>SCOREBOARD READY</span>
+          <span>FASTEST TIME WINS</span>
+        </div>
+      </div>
+    </section>
+  </main>
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {

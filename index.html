@@ -28,14 +28,14 @@
     .stella-popup {
       position: fixed;
       left: 12px;
-      bottom: 33px;
-      width: 118px;
-      max-height: 118px;
+      bottom: 30px;
+      width: 210px;
+      max-height: 210px;
       object-fit: contain;
       z-index: 1195;
       pointer-events: none;
       opacity: 0;
-      transform: translateY(34px) scale(0.86);
+      transform: translateY(54px) scale(0.86);
       transform-origin: bottom left;
       transition: opacity 0.18s ease-out, transform 0.22s steps(3, end);
       filter: drop-shadow(2px 2px 0 #004040);
@@ -510,15 +510,13 @@
       height: 17px;
       display: inline-block;
       background:
-        linear-gradient(90deg, transparent 0 5px, #f00 5px 11px, transparent 11px),
-        linear-gradient(90deg, transparent 3px, #0f0 3px 13px, transparent 13px),
-        linear-gradient(90deg, transparent 1px, #00f 1px 9px, transparent 9px),
-        linear-gradient(90deg, transparent 6px, #ff0 6px 16px, transparent 16px);
-      background-size: 18px 4px;
-      background-position: 0 1px, 0 5px, 0 9px, 0 13px;
+        linear-gradient(135deg, transparent 0 12%, #000 12% 18%, transparent 18%),
+        linear-gradient(90deg, #f00 0 48%, transparent 48% 52%, #0a0 52% 100%),
+        linear-gradient(90deg, #00f 0 48%, transparent 48% 52%, #ff0 52% 100%);
+      background-size: 18px 17px, 18px 8px, 18px 8px;
+      background-position: 0 0, 0 1px, 0 9px;
       background-repeat: no-repeat;
-      border: 1px solid transparent;
-      transform: skew(-8deg);
+      clip-path: polygon(0 12%, 88% 0, 100% 44%, 12% 48%, 12% 56%, 100% 52%, 88% 100%, 0 88%);
       image-rendering: pixelated;
     }
 
@@ -634,12 +632,12 @@
 </head>
 <body>
 
-  <img src="stella-cartoon.png" class="stella-popup" id="stellaPopup" alt="" />
+  <img src="stella-blue-sign.png" class="stella-popup" id="stellaPopup" alt="" />
 
   <main class="desktop-shell">
-    <section class="desktop-window" data-window-id="gauntlet" data-window-title="THE YAK GAUNTLET.EXE">
+    <section class="desktop-window" data-window-id="gauntlet" data-window-title="THE YAK GAUNTLET">
       <div class="window-titlebar">
-        <span class="titlebar-label"><span class="window-icon"></span>THE YAK GAUNTLET.EXE</span>
+        <span class="titlebar-label"><span class="window-icon"></span>THE YAK GAUNTLET</span>
         <div class="window-controls">
           <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
           <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
@@ -687,7 +685,6 @@
             <div class="right-group">
               <input id="searchInput" type="search" placeholder="Search name" />
               <button id="editButton" class="edit-button">Edit</button>
-              <button id="randomButton" class="open-stats-button">Random</button>
               <button id="openStatsButton" class="open-stats-button">Stats</button>
             </div>
           </div>
@@ -695,9 +692,9 @@
       </div>
     </section>
 
-    <section class="desktop-window scoreboard-window" data-window-id="scoreboard" data-window-title="SCOREBOARD.DAT">
+    <section class="desktop-window scoreboard-window" data-window-id="scoreboard" data-window-title="SCOREBOARD">
       <div class="window-titlebar">
-        <span class="titlebar-label"><span class="window-icon"></span>SCOREBOARD.DAT</span>
+        <span class="titlebar-label"><span class="window-icon"></span>SCOREBOARD</span>
         <div class="window-controls">
           <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
           <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
@@ -737,8 +734,8 @@
 
   <div class="desktop-taskbar">
     <button type="button" class="start-button" id="startButton">Start</button>
-    <button type="button" class="taskbar-button" data-window-restore="gauntlet">THE YAK GAUNTLET.EXE</button>
-    <button type="button" class="taskbar-button" data-window-restore="scoreboard">SCOREBOARD.DAT</button>
+    <button type="button" class="taskbar-button" data-window-restore="gauntlet">THE YAK GAUNTLET</button>
+    <button type="button" class="taskbar-button" data-window-restore="scoreboard">SCOREBOARD</button>
     <div class="taskbar-spacer"></div>
     <div class="taskbar-clock" id="taskbarClock">--:--</div>
   </div>
@@ -1236,13 +1233,6 @@ document.querySelectorAll('.delete-button').forEach(button => {
 
     openStatsButton.addEventListener('click', () => {
       window.open('stats.html', '_blank');
-    });
-
-    document.getElementById('randomButton').addEventListener('click', () => {
-      if (entries.length === 0) return;
-      const randIndex = Math.floor(Math.random() * entries.length);
-      const randEntry = entries[randIndex];
-      alert(`Random Entry:\nName: ${randEntry.name}\nDivision: ${randEntry.division}\nCategory: ${randEntry.category}\nTime: ${randEntry.time}\nDate: ${formatDate(randEntry.date)}`);
     });
 
     divisionFilter.addEventListener('change', () => {

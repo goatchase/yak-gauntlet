@@ -32,11 +32,13 @@
       width: 210px;
       max-height: 210px;
       object-fit: contain;
-      z-index: 1195;
+      z-index: 1420;
       pointer-events: none;
       opacity: 0;
       transform: translateY(54px) scale(0.86);
       transform-origin: bottom left;
+      top: auto;
+      bottom: 30px;
       transition: opacity 0.18s ease-out, transform 0.22s steps(3, end);
       filter: drop-shadow(2px 2px 0 #004040);
     }
@@ -637,6 +639,57 @@
       text-transform: none;
     }
 
+
+
+    .config-window .window-body {
+      display: grid;
+      gap: 8px;
+    }
+
+    .wheel-config-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .wheel-config-card {
+      padding: 7px;
+      background: #c0c0c0;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+    }
+
+    .wheel-config-card h3 {
+      margin: 0 0 6px;
+      padding: 3px 5px;
+      color: #fff;
+      background: #000080;
+      font-size: 12px;
+    }
+
+    .wheel-config-card label {
+      display: block;
+      margin: 5px 0 3px;
+      font-weight: 700;
+    }
+
+    .wheel-config-card textarea {
+      width: 100%;
+      min-height: 68px;
+      resize: vertical;
+      padding: 4px;
+      color: #000;
+      background: #fff;
+      border-top: 2px solid #404040;
+      border-left: 2px solid #404040;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      font: inherit;
+      text-transform: none;
+    }
+
     .wheel-wrap {
       position: relative;
       width: 220px;
@@ -830,6 +883,12 @@
         font-size: 11px;
       }
 
+
+
+      .wheel-config-grid {
+        grid-template-columns: 1fr;
+      }
+
       .taskbar-button {
         display: none;
       }
@@ -958,6 +1017,54 @@
         </div>
       </div>
     </section>
+
+    <section class="desktop-window minimized config-window" data-window-id="wheelConfig" data-window-title="WHEEL CONFIGURATION">
+      <div class="window-titlebar">
+        <span class="titlebar-label"><span class="window-icon"></span>WHEEL CONFIGURATION</span>
+        <div class="window-controls">
+          <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
+          <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </div>
+      <div class="window-body">
+        <div class="wheel-config-grid">
+          <div class="wheel-config-card">
+            <h3>BELOW 25%</h3>
+            <label for="q25Rewards">Rewards</label>
+            <textarea id="q25Rewards" data-wheel-config="q25.rewards"></textarea>
+            <label for="q25Punishments">Punishments</label>
+            <textarea id="q25Punishments" data-wheel-config="q25.punishments"></textarea>
+          </div>
+          <div class="wheel-config-card">
+            <h3>25% TO 50%</h3>
+            <label for="q50Rewards">Rewards</label>
+            <textarea id="q50Rewards" data-wheel-config="q50.rewards"></textarea>
+            <label for="q50Punishments">Punishments</label>
+            <textarea id="q50Punishments" data-wheel-config="q50.punishments"></textarea>
+          </div>
+          <div class="wheel-config-card">
+            <h3>50% TO 75%</h3>
+            <label for="q75Rewards">Rewards</label>
+            <textarea id="q75Rewards" data-wheel-config="q75.rewards"></textarea>
+            <label for="q75Punishments">Punishments</label>
+            <textarea id="q75Punishments" data-wheel-config="q75.punishments"></textarea>
+          </div>
+          <div class="wheel-config-card">
+            <h3>ABOVE 75%</h3>
+            <label for="q100Rewards">Rewards</label>
+            <textarea id="q100Rewards" data-wheel-config="q100.rewards"></textarea>
+            <label for="q100Punishments">Punishments</label>
+            <textarea id="q100Punishments" data-wheel-config="q100.punishments"></textarea>
+          </div>
+        </div>
+        <div class="status-bar">
+          <span>AUTO-SAVES LOCALLY</span>
+          <span>WHEEL LOADS BY RUN PERCENTILE</span>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <div class="start-menu" id="startMenu">
@@ -965,6 +1072,7 @@
     <button type="button" data-window-restore="gauntlet">The Yak Gauntlet</button>
     <button type="button" data-window-restore="scoreboard">Scoreboard</button>
     <button type="button" data-window-restore="runStats">Run Statistics</button>
+    <button type="button" data-window-restore="wheelConfig">Wheel Configuration</button>
   </div>
 
   <div class="desktop-taskbar">
@@ -972,6 +1080,7 @@
     <button type="button" class="taskbar-button" data-window-restore="gauntlet">THE YAK GAUNTLET</button>
     <button type="button" class="taskbar-button" data-window-restore="scoreboard">SCOREBOARD</button>
     <button type="button" class="taskbar-button" data-window-restore="runStats">RUN STATISTICS</button>
+    <button type="button" class="taskbar-button" data-window-restore="wheelConfig">WHEEL CONFIG</button>
     <div class="taskbar-spacer"></div>
     <div class="taskbar-clock" id="taskbarClock">--:--</div>
   </div>
@@ -993,10 +1102,29 @@
     const clearWheelEntriesButton = document.getElementById('clearWheelEntriesButton');
     let activeZ = 30;
 
+    function randomizeStellaPosition() {
+      if (!stellaPopup) return;
+      const anchor = startMenu && startMenu.classList.contains('open') ? startMenu : startButton;
+      const rect = anchor ? anchor.getBoundingClientRect() : { left: 4, top: window.innerHeight - 260, right: 204, bottom: window.innerHeight - 38, width: 200, height: 220 };
+      const popupWidth = stellaPopup.offsetWidth || 210;
+      const popupHeight = stellaPopup.offsetHeight || 210;
+      const spots = [
+        { left: rect.left + Math.random() * Math.max(rect.width - 30, 40), top: rect.top - popupHeight + Math.random() * 42 },
+        { left: rect.right - 26 + Math.random() * 72, top: rect.top + Math.random() * Math.max(rect.height - 48, 40) },
+        { left: rect.left + Math.random() * Math.max(rect.width - 30, 40), top: rect.bottom - popupHeight + Math.random() * 34 },
+        { left: rect.left - popupWidth + 48 + Math.random() * 72, top: rect.top + Math.random() * Math.max(rect.height - 48, 40) }
+      ];
+      const spot = spots[Math.floor(Math.random() * spots.length)];
+      stellaPopup.style.left = `${Math.max(4, Math.min(window.innerWidth - popupWidth - 4, spot.left))}px`;
+      stellaPopup.style.top = `${Math.max(4, Math.min(window.innerHeight - popupHeight - 38, spot.top))}px`;
+      stellaPopup.style.bottom = 'auto';
+    }
+
     function scheduleStellaPopup() {
       const delay = 4500 + Math.random() * 11000;
       window.setTimeout(() => {
         if (stellaPopup) {
+          randomizeStellaPosition();
           stellaPopup.classList.add('show');
           window.setTimeout(() => {
             stellaPopup.classList.remove('show');
@@ -1086,7 +1214,7 @@
           if (action === 'minimize') win.classList.add('minimized');
           if (action === 'maximize') toggleMaximize(win);
           if (action === 'close') {
-            if (win.dataset.windowId === 'runStats') {
+            if (win.dataset.windowId === 'runStats' || win.dataset.windowId === 'wheelConfig') {
               win.classList.add('minimized');
             } else {
               alert('NO!');
@@ -1143,6 +1271,7 @@
     const actionHeader = document.getElementById('actionHeader');
     const divisionSelect = document.getElementById('division');
     const categorySelect = document.getElementById('category');
+    const wheelConfigInputs = [...document.querySelectorAll('[data-wheel-config]')];
 
     let entries = [];
     let isEditMode = false;
@@ -1150,7 +1279,31 @@
     let pendingStatsEntryId = null;
     let wheelRotation = 0;
     let wheelSpinning = false;
-    const defaultWheelEntries = ['Reward: Pick the next song', 'Punishment: 10 push-ups', 'Reward: Skip the line', 'Punishment: Wall sit', 'Reward: Coffee shout-out', 'Punishment: Plank challenge'];
+    const wheelConfigStorageKey = 'yakQuartileWheelConfigV1';
+    const defaultWheelConfig = {
+      q25: {
+        label: 'Below 25%',
+        rewards: ['Pick the next song', 'Coffee shout-out', 'Skip one challenge'],
+        punishments: ['10 push-ups', '30 second wall sit', 'Do the next intro voice']
+      },
+      q50: {
+        label: '25% to 50%',
+        rewards: ['Choose someone else to spin', 'Bonus point bragging rights', 'Pick the next category'],
+        punishments: ['Plank challenge', 'Tiny victory speech', 'Wear the shame crown']
+      },
+      q75: {
+        label: '50% to 75%',
+        rewards: ['One redo token', 'Call your shot next run', 'Stella Blue coffee salute'],
+        punishments: ['Apology press conference', '10 air squats', 'Read the leaderboard aloud']
+      },
+      q100: {
+        label: 'Above 75%',
+        rewards: ['Mercy spin', 'Mystery bonus', 'Pick a rival'],
+        punishments: ['Buy Stella Blue Coffee', 'Spin again', 'Walk of shame lap']
+      }
+    };
+    let wheelConfig = loadWheelConfig();
+    let activeWheelQuartile = 'q25';
     const editPassword = "benjaminmintz1"; // 🔐 Change this password as needed
 
     // Sort state
@@ -1256,34 +1409,110 @@
       `;
     }
 
+    function cloneDefaultWheelConfig() {
+      return JSON.parse(JSON.stringify(defaultWheelConfig));
+    }
+
+    function parseWheelList(value) {
+      return String(value || '').split(/\r?\n/).map(item => item.trim()).filter(Boolean);
+    }
+
+    function loadWheelConfig() {
+      const fallback = cloneDefaultWheelConfig();
+      try {
+        const saved = JSON.parse(localStorage.getItem(wheelConfigStorageKey));
+        if (!saved) return fallback;
+        Object.keys(fallback).forEach(key => {
+          fallback[key].rewards = Array.isArray(saved[key]?.rewards) ? saved[key].rewards : fallback[key].rewards;
+          fallback[key].punishments = Array.isArray(saved[key]?.punishments) ? saved[key].punishments : fallback[key].punishments;
+        });
+      } catch (error) {
+        console.warn('Wheel config reset:', error);
+      }
+      return fallback;
+    }
+
+    function saveWheelConfig() {
+      localStorage.setItem(wheelConfigStorageKey, JSON.stringify(wheelConfig));
+    }
+
+    function prefixWheelItem(type, text) {
+      return /^(reward|punishment):/i.test(text) ? text : `${type}: ${text}`;
+    }
+
+    function getConfiguredWheelEntries(key = activeWheelQuartile) {
+      const config = wheelConfig[key] || wheelConfig.q25;
+      return [
+        ...config.rewards.map(item => prefixWheelItem('Reward', item)),
+        ...config.punishments.map(item => prefixWheelItem('Punishment', item))
+      ];
+    }
+
+    function getQuartileKey(percentile) {
+      if (percentile < 25) return 'q25';
+      if (percentile < 50) return 'q50';
+      if (percentile < 75) return 'q75';
+      return 'q100';
+    }
+
+    function renderWheelConfigInputs() {
+      wheelConfigInputs.forEach(input => {
+        const [key, type] = input.dataset.wheelConfig.split('.');
+        input.value = (wheelConfig[key]?.[type] || []).join('\n');
+      });
+    }
+
+    function updateWheelConfigFromInput(input) {
+      const [key, type] = input.dataset.wheelConfig.split('.');
+      if (!wheelConfig[key]) return;
+      wheelConfig[key][type] = parseWheelList(input.value);
+      saveWheelConfig();
+      if (key === activeWheelQuartile) {
+        populateWheelFromQuartile(key);
+      }
+    }
+
+    function setWheelEntries(items) {
+      if (!wheelEntries) return;
+      wheelEntries.value = items.join('\n');
+      wheelRotation = 0;
+      drawNameWheel();
+    }
+
+    function populateWheelFromQuartile(key) {
+      activeWheelQuartile = key;
+      setWheelEntries(getConfiguredWheelEntries(key));
+      if (wheelResult) wheelResult.textContent = `${wheelConfig[key].label} LOADED`;
+    }
+
+    function populateWheelForPercentile(percentile) {
+      populateWheelFromQuartile(getQuartileKey(percentile));
+    }
+
     function getWheelNames() {
-      const manualNames = wheelEntries
-        ? wheelEntries.value.split('\\n').map(name => name.trim()).filter(Boolean)
-        : [];
+      const manualNames = wheelEntries ? parseWheelList(wheelEntries.value) : [];
       return manualNames.length ? manualNames : ['ADD ENTRIES'];
     }
 
     function initializeWheelEntries() {
-      if (!wheelEntries || wheelEntries.value.trim()) return;
-      wheelEntries.value = defaultWheelEntries.join('\\n');
+      renderWheelConfigInputs();
+      populateWheelFromQuartile(activeWheelQuartile);
     }
 
     function addWheelEntry() {
       if (!wheelEntries || !wheelEntryInput) return;
       const value = wheelEntryInput.value.trim();
       if (!value) return;
-      const current = wheelEntries.value.trim();
-      wheelEntries.value = current ? `${current}\n${value}` : value;
+      const current = parseWheelList(wheelEntries.value);
+      current.push(value);
+      setWheelEntries(current);
       wheelEntryInput.value = '';
-      wheelRotation = 0;
-      drawNameWheel();
+      if (wheelResult) wheelResult.textContent = 'READY';
     }
 
     function clearWheelEntries() {
       if (!wheelEntries) return;
-      wheelEntries.value = '';
-      wheelRotation = 0;
-      drawNameWheel();
+      setWheelEntries([]);
       if (wheelResult) wheelResult.textContent = 'READY';
     }
 
@@ -1401,7 +1630,7 @@ function showRunStats(entryId) {
         statsWindow.style.left = `${Math.max(8, window.innerWidth - 376)}px`;
         statsWindow.style.top = '86px';
         bringWindowToFront(statsWindow);
-        drawNameWheel();
+        populateWheelForPercentile(percentile);
       }
     }
 
@@ -1774,6 +2003,9 @@ document.querySelectorAll('.delete-button').forEach(button => {
     if (wheelEntries) wheelEntries.addEventListener('input', () => {
       wheelRotation = 0;
       drawNameWheel();
+    });
+    wheelConfigInputs.forEach(input => {
+      input.addEventListener('input', () => updateWheelConfigFromInput(input));
     });
 
     fetchEntries();

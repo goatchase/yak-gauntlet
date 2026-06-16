@@ -57,8 +57,8 @@
     }
 
     .desktop-shell {
-      width: min(1460px, 100%);
-      margin: 0 auto;
+      width: min(1120px, calc(100% - 360px));
+      margin: 0 auto 0 10px;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -386,7 +386,7 @@
     table#scoreboard,
     table {
       width: 100%;
-      min-width: 760px;
+      min-width: 680px;
       margin: 0;
       border-collapse: separate;
       border-spacing: 0;
@@ -415,6 +415,30 @@
       border-right: 1px solid #c0c0c0;
       border-bottom: 1px solid #dcdcdc;
       white-space: nowrap;
+    }
+
+
+    table#scoreboard th:nth-child(1),
+    table#scoreboard td:nth-child(1) {
+      width: 54px;
+      text-align: center;
+    }
+
+    table#scoreboard th:nth-child(2),
+    table#scoreboard td:nth-child(2) {
+      max-width: 190px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    table#scoreboard th:nth-child(5),
+    table#scoreboard td:nth-child(5) {
+      width: 150px;
+    }
+
+    table#scoreboard th:nth-child(6),
+    table#scoreboard td:nth-child(6) {
+      width: 112px;
     }
 
     th.sortable {
@@ -644,6 +668,11 @@
     @media (max-width: 768px) {
       body {
         padding: 8px 8px 46px;
+      }
+
+      .desktop-shell {
+        width: 100%;
+        margin: 0;
       }
 
       .window-body {
@@ -920,7 +949,13 @@
           const action = button.dataset.windowAction;
           if (action === 'minimize') win.classList.add('minimized');
           if (action === 'maximize') toggleMaximize(win);
-          if (action === 'close') alert('FUCK NO BABY!');
+          if (action === 'close') {
+            if (win.dataset.windowId === 'runStats') {
+              win.classList.add('minimized');
+            } else {
+              alert('NO!');
+            }
+          }
         });
       });
     });
@@ -1069,8 +1104,8 @@
       const categoryEntries = validEntries.filter(item => item.category === entry.category);
       const monthlyEntries = validEntries.filter(item => sameMonth(item.date, entry.date));
       const percentile = overallRank > 0 && validEntries.length > 1
-        ? Math.round(((validEntries.length - overallRank) / (validEntries.length - 1)) * 100)
-        : 100;
+        ? Math.round(((overallRank - 1) / (validEntries.length - 1)) * 100)
+        : 0;
 
       runStatsContent.innerHTML = `
         <dt>Name</dt><dd>${escapeHTML(entry.name)}</dd>
@@ -1086,8 +1121,8 @@
         statsWindow.classList.remove('minimized', 'maximized');
         statsWindow.classList.add('detached');
         statsWindow.style.position = 'fixed';
-        statsWindow.style.width = '320px';
-        statsWindow.style.left = `${Math.max(8, window.innerWidth - 344)}px`;
+        statsWindow.style.width = '330px';
+        statsWindow.style.left = `${Math.max(8, window.innerWidth - 346)}px`;
         statsWindow.style.top = '86px';
         bringWindowToFront(statsWindow);
       }

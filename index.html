@@ -944,16 +944,16 @@
         <div class="run-stats-graphic" id="runStatsContent"></div>
         <div class="wheel-panel">
           <div class="wheel-entry-row">
-            <input id="wheelEntryInput" placeholder="Add wheel entry" />
+            <input id="wheelEntryInput" placeholder="Add punishment or reward" />
             <button type="button" id="addWheelEntryButton">Add</button>
             <button type="button" id="clearWheelEntriesButton">Clear</button>
           </div>
-          <textarea id="wheelEntries" class="wheel-list" aria-label="Wheel entries"></textarea>
+          <textarea id="wheelEntries" class="wheel-list" aria-label="Punishment and reward wheel entries"></textarea>
           <div class="wheel-wrap">
             <canvas id="nameWheel" width="220" height="220"></canvas>
             <div class="wheel-pointer"></div>
           </div>
-          <button type="button" id="spinWheelButton">Spin Names</button>
+          <button type="button" id="spinWheelButton">Spin Wheel</button>
           <div class="wheel-result" id="wheelResult">READY</div>
         </div>
       </div>
@@ -1148,10 +1148,9 @@
     let isEditMode = false;
     let audienceFilter = 'All';
     let pendingStatsEntryId = null;
-    let runStatsCloseTimer = null;
     let wheelRotation = 0;
     let wheelSpinning = false;
-    let wheelNames = [];
+    const defaultWheelEntries = ['Reward: Pick the next song', 'Punishment: 10 push-ups', 'Reward: Skip the line', 'Punishment: Wall sit', 'Reward: Coffee shout-out', 'Punishment: Plank challenge'];
     const editPassword = "benjaminmintz1"; // 🔐 Change this password as needed
 
     // Sort state
@@ -1259,16 +1258,14 @@
 
     function getWheelNames() {
       const manualNames = wheelEntries
-        ? wheelEntries.value.split('\n').map(name => name.trim()).filter(Boolean)
+        ? wheelEntries.value.split('\\n').map(name => name.trim()).filter(Boolean)
         : [];
-      const sourceNames = manualNames.length ? manualNames : entries.map(entry => entry.name).filter(Boolean);
-      return sourceNames.length ? sourceNames : ['NO ENTRIES'];
+      return manualNames.length ? manualNames : ['ADD ENTRIES'];
     }
 
-    function syncWheelTextareaFromEntries() {
+    function initializeWheelEntries() {
       if (!wheelEntries || wheelEntries.value.trim()) return;
-      const names = [...new Set(entries.map(entry => entry.name).filter(Boolean))];
-      wheelEntries.value = names.join('\n');
+      wheelEntries.value = defaultWheelEntries.join('\\n');
     }
 
     function addWheelEntry() {
@@ -1335,9 +1332,9 @@
 
     function spinNameWheel() {
       if (wheelSpinning || !nameWheel) return;
-      const names = getWheelNames().filter(name => name !== 'NO ENTRIES');
+      const names = getWheelNames().filter(name => name !== 'ADD ENTRIES');
       if (!names.length) {
-        if (wheelResult) wheelResult.textContent = 'NO ENTRIES';
+        if (wheelResult) wheelResult.textContent = 'ADD ENTRIES';
         drawNameWheel();
         return;
       }
@@ -1405,10 +1402,6 @@ function showRunStats(entryId) {
         statsWindow.style.top = '86px';
         bringWindowToFront(statsWindow);
         drawNameWheel();
-        if (runStatsCloseTimer) clearTimeout(runStatsCloseTimer);
-        runStatsCloseTimer = setTimeout(() => {
-          statsWindow.classList.add('minimized');
-        }, 30000);
       }
     }
 
@@ -1585,7 +1578,6 @@ document.querySelectorAll('.delete-button').forEach(button => {
     async function fetchEntries() {
       const snapshot = await entriesCollection.get();
       entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      syncWheelTextareaFromEntries();
       drawNameWheel();
       renderScoreboard();
       if (pendingStatsEntryId) {
@@ -1603,19 +1595,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
     async function deleteEntry(id) {
       if (confirm("Delete this entry?")) {
         await entriesCollection.doc(id).delete();
-        if (spinWheelButton) spinWheelButton.addEventListener('click', spinNameWheel);
-    if (addWheelEntryButton) addWheelEntryButton.addEventListener('click', addWheelEntry);
-    if (clearWheelEntriesButton) clearWheelEntriesButton.addEventListener('click', clearWheelEntries);
-    if (wheelEntryInput) {
-      wheelEntryInput.addEventListener('keydown', event => {
-        if (event.key === 'Enter') {
-          event.preventDefault();
-          addWheelEntry();
-        }
-      });
-    }
-    if (wheelEntries) wheelEntries.addEventListener('input', drawNameWheel);
-    fetchEntries();
+        fetchEntries();
       }
     }
 
@@ -1776,6 +1756,24 @@ document.querySelectorAll('.delete-button').forEach(button => {
         }
         renderScoreboard();
       });
+    });
+
+    initializeWheelEntries();
+    drawNameWheel();
+    if (spinWheelButton) spinWheelButton.addEventListener('click', spinNameWheel);
+    if (addWheelEntryButton) addWheelEntryButton.addEventListener('click', addWheelEntry);
+    if (clearWheelEntriesButton) clearWheelEntriesButton.addEventListener('click', clearWheelEntries);
+    if (wheelEntryInput) {
+      wheelEntryInput.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          addWheelEntry();
+        }
+      });
+    }
+    if (wheelEntries) wheelEntries.addEventListener('input', () => {
+      wheelRotation = 0;
+      drawNameWheel();
     });
 
     fetchEntries();

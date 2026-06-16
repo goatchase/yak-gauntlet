@@ -591,13 +591,7 @@
     .stat-bar-fill {
       height: 100%;
       min-width: 2px;
-      background: repeating-linear-gradient(
-        90deg,
-        #000080 0,
-        #000080 6px,
-        #1084d0 6px,
-        #1084d0 12px
-      );
+      background: #000080;
     }
 
     .wheel-panel {
@@ -1104,19 +1098,12 @@
 
     function randomizeStellaPosition() {
       if (!stellaPopup) return;
-      const anchor = startMenu && startMenu.classList.contains('open') ? startMenu : startButton;
-      const rect = anchor ? anchor.getBoundingClientRect() : { left: 4, top: window.innerHeight - 260, right: 204, bottom: window.innerHeight - 38, width: 200, height: 220 };
       const popupWidth = stellaPopup.offsetWidth || 210;
       const popupHeight = stellaPopup.offsetHeight || 210;
-      const spots = [
-        { left: rect.left + Math.random() * Math.max(rect.width - 30, 40), top: rect.top - popupHeight + Math.random() * 42 },
-        { left: rect.right - 26 + Math.random() * 72, top: rect.top + Math.random() * Math.max(rect.height - 48, 40) },
-        { left: rect.left + Math.random() * Math.max(rect.width - 30, 40), top: rect.bottom - popupHeight + Math.random() * 34 },
-        { left: rect.left - popupWidth + 48 + Math.random() * 72, top: rect.top + Math.random() * Math.max(rect.height - 48, 40) }
-      ];
-      const spot = spots[Math.floor(Math.random() * spots.length)];
-      stellaPopup.style.left = `${Math.max(4, Math.min(window.innerWidth - popupWidth - 4, spot.left))}px`;
-      stellaPopup.style.top = `${Math.max(4, Math.min(window.innerHeight - popupHeight - 38, spot.top))}px`;
+      const safeLeft = Math.max(4, window.innerWidth - popupWidth - 4);
+      const bottomBand = Math.max(38, Math.min(92, window.innerHeight * 0.13));
+      stellaPopup.style.left = `${Math.random() * safeLeft}px`;
+      stellaPopup.style.top = `${Math.max(4, window.innerHeight - popupHeight - bottomBand + Math.random() * 36)}px`;
       stellaPopup.style.bottom = 'auto';
     }
 
@@ -1279,6 +1266,8 @@
     let pendingStatsEntryId = null;
     let wheelRotation = 0;
     let wheelSpinning = false;
+    let wheelAudioContext = null;
+    let lastWheelTickAt = 0;
     const wheelConfigStorageKey = 'yakQuartileWheelConfigV1';
     const defaultWheelConfig = {
       q25: {
@@ -1436,15 +1425,68 @@
       localStorage.setItem(wheelConfigStorageKey, JSON.stringify(wheelConfig));
     }
 
-    function prefixWheelItem(type, text) {
-      return /^(reward|punishment):/i.test(text) ? text : `${type}: ${text}`;
+
+    function getWheelAudioContext() {
+      const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextCtor) return null;
+      if (!wheelAudioContext) wheelAudioContext = new AudioContextCtor();
+      if (wheelAudioContext.state === 'suspended') wheelAudioContext.resume();
+      return wheelAudioContext;
+    }
+
+    function playWheelTick(now) {
+      const ctx = getWheelAudioContext();
+      if (!ctx || now - lastWheelTickAt < 55) return;
+      lastWheelTickAt = now;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.value = 760 + Math.random() * 240;
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.055, ctx.currentTime + 0.006);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.045);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.055);
+    }
+
+    function playWheelClap() {
+      const ctx = getWheelAudioContext();
+      if (!ctx) return;
+      for (let hit = 0; hit < 3; hit++) {
+        const length = ctx.sampleRate * 0.11;
+        const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < length; i++) {
+          data[i] = (Math.random() * 2 - 1) * (1 - i / length);
+        }
+        const noise = ctx.createBufferSource();
+        const filter = ctx.createBiquadFilter();
+        const gain = ctx.createGain();
+        noise.buffer = buffer;
+        filter.type = 'bandpass';
+        filter.frequency.value = 1350 + hit * 220;
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime + hit * 0.065);
+        gain.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + hit * 0.065 + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + hit * 0.065 + 0.13);
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        noise.start(ctx.currentTime + hit * 0.065);
+        noise.stop(ctx.currentTime + hit * 0.065 + 0.15);
+      }
+    }
+
+    function cleanWheelItem(text) {
+      return String(text || '').replace(/^(reward|punishment):\s*/i, '').trim();
     }
 
     function getConfiguredWheelEntries(key = activeWheelQuartile) {
       const config = wheelConfig[key] || wheelConfig.q25;
       return [
-        ...config.rewards.map(item => prefixWheelItem('Reward', item)),
-        ...config.punishments.map(item => prefixWheelItem('Punishment', item))
+        ...config.rewards.map(cleanWheelItem),
+        ...config.punishments.map(cleanWheelItem)
       ];
     }
 
@@ -1490,7 +1532,7 @@
     }
 
     function getWheelNames() {
-      const manualNames = wheelEntries ? parseWheelList(wheelEntries.value) : [];
+      const manualNames = wheelEntries ? parseWheelList(wheelEntries.value).map(cleanWheelItem).filter(Boolean) : [];
       return manualNames.length ? manualNames : ['ADD ENTRIES'];
     }
 
@@ -1569,6 +1611,8 @@
       }
 
       wheelSpinning = true;
+      getWheelAudioContext();
+      lastWheelTickAt = 0;
       if (wheelResult) wheelResult.textContent = 'SPINNING...';
       const winnerIndex = Math.floor(Math.random() * names.length);
       const slice = (Math.PI * 2) / names.length;
@@ -1583,12 +1627,14 @@
         const eased = 1 - Math.pow(1 - t, 3);
         wheelRotation = start + (finish - start) * eased;
         drawNameWheel(wheelRotation);
+        playWheelTick(now);
         if (t < 1) {
           requestAnimationFrame(animate);
         } else {
           wheelRotation = targetAngle % (Math.PI * 2);
           drawNameWheel(wheelRotation);
           if (wheelResult) wheelResult.textContent = names[winnerIndex];
+          playWheelClap();
           wheelSpinning = false;
         }
       }
@@ -1614,10 +1660,9 @@ function showRunStats(entryId) {
 
       runStatsContent.innerHTML = `
         <strong>${escapeHTML(entry.name)}</strong>
-        ${statBar('Overall Rank', overallRank, validEntries.length)}
         ${percentileBar(percentile)}
+        ${statBar('Overall Rank', overallRank, validEntries.length)}
         ${statBar('Division Rank', rankInGroup(entry, divisionEntries), divisionEntries.length)}
-        ${statBar('Category Rank', rankInGroup(entry, categoryEntries), categoryEntries.length)}
         ${statBar('Monthly Rank', rankInGroup(entry, monthlyEntries), monthlyEntries.length)}
       `;
 

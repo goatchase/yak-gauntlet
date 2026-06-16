@@ -139,7 +139,7 @@
       flex-wrap: wrap;
       align-items: flex-end;
     }
-    .edit-button, .unfilter-button, .open-stats-button {
+    .edit-button, .unfilter-button, .open-stats-button, .audience-button {
       background-color: #007bff;
       color: white;
       padding: 5px 10px;
@@ -148,8 +148,14 @@
       border-radius: 4px;
       font-size: 1em;
     }
-    .edit-button:hover, .unfilter-button:hover, .open-stats-button:hover {
+    .edit-button:hover, .unfilter-button:hover, .open-stats-button:hover, .audience-button:hover {
       background-color: #0056b3;
+    }
+    .audience-button.active {
+      background-color: #990000;
+    }
+    .audience-button.active:hover {
+      background-color: #770000;
     }
     select, input[type="search"] {
       padding: 5px;
@@ -288,6 +294,8 @@
         <select id="categoryFilter"><option value="All">All</option></select>
       </div>
       <button id="unfilterButton" class="unfilter-button">Unfilter</button>
+      <button id="barstoolButton" class="audience-button">Barstool</button>
+      <button id="guestsButton" class="audience-button">Guests</button>
     </div>
 
     <div class="right-group">
@@ -337,6 +345,8 @@
     const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
     const editButton = document.getElementById('editButton');
     const unfilterButton = document.getElementById('unfilterButton');
+    const barstoolButton = document.getElementById('barstoolButton');
+    const guestsButton = document.getElementById('guestsButton');
     const openStatsButton = document.getElementById('openStatsButton');
     const searchInput = document.getElementById('searchInput');
     const divisionFilter = document.getElementById('divisionFilter');
@@ -347,6 +357,7 @@
 
     let entries = [];
     let isEditMode = false;
+    let audienceFilter = 'All';
     const editPassword = "benjaminmintz1"; // 🔐 Change this password as needed
 
     // Sort state
@@ -356,6 +367,22 @@
     };
 
    let lastSubmittedTime = null;
+
+    function normalizeDivision(value) {
+      return String(value || '').trim().toUpperCase();
+    }
+
+    function updateAudienceButtons() {
+      barstoolButton.classList.toggle('active', audienceFilter === 'Barstool');
+      guestsButton.classList.toggle('active', audienceFilter === 'Guests');
+    }
+
+    function matchesAudienceFilter(entry) {
+      const division = normalizeDivision(entry.division);
+      if (audienceFilter === 'Barstool') return division === 'BARSTOOL';
+      if (audienceFilter === 'Guests') return division !== 'BARSTOOL';
+      return true;
+    }
 
     function formatDate(input) {
       const d = new Date(input);
@@ -437,6 +464,7 @@
       // Apply filters and search
       let filteredEntries = entries.filter(entry =>
         entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
+        matchesAudienceFilter(entry) &&
         (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
         (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
       );
@@ -645,6 +673,22 @@ document.querySelectorAll('.delete-button').forEach(button => {
       divisionFilter.value = 'All';
       categoryFilter.value = 'All';
       searchInput.value = '';
+      audienceFilter = 'All';
+      updateAudienceButtons();
+      renderScoreboard();
+    });
+
+    barstoolButton.addEventListener('click', () => {
+      audienceFilter = 'Barstool';
+      divisionFilter.value = 'All';
+      updateAudienceButtons();
+      renderScoreboard();
+    });
+
+    guestsButton.addEventListener('click', () => {
+      audienceFilter = 'Guests';
+      divisionFilter.value = 'All';
+      updateAudienceButtons();
       renderScoreboard();
     });
 
@@ -659,7 +703,11 @@ document.querySelectorAll('.delete-button').forEach(button => {
       alert(`Random Entry:\nName: ${randEntry.name}\nDivision: ${randEntry.division}\nCategory: ${randEntry.category}\nTime: ${randEntry.time}\nDate: ${formatDate(randEntry.date)}`);
     });
 
-    divisionFilter.addEventListener('change', renderScoreboard);
+    divisionFilter.addEventListener('change', () => {
+      audienceFilter = 'All';
+      updateAudienceButtons();
+      renderScoreboard();
+    });
     categoryFilter.addEventListener('change', renderScoreboard);
     searchInput.addEventListener('input', renderScoreboard);
 

@@ -29,8 +29,8 @@
       position: fixed;
       left: 12px;
       bottom: 30px;
-      width: 430px;
-      max-height: 430px;
+      width: 210px;
+      max-height: 210px;
       z-index: 1420;
       pointer-events: none;
       opacity: 0;
@@ -44,23 +44,10 @@
     .stella-art {
       display: block;
       width: 100%;
-      max-height: 430px;
+      max-height: 210px;
       object-fit: contain;
     }
 
-    .stella-qr {
-      position: absolute;
-      left: 54%;
-      top: 11.5%;
-      width: 22%;
-      aspect-ratio: 1;
-      padding: 4px;
-      background: #fff;
-      border: 2px solid #000;
-      box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.28);
-      transform: rotate(-5deg);
-      image-rendering: pixelated;
-    }
 
     .stella-popup.show {
       opacity: 1;
@@ -910,7 +897,7 @@
 </head>
 <body>
 
-  <div class="stella-popup" id="stellaPopup" aria-hidden="true"><img src="stella-blue-sign.png" class="stella-art" alt="" /><img src="https://api.qrserver.com/v1/create-qr-code/?size=500x500&margin=24&ecc=H&data=https%3A%2F%2Fstellabluecoffee.com%2F%3Ftw_source%3Dgoogle%26tw_adid%3D%26tw_campaign%3D21920570624%26gad_source%3D1%26gad_campaignid%3D21914094189%26gbraid%3D0AAAAApEpZzhTG-jjdF1WRXp0vusRIQm4J%26gclid%3DCjwKCAjw6MPRBhBTEiwAd-7MrxViddMvzAsT5rLZedPmbyXONiLSCJznxfFafDM3roYHwZw2DeAyexoCq2QQAvD_BwE" class="stella-qr" alt="" /></div>
+  <div class="stella-popup" id="stellaPopup" aria-hidden="true"><img src="stella-blue-sign.png" class="stella-art" alt="" /></div>
 
   <main class="desktop-shell">
     <section class="desktop-window" data-window-id="gauntlet" data-window-title="THE YAK GAUNTLET">
@@ -923,9 +910,6 @@
         </div>
       </div>
       <div class="window-body">
-        <header class="app-header">
-          <h1>THE YAK GAUNTLET</h1>
-        </header>
 
         <div class="controls-wrapper">
           <!-- First row: form centered -->
@@ -1117,7 +1101,7 @@
 
     function randomizeStellaPosition() {
       if (!stellaPopup) return;
-      const popupWidth = stellaPopup.offsetWidth || 430;
+      const popupWidth = stellaPopup.offsetWidth || 210;
       const startRect = startButton ? startButton.getBoundingClientRect() : { left: 4, top: window.innerHeight - 38, width: 70 };
       const menuRect = startMenu && startMenu.classList.contains('open')
         ? startMenu.getBoundingClientRect()
@@ -1288,9 +1272,6 @@
     let pendingStatsEntryId = null;
     let wheelRotation = 0;
     let wheelSpinning = false;
-    let wheelAudioContext = null;
-    let lastWheelTickAt = 0;
-    let lastWheelSliceIndex = null;
     const wheelConfigStorageKey = 'yakQuartileWheelConfigV1';
     const defaultWheelConfig = {
       q25: {
@@ -1448,52 +1429,6 @@
       localStorage.setItem(wheelConfigStorageKey, JSON.stringify(wheelConfig));
     }
 
-
-    function getWheelAudioContext() {
-      const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContextCtor) return null;
-      if (!wheelAudioContext) wheelAudioContext = new AudioContextCtor();
-      if (wheelAudioContext.state === 'suspended') wheelAudioContext.resume();
-      return wheelAudioContext;
-    }
-
-    function playWheelTick(now, progress = 0) {
-      const ctx = getWheelAudioContext();
-      const minGap = 24 + progress * 120;
-      if (!ctx || now - lastWheelTickAt < minGap) return;
-      lastWheelTickAt = now;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      const filter = ctx.createBiquadFilter();
-      osc.type = 'square';
-      osc.frequency.value = 680 - progress * 260;
-      filter.type = 'highpass';
-      filter.frequency.value = 420;
-      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.045, ctx.currentTime + 0.004);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.035 + progress * 0.05);
-      osc.connect(filter);
-      filter.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.07);
-    }
-
-    function playWheelCheer() {
-      const ctx = getWheelAudioContext();
-      if (!ctx) return;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'square';
-      osc.frequency.value = 420;
-      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.055, ctx.currentTime + 0.006);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.08);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.1);
-    }
 
     function cleanWheelItem(text) {
       return String(text || '').replace(/^(reward|punishment):\s*/i, '').trim();
@@ -1663,9 +1598,6 @@
       }
 
       wheelSpinning = true;
-      getWheelAudioContext();
-      lastWheelTickAt = 0;
-      lastWheelSliceIndex = null;
       if (wheelResult) wheelResult.textContent = 'SPINNING...';
       const winnerIndex = Math.floor(Math.random() * names.length);
       const slice = (Math.PI * 2) / names.length;
@@ -1680,18 +1612,12 @@
         const eased = 1 - Math.pow(1 - t, 3);
         wheelRotation = start + (finish - start) * eased;
         drawNameWheel(wheelRotation);
-        const currentSliceIndex = Math.floor((((Math.PI * 2 - (wheelRotation % (Math.PI * 2))) % (Math.PI * 2)) / slice));
-        if (currentSliceIndex !== lastWheelSliceIndex) {
-          playWheelTick(now, t);
-          lastWheelSliceIndex = currentSliceIndex;
-        }
         if (t < 1) {
           requestAnimationFrame(animate);
         } else {
           wheelRotation = targetAngle % (Math.PI * 2);
           drawNameWheel(wheelRotation);
           if (wheelResult) wheelResult.textContent = names[winnerIndex];
-          playWheelCheer();
           wheelSpinning = false;
         }
       }

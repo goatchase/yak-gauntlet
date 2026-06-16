@@ -57,8 +57,8 @@
     }
 
     .desktop-shell {
-      width: min(1120px, calc(100% - 360px));
-      margin: 0 auto 0 10px;
+      width: min(1120px, calc(100% - 24px));
+      margin: 0 auto;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -556,6 +556,99 @@
       text-align: right;
     }
 
+
+    .run-stats-graphic {
+      display: grid;
+      gap: 7px;
+      min-width: min(330px, 100%);
+      padding: 7px;
+      background: #fff;
+      border-top: 2px solid #404040;
+      border-left: 2px solid #404040;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+    }
+
+    .stat-bar-row {
+      display: grid;
+      grid-template-columns: 116px 1fr 46px;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-bar-track {
+      height: 16px;
+      background: #c0c0c0;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      overflow: hidden;
+    }
+
+    .stat-bar-fill {
+      height: 100%;
+      min-width: 2px;
+      background: repeating-linear-gradient(
+        90deg,
+        #000080 0,
+        #000080 6px,
+        #1084d0 6px,
+        #1084d0 12px
+      );
+    }
+
+    .wheel-panel {
+      margin-top: 8px;
+      padding: 7px;
+      background: #c0c0c0;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      text-align: center;
+    }
+
+    .wheel-wrap {
+      position: relative;
+      width: 220px;
+      max-width: 100%;
+      margin: 0 auto 6px;
+    }
+
+    #nameWheel {
+      width: 220px;
+      height: 220px;
+      max-width: 100%;
+      background: #fff;
+      border-radius: 50%;
+      border: 2px solid #404040;
+      box-shadow: inset 2px 2px 0 #fff, 2px 2px 0 #000;
+    }
+
+    .wheel-pointer {
+      position: absolute;
+      top: 50%;
+      right: -2px;
+      width: 0;
+      height: 0;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-right: 18px solid #f00;
+      transform: translateY(-50%);
+    }
+
+    .wheel-result {
+      min-height: 20px;
+      padding: 3px 6px;
+      background: #fff;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      font-weight: 700;
+    }
+
     .desktop-taskbar {
       position: fixed;
       left: 0;
@@ -820,13 +913,15 @@
         </div>
       </div>
       <div class="window-body">
-        <dl class="run-stats-grid" id="runStatsContent">
-          <dt>Overall Rank</dt><dd>--</dd>
-          <dt>Overall Percentile</dt><dd>--</dd>
-          <dt>Division Rank</dt><dd>--</dd>
-          <dt>Category Rank</dt><dd>--</dd>
-          <dt>Monthly Rank</dt><dd>--</dd>
-        </dl>
+        <div class="run-stats-graphic" id="runStatsContent"></div>
+        <div class="wheel-panel">
+          <div class="wheel-wrap">
+            <canvas id="nameWheel" width="220" height="220"></canvas>
+            <div class="wheel-pointer"></div>
+          </div>
+          <button type="button" id="spinWheelButton">Spin Names</button>
+          <div class="wheel-result" id="wheelResult">READY</div>
+        </div>
       </div>
     </section>
   </main>
@@ -855,6 +950,9 @@
     const taskbarClock = document.getElementById('taskbarClock');
     const desktopWindows = [...document.querySelectorAll('.desktop-window')];
     const runStatsContent = document.getElementById('runStatsContent');
+    const nameWheel = document.getElementById('nameWheel');
+    const spinWheelButton = document.getElementById('spinWheelButton');
+    const wheelResult = document.getElementById('wheelResult');
     let activeZ = 30;
 
     function scheduleStellaPopup() {
@@ -1012,6 +1110,9 @@
     let isEditMode = false;
     let audienceFilter = 'All';
     let pendingStatsEntryId = null;
+    let runStatsCloseTimer = null;
+    let wheelRotation = 0;
+    let wheelSpinning = false;
     const editPassword = "benjaminmintz1"; // 🔐 Change this password as needed
 
     // Sort state
@@ -1090,6 +1191,114 @@
       return rank > 0 ? `${rank} / ${total}` : '--';
     }
 
+
+    function pct(value, total) {
+      if (!total || total <= 0) return 0;
+      return Math.max(0, Math.min(100, Math.round((value / total) * 100)));
+    }
+
+    function statBar(label, value, total) {
+      const width = pct(value, total);
+      return `
+        <div class="stat-bar-row">
+          <span>${label}</span>
+          <div class="stat-bar-track"><div class="stat-bar-fill" style="width: ${width}%"></div></div>
+          <strong>${escapeHTML(value)} / ${escapeHTML(total)}</strong>
+        </div>
+      `;
+    }
+
+    function percentileBar(value) {
+      return `
+        <div class="stat-bar-row">
+          <span>Percentile</span>
+          <div class="stat-bar-track"><div class="stat-bar-fill" style="width: ${value}%"></div></div>
+          <strong>${value}%</strong>
+        </div>
+      `;
+    }
+
+    function drawNameWheel(rotation = wheelRotation) {
+      if (!nameWheel) return;
+      const ctx = nameWheel.getContext('2d');
+      const names = entries.map(entry => entry.name).filter(Boolean);
+      const wheelNames = names.length ? names : ['NO ENTRIES'];
+      const colors = ['#ff4040', '#4080ff', '#ffe14d', '#40b060', '#d070ff', '#ff9a3d', '#5bd6d6', '#f070a8'];
+      const cx = nameWheel.width / 2;
+      const cy = nameWheel.height / 2;
+      const radius = Math.min(cx, cy) - 4;
+      const slice = (Math.PI * 2) / wheelNames.length;
+
+      ctx.clearRect(0, 0, nameWheel.width, nameWheel.height);
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(rotation);
+
+      wheelNames.forEach((name, index) => {
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, index * slice, (index + 1) * slice);
+        ctx.closePath();
+        ctx.fillStyle = colors[index % colors.length];
+        ctx.fill();
+        ctx.strokeStyle = '#000';
+        ctx.stroke();
+
+        ctx.save();
+        ctx.rotate(index * slice + slice / 2);
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 10px "MS Sans Serif", Tahoma, Arial';
+        ctx.fillText(name.slice(0, 16), radius - 8, 3);
+        ctx.restore();
+      });
+
+      ctx.restore();
+      ctx.beginPath();
+      ctx.arc(cx, cy, 10, 0, Math.PI * 2);
+      ctx.fillStyle = '#c0c0c0';
+      ctx.fill();
+      ctx.strokeStyle = '#000';
+      ctx.stroke();
+    }
+
+    function spinNameWheel() {
+      if (wheelSpinning || !nameWheel) return;
+      const names = entries.map(entry => entry.name).filter(Boolean);
+      if (!names.length) {
+        if (wheelResult) wheelResult.textContent = 'NO ENTRIES';
+        drawNameWheel();
+        return;
+      }
+
+      wheelSpinning = true;
+      if (wheelResult) wheelResult.textContent = 'SPINNING...';
+      const winnerIndex = Math.floor(Math.random() * names.length);
+      const slice = (Math.PI * 2) / names.length;
+      const targetAngle = (Math.PI * 2) - (winnerIndex * slice + slice / 2);
+      const start = wheelRotation;
+      const finish = targetAngle + Math.PI * 2 * (5 + Math.floor(Math.random() * 3));
+      const duration = 3200;
+      const startedAt = performance.now();
+
+      function animate(now) {
+        const t = Math.min(1, (now - startedAt) / duration);
+        const eased = 1 - Math.pow(1 - t, 3);
+        wheelRotation = start + (finish - start) * eased;
+        drawNameWheel(wheelRotation);
+        if (t < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          wheelRotation = targetAngle % (Math.PI * 2);
+          drawNameWheel(wheelRotation);
+          if (wheelResult) wheelResult.textContent = names[winnerIndex];
+          wheelSpinning = false;
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
     function showRunStats(entryId) {
       const entry = entries.find(item => item.id === entryId);
       if (!entry || !runStatsContent) return;
@@ -1108,12 +1317,12 @@
         : 0;
 
       runStatsContent.innerHTML = `
-        <dt>Name</dt><dd>${escapeHTML(entry.name)}</dd>
-        <dt>Overall Rank</dt><dd>${formatRank(overallRank, validEntries.length)}</dd>
-        <dt>Overall Percentile</dt><dd>${percentile}th</dd>
-        <dt>Division Rank</dt><dd>${formatRank(rankInGroup(entry, divisionEntries), divisionEntries.length)}</dd>
-        <dt>Category Rank</dt><dd>${formatRank(rankInGroup(entry, categoryEntries), categoryEntries.length)}</dd>
-        <dt>Monthly Rank</dt><dd>${formatRank(rankInGroup(entry, monthlyEntries), monthlyEntries.length)}</dd>
+        <strong>${escapeHTML(entry.name)}</strong>
+        ${statBar('Overall Rank', overallRank, validEntries.length)}
+        ${percentileBar(percentile)}
+        ${statBar('Division Rank', rankInGroup(entry, divisionEntries), divisionEntries.length)}
+        ${statBar('Category Rank', rankInGroup(entry, categoryEntries), categoryEntries.length)}
+        ${statBar('Monthly Rank', rankInGroup(entry, monthlyEntries), monthlyEntries.length)}
       `;
 
       const statsWindow = document.querySelector('[data-window-id="runStats"]');
@@ -1121,10 +1330,15 @@
         statsWindow.classList.remove('minimized', 'maximized');
         statsWindow.classList.add('detached');
         statsWindow.style.position = 'fixed';
-        statsWindow.style.width = '330px';
-        statsWindow.style.left = `${Math.max(8, window.innerWidth - 346)}px`;
+        statsWindow.style.width = '360px';
+        statsWindow.style.left = `${Math.max(8, window.innerWidth - 376)}px`;
         statsWindow.style.top = '86px';
         bringWindowToFront(statsWindow);
+        drawNameWheel();
+        if (runStatsCloseTimer) clearTimeout(runStatsCloseTimer);
+        runStatsCloseTimer = setTimeout(() => {
+          statsWindow.classList.add('minimized');
+        }, 30000);
       }
     }
 
@@ -1301,6 +1515,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
     async function fetchEntries() {
       const snapshot = await entriesCollection.get();
       entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      drawNameWheel();
       renderScoreboard();
       if (pendingStatsEntryId) {
         showRunStats(pendingStatsEntryId);
@@ -1317,7 +1532,8 @@ document.querySelectorAll('.delete-button').forEach(button => {
     async function deleteEntry(id) {
       if (confirm("Delete this entry?")) {
         await entriesCollection.doc(id).delete();
-        fetchEntries();
+        if (spinWheelButton) spinWheelButton.addEventListener('click', spinNameWheel);
+    fetchEntries();
       }
     }
 

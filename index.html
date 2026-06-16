@@ -16,7 +16,7 @@
       font-family: "MS Sans Serif", Tahoma, Arial, sans-serif;
       margin: 0;
       min-height: 100vh;
-      padding: 18px;
+      padding: 12px 12px 50px;
       background:
         linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25%),
         linear-gradient(-45deg, rgba(0,0,0,0.05) 25%, transparent 25%),
@@ -24,35 +24,63 @@
       background-size: 18px 18px;
       color: #000;
       text-transform: uppercase;
-      font-size: 12px;
+      font-size: 11px;
       letter-spacing: 0;
+      overflow-x: hidden;
     }
 
     .desktop-shell {
-      width: min(1500px, 100%);
+      width: min(1440px, 100%);
       margin: 0 auto;
       display: grid;
-      gap: 14px;
+      gap: 12px;
     }
 
     .desktop-window {
+      position: relative;
       background-color: #c0c0c0;
       border-top: 2px solid #fff;
       border-left: 2px solid #fff;
       border-right: 2px solid #404040;
       border-bottom: 2px solid #404040;
       box-shadow: 2px 2px 0 #000;
+      min-width: min(100%, 290px);
+    }
+
+    .desktop-window.is-dragging {
+      opacity: 0.96;
+      cursor: move;
+    }
+
+    .desktop-window.minimized {
+      display: none;
+    }
+
+    .desktop-window.maximized {
+      position: fixed !important;
+      top: 8px !important;
+      left: 8px !important;
+      width: calc(100vw - 16px) !important;
+      height: calc(100vh - 58px) !important;
+      z-index: 900 !important;
+    }
+
+    .desktop-window.maximized .window-body {
+      height: calc(100% - 27px);
+      overflow: auto;
     }
 
     .window-titlebar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      min-height: 26px;
+      min-height: 25px;
       padding: 3px 4px 3px 7px;
       color: #fff;
       font-weight: 700;
       background: linear-gradient(90deg, #000080, #1084d0);
+      cursor: move;
+      user-select: none;
     }
 
     .titlebar-label {
@@ -60,11 +88,14 @@
       align-items: center;
       gap: 7px;
       min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .window-icon {
-      width: 16px;
-      height: 16px;
+      width: 15px;
+      height: 15px;
       display: inline-block;
       border-top: 2px solid #fff;
       border-left: 2px solid #fff;
@@ -83,9 +114,12 @@
       flex: 0 0 auto;
     }
 
-    .window-controls span {
+    .window-control {
       width: 18px;
+      min-width: 18px;
       height: 17px;
+      min-height: 17px;
+      padding: 0;
       display: inline-grid;
       place-items: center;
       line-height: 1;
@@ -97,10 +131,11 @@
       border-bottom: 2px solid #404040;
       font-size: 11px;
       font-weight: 700;
+      cursor: pointer;
     }
 
     .window-body {
-      padding: 12px;
+      padding: 9px;
       border-top: 1px solid #808080;
       border-left: 1px solid #808080;
       border-right: 1px solid #fff;
@@ -109,10 +144,11 @@
 
     .app-header {
       display: grid;
-      justify-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-      padding: 12px;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 9px;
+      padding: 8px;
       background-color: #dcdcdc;
       border-top: 2px solid #808080;
       border-left: 2px solid #808080;
@@ -122,43 +158,19 @@
 
     h1 {
       margin: 0;
-      text-align: center;
       color: #000080;
-      font-size: clamp(24px, 4vw, 46px);
+      font-size: clamp(18px, 2.7vw, 30px);
       line-height: 1;
       font-weight: 700;
-      text-shadow: 2px 2px 0 #fff;
+      text-shadow: 1px 1px 0 #fff;
     }
 
     .subtitle {
-      text-align: center;
-      min-height: 36px;
-    }
-
-    .subtitle-img {
-      max-width: min(180px, 48vw);
-      max-height: 92px;
-      height: auto;
-      image-rendering: auto;
-    }
-
-    .status-strip,
-    .status-bar {
-      width: 100%;
       display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
       align-items: center;
-      justify-content: space-between;
-      color: #000;
-      font-size: 11px;
-    }
-
-    .status-strip span,
-    .status-bar span {
-      flex: 1 1 160px;
-      min-height: 20px;
-      padding: 4px 7px;
+      justify-content: center;
+      min-width: 54px;
+      min-height: 54px;
       background-color: #c0c0c0;
       border-top: 2px solid #808080;
       border-left: 2px solid #808080;
@@ -166,12 +178,19 @@
       border-bottom: 2px solid #fff;
     }
 
+    .subtitle-img {
+      max-width: 62px;
+      max-height: 50px;
+      height: auto;
+      object-fit: contain;
+    }
+
     .controls-wrapper {
       display: flex;
       flex-direction: column;
       align-items: stretch;
       width: 100%;
-      gap: 10px;
+      gap: 8px;
       margin: 0 auto;
     }
 
@@ -180,17 +199,17 @@
       width: 100%;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .form-row {
-      flex-wrap: nowrap;
+      flex-wrap: wrap;
     }
 
     .second-row {
       justify-content: space-between;
       align-items: flex-end;
-      padding-top: 10px;
+      padding-top: 8px;
       border-top: 1px solid #808080;
       box-shadow: inset 0 1px 0 #fff;
     }
@@ -201,7 +220,7 @@
       display: flex;
       flex-wrap: wrap;
       align-items: flex-end;
-      gap: 8px;
+      gap: 6px;
     }
 
     form {
@@ -221,8 +240,8 @@
     .filter-group {
       display: flex;
       flex-direction: column;
-      gap: 3px;
-      font-size: 11px;
+      gap: 2px;
+      font-size: 10px;
       font-weight: 700;
     }
 
@@ -232,8 +251,8 @@
 
     input,
     select {
-      min-height: 28px;
-      padding: 4px 6px;
+      min-height: 24px;
+      padding: 2px 5px;
       color: #000;
       background-color: #fff;
       border-top: 2px solid #404040;
@@ -246,7 +265,7 @@
     }
 
     input[type="search"] {
-      min-width: 190px;
+      min-width: 170px;
     }
 
     button,
@@ -254,8 +273,8 @@
     .unfilter-button,
     .open-stats-button,
     .audience-button {
-      min-height: 28px;
-      padding: 4px 12px;
+      min-height: 24px;
+      padding: 2px 10px;
       color: #000;
       background-color: #c0c0c0;
       border-top: 2px solid #fff;
@@ -289,6 +308,10 @@
 
     .audience-button.active:hover {
       background-color: #1084d0;
+    }
+
+    .scoreboard-window {
+      min-height: 240px;
     }
 
     .table-wrapper {
@@ -326,7 +349,7 @@
 
     th,
     td {
-      padding: 7px 8px;
+      padding: 6px 8px;
       text-align: left;
       cursor: default;
       user-select: none;
@@ -353,13 +376,20 @@
       font-size: 0.8em;
     }
 
-    tbody tr:nth-child(even) {
+    #scoreboard tbody tr:nth-child(even) {
       background-color: #f2f2f2;
     }
 
-    tr:hover {
-      color: #fff;
-      background-color: #000080;
+    #scoreboard tbody tr:hover,
+    #scoreboard tbody tr.leader:hover,
+    #scoreboard tbody tr.division-leader:hover,
+    #scoreboard tbody tr.today-entry:hover {
+      color: #fff !important;
+      background-color: #000080 !important;
+    }
+
+    #scoreboard tbody tr:hover .stopwatch {
+      color: #fff !important;
     }
 
     .leader {
@@ -386,13 +416,158 @@
       color: #000;
     }
 
+    .status-bar {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 7px;
+      color: #000;
+      font-size: 10px;
+    }
+
+    .status-bar span {
+      flex: 1 1 160px;
+      min-height: 19px;
+      padding: 3px 7px;
+      background-color: #c0c0c0;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+    }
+
+    .memo-body {
+      display: grid;
+      gap: 8px;
+      max-width: 520px;
+      line-height: 1.35;
+    }
+
+    .memo-body p {
+      margin: 0;
+    }
+
+    .quirk-button {
+      justify-self: start;
+    }
+
+    .desktop-taskbar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1200;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      min-height: 36px;
+      padding: 4px;
+      background-color: #c0c0c0;
+      border-top: 2px solid #fff;
+      box-shadow: inset 0 1px 0 #dfdfdf;
+    }
+
+    .start-button {
+      min-width: 78px;
+      min-height: 27px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      font-weight: 700;
+    }
+
+    .start-button::before {
+      content: "";
+      width: 15px;
+      height: 15px;
+      display: inline-block;
+      background:
+        linear-gradient(90deg, #f00 0 50%, #0f0 50%),
+        linear-gradient(#00f 0 50%, #ff0 50%);
+      border: 1px solid #404040;
+    }
+
+    .taskbar-button {
+      min-width: 128px;
+      max-width: 190px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: left;
+    }
+
+    .taskbar-spacer {
+      flex: 1;
+    }
+
+    .taskbar-clock {
+      min-width: 78px;
+      padding: 5px 8px;
+      text-align: center;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+    }
+
+    .start-menu {
+      position: fixed;
+      left: 4px;
+      bottom: 36px;
+      z-index: 1300;
+      width: min(260px, calc(100vw - 12px));
+      display: none;
+      background-color: #c0c0c0;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      box-shadow: 2px 2px 0 #000;
+    }
+
+    .start-menu.open {
+      display: block;
+    }
+
+    .start-menu-title {
+      padding: 7px 9px;
+      color: #fff;
+      background: linear-gradient(90deg, #000080, #1084d0);
+      font-weight: 700;
+    }
+
+    .start-menu button {
+      width: 100%;
+      min-height: 31px;
+      display: block;
+      text-align: left;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .start-menu button:hover {
+      color: #fff;
+      background-color: #000080;
+    }
+
     @media (max-width: 768px) {
       body {
-        padding: 8px;
+        padding: 8px 8px 50px;
       }
 
       .window-body {
-        padding: 8px;
+        padding: 7px;
+      }
+
+      .app-header {
+        grid-template-columns: 1fr;
+        justify-items: center;
       }
 
       .form-row,
@@ -412,7 +587,6 @@
         min-width: 0;
       }
 
-      .status-strip,
       .status-bar {
         flex-direction: column;
         align-items: stretch;
@@ -422,8 +596,8 @@
         font-size: 11px;
       }
 
-      .window-controls span {
-        width: 16px;
+      .taskbar-button {
+        display: none;
       }
     }
   </style>
@@ -431,22 +605,21 @@
 <body>
 
   <main class="desktop-shell">
-    <section class="desktop-window">
+    <section class="desktop-window" data-window-id="gauntlet" data-window-title="THE YAK GAUNTLET.EXE">
       <div class="window-titlebar">
         <span class="titlebar-label"><span class="window-icon"></span>THE YAK GAUNTLET.EXE</span>
-        <div class="window-controls" aria-hidden="true"><span>_</span><span>□</span><span>×</span></div>
+        <div class="window-controls">
+          <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
+          <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+        </div>
       </div>
       <div class="window-body">
         <header class="app-header">
-          <h1>THE YAK GAUNTLET</h1>
           <div class="subtitle">
             <img src="YG2.png" class="subtitle-img" />
           </div>
-          <div class="status-strip">
-            <span>READY</span>
-            <span>RUNNERS ONLINE</span>
-            <span>MODE: GAUNTLET</span>
-          </div>
+          <h1>THE YAK GAUNTLET</h1>
         </header>
 
         <div class="controls-wrapper">
@@ -493,10 +666,14 @@
       </div>
     </section>
 
-    <section class="desktop-window scoreboard-window">
+    <section class="desktop-window scoreboard-window" data-window-id="scoreboard" data-window-title="SCOREBOARD.DAT">
       <div class="window-titlebar">
         <span class="titlebar-label"><span class="window-icon"></span>SCOREBOARD.DAT</span>
-        <div class="window-controls" aria-hidden="true"><span>_</span><span>□</span><span>×</span></div>
+        <div class="window-controls">
+          <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
+          <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+        </div>
       </div>
       <div class="window-body">
         <div class="table-wrapper">
@@ -521,10 +698,157 @@
         </div>
       </div>
     </section>
+
+    <section class="desktop-window" data-window-id="memo" data-window-title="YAK_MEMO.TXT">
+      <div class="window-titlebar">
+        <span class="titlebar-label"><span class="window-icon"></span>YAK_MEMO.TXT</span>
+        <div class="window-controls">
+          <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
+          <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
+          <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+        </div>
+      </div>
+      <div class="window-body memo-body">
+        <p>Today's system recommendation: stretch calves, trust the stopwatch, blame the mouse if needed.</p>
+        <button type="button" class="quirk-button" id="quirkButton">Consult YakOS</button>
+      </div>
+    </section>
   </main>
+
+  <div class="start-menu" id="startMenu">
+    <div class="start-menu-title">YakOS 97</div>
+    <button type="button" data-window-restore="gauntlet">Open The Yak Gauntlet</button>
+    <button type="button" data-window-restore="scoreboard">Open Scoreboard</button>
+    <button type="button" data-window-restore="memo">Open Yak Memo</button>
+    <button type="button" id="panicButton">Emergency Pep Talk</button>
+  </div>
+
+  <div class="desktop-taskbar">
+    <button type="button" class="start-button" id="startButton">Start</button>
+    <button type="button" class="taskbar-button" data-window-restore="gauntlet">THE YAK GAUNTLET.EXE</button>
+    <button type="button" class="taskbar-button" data-window-restore="scoreboard">SCOREBOARD.DAT</button>
+    <button type="button" class="taskbar-button" data-window-restore="memo">YAK_MEMO.TXT</button>
+    <div class="taskbar-spacer"></div>
+    <div class="taskbar-clock" id="taskbarClock">--:--</div>
+  </div>
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
+    const startButton = document.getElementById('startButton');
+    const startMenu = document.getElementById('startMenu');
+    const taskbarClock = document.getElementById('taskbarClock');
+    const desktopWindows = [...document.querySelectorAll('.desktop-window')];
+    let activeZ = 30;
+
+    function bringWindowToFront(win) {
+      activeZ += 1;
+      win.style.zIndex = activeZ;
+    }
+
+    function restoreWindow(id) {
+      const win = document.querySelector(`[data-window-id="${id}"]`);
+      if (!win) return;
+      win.classList.remove('minimized');
+      bringWindowToFront(win);
+      startMenu.classList.remove('open');
+    }
+
+    function updateClock() {
+      const now = new Date();
+      taskbarClock.textContent = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    }
+
+    function startDrag(event, win) {
+      if (event.button !== 0 || event.target.closest('.window-controls') || win.classList.contains('maximized')) return;
+      const rect = win.getBoundingClientRect();
+      const offsetX = event.clientX - rect.left;
+      const offsetY = event.clientY - rect.top;
+      win.style.position = 'fixed';
+      win.style.left = `${rect.left}px`;
+      win.style.top = `${rect.top}px`;
+      win.style.width = `${rect.width}px`;
+      bringWindowToFront(win);
+      win.classList.add('is-dragging');
+
+      function moveWindow(moveEvent) {
+        const maxLeft = window.innerWidth - 80;
+        const maxTop = window.innerHeight - 70;
+        const nextLeft = Math.max(0, Math.min(maxLeft, moveEvent.clientX - offsetX));
+        const nextTop = Math.max(0, Math.min(maxTop, moveEvent.clientY - offsetY));
+        win.style.left = `${nextLeft}px`;
+        win.style.top = `${nextTop}px`;
+      }
+
+      function stopDrag() {
+        win.classList.remove('is-dragging');
+        document.removeEventListener('mousemove', moveWindow);
+        document.removeEventListener('mouseup', stopDrag);
+      }
+
+      document.addEventListener('mousemove', moveWindow);
+      document.addEventListener('mouseup', stopDrag);
+    }
+
+    function toggleMaximize(win) {
+      bringWindowToFront(win);
+      if (win.classList.contains('maximized')) {
+        win.classList.remove('maximized');
+        win.style.left = win.dataset.restoreLeft || '';
+        win.style.top = win.dataset.restoreTop || '';
+        win.style.width = win.dataset.restoreWidth || '';
+        win.style.position = win.dataset.restorePosition || '';
+      } else {
+        const rect = win.getBoundingClientRect();
+        win.dataset.restoreLeft = win.style.left || `${rect.left}px`;
+        win.dataset.restoreTop = win.style.top || `${rect.top}px`;
+        win.dataset.restoreWidth = win.style.width || `${rect.width}px`;
+        win.dataset.restorePosition = win.style.position || '';
+        win.classList.add('maximized');
+      }
+    }
+
+    desktopWindows.forEach(win => {
+      const titlebar = win.querySelector('.window-titlebar');
+      titlebar.addEventListener('mousedown', event => startDrag(event, win));
+      win.addEventListener('mousedown', () => bringWindowToFront(win));
+      win.querySelectorAll('[data-window-action]').forEach(button => {
+        button.addEventListener('click', event => {
+          event.stopPropagation();
+          const action = button.dataset.windowAction;
+          if (action === 'minimize') win.classList.add('minimized');
+          if (action === 'maximize') toggleMaximize(win);
+          if (action === 'close') alert('NO!');
+        });
+      });
+    });
+
+    startButton.addEventListener('click', event => {
+      event.stopPropagation();
+      startMenu.classList.toggle('open');
+    });
+
+    document.querySelectorAll('[data-window-restore]').forEach(button => {
+      button.addEventListener('click', () => restoreWindow(button.dataset.windowRestore));
+    });
+
+    document.addEventListener('click', event => {
+      if (!event.target.closest('#startMenu') && !event.target.closest('#startButton')) {
+        startMenu.classList.remove('open');
+      }
+    });
+
+    document.getElementById('panicButton').addEventListener('click', () => {
+      alert('YakOS says: elite effort detected. Please continue being weirdly fast.');
+      startMenu.classList.remove('open');
+    });
+
+    document.getElementById('quirkButton').addEventListener('click', () => {
+      alert('YakOS diagnostic complete: vibes operational, stopwatch suspicious.');
+    });
+
+    updateClock();
+    setInterval(updateClock, 30000);
+
   document.getElementById('date').valueAsDate = new Date();
     const firebaseConfig = {
       apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",

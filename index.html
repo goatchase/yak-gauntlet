@@ -609,6 +609,34 @@
       text-align: center;
     }
 
+
+    .wheel-entry-row {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 6px;
+    }
+
+    .wheel-entry-row input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .wheel-list {
+      width: 100%;
+      min-height: 58px;
+      margin-bottom: 6px;
+      padding: 4px;
+      resize: vertical;
+      color: #000;
+      background: #fff;
+      border-top: 2px solid #404040;
+      border-left: 2px solid #404040;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      font: inherit;
+      text-transform: none;
+    }
+
     .wheel-wrap {
       position: relative;
       width: 220px;
@@ -915,6 +943,12 @@
       <div class="window-body">
         <div class="run-stats-graphic" id="runStatsContent"></div>
         <div class="wheel-panel">
+          <div class="wheel-entry-row">
+            <input id="wheelEntryInput" placeholder="Add wheel entry" />
+            <button type="button" id="addWheelEntryButton">Add</button>
+            <button type="button" id="clearWheelEntriesButton">Clear</button>
+          </div>
+          <textarea id="wheelEntries" class="wheel-list" aria-label="Wheel entries"></textarea>
           <div class="wheel-wrap">
             <canvas id="nameWheel" width="220" height="220"></canvas>
             <div class="wheel-pointer"></div>
@@ -953,6 +987,10 @@
     const nameWheel = document.getElementById('nameWheel');
     const spinWheelButton = document.getElementById('spinWheelButton');
     const wheelResult = document.getElementById('wheelResult');
+    const wheelEntries = document.getElementById('wheelEntries');
+    const wheelEntryInput = document.getElementById('wheelEntryInput');
+    const addWheelEntryButton = document.getElementById('addWheelEntryButton');
+    const clearWheelEntriesButton = document.getElementById('clearWheelEntriesButton');
     let activeZ = 30;
 
     function scheduleStellaPopup() {
@@ -1113,6 +1151,7 @@
     let runStatsCloseTimer = null;
     let wheelRotation = 0;
     let wheelSpinning = false;
+    let wheelNames = [];
     const editPassword = "benjaminmintz1"; // 🔐 Change this password as needed
 
     // Sort state
@@ -1218,23 +1257,55 @@
       `;
     }
 
+    function getWheelNames() {
+      const manualNames = wheelEntries
+        ? wheelEntries.value.split('\n').map(name => name.trim()).filter(Boolean)
+        : [];
+      const sourceNames = manualNames.length ? manualNames : entries.map(entry => entry.name).filter(Boolean);
+      return sourceNames.length ? sourceNames : ['NO ENTRIES'];
+    }
+
+    function syncWheelTextareaFromEntries() {
+      if (!wheelEntries || wheelEntries.value.trim()) return;
+      const names = [...new Set(entries.map(entry => entry.name).filter(Boolean))];
+      wheelEntries.value = names.join('\n');
+    }
+
+    function addWheelEntry() {
+      if (!wheelEntries || !wheelEntryInput) return;
+      const value = wheelEntryInput.value.trim();
+      if (!value) return;
+      const current = wheelEntries.value.trim();
+      wheelEntries.value = current ? `${current}\n${value}` : value;
+      wheelEntryInput.value = '';
+      wheelRotation = 0;
+      drawNameWheel();
+    }
+
+    function clearWheelEntries() {
+      if (!wheelEntries) return;
+      wheelEntries.value = '';
+      wheelRotation = 0;
+      drawNameWheel();
+      if (wheelResult) wheelResult.textContent = 'READY';
+    }
+
     function drawNameWheel(rotation = wheelRotation) {
       if (!nameWheel) return;
       const ctx = nameWheel.getContext('2d');
-      const names = entries.map(entry => entry.name).filter(Boolean);
-      const wheelNames = names.length ? names : ['NO ENTRIES'];
+      const names = getWheelNames();
       const colors = ['#ff4040', '#4080ff', '#ffe14d', '#40b060', '#d070ff', '#ff9a3d', '#5bd6d6', '#f070a8'];
       const cx = nameWheel.width / 2;
       const cy = nameWheel.height / 2;
       const radius = Math.min(cx, cy) - 4;
-      const slice = (Math.PI * 2) / wheelNames.length;
+      const slice = (Math.PI * 2) / names.length;
 
       ctx.clearRect(0, 0, nameWheel.width, nameWheel.height);
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(rotation);
 
-      wheelNames.forEach((name, index) => {
+      names.forEach((name, index) => {
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.arc(0, 0, radius, index * slice, (index + 1) * slice);
@@ -1264,7 +1335,7 @@
 
     function spinNameWheel() {
       if (wheelSpinning || !nameWheel) return;
-      const names = entries.map(entry => entry.name).filter(Boolean);
+      const names = getWheelNames().filter(name => name !== 'NO ENTRIES');
       if (!names.length) {
         if (wheelResult) wheelResult.textContent = 'NO ENTRIES';
         drawNameWheel();
@@ -1275,7 +1346,7 @@
       if (wheelResult) wheelResult.textContent = 'SPINNING...';
       const winnerIndex = Math.floor(Math.random() * names.length);
       const slice = (Math.PI * 2) / names.length;
-      const targetAngle = (Math.PI * 2) - (winnerIndex * slice + slice / 2);
+      const targetAngle = -winnerIndex * slice - slice / 2;
       const start = wheelRotation;
       const finish = targetAngle + Math.PI * 2 * (5 + Math.floor(Math.random() * 3));
       const duration = 3200;
@@ -1298,8 +1369,7 @@
 
       requestAnimationFrame(animate);
     }
-
-    function showRunStats(entryId) {
+function showRunStats(entryId) {
       const entry = entries.find(item => item.id === entryId);
       if (!entry || !runStatsContent) return;
 
@@ -1515,6 +1585,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
     async function fetchEntries() {
       const snapshot = await entriesCollection.get();
       entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      syncWheelTextareaFromEntries();
       drawNameWheel();
       renderScoreboard();
       if (pendingStatsEntryId) {
@@ -1533,6 +1604,17 @@ document.querySelectorAll('.delete-button').forEach(button => {
       if (confirm("Delete this entry?")) {
         await entriesCollection.doc(id).delete();
         if (spinWheelButton) spinWheelButton.addEventListener('click', spinNameWheel);
+    if (addWheelEntryButton) addWheelEntryButton.addEventListener('click', addWheelEntry);
+    if (clearWheelEntriesButton) clearWheelEntriesButton.addEventListener('click', clearWheelEntries);
+    if (wheelEntryInput) {
+      wheelEntryInput.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          addWheelEntry();
+        }
+      });
+    }
+    if (wheelEntries) wheelEntries.addEventListener('input', drawNameWheel);
     fetchEntries();
       }
     }

@@ -1090,9 +1090,9 @@
         </div>
       </section>
 
-      <section class="desktop-window minimized config-window" data-window-id="wheelConfig" data-window-title="WHEEL CONFIGURATION">
+      <section class="desktop-window minimized config-window" data-window-id="wheelConfig" data-window-title="CONFIGURATIONS">
         <div class="window-titlebar">
-          <span class="titlebar-label"><span class="window-icon"></span>WHEEL CONFIGURATION</span>
+          <span class="titlebar-label"><span class="window-icon"></span>CONFIGURATIONS</span>
           <div class="window-controls">
             <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
             <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
@@ -1102,28 +1102,28 @@
         <div class="window-body">
           <div class="wheel-config-grid">
             <div class="wheel-config-card">
-              <h3>BELOW 25%</h3>
+              <h3>TOP 25%</h3>
               <label for="q25Rewards">Rewards</label>
               <textarea id="q25Rewards" data-wheel-config="q25.rewards"></textarea>
               <label for="q25Punishments">Punishments</label>
               <textarea id="q25Punishments" data-wheel-config="q25.punishments"></textarea>
             </div>
             <div class="wheel-config-card">
-              <h3>25% TO 50%</h3>
+              <h3>TOP 50%</h3>
               <label for="q50Rewards">Rewards</label>
               <textarea id="q50Rewards" data-wheel-config="q50.rewards"></textarea>
               <label for="q50Punishments">Punishments</label>
               <textarea id="q50Punishments" data-wheel-config="q50.punishments"></textarea>
             </div>
             <div class="wheel-config-card">
-              <h3>50% TO 75%</h3>
+              <h3>TOP 75%</h3>
               <label for="q75Rewards">Rewards</label>
               <textarea id="q75Rewards" data-wheel-config="q75.rewards"></textarea>
               <label for="q75Punishments">Punishments</label>
               <textarea id="q75Punishments" data-wheel-config="q75.punishments"></textarea>
             </div>
             <div class="wheel-config-card">
-              <h3>ABOVE 75%</h3>
+              <h3>BOTTOM 25%</h3>
               <label for="q100Rewards">Rewards</label>
               <textarea id="q100Rewards" data-wheel-config="q100.rewards"></textarea>
               <label for="q100Punishments">Punishments</label>
@@ -1146,7 +1146,7 @@
     <button type="button" data-window-restore="filters">Options</button>
     <button type="button" data-window-restore="scoreboard">Scoreboard</button>
     <button type="button" data-window-restore="runStats">Run Statistics</button>
-    <button type="button" data-window-restore="wheelConfig">Wheel Configuration</button>
+    <button type="button" data-window-restore="wheelConfig">Configurations</button>
   </div>
 
   <div class="desktop-taskbar">
@@ -1339,24 +1339,24 @@
     const wheelConfigStorageKey = 'yakQuartileWheelConfigV1';
     const defaultWheelConfig = {
       q25: {
-        label: 'Below 25%',
-        rewards: ['Pick the next song', 'Coffee shout-out', 'Skip one challenge'],
-        punishments: ['10 push-ups', '30 second wall sit', 'Do the next intro voice']
+        label: 'Top 25%',
+        rewards: [],
+        punishments: []
       },
       q50: {
-        label: '25% to 50%',
-        rewards: ['Choose someone else to spin', 'Bonus point bragging rights', 'Pick the next category'],
-        punishments: ['Plank challenge', 'Tiny victory speech', 'Wear the shame crown']
+        label: 'Top 50%',
+        rewards: [],
+        punishments: []
       },
       q75: {
-        label: '50% to 75%',
-        rewards: ['One redo token', 'Call your shot next run', 'Stella Blue coffee salute'],
-        punishments: ['Apology press conference', '10 air squats', 'Read the leaderboard aloud']
+        label: 'Top 75%',
+        rewards: [],
+        punishments: []
       },
       q100: {
-        label: 'Above 75%',
-        rewards: ['Mercy spin', 'Mystery bonus', 'Pick a rival'],
-        punishments: ['Buy Stella Blue Coffee', 'Spin again', 'Walk of shame lap']
+        label: 'Bottom 25%',
+        rewards: [],
+        punishments: []
       }
     };
     let wheelConfig = loadWheelConfig();
@@ -1804,9 +1804,9 @@ function showRunStats(entryId) {
       const todayStr = new Date().toISOString().split('T')[0];
 
       const quartileMarkers = [
-        { index: Math.ceil(filteredEntries.length * 0.25), label: '25% Mark' },
-        { index: Math.ceil(filteredEntries.length * 0.50), label: '50% Mark' },
-        { index: Math.ceil(filteredEntries.length * 0.75), label: '75% Mark' },
+        { index: Math.ceil(filteredEntries.length * 0.25), label: 'Top 25% Cutoff' },
+        { index: Math.ceil(filteredEntries.length * 0.50), label: 'Top 50% Cutoff' },
+        { index: Math.ceil(filteredEntries.length * 0.75), label: 'Top 75% Cutoff / Bottom 25%' },
       ].filter(marker => marker.index > 0 && marker.index < filteredEntries.length);
 
       filteredEntries.forEach((entry, index) => {

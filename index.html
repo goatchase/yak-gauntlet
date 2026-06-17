@@ -1039,11 +1039,7 @@
               <button id="barstoolButton" class="audience-button">Barstool</button>
               <button id="guestsButton" class="audience-button">Guests</button>
             </div>
-            <div class="button-row utility-stack">
-              <button id="editButton" class="edit-button">Edit</button>
-              <button id="unfilterButton" class="unfilter-button">Unfilter</button>
-            </div>
-            <button id="exportCsvButton" class="export-button" type="button">Export CSV</button>
+            <button id="unfilterButton" class="unfilter-button" type="button">Unfilter</button>
           </div>
         </div>
       </section>
@@ -1116,7 +1112,7 @@
               <textarea id="q50Punishments" data-wheel-config="q50.punishments"></textarea>
             </div>
             <div class="wheel-config-card">
-              <h3>TOP 75%</h3>
+              <h3>BOTTOM 50%</h3>
               <label for="q75Rewards">Rewards</label>
               <textarea id="q75Rewards" data-wheel-config="q75.rewards"></textarea>
               <label for="q75Punishments">Punishments</label>
@@ -1147,6 +1143,8 @@
     <button type="button" data-window-restore="scoreboard">Scoreboard</button>
     <button type="button" data-window-restore="runStats">Run Statistics</button>
     <button type="button" data-window-restore="wheelConfig">Configurations</button>
+    <button type="button" id="editButton" class="edit-button">Edit</button>
+    <button type="button" id="exportCsvButton" class="export-button">Export CSV</button>
   </div>
 
   <div class="desktop-taskbar">
@@ -1349,7 +1347,7 @@
         punishments: []
       },
       q75: {
-        label: 'Top 75%',
+        label: 'Bottom 50%',
         rewards: [],
         punishments: []
       },
@@ -1805,8 +1803,8 @@ function showRunStats(entryId) {
 
       const quartileMarkers = [
         { index: Math.ceil(filteredEntries.length * 0.25), label: 'Top 25% Cutoff' },
-        { index: Math.ceil(filteredEntries.length * 0.50), label: 'Top 50% Cutoff' },
-        { index: Math.ceil(filteredEntries.length * 0.75), label: 'Top 75% Cutoff / Bottom 25%' },
+        { index: Math.ceil(filteredEntries.length * 0.50), label: 'Top 50% / Bottom 50%' },
+        { index: Math.ceil(filteredEntries.length * 0.75), label: 'Bottom 25% Cutoff' },
       ].filter(marker => marker.index > 0 && marker.index < filteredEntries.length);
 
       filteredEntries.forEach((entry, index) => {

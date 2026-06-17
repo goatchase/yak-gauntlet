@@ -65,11 +65,25 @@
     }
 
     .desktop-shell {
-      width: min(1120px, calc(100% - 24px));
+      width: min(1380px, calc(100vw - 24px));
       margin: 0 auto;
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      align-items: start;
+      gap: 10px;
+    }
+
+    .desktop-left-column,
+    .desktop-right-column {
       display: flex;
       flex-direction: column;
       gap: 10px;
+      min-width: 0;
+    }
+
+    .desktop-left-column .desktop-window,
+    .desktop-right-column .desktop-window {
+      width: 100%;
     }
 
     .desktop-window {
@@ -251,56 +265,29 @@
       display: block;
     }
 
-    .controls-wrapper {
+    .controls-wrapper,
+    .filter-stack,
+    .audience-stack,
+    .utility-stack,
+    form {
       display: flex;
       flex-direction: column;
       align-items: stretch;
       width: 100%;
       gap: 6px;
-      margin: 0 auto;
-    }
-
-    .controls-row {
-      display: flex;
-      width: 100%;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    .form-row {
-      flex-wrap: wrap;
-    }
-
-    .second-row {
-      justify-content: space-between;
-      align-items: flex-end;
-      padding-top: 6px;
-      border-top: 1px solid #808080;
-      box-shadow: inset 0 1px 0 #fff;
-    }
-
-    .left-group,
-    .right-group,
-    form {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-end;
-      gap: 5px;
-    }
-
-    form {
-      justify-content: center;
-      width: 100%;
       margin: 0;
     }
 
-    .left-group {
-      justify-content: flex-start;
+    .filter-stack {
+      gap: 7px;
     }
 
-    .right-group {
-      justify-content: flex-end;
+    .filter-row,
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+      width: 100%;
     }
 
     .filter-group {
@@ -378,13 +365,13 @@
 
     .scoreboard-window {
       min-height: 240px;
-      width: min(100%, 1040px);
-      align-self: center;
+      width: 100%;
+      align-self: stretch;
     }
 
     .table-wrapper {
       width: 100%;
-      max-height: calc(100vh - 210px);
+      max-height: calc(100vh - 86px);
       overflow: auto;
       background-color: #fff;
       border-top: 2px solid #404040;
@@ -863,6 +850,7 @@
       .desktop-shell {
         width: 100%;
         margin: 0;
+        grid-template-columns: 1fr;
       }
 
       .window-body {
@@ -873,13 +861,19 @@
         justify-content: flex-start;
       }
 
-      .form-row,
-      .second-row,
-      .left-group,
-      .right-group,
+      .desktop-left-column,
+      .desktop-right-column,
+      .controls-wrapper,
+      .filter-stack,
+      .audience-stack,
+      .utility-stack,
       form {
-        flex-direction: column;
         align-items: stretch;
+      }
+
+      .filter-row,
+      .button-row {
+        grid-template-columns: 1fr;
       }
 
       input,
@@ -916,37 +910,44 @@
   <div class="stella-popup" id="stellaPopup" aria-hidden="true"><img src="stella-blue-sign.png" class="stella-art" alt="" /></div>
 
   <main class="desktop-shell">
-    <section class="desktop-window" data-window-id="gauntlet" data-window-title="THE YAK GAUNTLET">
-      <div class="window-titlebar">
-        <span class="titlebar-label"><span class="window-icon"></span>THE YAK GAUNTLET</span>
-        <div class="window-controls">
-          <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
-          <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
-          <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
-        </div>
-      </div>
-      <div class="window-body">
-
-        <div class="controls-wrapper">
-          <!-- First row: form centered -->
-          <div class="controls-row form-row">
-            <form id="entryForm">
-              <input id="name" placeholder="Name" required />
-              <select id="division" required>
-                <option value="" disabled selected>Select Division</option>
-              </select>
-              <select id="category" required>
-                <option value="" disabled selected>Select Category</option>
-              </select>
-              <input id="time" placeholder="Time (mm ss.ss)" required />
-              <input id="date" type="date" required />
-              <button type="submit">Submit</button>
-            </form>
+    <div class="desktop-left-column">
+      <section class="desktop-window form-window" data-window-id="gauntlet" data-window-title="THE YAK GAUNTLET">
+        <div class="window-titlebar">
+          <span class="titlebar-label"><span class="window-icon"></span>THE YAK GAUNTLET</span>
+          <div class="window-controls">
+            <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
           </div>
+        </div>
+        <div class="window-body">
+          <form id="entryForm">
+            <input id="name" placeholder="Name" required />
+            <select id="division" required>
+              <option value="" disabled selected>Select Division</option>
+            </select>
+            <select id="category" required>
+              <option value="" disabled selected>Select Category</option>
+            </select>
+            <input id="time" placeholder="Time (mm ss.ss)" required />
+            <input id="date" type="date" required />
+            <button type="submit">Submit</button>
+          </form>
+        </div>
+      </section>
 
-          <!-- Second row: filters left, controls right -->
-          <div class="controls-row second-row">
-            <div class="left-group">
+      <section class="desktop-window filter-window" data-window-id="filters" data-window-title="FILTERS">
+        <div class="window-titlebar">
+          <span class="titlebar-label"><span class="window-icon"></span>FILTERS</span>
+          <div class="window-controls">
+            <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="filter-stack">
+            <div class="filter-row">
               <div class="filter-group">
                 <label for="divisionFilter">Division</label>
                 <select id="divisionFilter"><option value="All">All</option></select>
@@ -955,130 +956,133 @@
                 <label for="categoryFilter">Category</label>
                 <select id="categoryFilter"><option value="All">All</option></select>
               </div>
-              <button id="unfilterButton" class="unfilter-button">Unfilter</button>
+            </div>
+            <input id="searchInput" type="search" placeholder="Search name" />
+            <div class="button-row audience-stack">
               <button id="barstoolButton" class="audience-button">Barstool</button>
               <button id="guestsButton" class="audience-button">Guests</button>
             </div>
-
-            <div class="right-group">
-              <input id="searchInput" type="search" placeholder="Search name" />
+            <div class="button-row utility-stack">
               <button id="editButton" class="edit-button">Edit</button>
-              <button id="openStatsButton" class="open-stats-button">Stats</button>
+              <button id="unfilterButton" class="unfilter-button">Unfilter</button>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="desktop-window scoreboard-window" data-window-id="scoreboard" data-window-title="SCOREBOARD">
-      <div class="window-titlebar">
-        <span class="titlebar-label"><span class="window-icon"></span>SCOREBOARD</span>
-        <div class="window-controls">
-          <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
-          <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
-          <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+      <section class="desktop-window minimized" data-window-id="runStats" data-window-title="RUN STATISTICS">
+        <div class="window-titlebar">
+          <span class="titlebar-label"><span class="window-icon"></span>RUN STATISTICS</span>
+          <div class="window-controls">
+            <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+          </div>
         </div>
-      </div>
-      <div class="window-body">
-        <div class="table-wrapper">
-          <table id="scoreboard">
-            <thead>
-              <tr>
-                <th class="sortable" data-column="rank">Rank</th>
-                <th class="sortable" data-column="name">Name</th>
-                <th class="sortable" data-column="division">Division</th>
-                <th class="sortable" data-column="category">Category</th>
-                <th class="sortable" data-column="time">Time</th>
-                <th class="sortable" data-column="date">Date</th>
-                <th id="actionHeader" style="display: none;">Actions</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+        <div class="window-body">
+          <div class="run-stats-graphic" id="runStatsContent"></div>
+          <div class="wheel-panel">
+            <div class="wheel-entry-row">
+              <input id="wheelEntryInput" placeholder="Add punishment or reward" />
+              <button type="button" id="addWheelEntryButton">Add</button>
+              <button type="button" id="clearWheelEntriesButton">Clear</button>
+            </div>
+            <textarea id="wheelEntries" class="wheel-list" aria-label="Punishment and reward wheel entries"></textarea>
+            <div class="wheel-wrap">
+              <canvas id="nameWheel" width="220" height="220"></canvas>
+              <div class="wheel-pointer"></div>
+            </div>
+            <button type="button" id="spinWheelButton">Spin Wheel</button>
+            <div class="wheel-result" id="wheelResult">READY</div>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
 
-    <section class="desktop-window minimized" data-window-id="runStats" data-window-title="RUN STATISTICS">
-      <div class="window-titlebar">
-        <span class="titlebar-label"><span class="window-icon"></span>RUN STATISTICS</span>
-        <div class="window-controls">
-          <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
-          <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
-          <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
-        </div>
-      </div>
-      <div class="window-body">
-        <div class="run-stats-graphic" id="runStatsContent"></div>
-        <div class="wheel-panel">
-          <div class="wheel-entry-row">
-            <input id="wheelEntryInput" placeholder="Add punishment or reward" />
-            <button type="button" id="addWheelEntryButton">Add</button>
-            <button type="button" id="clearWheelEntriesButton">Clear</button>
+    <div class="desktop-right-column">
+      <section class="desktop-window scoreboard-window" data-window-id="scoreboard" data-window-title="SCOREBOARD">
+        <div class="window-titlebar">
+          <span class="titlebar-label"><span class="window-icon"></span>SCOREBOARD</span>
+          <div class="window-controls">
+            <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
           </div>
-          <textarea id="wheelEntries" class="wheel-list" aria-label="Punishment and reward wheel entries"></textarea>
-          <div class="wheel-wrap">
-            <canvas id="nameWheel" width="220" height="220"></canvas>
-            <div class="wheel-pointer"></div>
-          </div>
-          <button type="button" id="spinWheelButton">Spin Wheel</button>
-          <div class="wheel-result" id="wheelResult">READY</div>
         </div>
-      </div>
-    </section>
+        <div class="window-body">
+          <div class="table-wrapper">
+            <table id="scoreboard">
+              <thead>
+                <tr>
+                  <th class="sortable" data-column="rank">Rank</th>
+                  <th class="sortable" data-column="name">Name</th>
+                  <th class="sortable" data-column="division">Division</th>
+                  <th class="sortable" data-column="category">Category</th>
+                  <th class="sortable" data-column="time">Time</th>
+                  <th class="sortable" data-column="date">Date</th>
+                  <th id="actionHeader" style="display: none;">Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
-    <section class="desktop-window minimized config-window" data-window-id="wheelConfig" data-window-title="WHEEL CONFIGURATION">
-      <div class="window-titlebar">
-        <span class="titlebar-label"><span class="window-icon"></span>WHEEL CONFIGURATION</span>
-        <div class="window-controls">
-          <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
-          <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
-          <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
-        </div>
-      </div>
-      <div class="window-body">
-        <div class="wheel-config-grid">
-          <div class="wheel-config-card">
-            <h3>BELOW 25%</h3>
-            <label for="q25Rewards">Rewards</label>
-            <textarea id="q25Rewards" data-wheel-config="q25.rewards"></textarea>
-            <label for="q25Punishments">Punishments</label>
-            <textarea id="q25Punishments" data-wheel-config="q25.punishments"></textarea>
-          </div>
-          <div class="wheel-config-card">
-            <h3>25% TO 50%</h3>
-            <label for="q50Rewards">Rewards</label>
-            <textarea id="q50Rewards" data-wheel-config="q50.rewards"></textarea>
-            <label for="q50Punishments">Punishments</label>
-            <textarea id="q50Punishments" data-wheel-config="q50.punishments"></textarea>
-          </div>
-          <div class="wheel-config-card">
-            <h3>50% TO 75%</h3>
-            <label for="q75Rewards">Rewards</label>
-            <textarea id="q75Rewards" data-wheel-config="q75.rewards"></textarea>
-            <label for="q75Punishments">Punishments</label>
-            <textarea id="q75Punishments" data-wheel-config="q75.punishments"></textarea>
-          </div>
-          <div class="wheel-config-card">
-            <h3>ABOVE 75%</h3>
-            <label for="q100Rewards">Rewards</label>
-            <textarea id="q100Rewards" data-wheel-config="q100.rewards"></textarea>
-            <label for="q100Punishments">Punishments</label>
-            <textarea id="q100Punishments" data-wheel-config="q100.punishments"></textarea>
+      <section class="desktop-window minimized config-window" data-window-id="wheelConfig" data-window-title="WHEEL CONFIGURATION">
+        <div class="window-titlebar">
+          <span class="titlebar-label"><span class="window-icon"></span>WHEEL CONFIGURATION</span>
+          <div class="window-controls">
+            <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
           </div>
         </div>
-        <div class="status-bar">
-          <span>AUTO-SAVES LOCALLY</span>
-          <span>WHEEL LOADS BY RUN PERCENTILE</span>
+        <div class="window-body">
+          <div class="wheel-config-grid">
+            <div class="wheel-config-card">
+              <h3>BELOW 25%</h3>
+              <label for="q25Rewards">Rewards</label>
+              <textarea id="q25Rewards" data-wheel-config="q25.rewards"></textarea>
+              <label for="q25Punishments">Punishments</label>
+              <textarea id="q25Punishments" data-wheel-config="q25.punishments"></textarea>
+            </div>
+            <div class="wheel-config-card">
+              <h3>25% TO 50%</h3>
+              <label for="q50Rewards">Rewards</label>
+              <textarea id="q50Rewards" data-wheel-config="q50.rewards"></textarea>
+              <label for="q50Punishments">Punishments</label>
+              <textarea id="q50Punishments" data-wheel-config="q50.punishments"></textarea>
+            </div>
+            <div class="wheel-config-card">
+              <h3>50% TO 75%</h3>
+              <label for="q75Rewards">Rewards</label>
+              <textarea id="q75Rewards" data-wheel-config="q75.rewards"></textarea>
+              <label for="q75Punishments">Punishments</label>
+              <textarea id="q75Punishments" data-wheel-config="q75.punishments"></textarea>
+            </div>
+            <div class="wheel-config-card">
+              <h3>ABOVE 75%</h3>
+              <label for="q100Rewards">Rewards</label>
+              <textarea id="q100Rewards" data-wheel-config="q100.rewards"></textarea>
+              <label for="q100Punishments">Punishments</label>
+              <textarea id="q100Punishments" data-wheel-config="q100.punishments"></textarea>
+            </div>
+          </div>
+          <div class="status-bar">
+            <span>AUTO-SAVES LOCALLY</span>
+            <span>WHEEL LOADS BY RUN PERCENTILE</span>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
 
   </main>
 
   <div class="start-menu" id="startMenu">
     <div class="start-menu-title">YakOS 95</div>
     <button type="button" data-window-restore="gauntlet">The Yak Gauntlet</button>
+    <button type="button" data-window-restore="filters">Filters</button>
     <button type="button" data-window-restore="scoreboard">Scoreboard</button>
     <button type="button" data-window-restore="runStats">Run Statistics</button>
     <button type="button" data-window-restore="wheelConfig">Wheel Configuration</button>
@@ -1265,7 +1269,6 @@
     const unfilterButton = document.getElementById('unfilterButton');
     const barstoolButton = document.getElementById('barstoolButton');
     const guestsButton = document.getElementById('guestsButton');
-    const openStatsButton = document.getElementById('openStatsButton');
     const searchInput = document.getElementById('searchInput');
     const divisionFilter = document.getElementById('divisionFilter');
     const categoryFilter = document.getElementById('categoryFilter');
@@ -1659,12 +1662,11 @@ function showRunStats(entryId) {
 
       const statsWindow = document.querySelector('[data-window-id="runStats"]');
       if (statsWindow) {
-        statsWindow.classList.remove('minimized', 'maximized');
-        statsWindow.classList.add('detached');
-        statsWindow.style.position = 'fixed';
-        statsWindow.style.width = '360px';
-        statsWindow.style.left = `${Math.max(8, window.innerWidth - 376)}px`;
-        statsWindow.style.top = '86px';
+        statsWindow.classList.remove('minimized', 'maximized', 'detached');
+        statsWindow.style.position = 'relative';
+        statsWindow.style.width = '100%';
+        statsWindow.style.left = '';
+        statsWindow.style.top = '';
         bringWindowToFront(statsWindow);
         populateWheelForPercentile(percentile);
       }
@@ -1997,9 +1999,6 @@ document.querySelectorAll('.delete-button').forEach(button => {
       renderScoreboard();
     });
 
-    openStatsButton.addEventListener('click', () => {
-      window.open('stats.html', '_blank');
-    });
 
     divisionFilter.addEventListener('change', () => {
       audienceFilter = 'All';

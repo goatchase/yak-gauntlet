@@ -13,7 +13,7 @@
     }
 
     body {
-      font-family: "MS Sans Serif", Tahoma, Arial, sans-serif;
+      font-family: "Roboto", "MS Sans Serif", Tahoma, Arial, sans-serif;
       margin: 0;
       min-height: 100vh;
       padding: 10px 10px 46px;
@@ -367,6 +367,51 @@
       min-height: 240px;
       width: 100%;
       align-self: stretch;
+    }
+
+    .scoreboard-filter-bar {
+      display: grid;
+      grid-template-columns: 22px minmax(0, 180px) minmax(0, 180px);
+      align-items: end;
+      gap: 6px;
+      margin-bottom: 6px;
+      padding: 5px;
+      background: #c0c0c0;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+    }
+
+    .filter-icon {
+      width: 18px;
+      height: 18px;
+      align-self: center;
+      position: relative;
+      display: inline-block;
+    }
+
+    .filter-icon::before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: 2px;
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 9px solid #000080;
+    }
+
+    .filter-icon::after {
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: 10px;
+      width: 3px;
+      height: 6px;
+      background: #000080;
+      box-shadow: 1px 0 0 #fff;
     }
 
     .table-wrapper {
@@ -876,6 +921,14 @@
         grid-template-columns: 1fr;
       }
 
+      .scoreboard-filter-bar {
+        grid-template-columns: 22px 1fr;
+      }
+
+      .scoreboard-filter-bar .filter-group {
+        grid-column: 2;
+      }
+
       input,
       select,
       button,
@@ -936,40 +989,6 @@
         </div>
       </section>
 
-      <section class="desktop-window filter-window" data-window-id="filters" data-window-title="FILTERS">
-        <div class="window-titlebar">
-          <span class="titlebar-label"><span class="window-icon"></span>FILTERS</span>
-          <div class="window-controls">
-            <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
-            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
-            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
-          </div>
-        </div>
-        <div class="window-body">
-          <div class="filter-stack">
-            <div class="filter-row">
-              <div class="filter-group">
-                <label for="divisionFilter">Division</label>
-                <select id="divisionFilter"><option value="All">All</option></select>
-              </div>
-              <div class="filter-group">
-                <label for="categoryFilter">Category</label>
-                <select id="categoryFilter"><option value="All">All</option></select>
-              </div>
-            </div>
-            <input id="searchInput" type="search" placeholder="Search name" />
-            <div class="button-row audience-stack">
-              <button id="barstoolButton" class="audience-button">Barstool</button>
-              <button id="guestsButton" class="audience-button">Guests</button>
-            </div>
-            <div class="button-row utility-stack">
-              <button id="editButton" class="edit-button">Edit</button>
-              <button id="unfilterButton" class="unfilter-button">Unfilter</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section class="desktop-window minimized" data-window-id="runStats" data-window-title="RUN STATISTICS">
         <div class="window-titlebar">
           <span class="titlebar-label"><span class="window-icon"></span>RUN STATISTICS</span>
@@ -997,6 +1016,31 @@
           </div>
         </div>
       </section>
+
+      <section class="desktop-window filter-window" data-window-id="filters" data-window-title="FILTERS">
+        <div class="window-titlebar">
+          <span class="titlebar-label"><span class="window-icon"></span>FILTERS</span>
+          <div class="window-controls">
+            <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="filter-stack">
+            <input id="searchInput" type="search" placeholder="Search name" />
+            <div class="button-row audience-stack">
+              <button id="barstoolButton" class="audience-button">Barstool</button>
+              <button id="guestsButton" class="audience-button">Guests</button>
+            </div>
+            <div class="button-row utility-stack">
+              <button id="editButton" class="edit-button">Edit</button>
+              <button id="unfilterButton" class="unfilter-button">Unfilter</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
 
     <div class="desktop-right-column">
@@ -1010,6 +1054,17 @@
           </div>
         </div>
         <div class="window-body">
+          <div class="scoreboard-filter-bar" aria-label="Scoreboard filters">
+            <span class="filter-icon" aria-hidden="true"></span>
+            <div class="filter-group">
+              <label for="divisionFilter">Division</label>
+              <select id="divisionFilter"><option value="All">All</option></select>
+            </div>
+            <div class="filter-group">
+              <label for="categoryFilter">Category</label>
+              <select id="categoryFilter"><option value="All">All</option></select>
+            </div>
+          </div>
           <div class="table-wrapper">
             <table id="scoreboard">
               <thead>
@@ -1114,13 +1169,8 @@
     function randomizeStellaPosition() {
       if (!stellaPopup) return;
       const popupWidth = stellaPopup.offsetWidth || 210;
-      const startRect = startButton ? startButton.getBoundingClientRect() : { left: 4, top: window.innerHeight - 38, width: 70 };
-      const menuRect = startMenu && startMenu.classList.contains('open')
-        ? startMenu.getBoundingClientRect()
-        : startRect;
-      const minLeft = Math.max(4, menuRect.left - 18);
-      const maxLeft = Math.max(minLeft, Math.min(window.innerWidth - popupWidth - 4, menuRect.left + Math.max(menuRect.width, startRect.width) - 58));
-      stellaPopup.style.left = `${minLeft + Math.random() * (maxLeft - minLeft)}px`;
+      const safeLeft = Math.max(4, window.innerWidth - popupWidth - 4);
+      stellaPopup.style.left = `${Math.random() * safeLeft}px`;
       stellaPopup.style.top = 'auto';
       stellaPopup.style.bottom = '22px';
     }
@@ -1219,11 +1269,7 @@
           if (action === 'minimize') win.classList.add('minimized');
           if (action === 'maximize') toggleMaximize(win);
           if (action === 'close') {
-            if (win.dataset.windowId === 'runStats' || win.dataset.windowId === 'wheelConfig') {
-              win.classList.add('minimized');
-            } else {
-              alert('NO!');
-            }
+            win.classList.add('minimized');
           }
         });
       });
@@ -1551,7 +1597,7 @@
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = '#000';
-      ctx.font = `bold ${fontSize}px "MS Sans Serif", Tahoma, Arial`;
+      ctx.font = `bold ${fontSize}px Roboto, "MS Sans Serif", Tahoma, Arial`;
       const distance = Math.max(44, radius * 0.63);
       const lineHeight = fontSize + 1;
       lines.forEach((line, lineIndex) => {

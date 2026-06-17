@@ -283,7 +283,8 @@
     }
 
     .filter-row,
-    .button-row {
+    .button-row,
+    .time-date-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 5px;
@@ -369,49 +370,51 @@
       align-self: stretch;
     }
 
-    .scoreboard-filter-bar {
+    .scoreboard-heading-filter {
       display: grid;
-      grid-template-columns: 22px minmax(0, 180px) minmax(0, 180px);
-      align-items: end;
-      gap: 6px;
-      margin-bottom: 6px;
-      padding: 5px;
-      background: #c0c0c0;
-      border-top: 2px solid #fff;
-      border-left: 2px solid #fff;
-      border-right: 2px solid #404040;
-      border-bottom: 2px solid #404040;
+      grid-template-columns: 13px minmax(0, 1fr);
+      align-items: center;
+      gap: 3px;
+      min-width: 0;
     }
 
-    .filter-icon {
-      width: 18px;
+    .scoreboard-heading-filter select {
+      width: 100%;
+      min-width: 0;
       height: 18px;
-      align-self: center;
+      min-height: 18px;
+      padding: 0 2px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .scoreboard-heading-filter .filter-symbol {
+      width: 11px;
+      height: 11px;
       position: relative;
       display: inline-block;
     }
 
-    .filter-icon::before {
+    .scoreboard-heading-filter .filter-symbol::before {
       content: "";
       position: absolute;
-      left: 2px;
-      top: 2px;
+      left: 0;
+      top: 1px;
       width: 0;
       height: 0;
-      border-left: 7px solid transparent;
-      border-right: 7px solid transparent;
-      border-top: 9px solid #000080;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 7px solid #000080;
     }
 
-    .filter-icon::after {
+    .scoreboard-heading-filter .filter-symbol::after {
       content: "";
       position: absolute;
-      left: 8px;
-      top: 10px;
-      width: 3px;
-      height: 6px;
+      left: 5px;
+      top: 7px;
+      width: 2px;
+      height: 4px;
       background: #000080;
-      box-shadow: 1px 0 0 #fff;
     }
 
     .table-wrapper {
@@ -917,16 +920,17 @@
       }
 
       .filter-row,
-      .button-row {
+      .button-row,
+      .time-date-row {
         grid-template-columns: 1fr;
       }
 
-      .scoreboard-filter-bar {
-        grid-template-columns: 22px 1fr;
+      .scoreboard-heading-filter {
+        grid-template-columns: 1fr;
       }
 
-      .scoreboard-filter-bar .filter-group {
-        grid-column: 2;
+      .scoreboard-heading-filter .filter-symbol {
+        display: none;
       }
 
       input,
@@ -982,8 +986,10 @@
             <select id="category" required>
               <option value="" disabled selected>Select Category</option>
             </select>
-            <input id="time" placeholder="Time (mm ss.ss)" required />
-            <input id="date" type="date" required />
+            <div class="time-date-row">
+              <input id="time" placeholder="Time (mm ss.ss)" required />
+              <input id="date" type="date" required />
+            </div>
             <button type="submit">Submit</button>
           </form>
         </div>
@@ -1017,9 +1023,9 @@
         </div>
       </section>
 
-      <section class="desktop-window filter-window" data-window-id="filters" data-window-title="FILTERS">
+      <section class="desktop-window filter-window" data-window-id="filters" data-window-title="OPTIONS">
         <div class="window-titlebar">
-          <span class="titlebar-label"><span class="window-icon"></span>FILTERS</span>
+          <span class="titlebar-label"><span class="window-icon"></span>OPTIONS</span>
           <div class="window-controls">
             <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
             <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
@@ -1037,6 +1043,7 @@
               <button id="editButton" class="edit-button">Edit</button>
               <button id="unfilterButton" class="unfilter-button">Unfilter</button>
             </div>
+            <button id="exportCsvButton" class="export-button" type="button">Export CSV</button>
           </div>
         </div>
       </section>
@@ -1054,25 +1061,24 @@
           </div>
         </div>
         <div class="window-body">
-          <div class="scoreboard-filter-bar" aria-label="Scoreboard filters">
-            <span class="filter-icon" aria-hidden="true"></span>
-            <div class="filter-group">
-              <label for="divisionFilter">Division</label>
-              <select id="divisionFilter"><option value="All">All</option></select>
-            </div>
-            <div class="filter-group">
-              <label for="categoryFilter">Category</label>
-              <select id="categoryFilter"><option value="All">All</option></select>
-            </div>
-          </div>
           <div class="table-wrapper">
             <table id="scoreboard">
               <thead>
                 <tr>
                   <th class="sortable" data-column="rank">Rank</th>
                   <th class="sortable" data-column="name">Name</th>
-                  <th class="sortable" data-column="division">Division</th>
-                  <th class="sortable" data-column="category">Category</th>
+                  <th>
+                    <div class="scoreboard-heading-filter">
+                      <span class="filter-symbol" aria-hidden="true"></span>
+                      <select id="divisionFilter" aria-label="Filter Division"><option value="All">Division: All</option></select>
+                    </div>
+                  </th>
+                  <th>
+                    <div class="scoreboard-heading-filter">
+                      <span class="filter-symbol" aria-hidden="true"></span>
+                      <select id="categoryFilter" aria-label="Filter Category"><option value="All">Category: All</option></select>
+                    </div>
+                  </th>
                   <th class="sortable" data-column="time">Time</th>
                   <th class="sortable" data-column="date">Date</th>
                   <th id="actionHeader" style="display: none;">Actions</th>
@@ -1137,7 +1143,7 @@
   <div class="start-menu" id="startMenu">
     <div class="start-menu-title">YakOS 95</div>
     <button type="button" data-window-restore="gauntlet">The Yak Gauntlet</button>
-    <button type="button" data-window-restore="filters">Filters</button>
+    <button type="button" data-window-restore="filters">Options</button>
     <button type="button" data-window-restore="scoreboard">Scoreboard</button>
     <button type="button" data-window-restore="runStats">Run Statistics</button>
     <button type="button" data-window-restore="wheelConfig">Wheel Configuration</button>
@@ -1313,6 +1319,7 @@
     const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
     const editButton = document.getElementById('editButton');
     const unfilterButton = document.getElementById('unfilterButton');
+    const exportCsvButton = document.getElementById('exportCsvButton');
     const barstoolButton = document.getElementById('barstoolButton');
     const guestsButton = document.getElementById('guestsButton');
     const searchInput = document.getElementById('searchInput');
@@ -1722,9 +1729,9 @@ function showRunStats(entryId) {
       const divisions = [...new Set(entries.map(e => e.division))].sort();
       const categories = [...new Set(entries.map(e => e.category))].sort();
 
-      divisionFilter.innerHTML = '<option value="All">All</option>' +
+      divisionFilter.innerHTML = '<option value="All">Division: All</option>' +
         divisions.map(d => `<option value="${d}">${d}</option>`).join('');
-      categoryFilter.innerHTML = '<option value="All">All</option>' +
+      categoryFilter.innerHTML = '<option value="All">Category: All</option>' +
         categories.map(c => `<option value="${c}">${c}</option>`).join('');
 
       divisionSelect.innerHTML = '<option value="" disabled selected>Select Division</option>' +
@@ -2045,6 +2052,50 @@ document.querySelectorAll('.delete-button').forEach(button => {
       renderScoreboard();
     });
 
+    function getVisibleScoreboardEntries() {
+      return entries
+        .map(entry => ({ ...entry, totalSeconds: parseTimeToSeconds(entry.time) }))
+        .filter(entry =>
+          entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
+          matchesAudienceFilter(entry) &&
+          (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
+          (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
+        )
+        .sort((a, b) => {
+          const cmp = compareEntries(a, b, currentSort.column);
+          return currentSort.direction === 'asc' ? cmp : -cmp;
+        });
+    }
+
+    function csvCell(value) {
+      const text = value == null ? '' : String(value);
+      return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    }
+
+    function exportScoreboardCsv() {
+      const rows = [['Rank', 'Name', 'Division', 'Category', 'Time', 'Date']];
+      getVisibleScoreboardEntries().forEach((entry, index) => {
+        rows.push([
+          index + 1,
+          entry.name,
+          entry.division,
+          entry.category,
+          formatTime(entry.totalSeconds),
+          formatDate(entry.date)
+        ]);
+      });
+      const csv = rows.map(row => row.map(csvCell).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `yak-gauntlet-scoreboard-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      URL.revokeObjectURL(link.href);
+      link.remove();
+    }
+
+    exportCsvButton.addEventListener('click', exportScoreboardCsv);
 
     divisionFilter.addEventListener('change', () => {
       audienceFilter = 'All';

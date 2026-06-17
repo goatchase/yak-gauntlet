@@ -378,6 +378,8 @@
 
     .scoreboard-window {
       min-height: 240px;
+      width: min(100%, 1040px);
+      align-self: center;
     }
 
     .table-wrapper {
@@ -394,11 +396,11 @@
     table#scoreboard,
     table {
       width: 100%;
-      min-width: 680px;
+      min-width: 0;
       margin: 0;
       border-collapse: separate;
       border-spacing: 0;
-      table-layout: auto;
+      table-layout: fixed;
       background-color: #fff;
     }
 
@@ -426,27 +428,44 @@
     }
 
 
+    table#scoreboard th,
+    table#scoreboard td {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     table#scoreboard th:nth-child(1),
     table#scoreboard td:nth-child(1) {
-      width: 54px;
+      width: 42px;
       text-align: center;
     }
 
     table#scoreboard th:nth-child(2),
     table#scoreboard td:nth-child(2) {
-      max-width: 190px;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      width: 23%;
+    }
+
+    table#scoreboard th:nth-child(3),
+    table#scoreboard td:nth-child(3),
+    table#scoreboard th:nth-child(4),
+    table#scoreboard td:nth-child(4) {
+      width: 18%;
     }
 
     table#scoreboard th:nth-child(5),
     table#scoreboard td:nth-child(5) {
-      width: 150px;
+      width: 132px;
     }
 
     table#scoreboard th:nth-child(6),
     table#scoreboard td:nth-child(6) {
-      width: 112px;
+      width: 96px;
+    }
+
+    table#scoreboard th:nth-child(7),
+    table#scoreboard td:nth-child(7) {
+      width: 70px;
     }
 
     th.sortable {
@@ -467,9 +486,6 @@
       font-size: 0.8em;
     }
 
-    #scoreboard tbody tr:nth-child(even) {
-      background-color: #f2f2f2;
-    }
 
     #scoreboard tbody tr:hover,
     #scoreboard tbody tr.leader:hover,
@@ -980,10 +996,6 @@
             <tbody></tbody>
           </table>
         </div>
-        <div class="status-bar">
-          <span>SCOREBOARD READY</span>
-          <span>FASTEST TIME WINS</span>
-        </div>
       </div>
     </section>
 
@@ -1074,10 +1086,6 @@
 
   <div class="desktop-taskbar">
     <button type="button" class="start-button" id="startButton">Start</button>
-    <button type="button" class="taskbar-button" data-window-restore="gauntlet">THE YAK GAUNTLET</button>
-    <button type="button" class="taskbar-button" data-window-restore="scoreboard">SCOREBOARD</button>
-    <button type="button" class="taskbar-button" data-window-restore="runStats">RUN STATISTICS</button>
-    <button type="button" class="taskbar-button" data-window-restore="wheelConfig">WHEEL CONFIG</button>
     <div class="taskbar-spacer"></div>
     <div class="taskbar-clock" id="taskbarClock">--:--</div>
   </div>

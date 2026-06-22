@@ -1051,6 +1051,150 @@
     .mine-cell.n7 { color: #000; }
     .mine-cell.n8 { color: #808080; }
 
+    .euchre-window {
+      width: 100%;
+    }
+
+    .euchre-panel {
+      display: grid;
+      gap: 8px;
+      padding: 6px;
+      background: #008080;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+    }
+
+    .euchre-score {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .euchre-score div,
+    .euchre-status,
+    .euchre-log {
+      padding: 5px 6px;
+      color: #fff;
+      background: #000080;
+      border-top: 1px solid #fff;
+      border-left: 1px solid #fff;
+      border-right: 1px solid #404040;
+      border-bottom: 1px solid #404040;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .euchre-status {
+      background: #000;
+      font-family: "Courier New", monospace;
+      min-height: 28px;
+    }
+
+    .euchre-table {
+      min-height: 126px;
+      position: relative;
+      display: grid;
+      grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr;
+      gap: 5px;
+      padding: 8px;
+      background: #008000;
+      border-top: 3px solid #004000;
+      border-left: 3px solid #004000;
+      border-right: 3px solid #7ad67a;
+      border-bottom: 3px solid #7ad67a;
+    }
+
+    .euchre-play-slot {
+      min-height: 34px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .euchre-play-slot:nth-child(1) { grid-column: 2; grid-row: 1; }
+    .euchre-play-slot:nth-child(2) { grid-column: 1; grid-row: 2; }
+    .euchre-play-slot:nth-child(3) { grid-column: 3; grid-row: 2; }
+    .euchre-play-slot:nth-child(4) { grid-column: 2; grid-row: 3; }
+
+    .euchre-card {
+      width: 44px;
+      min-width: 44px;
+      height: 58px;
+      min-height: 58px;
+      display: grid;
+      place-items: center;
+      padding: 3px;
+      color: #000;
+      background: #fff;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.05;
+      text-align: center;
+    }
+
+    .euchre-card.red {
+      color: #c00000;
+    }
+
+    button.euchre-card {
+      cursor: pointer;
+    }
+
+    button.euchre-card:disabled {
+      color: #808080;
+      cursor: default;
+      opacity: 0.75;
+    }
+
+    button.euchre-card.playable {
+      outline: 2px solid #ffff00;
+      outline-offset: -4px;
+    }
+
+    .euchre-hand {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: center;
+      min-height: 66px;
+      padding: 6px;
+      background: #c0c0c0;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+    }
+
+    .euchre-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+    }
+
+    .euchre-actions button {
+      min-height: 28px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .euchre-log {
+      min-height: 48px;
+      max-height: 72px;
+      overflow: auto;
+      background: #fff;
+      color: #000;
+      font-weight: 500;
+    }
+
     @media (max-width: 768px) {
       body {
         padding: 8px 8px 46px;
@@ -1209,6 +1353,60 @@
         </div>
       </section>
 
+      <section class="desktop-window minimized minesweeper-window" data-window-id="minesweeper" data-window-title="MINESWEEPER">
+        <div class="window-titlebar">
+          <span class="titlebar-label"><span class="window-icon"></span>MINESWEEPER</span>
+          <div class="window-controls">
+            <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="minesweeper-panel">
+            <div class="mine-status">
+              <div class="mine-counter" id="mineCounter">010</div>
+              <button type="button" class="mine-reset" id="mineReset" aria-label="Reset Minesweeper">☺</button>
+              <div class="mine-timer" id="mineTimer">000</div>
+            </div>
+            <div class="mine-board" id="mineBoard" aria-label="Minesweeper board"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="desktop-window minimized euchre-window" data-window-id="euchre" data-window-title="EUCHRE">
+        <div class="window-titlebar">
+          <span class="titlebar-label"><span class="window-icon"></span>EUCHRE</span>
+          <div class="window-controls">
+            <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="euchre-panel">
+            <div class="euchre-score">
+              <div id="euchreScoreUs">US 0</div>
+              <div id="euchreScoreThem">THEM 0</div>
+            </div>
+            <div class="euchre-status" id="euchreStatus">NEW HAND READY</div>
+            <div class="euchre-table" id="euchreTable" aria-label="Euchre table">
+              <div class="euchre-play-slot" data-euchre-slot="2">Partner</div>
+              <div class="euchre-play-slot" data-euchre-slot="1">Lefty</div>
+              <div class="euchre-play-slot" data-euchre-slot="3">Righty</div>
+              <div class="euchre-play-slot" data-euchre-slot="0">You</div>
+            </div>
+            <div class="euchre-actions">
+              <button type="button" id="euchreNewHand">New Hand</button>
+              <button type="button" id="euchreOrder">Order Up</button>
+              <button type="button" id="euchrePass">Pass</button>
+            </div>
+            <div class="euchre-hand" id="euchreHand" aria-label="Your Euchre hand"></div>
+            <div class="euchre-log" id="euchreLog">Click New Hand to deal.</div>
+          </div>
+        </div>
+      </section>
+
     </div>
 
     <div class="desktop-right-column">
@@ -1320,27 +1518,6 @@
       </section>
     </div>
 
-      <section class="desktop-window minimized minesweeper-window" data-window-id="minesweeper" data-window-title="MINESWEEPER">
-        <div class="window-titlebar">
-          <span class="titlebar-label"><span class="window-icon"></span>MINESWEEPER</span>
-          <div class="window-controls">
-            <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
-            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
-            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
-          </div>
-        </div>
-        <div class="window-body">
-          <div class="minesweeper-panel">
-            <div class="mine-status">
-              <div class="mine-counter" id="mineCounter">010</div>
-              <button type="button" class="mine-reset" id="mineReset" aria-label="Reset Minesweeper">☺</button>
-              <div class="mine-timer" id="mineTimer">000</div>
-            </div>
-            <div class="mine-board" id="mineBoard" aria-label="Minesweeper board"></div>
-          </div>
-        </div>
-      </section>
-
   </main>
 
   <div class="start-menu" id="startMenu">
@@ -1349,6 +1526,7 @@
     <button type="button" data-window-restore="filters">Options</button>
     <button type="button" data-window-restore="scoreboard">Scoreboard</button>
     <button type="button" data-window-restore="minesweeper">Minesweeper</button>
+    <button type="button" data-window-restore="euchre">Euchre</button>
     <button type="button" data-window-restore="runStats">Run Statistics</button>
     <button type="button" data-window-restore="statsDashboard">Monthly Leaders</button>
     <button type="button" data-window-restore="wheelConfig">Configurations</button>
@@ -1388,6 +1566,15 @@
     const mineCounter = document.getElementById('mineCounter');
     const mineTimer = document.getElementById('mineTimer');
     const mineReset = document.getElementById('mineReset');
+    const euchreScoreUs = document.getElementById('euchreScoreUs');
+    const euchreScoreThem = document.getElementById('euchreScoreThem');
+    const euchreStatus = document.getElementById('euchreStatus');
+    const euchreTable = document.getElementById('euchreTable');
+    const euchreHand = document.getElementById('euchreHand');
+    const euchreLog = document.getElementById('euchreLog');
+    const euchreNewHand = document.getElementById('euchreNewHand');
+    const euchreOrder = document.getElementById('euchreOrder');
+    const euchrePass = document.getElementById('euchrePass');
     let activeZ = 30;
 
     const mineState = {
@@ -1400,6 +1587,31 @@
       flags: 0,
       seconds: 0,
       timerId: null
+    };
+
+    const euchrePlayers = ['You', 'Lefty', 'Partner', 'Righty'];
+    const euchreRanks = ['9', '10', 'J', 'Q', 'K', 'A'];
+    const euchreSuits = ['S', 'H', 'D', 'C'];
+    const euchreSuitNames = { S: 'Spades', H: 'Hearts', D: 'Diamonds', C: 'Clubs' };
+    const euchreSuitSymbols = { S: '♠', H: '♥', D: '♦', C: '♣' };
+    const euchreRedSuits = new Set(['H', 'D']);
+    const euchreSameColor = { S: 'C', C: 'S', H: 'D', D: 'H' };
+    const euchreState = {
+      score: [0, 0],
+      dealer: 3,
+      hands: [[], [], [], []],
+      kitty: [],
+      upcard: null,
+      trump: null,
+      makerTeam: null,
+      phase: 'idle',
+      currentTrick: [],
+      leader: 0,
+      turn: 0,
+      tricks: [0, 0],
+      handNumber: 0,
+      log: ['Click New Hand to deal.'],
+      cpuTimer: null
     };
 
     function padMineNumber(value) {
@@ -1559,6 +1771,247 @@
       updateMineDisplays();
     }
 
+    function euchreTeam(playerIndex) {
+      return playerIndex % 2 === 0 ? 0 : 1;
+    }
+
+    function euchreBuildDeck() {
+      return euchreSuits.flatMap(suit => euchreRanks.map(rank => ({ rank, suit, id: `${rank}${suit}-${Math.random()}` })));
+    }
+
+    function euchreShuffle(cards) {
+      const deck = [...cards];
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+      return deck;
+    }
+
+    function euchreCardLabel(card) {
+      return `${card.rank}${euchreSuitSymbols[card.suit]}`;
+    }
+
+    function euchreEffectiveSuit(card) {
+      if (euchreState.trump && card.rank === 'J' && card.suit === euchreSameColor[euchreState.trump]) {
+        return euchreState.trump;
+      }
+      return card.suit;
+    }
+
+    function euchreRankValue(card) {
+      if (card.rank === 'J' && card.suit === euchreState.trump) return 100;
+      if (card.rank === 'J' && card.suit === euchreSameColor[euchreState.trump]) return 99;
+      const values = { '9': 1, '10': 2, J: 3, Q: 4, K: 5, A: 6 };
+      return values[card.rank] || 0;
+    }
+
+    function euchreCardStrength(card, ledSuit = null) {
+      const suit = euchreEffectiveSuit(card);
+      if (suit === euchreState.trump) return 50 + euchreRankValue(card);
+      if (ledSuit && suit === ledSuit) return 20 + euchreRankValue(card);
+      return euchreRankValue(card);
+    }
+
+    function euchreLowestCard(hand) {
+      return [...hand].sort((a, b) => euchreCardStrength(a) - euchreCardStrength(b))[0];
+    }
+
+    function euchreLogLine(text) {
+      euchreState.log.unshift(text);
+      euchreState.log = euchreState.log.slice(0, 6);
+    }
+
+    function euchreLegalCards(playerIndex) {
+      const hand = euchreState.hands[playerIndex];
+      if (!euchreState.currentTrick.length) return hand;
+      const ledSuit = euchreEffectiveSuit(euchreState.currentTrick[0].card);
+      const following = hand.filter(card => euchreEffectiveSuit(card) === ledSuit);
+      return following.length ? following : hand;
+    }
+
+    function euchreRenderCard(card, asButton = false, playable = false) {
+      const node = document.createElement(asButton ? 'button' : 'div');
+      node.className = 'euchre-card';
+      if (euchreRedSuits.has(card.suit)) node.classList.add('red');
+      if (playable) node.classList.add('playable');
+      if (asButton) node.type = 'button';
+      node.textContent = euchreCardLabel(card);
+      return node;
+    }
+
+    function renderEuchre() {
+      if (!euchreHand) return;
+      if (euchreScoreUs) euchreScoreUs.textContent = `US ${euchreState.score[0]}`;
+      if (euchreScoreThem) euchreScoreThem.textContent = `THEM ${euchreState.score[1]}`;
+      const trumpText = euchreState.trump ? `TRUMP: ${euchreSuitNames[euchreState.trump].toUpperCase()}` : `UPCARD: ${euchreCardLabel(euchreState.upcard || { rank: '-', suit: 'S' })}`;
+      const dealerText = `DEALER: ${euchrePlayers[euchreState.dealer].toUpperCase()}`;
+      if (euchreStatus) euchreStatus.textContent = `${trumpText} | ${dealerText} | TURN: ${euchrePlayers[euchreState.turn].toUpperCase()}`;
+      if (euchreLog) euchreLog.innerHTML = euchreState.log.map(line => `<div>${line}</div>`).join('');
+
+      if (euchreTable) {
+        euchreTable.querySelectorAll('[data-euchre-slot]').forEach(slot => {
+          const player = Number(slot.dataset.euchreSlot);
+          slot.innerHTML = `<span>${euchrePlayers[player]}</span>`;
+          const play = euchreState.currentTrick.find(item => item.player === player);
+          if (play) slot.appendChild(euchreRenderCard(play.card));
+        });
+      }
+
+      const legal = euchreState.phase === 'playing' && euchreState.turn === 0 ? new Set(euchreLegalCards(0).map(card => card.id)) : new Set();
+      euchreHand.innerHTML = '';
+      euchreState.hands[0].forEach(card => {
+        const button = euchreRenderCard(card, true, legal.has(card.id));
+        button.disabled = !legal.has(card.id);
+        button.addEventListener('click', () => euchrePlayCard(0, card.id));
+        euchreHand.appendChild(button);
+      });
+
+      if (euchreOrder) euchreOrder.disabled = euchreState.phase !== 'bidding';
+      if (euchrePass) euchrePass.disabled = euchreState.phase !== 'bidding';
+    }
+
+    function euchreDealerPickup() {
+      if (!euchreState.upcard) return;
+      const dealerHand = euchreState.hands[euchreState.dealer];
+      dealerHand.push(euchreState.upcard);
+      const discard = euchreLowestCard(dealerHand);
+      euchreState.hands[euchreState.dealer] = dealerHand.filter(card => card.id !== discard.id);
+      euchreLogLine(`${euchrePlayers[euchreState.dealer]} picked up and discarded.`);
+    }
+
+    function euchreStartPlaying(makerTeam, trump, pickup = false) {
+      euchreState.trump = trump;
+      euchreState.makerTeam = makerTeam;
+      euchreState.phase = 'playing';
+      euchreState.currentTrick = [];
+      euchreState.tricks = [0, 0];
+      euchreState.leader = (euchreState.dealer + 1) % 4;
+      euchreState.turn = euchreState.leader;
+      if (pickup) euchreDealerPickup();
+      euchreLogLine(`${euchrePlayers[makerTeam === 0 ? 0 : 1]}'s team called ${euchreSuitNames[trump]}.`);
+      renderEuchre();
+      euchreMaybeCpuTurn();
+    }
+
+    function euchreCpuWantsTrump(playerIndex, suit) {
+      const score = euchreState.hands[playerIndex].reduce((total, card) => {
+        const effectiveSuit = card.rank === 'J' && card.suit === euchreSameColor[suit] ? suit : card.suit;
+        if (card.rank === 'J' && card.suit === suit) return total + 3;
+        if (effectiveSuit === suit) return total + 1;
+        return total;
+      }, 0);
+      return score >= 3 || (score >= 2 && Math.random() > 0.55);
+    }
+
+    function euchreOrderUp() {
+      if (euchreState.phase !== 'bidding') return;
+      euchreStartPlaying(0, euchreState.upcard.suit, true);
+    }
+
+    function euchrePassBid() {
+      if (euchreState.phase !== 'bidding') return;
+      const order = [1, 2, 3, euchreState.dealer].find(player => euchreCpuWantsTrump(player, euchreState.upcard.suit));
+      if (order !== undefined) {
+        euchreStartPlaying(euchreTeam(order), euchreState.upcard.suit, true);
+        return;
+      }
+      const nextSuit = euchreSuits.find(suit => suit !== euchreState.upcard.suit && euchreEffectiveColor(suit) === euchreEffectiveColor(euchreState.upcard.suit)) || euchreSuits.find(suit => suit !== euchreState.upcard.suit);
+      euchreLogLine('Everyone passed. Dealer sticks it.');
+      euchreStartPlaying(euchreTeam(euchreState.dealer), nextSuit, false);
+    }
+
+    function euchreEffectiveColor(suit) {
+      return suit === 'H' || suit === 'D' ? 'red' : 'black';
+    }
+
+    function euchreNewDeal() {
+      window.clearTimeout(euchreState.cpuTimer);
+      const deck = euchreShuffle(euchreBuildDeck());
+      euchreState.handNumber += 1;
+      euchreState.dealer = (euchreState.dealer + 1) % 4;
+      euchreState.hands = [[], [], [], []];
+      for (let cardIndex = 0; cardIndex < 20; cardIndex++) {
+        euchreState.hands[cardIndex % 4].push(deck[cardIndex]);
+      }
+      euchreState.kitty = deck.slice(20);
+      euchreState.upcard = euchreState.kitty[0];
+      euchreState.trump = null;
+      euchreState.makerTeam = null;
+      euchreState.phase = 'bidding';
+      euchreState.currentTrick = [];
+      euchreState.tricks = [0, 0];
+      euchreState.leader = (euchreState.dealer + 1) % 4;
+      euchreState.turn = 0;
+      euchreState.log = [`Hand ${euchreState.handNumber}: ${euchreCardLabel(euchreState.upcard)} is up. Order it or pass.`];
+      renderEuchre();
+    }
+
+    function euchreChooseCpuCard(playerIndex) {
+      const legal = euchreLegalCards(playerIndex);
+      const ledSuit = euchreState.currentTrick.length ? euchreEffectiveSuit(euchreState.currentTrick[0].card) : null;
+      return [...legal].sort((a, b) => euchreCardStrength(a, ledSuit) - euchreCardStrength(b, ledSuit))[0];
+    }
+
+    function euchrePlayCard(playerIndex, cardId) {
+      if (euchreState.phase !== 'playing' || euchreState.turn !== playerIndex) return;
+      const legalIds = new Set(euchreLegalCards(playerIndex).map(card => card.id));
+      if (!legalIds.has(cardId)) return;
+      const hand = euchreState.hands[playerIndex];
+      const card = hand.find(item => item.id === cardId);
+      euchreState.hands[playerIndex] = hand.filter(item => item.id !== cardId);
+      euchreState.currentTrick.push({ player: playerIndex, card });
+      euchreLogLine(`${euchrePlayers[playerIndex]} played ${euchreCardLabel(card)}.`);
+      if (euchreState.currentTrick.length === 4) {
+        renderEuchre();
+        euchreState.cpuTimer = window.setTimeout(euchreFinishTrick, 650);
+        return;
+      }
+      euchreState.turn = (playerIndex + 1) % 4;
+      renderEuchre();
+      euchreMaybeCpuTurn();
+    }
+
+    function euchreFinishTrick() {
+      const ledSuit = euchreEffectiveSuit(euchreState.currentTrick[0].card);
+      const winner = [...euchreState.currentTrick].sort((a, b) => euchreCardStrength(b.card, ledSuit) - euchreCardStrength(a.card, ledSuit))[0].player;
+      euchreState.tricks[euchreTeam(winner)] += 1;
+      euchreLogLine(`${euchrePlayers[winner]} takes the trick. Tricks ${euchreState.tricks[0]}-${euchreState.tricks[1]}.`);
+      euchreState.currentTrick = [];
+      euchreState.leader = winner;
+      euchreState.turn = winner;
+      if (euchreState.hands.every(hand => hand.length === 0)) {
+        euchreScoreHand();
+        return;
+      }
+      renderEuchre();
+      euchreMaybeCpuTurn();
+    }
+
+    function euchreScoreHand() {
+      const makerTricks = euchreState.tricks[euchreState.makerTeam];
+      const defenders = euchreState.makerTeam === 0 ? 1 : 0;
+      if (makerTricks >= 3) {
+        const points = makerTricks === 5 ? 2 : 1;
+        euchreState.score[euchreState.makerTeam] += points;
+        euchreLogLine(`${euchreState.makerTeam === 0 ? 'Your team' : 'Their team'} scores ${points}.`);
+      } else {
+        euchreState.score[defenders] += 2;
+        euchreLogLine(`${defenders === 0 ? 'Your team' : 'Their team'} euchres for 2.`);
+      }
+      euchreState.phase = 'handOver';
+      renderEuchre();
+    }
+
+    function euchreMaybeCpuTurn() {
+      window.clearTimeout(euchreState.cpuTimer);
+      if (euchreState.phase !== 'playing' || euchreState.turn === 0) return;
+      euchreState.cpuTimer = window.setTimeout(() => {
+        const card = euchreChooseCpuCard(euchreState.turn);
+        if (card) euchrePlayCard(euchreState.turn, card.id);
+      }, 520);
+    }
+
     function randomizeStellaPosition() {
       if (!stellaPopup) return;
       const popupWidth = stellaPopup.offsetWidth || 210;
@@ -1598,12 +2051,23 @@
       win.style.width = `${width}px`;
     }
 
+    function restoreStackedWindow(win) {
+      win.classList.remove('detached', 'maximized');
+      win.style.position = '';
+      win.style.left = '';
+      win.style.top = '';
+      win.style.width = '';
+      win.style.zIndex = '';
+    }
+
     function restoreWindow(id) {
       const win = document.querySelector(`[data-window-id="${id}"]`);
       if (!win) return;
       win.classList.remove('minimized');
       if (id === 'statsDashboard' || id === 'wheelConfig') {
         positionOverScoreboard(win);
+      } else if (id === 'minesweeper' || id === 'euchre') {
+        restoreStackedWindow(win);
       }
       bringWindowToFront(win);
       startMenu.classList.remove('open');
@@ -2791,6 +3255,10 @@ document.querySelectorAll('.delete-button').forEach(button => {
 
     resetMinesweeper();
     if (mineReset) mineReset.addEventListener('click', resetMinesweeper);
+    renderEuchre();
+    if (euchreNewHand) euchreNewHand.addEventListener('click', euchreNewDeal);
+    if (euchreOrder) euchreOrder.addEventListener('click', euchreOrderUp);
+    if (euchrePass) euchrePass.addEventListener('click', euchrePassBid);
     fetchEntries();
   });
 </script>

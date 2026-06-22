@@ -677,14 +677,6 @@
       font-weight: 700;
     }
 
-    .stats-tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 5px;
-      margin-bottom: 7px;
-    }
-
-    .stats-tab.active,
     .leaders-button.active,
     .config-toggle.active {
       color: #fff;
@@ -1113,7 +1105,7 @@
               <button id="unfilterButton" class="unfilter-button" type="button">Unfilter</button>
               <button id="leadersButton" class="leaders-button" type="button">Leaders</button>
             </div>
-            <button id="statsButton" class="open-stats-button" type="button">Stats</button>
+            <button id="statsButton" class="open-stats-button" type="button">Monthly Leaders</button>
           </div>
         </div>
       </section>
@@ -1160,9 +1152,9 @@
         </div>
       </section>
 
-      <section class="desktop-window minimized stats-window" data-window-id="statsDashboard" data-window-title="STATS">
+      <section class="desktop-window minimized stats-window" data-window-id="statsDashboard" data-window-title="MONTHLY LEADERS">
         <div class="window-titlebar">
-          <span class="titlebar-label"><span class="window-icon"></span>STATS</span>
+          <span class="titlebar-label"><span class="window-icon"></span>MONTHLY LEADERS</span>
           <div class="window-controls">
             <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
             <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
@@ -1170,10 +1162,6 @@
           </div>
         </div>
         <div class="window-body">
-          <div class="stats-tabs">
-            <button type="button" class="stats-tab active" data-stats-view="histogram">Histogram</button>
-            <button type="button" class="stats-tab" data-stats-view="division">Division Stats</button>
-          </div>
           <div class="stats-scroll" id="statsScroll">
             <canvas id="statsCanvas" class="stats-canvas" width="760" height="270"></canvas>
             <div id="chartTooltip" class="chart-tooltip"></div>
@@ -1241,7 +1229,7 @@
     <button type="button" data-window-restore="filters">Options</button>
     <button type="button" data-window-restore="scoreboard">Scoreboard</button>
     <button type="button" data-window-restore="runStats">Run Statistics</button>
-    <button type="button" data-window-restore="statsDashboard">Stats</button>
+    <button type="button" data-window-restore="statsDashboard">Monthly Leaders</button>
     <button type="button" data-window-restore="wheelConfig">Configurations</button>
     <button type="button" id="editButton" class="edit-button">Edit</button>
     <button type="button" id="exportCsvButton" class="export-button">Export CSV</button>
@@ -2316,47 +2304,68 @@ document.querySelectorAll('.delete-button').forEach(button => {
         }
       });
       const data = Object.values(monthly).filter(item => item.best).sort((a, b) => a.key.localeCompare(b.key));
-      const width = Math.max(760, data.length * 72 + 90);
-      const height = 270;
+      const left = 52;
+      const rightPad = 22;
+      const barWidth = 26;
+      const width = Math.max(520, left + data.length * barWidth + rightPad);
+      const height = 286;
       statsCanvas.width = width;
       statsCanvas.height = height;
       statsHoverPoints = [];
       const ctx = statsCanvas.getContext('2d');
-      drawChartFrame(ctx, width, height, 'Monthly Best Run');
-      const left = 52;
+      drawChartFrame(ctx, width, height, 'Monthly Leaders');
       const top = 36;
-      const bottom = 220;
-      const maxTime = Math.max(...data.map(month => month.best.totalSeconds), 1);
+      const bottom = 218;
+      const maxTime = Math.max(...data.map(month => month.best.totalSeconds), 60);
+      const roundedMax = Math.ceil(maxTime / 60) * 60;
+      const scale = seconds => bottom - (seconds / roundedMax) * (bottom - top);
+
       ctx.strokeStyle = '#808080';
       ctx.beginPath();
       ctx.moveTo(left, top);
       ctx.lineTo(left, bottom);
-      ctx.lineTo(width - 24, bottom);
+      ctx.lineTo(width - rightPad, bottom);
       ctx.stroke();
+
+      ctx.font = '10px Roboto, Arial';
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#000';
+      for (let seconds = 60; seconds <= roundedMax; seconds += 60) {
+        const y = scale(seconds);
+        ctx.strokeStyle = '#dcdcdc';
+        ctx.beginPath();
+        ctx.moveTo(left, y);
+        ctx.lineTo(width - rightPad, y);
+        ctx.stroke();
+        ctx.fillStyle = '#000';
+        ctx.fillText(`${seconds / 60}:00`, left - 5, y + 3);
+      }
 
       data.forEach((month, index) => {
         const best = month.best;
-        const x = left + index * 72 + 16;
-        const barHeight = Math.max(4, (best.totalSeconds / maxTime) * (bottom - top));
-        const y = bottom - barHeight;
+        const x = left + index * barWidth;
+        const y = scale(best.totalSeconds);
+        const barHeight = Math.max(4, bottom - y);
         const isBarstool = normalizeDivision(best.division) === 'BARSTOOL';
         ctx.fillStyle = isBarstool ? '#1084d0' : '#f2c94c';
-        ctx.fillRect(x, y, 26, barHeight);
+        ctx.fillRect(x, y, barWidth, barHeight);
         ctx.strokeStyle = '#000';
-        ctx.strokeRect(x, y, 26, barHeight);
+        ctx.strokeRect(x, y, barWidth, barHeight);
         ctx.save();
-        ctx.translate(x + 13, bottom + 34);
-        ctx.rotate(-Math.PI / 4);
+        ctx.translate(x + barWidth / 2 + 3, bottom + 58);
+        ctx.rotate(-Math.PI / 2);
         ctx.fillStyle = '#000';
         ctx.font = '10px Roboto, Arial';
+        ctx.textAlign = 'left';
         ctx.fillText(month.key, 0, 0);
         ctx.restore();
         statsHoverPoints.push({
-          x, y, w: 26, h: barHeight,
+          x, y, w: barWidth, h: barHeight,
           text: `Monthly winner: ${best.name}<br>${month.key}<br>${formatTime(best.totalSeconds)}<br>Total runs: ${month.totalRuns}<br>${isBarstool ? 'Barstool' : 'Guests'}`
         });
       });
 
+      ctx.textAlign = 'left';
       ctx.fillStyle = '#1084d0';
       ctx.fillRect(width - 210, 10, 12, 12);
       ctx.fillStyle = '#000';
@@ -2373,87 +2382,9 @@ document.querySelectorAll('.delete-button').forEach(button => {
       return values.length % 2 ? values[mid] : (values[mid - 1] + values[mid]) / 2;
     }
 
-    function drawDivisionStats() {
-      if (!statsCanvas) return;
-      const grouped = {};
-      validTimedEntries().forEach(entry => {
-        if (!grouped[entry.division]) grouped[entry.division] = [];
-        grouped[entry.division].push(entry.totalSeconds);
-      });
-      const divisionStats = Object.keys(grouped).map(division => {
-        const values = grouped[division].sort((a, b) => a - b);
-        const min = values[0];
-        const max = values[values.length - 1];
-        const avg = values.reduce((sum, value) => sum + value, 0) / values.length;
-        const q1 = values.length > 1 ? median(values.slice(0, Math.floor(values.length / 2))) : min;
-        const q3 = values.length > 1 ? median(values.slice(Math.ceil(values.length / 2))) : max;
-        return { division, values, min, max, avg, q1, q3 };
-      }).sort((a, b) => a.avg - b.avg);
-
-      const width = Math.max(760, divisionStats.length * 128 + 110);
-      const height = 270;
-      statsCanvas.width = width;
-      statsCanvas.height = height;
-      statsHoverPoints = [];
-      const ctx = statsCanvas.getContext('2d');
-      drawChartFrame(ctx, width, height, 'Division Stats by Average');
-      const top = 54;
-      const bottom = 204;
-      const maxTime = Math.max(...divisionStats.map(item => item.max), 1);
-      const scale = value => bottom - (value / maxTime) * (bottom - top);
-
-      ctx.strokeStyle = '#808080';
-      ctx.beginPath();
-      ctx.moveTo(54, top);
-      ctx.lineTo(54, bottom);
-      ctx.lineTo(width - 28, bottom);
-      ctx.stroke();
-
-      divisionStats.forEach((item, index) => {
-        const x = 92 + index * 128;
-        const minY = scale(item.min);
-        const maxY = scale(item.max);
-        const q1Y = scale(item.q1);
-        const q3Y = scale(item.q3);
-        const avgY = scale(item.avg);
-        ctx.strokeStyle = '#000';
-        ctx.beginPath();
-        ctx.moveTo(x, maxY);
-        ctx.lineTo(x, minY);
-        ctx.moveTo(x - 16, maxY);
-        ctx.lineTo(x + 16, maxY);
-        ctx.moveTo(x - 16, minY);
-        ctx.lineTo(x + 16, minY);
-        ctx.stroke();
-        ctx.fillStyle = '#cfe8ff';
-        ctx.fillRect(x - 20, Math.min(q1Y, q3Y), 40, Math.max(4, Math.abs(q3Y - q1Y)));
-        ctx.strokeRect(x - 20, Math.min(q1Y, q3Y), 40, Math.max(4, Math.abs(q3Y - q1Y)));
-        ctx.fillStyle = '#000080';
-        ctx.fillRect(x - 23, avgY - 2, 46, 4);
-        ctx.fillStyle = '#000';
-        ctx.font = '10px Roboto, Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(`avg ${formatTime(item.avg)}`, x, top - 16);
-        ctx.save();
-        ctx.translate(x, bottom + 44);
-        ctx.rotate(-Math.PI / 4);
-        ctx.textAlign = 'right';
-        ctx.fillText(item.division || 'Unassigned', 0, 0);
-        ctx.restore();
-        statsHoverPoints.push({
-          x: x - 24, y: maxY - 8, w: 48, h: Math.max(24, minY - maxY + 16),
-          text: `${item.division || 'Unassigned'}<br>Average: ${formatTime(item.avg)}<br>Min: ${formatTime(item.min)}<br>Max: ${formatTime(item.max)}<br>Total runs: ${item.values.length}`
-        });
-      });
-      ctx.textAlign = 'left';
-    }
-
     function renderStatsDashboard() {
-      document.querySelectorAll('.stats-tab').forEach(button => {
-        button.classList.toggle('active', button.dataset.statsView === currentStatsView);
-      });
-      if (currentStatsView === 'division') drawDivisionStats();
-      else drawStatsHistogram();
+      currentStatsView = 'histogram';
+      drawStatsHistogram();
     }
 
     function openStatsDashboard(view = currentStatsView) {
@@ -2466,10 +2397,6 @@ document.querySelectorAll('.delete-button').forEach(button => {
       }
       renderStatsDashboard();
     }
-
-    document.querySelectorAll('.stats-tab').forEach(button => {
-      button.addEventListener('click', () => openStatsDashboard(button.dataset.statsView));
-    });
 
     if (statsCanvas && statsScroll && chartTooltip) {
       statsCanvas.addEventListener('mousemove', event => {

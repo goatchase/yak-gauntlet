@@ -84,10 +84,11 @@
     }
 
     .desktop-icon {
-      width: 72px;
-      min-height: 76px;
+      width: 66px;
+      min-height: 70px;
       display: grid;
       justify-items: center;
+      align-content: start;
       gap: 4px;
       padding: 4px 3px;
       color: #fff;
@@ -96,8 +97,10 @@
       box-shadow: none;
       text-align: center;
       text-shadow: 1px 1px 0 #000;
-      font-size: 12px;
+      font-size: 10px;
       line-height: 1.1;
+      overflow-wrap: anywhere;
+      cursor: default;
     }
 
     .desktop-icon:hover,
@@ -109,8 +112,8 @@
     }
 
     .desktop-icon-art {
-      width: 34px;
-      height: 32px;
+      width: 28px;
+      height: 27px;
       position: relative;
       display: block;
       image-rendering: pixelated;
@@ -124,10 +127,10 @@
     }
 
     .desktop-icon-art.mine-icon::before {
-      left: 3px;
+      left: 2px;
       top: 3px;
-      width: 28px;
-      height: 26px;
+      width: 24px;
+      height: 22px;
       background:
         linear-gradient(90deg, transparent 31%, #808080 31% 35%, transparent 35% 64%, #808080 64% 68%, transparent 68%),
         linear-gradient(0deg, transparent 31%, #808080 31% 35%, transparent 35% 64%, #808080 64% 68%, transparent 68%),
@@ -139,10 +142,10 @@
     }
 
     .desktop-icon-art.mine-icon::after {
-      left: 13px;
-      top: 12px;
-      width: 8px;
-      height: 8px;
+      left: 11px;
+      top: 11px;
+      width: 6px;
+      height: 6px;
       background: #000;
       border-radius: 50%;
       box-shadow:
@@ -153,24 +156,24 @@
     }
 
     .desktop-icon-art.cards-icon::before {
-      left: 6px;
-      top: 7px;
-      width: 20px;
-      height: 24px;
+      left: 5px;
+      top: 6px;
+      width: 17px;
+      height: 20px;
       background: #fff;
       border: 2px solid #000;
-      box-shadow: 5px -5px 0 #fff, 7px -7px 0 #000;
+      box-shadow: 4px -4px 0 #fff, 6px -6px 0 #000;
       transform: rotate(-7deg);
     }
 
     .desktop-icon-art.cards-icon::after {
-      left: 12px;
-      top: 13px;
-      width: 9px;
-      height: 9px;
+      left: 10px;
+      top: 11px;
+      width: 7px;
+      height: 7px;
       background: #c00000;
       transform: rotate(45deg);
-      box-shadow: 9px -11px 0 -1px #000;
+      box-shadow: 8px -9px 0 -1px #000;
     }
 
     .desktop-left-column,
@@ -1711,6 +1714,7 @@
     const startMenu = document.getElementById('startMenu');
     const stellaPopup = document.getElementById('stellaPopup');
     const taskbarClock = document.getElementById('taskbarClock');
+    const desktopIcons = [...document.querySelectorAll('.desktop-icon')];
     const desktopWindows = [...document.querySelectorAll('.desktop-window')];
     const runStatsContent = document.getElementById('runStatsContent');
     const nameWheel = document.getElementById('nameWheel');
@@ -2275,6 +2279,40 @@
       document.addEventListener('mouseup', stopDrag);
     }
 
+    function startDesktopIconDrag(event, icon) {
+      if (event.button !== 0) return;
+      const rect = icon.getBoundingClientRect();
+      const offsetX = event.clientX - rect.left;
+      const offsetY = event.clientY - rect.top;
+      const startX = event.clientX;
+      const startY = event.clientY;
+      let moved = false;
+
+      icon.style.position = 'fixed';
+      icon.style.left = `${rect.left}px`;
+      icon.style.top = `${rect.top}px`;
+      icon.style.bottom = 'auto';
+      icon.style.zIndex = '1';
+
+      function moveIcon(moveEvent) {
+        const distance = Math.hypot(moveEvent.clientX - startX, moveEvent.clientY - startY);
+        if (distance > 4) moved = true;
+        const maxLeft = window.innerWidth - rect.width;
+        const maxTop = window.innerHeight - rect.height - 36;
+        icon.style.left = `${Math.max(0, Math.min(maxLeft, moveEvent.clientX - offsetX))}px`;
+        icon.style.top = `${Math.max(0, Math.min(maxTop, moveEvent.clientY - offsetY))}px`;
+      }
+
+      function stopIconDrag() {
+        if (moved) icon.dataset.dragSuppressClick = 'true';
+        document.removeEventListener('mousemove', moveIcon);
+        document.removeEventListener('mouseup', stopIconDrag);
+      }
+
+      document.addEventListener('mousemove', moveIcon);
+      document.addEventListener('mouseup', stopIconDrag);
+    }
+
     function toggleMaximize(win) {
       bringWindowToFront(win);
       if (win.classList.contains('maximized')) {
@@ -2311,13 +2349,24 @@
       });
     });
 
+    desktopIcons.forEach(icon => {
+      icon.addEventListener('mousedown', event => startDesktopIconDrag(event, icon));
+    });
+
     startButton.addEventListener('click', event => {
       event.stopPropagation();
       startMenu.classList.toggle('open');
     });
 
     document.querySelectorAll('[data-window-restore]').forEach(button => {
-      button.addEventListener('click', () => restoreWindow(button.dataset.windowRestore));
+      button.addEventListener('click', event => {
+        if (button.dataset.dragSuppressClick === 'true') {
+          event.preventDefault();
+          button.dataset.dragSuppressClick = '';
+          return;
+        }
+        restoreWindow(button.dataset.windowRestore);
+      });
     });
 
     document.addEventListener('click', event => {

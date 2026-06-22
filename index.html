@@ -952,6 +952,105 @@
       background-color: #000080;
     }
 
+    .minesweeper-window {
+      width: max-content;
+      min-width: 262px;
+    }
+
+    .minesweeper-panel {
+      display: grid;
+      gap: 6px;
+      justify-items: center;
+      padding: 6px;
+      background: #c0c0c0;
+    }
+
+    .mine-status {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 6px;
+      padding: 4px;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      background: #c0c0c0;
+    }
+
+    .mine-counter,
+    .mine-timer {
+      min-width: 54px;
+      padding: 3px 5px;
+      color: #ff3030;
+      background: #000;
+      border-top: 1px solid #404040;
+      border-left: 1px solid #404040;
+      border-right: 1px solid #fff;
+      border-bottom: 1px solid #fff;
+      font-family: "Courier New", monospace;
+      font-size: 18px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .mine-reset {
+      width: 30px;
+      min-width: 30px;
+      height: 30px;
+      padding: 0;
+      font-size: 17px;
+      line-height: 1;
+    }
+
+    .mine-board {
+      display: grid;
+      grid-template-columns: repeat(9, 24px);
+      grid-template-rows: repeat(9, 24px);
+      border-top: 3px solid #808080;
+      border-left: 3px solid #808080;
+      border-right: 3px solid #fff;
+      border-bottom: 3px solid #fff;
+      background: #808080;
+    }
+
+    .mine-cell {
+      width: 24px;
+      min-width: 24px;
+      height: 24px;
+      min-height: 24px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      background: #c0c0c0;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .mine-cell.revealed {
+      border: 1px solid #808080;
+      background: #c0c0c0;
+    }
+
+    .mine-cell.flagged {
+      color: #c00000;
+    }
+
+    .mine-cell.n1 { color: #0000ff; }
+    .mine-cell.n2 { color: #008000; }
+    .mine-cell.n3 { color: #ff0000; }
+    .mine-cell.n4 { color: #000080; }
+    .mine-cell.n5 { color: #800000; }
+    .mine-cell.n6 { color: #008080; }
+    .mine-cell.n7 { color: #000; }
+    .mine-cell.n8 { color: #808080; }
+
     @media (max-width: 768px) {
       body {
         padding: 8px 8px 46px;
@@ -1221,6 +1320,27 @@
       </section>
     </div>
 
+      <section class="desktop-window minimized minesweeper-window" data-window-id="minesweeper" data-window-title="MINESWEEPER">
+        <div class="window-titlebar">
+          <span class="titlebar-label"><span class="window-icon"></span>MINESWEEPER</span>
+          <div class="window-controls">
+            <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="minesweeper-panel">
+            <div class="mine-status">
+              <div class="mine-counter" id="mineCounter">010</div>
+              <button type="button" class="mine-reset" id="mineReset" aria-label="Reset Minesweeper">☺</button>
+              <div class="mine-timer" id="mineTimer">000</div>
+            </div>
+            <div class="mine-board" id="mineBoard" aria-label="Minesweeper board"></div>
+          </div>
+        </div>
+      </section>
+
   </main>
 
   <div class="start-menu" id="startMenu">
@@ -1228,6 +1348,7 @@
     <button type="button" data-window-restore="gauntlet">The Yak Gauntlet</button>
     <button type="button" data-window-restore="filters">Options</button>
     <button type="button" data-window-restore="scoreboard">Scoreboard</button>
+    <button type="button" data-window-restore="minesweeper">Minesweeper</button>
     <button type="button" data-window-restore="runStats">Run Statistics</button>
     <button type="button" data-window-restore="statsDashboard">Monthly Leaders</button>
     <button type="button" data-window-restore="wheelConfig">Configurations</button>
@@ -1263,7 +1384,180 @@
     const statsCanvas = document.getElementById('statsCanvas');
     const statsScroll = document.getElementById('statsScroll');
     const chartTooltip = document.getElementById('chartTooltip');
+    const mineBoard = document.getElementById('mineBoard');
+    const mineCounter = document.getElementById('mineCounter');
+    const mineTimer = document.getElementById('mineTimer');
+    const mineReset = document.getElementById('mineReset');
     let activeZ = 30;
+
+    const mineState = {
+      rows: 9,
+      cols: 9,
+      mines: 10,
+      cells: [],
+      started: false,
+      ended: false,
+      flags: 0,
+      seconds: 0,
+      timerId: null
+    };
+
+    function padMineNumber(value) {
+      return String(Math.max(0, Math.min(999, value))).padStart(3, '0');
+    }
+
+    function updateMineDisplays() {
+      if (mineCounter) mineCounter.textContent = padMineNumber(mineState.mines - mineState.flags);
+      if (mineTimer) mineTimer.textContent = padMineNumber(mineState.seconds);
+    }
+
+    function mineNeighbors(row, col) {
+      const neighbors = [];
+      for (let dr = -1; dr <= 1; dr++) {
+        for (let dc = -1; dc <= 1; dc++) {
+          if (!dr && !dc) continue;
+          const nextRow = row + dr;
+          const nextCol = col + dc;
+          if (nextRow >= 0 && nextRow < mineState.rows && nextCol >= 0 && nextCol < mineState.cols) {
+            neighbors.push(mineState.cells[nextRow][nextCol]);
+          }
+        }
+      }
+      return neighbors;
+    }
+
+    function startMineTimer() {
+      if (mineState.started) return;
+      mineState.started = true;
+      mineState.timerId = window.setInterval(() => {
+        if (mineState.ended) return;
+        mineState.seconds += 1;
+        updateMineDisplays();
+      }, 1000);
+    }
+
+    function stopMineTimer() {
+      if (mineState.timerId) window.clearInterval(mineState.timerId);
+      mineState.timerId = null;
+    }
+
+    function renderMineCell(cell) {
+      const button = cell.button;
+      button.className = 'mine-cell';
+      button.textContent = '';
+      if (cell.revealed) {
+        button.classList.add('revealed');
+        if (cell.mine) {
+          button.textContent = '✹';
+        } else if (cell.count) {
+          button.textContent = cell.count;
+          button.classList.add(`n${cell.count}`);
+        }
+      } else if (cell.flagged) {
+        button.classList.add('flagged');
+        button.textContent = '⚑';
+      }
+    }
+
+    function revealMineCell(cell) {
+      if (mineState.ended || cell.revealed || cell.flagged) return;
+      startMineTimer();
+      cell.revealed = true;
+      if (cell.mine) {
+        mineState.ended = true;
+        stopMineTimer();
+        if (mineReset) mineReset.textContent = '☹';
+        mineState.cells.flat().forEach(item => {
+          if (item.mine) item.revealed = true;
+          renderMineCell(item);
+        });
+        return;
+      }
+      renderMineCell(cell);
+      if (!cell.count) {
+        mineNeighbors(cell.row, cell.col).forEach(revealMineCell);
+      }
+      checkMineWin();
+    }
+
+    function toggleMineFlag(cell) {
+      if (mineState.ended || cell.revealed) return;
+      startMineTimer();
+      cell.flagged = !cell.flagged;
+      mineState.flags += cell.flagged ? 1 : -1;
+      renderMineCell(cell);
+      updateMineDisplays();
+      checkMineWin();
+    }
+
+    function checkMineWin() {
+      if (mineState.ended) return;
+      const won = mineState.cells.flat().every(cell => cell.mine || cell.revealed);
+      if (!won) return;
+      mineState.ended = true;
+      stopMineTimer();
+      if (mineReset) mineReset.textContent = '😎';
+      mineState.cells.flat().forEach(cell => {
+        if (cell.mine && !cell.flagged) {
+          cell.flagged = true;
+          mineState.flags += 1;
+        }
+        renderMineCell(cell);
+      });
+      updateMineDisplays();
+    }
+
+    function resetMinesweeper() {
+      stopMineTimer();
+      Object.assign(mineState, {
+        cells: [],
+        started: false,
+        ended: false,
+        flags: 0,
+        seconds: 0,
+        timerId: null
+      });
+      if (!mineBoard) return;
+      mineBoard.innerHTML = '';
+      const minePositions = new Set();
+      while (minePositions.size < mineState.mines) {
+        minePositions.add(Math.floor(Math.random() * mineState.rows * mineState.cols));
+      }
+      for (let row = 0; row < mineState.rows; row++) {
+        const rowCells = [];
+        for (let col = 0; col < mineState.cols; col++) {
+          const index = row * mineState.cols + col;
+          const button = document.createElement('button');
+          button.type = 'button';
+          const cell = { row, col, mine: minePositions.has(index), count: 0, revealed: false, flagged: false, button };
+          button.addEventListener('click', () => revealMineCell(cell));
+          button.addEventListener('contextmenu', event => {
+            event.preventDefault();
+            toggleMineFlag(cell);
+          });
+          button.addEventListener('pointerdown', event => {
+            if (event.pointerType === 'touch') {
+              cell.touchTimer = window.setTimeout(() => toggleMineFlag(cell), 520);
+            }
+          });
+          button.addEventListener('pointerup', () => {
+            if (cell.touchTimer) window.clearTimeout(cell.touchTimer);
+          });
+          button.addEventListener('pointerleave', () => {
+            if (cell.touchTimer) window.clearTimeout(cell.touchTimer);
+          });
+          rowCells.push(cell);
+          mineBoard.appendChild(button);
+        }
+        mineState.cells.push(rowCells);
+      }
+      mineState.cells.flat().forEach(cell => {
+        cell.count = cell.mine ? 0 : mineNeighbors(cell.row, cell.col).filter(item => item.mine).length;
+        renderMineCell(cell);
+      });
+      if (mineReset) mineReset.textContent = '☺';
+      updateMineDisplays();
+    }
 
     function randomizeStellaPosition() {
       if (!stellaPopup) return;
@@ -2495,6 +2789,8 @@ document.querySelectorAll('.delete-button').forEach(button => {
       input.addEventListener('input', () => updateWheelConfigFromInput(input));
     });
 
+    resetMinesweeper();
+    if (mineReset) mineReset.addEventListener('click', resetMinesweeper);
     fetchEntries();
   });
 </script>

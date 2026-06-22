@@ -2347,6 +2347,23 @@ document.querySelectorAll('.delete-button').forEach(button => {
         const y = scale(best.totalSeconds);
         const barHeight = Math.max(4, bottom - y);
         const isBarstool = normalizeDivision(best.division) === 'BARSTOOL';
+        const year = month.key.slice(0, 4);
+        const previousYear = index > 0 ? data[index - 1].key.slice(0, 4) : null;
+        if (index === 0 || year !== previousYear) {
+          ctx.strokeStyle = '#000080';
+          ctx.beginPath();
+          ctx.moveTo(x, top);
+          ctx.lineTo(x, bottom + 64);
+          ctx.stroke();
+          ctx.save();
+          ctx.translate(x + 4, top + 12);
+          ctx.rotate(-Math.PI / 2);
+          ctx.fillStyle = '#000080';
+          ctx.font = 'bold 10px Roboto, Arial';
+          ctx.textAlign = 'right';
+          ctx.fillText(year, 0, 0);
+          ctx.restore();
+        }
         ctx.fillStyle = isBarstool ? '#1084d0' : '#f2c94c';
         ctx.fillRect(x, y, barWidth, barHeight);
         ctx.strokeStyle = '#000';
@@ -2361,7 +2378,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
         ctx.restore();
         statsHoverPoints.push({
           x, y, w: barWidth, h: barHeight,
-          text: `Monthly winner: ${best.name}<br>${month.key}<br>${formatTime(best.totalSeconds)}<br>Total runs: ${month.totalRuns}<br>${isBarstool ? 'Barstool' : 'Guests'}`
+          text: `${best.name}<hr>${formatTime(best.totalSeconds)}<hr>Total runs: ${month.totalRuns}`
         });
       });
 

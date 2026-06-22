@@ -711,7 +711,7 @@
     .stats-canvas {
       display: block;
       min-width: 680px;
-      height: 270px;
+      height: auto;
       background: #fff;
     }
 
@@ -1305,10 +1305,24 @@
       win.style.zIndex = activeZ;
     }
 
+    function positionOverScoreboard(win) {
+      const scoreboardWindow = document.querySelector('[data-window-id="scoreboard"]');
+      const rect = scoreboardWindow ? scoreboardWindow.getBoundingClientRect() : { left: 340, top: 12, width: window.innerWidth - 360 };
+      const width = Math.min(Math.max(rect.width * 0.82, 620), window.innerWidth - 32);
+      win.classList.add('detached');
+      win.style.position = 'fixed';
+      win.style.left = `${Math.max(12, rect.left + 18)}px`;
+      win.style.top = `${Math.max(12, rect.top + 34)}px`;
+      win.style.width = `${width}px`;
+    }
+
     function restoreWindow(id) {
       const win = document.querySelector(`[data-window-id="${id}"]`);
       if (!win) return;
       win.classList.remove('minimized');
+      if (id === 'statsDashboard' || id === 'wheelConfig') {
+        positionOverScoreboard(win);
+      }
       bringWindowToFront(win);
       startMenu.classList.remove('open');
     }
@@ -2290,46 +2304,67 @@ document.querySelectorAll('.delete-button').forEach(button => {
 
     function drawStatsHistogram() {
       if (!statsCanvas) return;
-      const data = validTimedEntries();
-      const width = Math.max(760, data.length * 34 + 90);
+      const monthly = {};
+      validTimedEntries().forEach(entry => {
+        const date = new Date(entry.date);
+        if (isNaN(date)) return;
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        if (!monthly[key]) monthly[key] = { key, totalRuns: 0, best: null };
+        monthly[key].totalRuns += 1;
+        if (!monthly[key].best || entry.totalSeconds < monthly[key].best.totalSeconds) {
+          monthly[key].best = entry;
+        }
+      });
+      const data = Object.values(monthly).filter(item => item.best).sort((a, b) => a.key.localeCompare(b.key));
+      const width = Math.max(760, data.length * 72 + 90);
       const height = 270;
       statsCanvas.width = width;
       statsCanvas.height = height;
       statsHoverPoints = [];
       const ctx = statsCanvas.getContext('2d');
-      drawChartFrame(ctx, width, height, 'Times Over Time');
-      const left = 48;
-      const top = 32;
-      const bottom = 226;
-      const maxTime = Math.max(...data.map(entry => entry.totalSeconds), 1);
+      drawChartFrame(ctx, width, height, 'Monthly Best Run');
+      const left = 52;
+      const top = 36;
+      const bottom = 220;
+      const maxTime = Math.max(...data.map(month => month.best.totalSeconds), 1);
       ctx.strokeStyle = '#808080';
       ctx.beginPath();
       ctx.moveTo(left, top);
       ctx.lineTo(left, bottom);
-      ctx.lineTo(width - 20, bottom);
+      ctx.lineTo(width - 24, bottom);
       ctx.stroke();
 
-      data.forEach((entry, index) => {
-        const x = left + index * 34 + 12;
-        const barHeight = Math.max(3, (entry.totalSeconds / maxTime) * (bottom - top));
+      data.forEach((month, index) => {
+        const best = month.best;
+        const x = left + index * 72 + 16;
+        const barHeight = Math.max(4, (best.totalSeconds / maxTime) * (bottom - top));
         const y = bottom - barHeight;
-        const isBarstool = normalizeDivision(entry.division) === 'BARSTOOL';
+        const isBarstool = normalizeDivision(best.division) === 'BARSTOOL';
         ctx.fillStyle = isBarstool ? '#1084d0' : '#f2c94c';
-        ctx.fillRect(x, y, 18, barHeight);
+        ctx.fillRect(x, y, 26, barHeight);
+        ctx.strokeStyle = '#000';
+        ctx.strokeRect(x, y, 26, barHeight);
+        ctx.save();
+        ctx.translate(x + 13, bottom + 34);
+        ctx.rotate(-Math.PI / 4);
+        ctx.fillStyle = '#000';
+        ctx.font = '10px Roboto, Arial';
+        ctx.fillText(month.key, 0, 0);
+        ctx.restore();
         statsHoverPoints.push({
-          x, y, w: 18, h: barHeight,
-          text: `${entry.name}<br>${formatDate(entry.date)}<br>${formatTime(entry.totalSeconds)}`
+          x, y, w: 26, h: barHeight,
+          text: `Monthly winner: ${best.name}<br>${month.key}<br>${formatTime(best.totalSeconds)}<br>Total runs: ${month.totalRuns}<br>${isBarstool ? 'Barstool' : 'Guests'}`
         });
       });
 
       ctx.fillStyle = '#1084d0';
-      ctx.fillRect(width - 190, 10, 12, 12);
+      ctx.fillRect(width - 210, 10, 12, 12);
       ctx.fillStyle = '#000';
-      ctx.fillText('Barstool', width - 173, 20);
+      ctx.fillText('Barstool winner', width - 193, 20);
       ctx.fillStyle = '#f2c94c';
       ctx.fillRect(width - 102, 10, 12, 12);
       ctx.fillStyle = '#000';
-      ctx.fillText('Guests', width - 85, 20);
+      ctx.fillText('Guest winner', width - 85, 20);
     }
 
     function median(values) {
@@ -2345,43 +2380,72 @@ document.querySelectorAll('.delete-button').forEach(button => {
         if (!grouped[entry.division]) grouped[entry.division] = [];
         grouped[entry.division].push(entry.totalSeconds);
       });
-      const divisions = Object.keys(grouped).sort();
-      const width = Math.max(760, 640);
-      const height = Math.max(270, divisions.length * 56 + 60);
-      statsCanvas.width = width;
-      statsCanvas.height = height;
-      statsHoverPoints = [];
-      const ctx = statsCanvas.getContext('2d');
-      drawChartFrame(ctx, width, height, 'Division Stats');
-      const left = 150;
-      const right = width - 150;
-      const allMax = Math.max(...Object.values(grouped).flat(), 1);
-      divisions.forEach((division, index) => {
+      const divisionStats = Object.keys(grouped).map(division => {
         const values = grouped[division].sort((a, b) => a - b);
         const min = values[0];
         const max = values[values.length - 1];
         const avg = values.reduce((sum, value) => sum + value, 0) / values.length;
         const q1 = values.length > 1 ? median(values.slice(0, Math.floor(values.length / 2))) : min;
         const q3 = values.length > 1 ? median(values.slice(Math.ceil(values.length / 2))) : max;
-        const y = 54 + index * 56;
-        const scale = value => left + (value / allMax) * (right - left);
-        ctx.fillStyle = '#000';
-        ctx.font = 'bold 11px Roboto, Arial';
-        ctx.fillText(division || 'Unassigned', 12, y + 4);
+        return { division, values, min, max, avg, q1, q3 };
+      }).sort((a, b) => a.avg - b.avg);
+
+      const width = Math.max(760, divisionStats.length * 128 + 110);
+      const height = 270;
+      statsCanvas.width = width;
+      statsCanvas.height = height;
+      statsHoverPoints = [];
+      const ctx = statsCanvas.getContext('2d');
+      drawChartFrame(ctx, width, height, 'Division Stats by Average');
+      const top = 54;
+      const bottom = 204;
+      const maxTime = Math.max(...divisionStats.map(item => item.max), 1);
+      const scale = value => bottom - (value / maxTime) * (bottom - top);
+
+      ctx.strokeStyle = '#808080';
+      ctx.beginPath();
+      ctx.moveTo(54, top);
+      ctx.lineTo(54, bottom);
+      ctx.lineTo(width - 28, bottom);
+      ctx.stroke();
+
+      divisionStats.forEach((item, index) => {
+        const x = 92 + index * 128;
+        const minY = scale(item.min);
+        const maxY = scale(item.max);
+        const q1Y = scale(item.q1);
+        const q3Y = scale(item.q3);
+        const avgY = scale(item.avg);
         ctx.strokeStyle = '#000';
         ctx.beginPath();
-        ctx.moveTo(scale(min), y);
-        ctx.lineTo(scale(max), y);
+        ctx.moveTo(x, maxY);
+        ctx.lineTo(x, minY);
+        ctx.moveTo(x - 16, maxY);
+        ctx.lineTo(x + 16, maxY);
+        ctx.moveTo(x - 16, minY);
+        ctx.lineTo(x + 16, minY);
         ctx.stroke();
         ctx.fillStyle = '#cfe8ff';
-        ctx.fillRect(scale(q1), y - 12, Math.max(3, scale(q3) - scale(q1)), 24);
-        ctx.strokeRect(scale(q1), y - 12, Math.max(3, scale(q3) - scale(q1)), 24);
+        ctx.fillRect(x - 20, Math.min(q1Y, q3Y), 40, Math.max(4, Math.abs(q3Y - q1Y)));
+        ctx.strokeRect(x - 20, Math.min(q1Y, q3Y), 40, Math.max(4, Math.abs(q3Y - q1Y)));
         ctx.fillStyle = '#000080';
-        ctx.fillRect(scale(avg) - 2, y - 15, 4, 30);
+        ctx.fillRect(x - 23, avgY - 2, 46, 4);
         ctx.fillStyle = '#000';
         ctx.font = '10px Roboto, Arial';
-        ctx.fillText(`avg ${formatTime(avg)}  min ${formatTime(min)}  max ${formatTime(max)}  runs ${values.length}`, right + 10, y + 4);
+        ctx.textAlign = 'center';
+        ctx.fillText(`avg ${formatTime(item.avg)}`, x, top - 16);
+        ctx.save();
+        ctx.translate(x, bottom + 44);
+        ctx.rotate(-Math.PI / 4);
+        ctx.textAlign = 'right';
+        ctx.fillText(item.division || 'Unassigned', 0, 0);
+        ctx.restore();
+        statsHoverPoints.push({
+          x: x - 24, y: maxY - 8, w: 48, h: Math.max(24, minY - maxY + 16),
+          text: `${item.division || 'Unassigned'}<br>Average: ${formatTime(item.avg)}<br>Min: ${formatTime(item.min)}<br>Max: ${formatTime(item.max)}<br>Total runs: ${item.values.length}`
+        });
       });
+      ctx.textAlign = 'left';
     }
 
     function renderStatsDashboard() {
@@ -2396,7 +2460,8 @@ document.querySelectorAll('.delete-button').forEach(button => {
       currentStatsView = view;
       const statsWindow = document.querySelector('[data-window-id="statsDashboard"]');
       if (statsWindow) {
-        statsWindow.classList.remove('minimized', 'maximized', 'detached');
+        statsWindow.classList.remove('minimized', 'maximized');
+        positionOverScoreboard(statsWindow);
         bringWindowToFront(statsWindow);
       }
       renderStatsDashboard();

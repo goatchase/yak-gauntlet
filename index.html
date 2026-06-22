@@ -526,24 +526,21 @@
     #scoreboard tbody tr.leader:hover,
     #scoreboard tbody tr.division-leader:hover,
     #scoreboard tbody tr.today-entry:hover {
-      color: #fff !important;
-      background-color: #000080 !important;
+      color: #000 !important;
+      background-color: #dcdcdc !important;
     }
 
     #scoreboard tbody tr:hover .stopwatch {
-      color: #fff !important;
+      color: #000 !important;
     }
 
-    .leader {
-      background-color: #fff79a !important;
-    }
-
+    .leader,
     .division-leader {
-      background-color: #c7ddff !important;
+      background-color: #cfe8ff !important;
     }
 
     .today-entry {
-      background-color: #ffd8a8 !important;
+      background-color: #fff3a6 !important;
     }
 
     .stopwatch {
@@ -660,6 +657,79 @@
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
       text-align: center;
+    }
+
+    .wheel-panel.is-hidden {
+      display: none;
+    }
+
+    .config-toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      padding: 5px;
+      background: #c0c0c0;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      font-weight: 700;
+    }
+
+    .stats-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+      margin-bottom: 7px;
+    }
+
+    .stats-tab.active,
+    .leaders-button.active,
+    .config-toggle.active {
+      color: #fff;
+      background-color: #000080;
+      border-top: 2px solid #404040;
+      border-left: 2px solid #404040;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+    }
+
+    .stats-scroll {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      overflow: auto;
+      padding: 6px;
+      background: #fff;
+      border-top: 2px solid #404040;
+      border-left: 2px solid #404040;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+    }
+
+    .stats-canvas {
+      display: block;
+      min-width: 680px;
+      height: 270px;
+      background: #fff;
+    }
+
+    .chart-tooltip {
+      position: absolute;
+      display: none;
+      z-index: 4;
+      max-width: 210px;
+      padding: 5px 7px;
+      color: #fff;
+      background: #000080;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      pointer-events: none;
+      font-size: 11px;
+      line-height: 1.35;
     }
 
 
@@ -1006,7 +1076,7 @@
         </div>
         <div class="window-body">
           <div class="run-stats-graphic" id="runStatsContent"></div>
-          <div class="wheel-panel">
+          <div class="wheel-panel is-hidden" id="wheelPanel">
             <div class="wheel-entry-row">
               <input id="wheelEntryInput" placeholder="Add punishment or reward" />
               <button type="button" id="addWheelEntryButton">Add</button>
@@ -1039,7 +1109,11 @@
               <button id="barstoolButton" class="audience-button">Barstool</button>
               <button id="guestsButton" class="audience-button">Guests</button>
             </div>
-            <button id="unfilterButton" class="unfilter-button" type="button">Unfilter</button>
+            <div class="button-row utility-stack">
+              <button id="unfilterButton" class="unfilter-button" type="button">Unfilter</button>
+              <button id="leadersButton" class="leaders-button" type="button">Leaders</button>
+            </div>
+            <button id="statsButton" class="open-stats-button" type="button">Stats</button>
           </div>
         </div>
       </section>
@@ -1086,6 +1160,27 @@
         </div>
       </section>
 
+      <section class="desktop-window minimized stats-window" data-window-id="statsDashboard" data-window-title="STATS">
+        <div class="window-titlebar">
+          <span class="titlebar-label"><span class="window-icon"></span>STATS</span>
+          <div class="window-controls">
+            <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="stats-tabs">
+            <button type="button" class="stats-tab active" data-stats-view="histogram">Histogram</button>
+            <button type="button" class="stats-tab" data-stats-view="division">Division Stats</button>
+          </div>
+          <div class="stats-scroll" id="statsScroll">
+            <canvas id="statsCanvas" class="stats-canvas" width="760" height="270"></canvas>
+            <div id="chartTooltip" class="chart-tooltip"></div>
+          </div>
+        </div>
+      </section>
+
       <section class="desktop-window minimized config-window" data-window-id="wheelConfig" data-window-title="CONFIGURATIONS">
         <div class="window-titlebar">
           <span class="titlebar-label"><span class="window-icon"></span>CONFIGURATIONS</span>
@@ -1096,6 +1191,10 @@
           </div>
         </div>
         <div class="window-body">
+          <div class="config-toggle-row">
+            <span>Overall Wheel</span>
+            <button type="button" id="wheelEnabledButton" class="config-toggle active">ON</button>
+          </div>
           <div class="wheel-config-grid">
             <div class="wheel-config-card">
               <h3>TOP 25%</h3>
@@ -1142,6 +1241,7 @@
     <button type="button" data-window-restore="filters">Options</button>
     <button type="button" data-window-restore="scoreboard">Scoreboard</button>
     <button type="button" data-window-restore="runStats">Run Statistics</button>
+    <button type="button" data-window-restore="statsDashboard">Stats</button>
     <button type="button" data-window-restore="wheelConfig">Configurations</button>
     <button type="button" id="editButton" class="edit-button">Edit</button>
     <button type="button" id="exportCsvButton" class="export-button">Export CSV</button>
@@ -1168,6 +1268,13 @@
     const wheelEntryInput = document.getElementById('wheelEntryInput');
     const addWheelEntryButton = document.getElementById('addWheelEntryButton');
     const clearWheelEntriesButton = document.getElementById('clearWheelEntriesButton');
+    const wheelPanel = document.getElementById('wheelPanel');
+    const wheelEnabledButton = document.getElementById('wheelEnabledButton');
+    const leadersButton = document.getElementById('leadersButton');
+    const statsButton = document.getElementById('statsButton');
+    const statsCanvas = document.getElementById('statsCanvas');
+    const statsScroll = document.getElementById('statsScroll');
+    const chartTooltip = document.getElementById('chartTooltip');
     let activeZ = 30;
 
     function randomizeStellaPosition() {
@@ -1331,11 +1438,16 @@
     let entries = [];
     let isEditMode = false;
     let audienceFilter = 'All';
+    let leadersOnly = false;
     let pendingStatsEntryId = null;
     let wheelRotation = 0;
     let wheelSpinning = false;
+    let currentStatsView = 'histogram';
+    let statsHoverPoints = [];
+    let currentRunStatsEntry = null;
     const wheelConfigStorageKey = 'yakQuartileWheelConfigV1';
     const defaultWheelConfig = {
+      enabled: true,
       q25: {
         label: 'Top 25%',
         rewards: [],
@@ -1477,7 +1589,8 @@
       try {
         const saved = JSON.parse(localStorage.getItem(wheelConfigStorageKey));
         if (!saved) return fallback;
-        Object.keys(fallback).forEach(key => {
+        fallback.enabled = saved.enabled !== false;
+        Object.keys(fallback).filter(key => key !== 'enabled').forEach(key => {
           fallback[key].rewards = Array.isArray(saved[key]?.rewards) ? saved[key].rewards : fallback[key].rewards;
           fallback[key].punishments = Array.isArray(saved[key]?.punishments) ? saved[key].punishments : fallback[key].punishments;
         });
@@ -1489,6 +1602,27 @@
 
     function saveWheelConfig() {
       localStorage.setItem(wheelConfigStorageKey, JSON.stringify(wheelConfig));
+    }
+
+    function renderWheelEnabledButton() {
+      if (!wheelEnabledButton) return;
+      const enabled = wheelConfig.enabled !== false;
+      wheelEnabledButton.textContent = enabled ? 'ON' : 'OFF';
+      wheelEnabledButton.classList.toggle('active', enabled);
+    }
+
+    function shouldShowWheelForEntry(entry) {
+      return wheelConfig.enabled !== false && entry && normalizeDivision(entry.division) === 'BARSTOOL';
+    }
+
+    function updateWheelPanelVisibility(entry) {
+      if (!wheelPanel) return;
+      const show = shouldShowWheelForEntry(entry);
+      wheelPanel.classList.toggle('is-hidden', !show);
+      if (!show && wheelResult) {
+        wheelResult.textContent = wheelConfig.enabled === false ? 'WHEEL OFF' : 'BARSTOOL ONLY';
+      }
+      return show;
     }
 
 
@@ -1516,6 +1650,7 @@
         const [key, type] = input.dataset.wheelConfig.split('.');
         input.value = (wheelConfig[key]?.[type] || []).join('\n');
       });
+      renderWheelEnabledButton();
     }
 
     function updateWheelConfigFromInput(input) {
@@ -1689,6 +1824,7 @@
 function showRunStats(entryId) {
       const entry = entries.find(item => item.id === entryId);
       if (!entry || !runStatsContent) return;
+      currentRunStatsEntry = entry;
 
       entries.forEach(item => {
         item.totalSeconds = parseTimeToSeconds(item.time);
@@ -1719,8 +1855,31 @@ function showRunStats(entryId) {
         statsWindow.style.left = '';
         statsWindow.style.top = '';
         bringWindowToFront(statsWindow);
-        populateWheelForPercentile(percentile);
+        if (updateWheelPanelVisibility(entry)) {
+          populateWheelForPercentile(percentile);
+        }
       }
+    }
+
+    function getDivisionLeaders(sourceEntries = entries) {
+      const leaders = {};
+      sourceEntries.forEach(entry => {
+        const seconds = Number.isFinite(entry.totalSeconds) ? entry.totalSeconds : parseTimeToSeconds(entry.time);
+        if (!Number.isFinite(seconds)) return;
+        const key = entry.division || '';
+        if (!leaders[key] || seconds < leaders[key].totalSeconds) {
+          leaders[key] = { ...entry, totalSeconds: seconds };
+        }
+      });
+      return leaders;
+    }
+
+    function isDivisionLeaderEntry(entry, leaders) {
+      return !!entry && !!leaders?.[entry.division] && leaders[entry.division].id === entry.id;
+    }
+
+    function updateLeaderButton() {
+      if (leadersButton) leadersButton.classList.toggle('active', leadersOnly);
     }
 
     function updateFilterOptions() {
@@ -1781,6 +1940,7 @@ function showRunStats(entryId) {
       let filteredEntries = entries.filter(entry =>
         entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
         matchesAudienceFilter(entry) &&
+        (!leadersOnly || isDivisionLeaderEntry(entry, bestByDivision)) &&
         (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
         (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
       );
@@ -2032,7 +2192,9 @@ document.querySelectorAll('.delete-button').forEach(button => {
       categoryFilter.value = 'All';
       searchInput.value = '';
       audienceFilter = 'All';
+      leadersOnly = false;
       updateAudienceButtons();
+      updateLeaderButton();
       renderScoreboard();
     });
 
@@ -2050,12 +2212,25 @@ document.querySelectorAll('.delete-button').forEach(button => {
       renderScoreboard();
     });
 
+    if (leadersButton) {
+      leadersButton.addEventListener('click', () => {
+        leadersOnly = !leadersOnly;
+        updateLeaderButton();
+        renderScoreboard();
+      });
+    }
+
+    if (statsButton) {
+      statsButton.addEventListener('click', () => openStatsDashboard('histogram'));
+    }
+
     function getVisibleScoreboardEntries() {
       return entries
         .map(entry => ({ ...entry, totalSeconds: parseTimeToSeconds(entry.time) }))
         .filter(entry =>
           entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
           matchesAudienceFilter(entry) &&
+          (!leadersOnly || isDivisionLeaderEntry(entry, getDivisionLeaders(entries))) &&
           (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
           (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
         )
@@ -2095,6 +2270,162 @@ document.querySelectorAll('.delete-button').forEach(button => {
 
     exportCsvButton.addEventListener('click', exportScoreboardCsv);
 
+    function validTimedEntries() {
+      return entries
+        .map(entry => ({ ...entry, totalSeconds: parseTimeToSeconds(entry.time) }))
+        .filter(entry => Number.isFinite(entry.totalSeconds))
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+    }
+
+    function drawChartFrame(ctx, width, height, title) {
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, width, height);
+      ctx.strokeStyle = '#000';
+      ctx.strokeRect(0, 0, width, height);
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 13px Roboto, Arial';
+      ctx.fillText(title, 12, 18);
+    }
+
+    function drawStatsHistogram() {
+      if (!statsCanvas) return;
+      const data = validTimedEntries();
+      const width = Math.max(760, data.length * 34 + 90);
+      const height = 270;
+      statsCanvas.width = width;
+      statsCanvas.height = height;
+      statsHoverPoints = [];
+      const ctx = statsCanvas.getContext('2d');
+      drawChartFrame(ctx, width, height, 'Times Over Time');
+      const left = 48;
+      const top = 32;
+      const bottom = 226;
+      const maxTime = Math.max(...data.map(entry => entry.totalSeconds), 1);
+      ctx.strokeStyle = '#808080';
+      ctx.beginPath();
+      ctx.moveTo(left, top);
+      ctx.lineTo(left, bottom);
+      ctx.lineTo(width - 20, bottom);
+      ctx.stroke();
+
+      data.forEach((entry, index) => {
+        const x = left + index * 34 + 12;
+        const barHeight = Math.max(3, (entry.totalSeconds / maxTime) * (bottom - top));
+        const y = bottom - barHeight;
+        const isBarstool = normalizeDivision(entry.division) === 'BARSTOOL';
+        ctx.fillStyle = isBarstool ? '#1084d0' : '#f2c94c';
+        ctx.fillRect(x, y, 18, barHeight);
+        statsHoverPoints.push({
+          x, y, w: 18, h: barHeight,
+          text: `${entry.name}<br>${formatDate(entry.date)}<br>${formatTime(entry.totalSeconds)}`
+        });
+      });
+
+      ctx.fillStyle = '#1084d0';
+      ctx.fillRect(width - 190, 10, 12, 12);
+      ctx.fillStyle = '#000';
+      ctx.fillText('Barstool', width - 173, 20);
+      ctx.fillStyle = '#f2c94c';
+      ctx.fillRect(width - 102, 10, 12, 12);
+      ctx.fillStyle = '#000';
+      ctx.fillText('Guests', width - 85, 20);
+    }
+
+    function median(values) {
+      if (!values.length) return 0;
+      const mid = Math.floor(values.length / 2);
+      return values.length % 2 ? values[mid] : (values[mid - 1] + values[mid]) / 2;
+    }
+
+    function drawDivisionStats() {
+      if (!statsCanvas) return;
+      const grouped = {};
+      validTimedEntries().forEach(entry => {
+        if (!grouped[entry.division]) grouped[entry.division] = [];
+        grouped[entry.division].push(entry.totalSeconds);
+      });
+      const divisions = Object.keys(grouped).sort();
+      const width = Math.max(760, 640);
+      const height = Math.max(270, divisions.length * 56 + 60);
+      statsCanvas.width = width;
+      statsCanvas.height = height;
+      statsHoverPoints = [];
+      const ctx = statsCanvas.getContext('2d');
+      drawChartFrame(ctx, width, height, 'Division Stats');
+      const left = 150;
+      const right = width - 150;
+      const allMax = Math.max(...Object.values(grouped).flat(), 1);
+      divisions.forEach((division, index) => {
+        const values = grouped[division].sort((a, b) => a - b);
+        const min = values[0];
+        const max = values[values.length - 1];
+        const avg = values.reduce((sum, value) => sum + value, 0) / values.length;
+        const q1 = values.length > 1 ? median(values.slice(0, Math.floor(values.length / 2))) : min;
+        const q3 = values.length > 1 ? median(values.slice(Math.ceil(values.length / 2))) : max;
+        const y = 54 + index * 56;
+        const scale = value => left + (value / allMax) * (right - left);
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 11px Roboto, Arial';
+        ctx.fillText(division || 'Unassigned', 12, y + 4);
+        ctx.strokeStyle = '#000';
+        ctx.beginPath();
+        ctx.moveTo(scale(min), y);
+        ctx.lineTo(scale(max), y);
+        ctx.stroke();
+        ctx.fillStyle = '#cfe8ff';
+        ctx.fillRect(scale(q1), y - 12, Math.max(3, scale(q3) - scale(q1)), 24);
+        ctx.strokeRect(scale(q1), y - 12, Math.max(3, scale(q3) - scale(q1)), 24);
+        ctx.fillStyle = '#000080';
+        ctx.fillRect(scale(avg) - 2, y - 15, 4, 30);
+        ctx.fillStyle = '#000';
+        ctx.font = '10px Roboto, Arial';
+        ctx.fillText(`avg ${formatTime(avg)}  min ${formatTime(min)}  max ${formatTime(max)}  runs ${values.length}`, right + 10, y + 4);
+      });
+    }
+
+    function renderStatsDashboard() {
+      document.querySelectorAll('.stats-tab').forEach(button => {
+        button.classList.toggle('active', button.dataset.statsView === currentStatsView);
+      });
+      if (currentStatsView === 'division') drawDivisionStats();
+      else drawStatsHistogram();
+    }
+
+    function openStatsDashboard(view = currentStatsView) {
+      currentStatsView = view;
+      const statsWindow = document.querySelector('[data-window-id="statsDashboard"]');
+      if (statsWindow) {
+        statsWindow.classList.remove('minimized', 'maximized', 'detached');
+        bringWindowToFront(statsWindow);
+      }
+      renderStatsDashboard();
+    }
+
+    document.querySelectorAll('.stats-tab').forEach(button => {
+      button.addEventListener('click', () => openStatsDashboard(button.dataset.statsView));
+    });
+
+    if (statsCanvas && statsScroll && chartTooltip) {
+      statsCanvas.addEventListener('mousemove', event => {
+        const rect = statsCanvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const point = statsHoverPoints.find(item => x >= item.x && x <= item.x + item.w && y >= item.y && y <= item.y + item.h);
+        if (!point) {
+          chartTooltip.style.display = 'none';
+          return;
+        }
+        chartTooltip.innerHTML = point.text;
+        chartTooltip.style.left = `${x + 12}px`;
+        chartTooltip.style.top = `${y + 12}px`;
+        chartTooltip.style.display = 'block';
+      });
+      statsCanvas.addEventListener('mouseleave', () => {
+        chartTooltip.style.display = 'none';
+      });
+    }
+
     divisionFilter.addEventListener('change', () => {
       audienceFilter = 'All';
       updateAudienceButtons();
@@ -2118,7 +2449,24 @@ document.querySelectorAll('.delete-button').forEach(button => {
     });
 
     initializeWheelEntries();
+    updateWheelPanelVisibility(null);
     drawNameWheel();
+    if (wheelEnabledButton) {
+      wheelEnabledButton.addEventListener('click', () => {
+        wheelConfig.enabled = wheelConfig.enabled === false;
+        saveWheelConfig();
+        renderWheelEnabledButton();
+        if (updateWheelPanelVisibility(currentRunStatsEntry) && currentRunStatsEntry) {
+          entries.forEach(item => { item.totalSeconds = parseTimeToSeconds(item.time); });
+          const validEntries = entries.filter(item => !isNaN(item.totalSeconds)).sort((a, b) => a.totalSeconds - b.totalSeconds);
+          const overallRank = validEntries.findIndex(item => item.id === currentRunStatsEntry.id) + 1;
+          const percentile = overallRank > 0 && validEntries.length > 1
+            ? Math.round(((overallRank - 1) / (validEntries.length - 1)) * 100)
+            : 0;
+          populateWheelForPercentile(percentile);
+        }
+      });
+    }
     if (spinWheelButton) spinWheelButton.addEventListener('click', spinNameWheel);
     if (addWheelEntryButton) addWheelEntryButton.addEventListener('click', addWheelEntry);
     if (clearWheelEntriesButton) clearWheelEntriesButton.addEventListener('click', clearWheelEntries);

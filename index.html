@@ -1003,8 +1003,8 @@
       flex: 1;
     }
 
-    .taskbar-clock {
-      min-width: 245px;
+    .taskbar-status {
+      min-width: 78px;
       padding: 5px 8px;
       text-align: center;
       border-top: 2px solid #808080;
@@ -1013,6 +1013,14 @@
       border-bottom: 2px solid #fff;
       font-size: 12px;
       white-space: nowrap;
+    }
+
+    .taskbar-runs {
+      min-width: 86px;
+    }
+
+    .taskbar-hours {
+      min-width: 104px;
     }
 
     .start-menu {
@@ -1707,7 +1715,9 @@
   <div class="desktop-taskbar">
     <button type="button" class="start-button" id="startButton">Start</button>
     <div class="taskbar-spacer"></div>
-    <div class="taskbar-clock" id="taskbarClock">--:--</div>
+    <div class="taskbar-status taskbar-runs" id="taskbarRuns">Runs: 0</div>
+    <div class="taskbar-status taskbar-hours" id="taskbarHours">Hours: 0.0</div>
+    <div class="taskbar-status taskbar-clock" id="taskbarClock">--:--</div>
   </div>
 
 <script>
@@ -1716,6 +1726,8 @@
     const startMenu = document.getElementById('startMenu');
     const stellaPopup = document.getElementById('stellaPopup');
     const taskbarClock = document.getElementById('taskbarClock');
+    const taskbarRuns = document.getElementById('taskbarRuns');
+    const taskbarHours = document.getElementById('taskbarHours');
     const desktopIcons = [...document.querySelectorAll('.desktop-icon')];
     const desktopWindows = [...document.querySelectorAll('.desktop-window')];
     const runStatsContent = document.getElementById('runStatsContent');
@@ -2215,10 +2227,13 @@
     function positionOverScoreboard(win) {
       const scoreboardWindow = document.querySelector('[data-window-id="scoreboard"]');
       const rect = scoreboardWindow ? scoreboardWindow.getBoundingClientRect() : { left: 340, top: 12, width: window.innerWidth - 360 };
-      const width = Math.min(Math.max(rect.width * 0.82, 620), window.innerWidth - 32);
+      const isStatsWindow = win.dataset.windowId === 'statsDashboard';
+      const width = isStatsWindow
+        ? Math.min(Math.max(rect.width + 220, 920), window.innerWidth - 32)
+        : Math.min(Math.max(rect.width * 0.82, 620), window.innerWidth - 32);
       win.classList.add('detached');
       win.style.position = 'fixed';
-      win.style.left = `${Math.max(12, rect.left + 18)}px`;
+      win.style.left = `${Math.max(12, isStatsWindow ? rect.left - 120 : rect.left + 18)}px`;
       win.style.top = `${Math.max(12, rect.top + 34)}px`;
       win.style.width = `${width}px`;
     }
@@ -2248,7 +2263,9 @@
     function updateClock() {
       const now = new Date();
       const hours = (taskbarTotals.seconds / 3600).toFixed(1);
-      taskbarClock.textContent = `${now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} | Runs: ${taskbarTotals.runs} | Hours: ${hours}`;
+      if (taskbarClock) taskbarClock.textContent = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      if (taskbarRuns) taskbarRuns.textContent = `Runs: ${taskbarTotals.runs}`;
+      if (taskbarHours) taskbarHours.textContent = `Hours: ${hours}`;
     }
 
     function startDrag(event, win) {
@@ -3291,13 +3308,19 @@ document.querySelectorAll('.delete-button').forEach(button => {
         }
       });
       const data = Object.values(monthly).filter(item => item.best).sort((a, b) => a.key.localeCompare(b.key));
+      const monthlyWins = {};
+      data.forEach(month => {
+        const name = month.best.name || 'Unknown';
+        monthlyWins[name] = (monthlyWins[name] || 0) + 1;
+      });
+      const winnerRows = Object.entries(monthlyWins).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
       const left = 52;
       const leaderboardWidth = 178;
       const barWidth = 26;
       const chartRight = left + data.length * barWidth;
       const leaderboardLeft = chartRight + 34;
       const width = Math.max(700, leaderboardLeft + leaderboardWidth + 18);
-      const height = 286;
+      const height = Math.max(286, 90 + winnerRows.length * 15);
       statsCanvas.width = width;
       statsCanvas.height = height;
       statsHoverPoints = [];
@@ -3373,16 +3396,11 @@ document.querySelectorAll('.delete-button').forEach(button => {
       ctx.fillStyle = '#000';
       ctx.fillText('Guest winner', 285, 20);
 
-      const monthlyWins = {};
-      data.forEach(month => {
-        const name = month.best.name || 'Unknown';
-        monthlyWins[name] = (monthlyWins[name] || 0) + 1;
-      });
-      const winnerRows = Object.entries(monthlyWins).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
       ctx.fillStyle = '#c0c0c0';
-      ctx.fillRect(leaderboardLeft, top, leaderboardWidth, bottom - top);
+      const leaderboardBottom = Math.max(bottom, top + 52 + winnerRows.length * 15);
+      ctx.fillRect(leaderboardLeft, top, leaderboardWidth, leaderboardBottom - top);
       ctx.strokeStyle = '#000';
-      ctx.strokeRect(leaderboardLeft, top, leaderboardWidth, bottom - top);
+      ctx.strokeRect(leaderboardLeft, top, leaderboardWidth, leaderboardBottom - top);
       ctx.fillStyle = '#000080';
       ctx.fillRect(leaderboardLeft + 1, top + 1, leaderboardWidth - 2, 20);
       ctx.fillStyle = '#fff';
@@ -3393,7 +3411,6 @@ document.querySelectorAll('.delete-button').forEach(button => {
       ctx.font = '10px Roboto, Arial';
       winnerRows.forEach(([name, wins], index) => {
         const y = top + 40 + index * 15;
-        if (y > bottom - 8) return;
         const clippedName = name.length > 18 ? `${name.slice(0, 17)}...` : name;
         ctx.fillText(clippedName, leaderboardLeft + 8, y);
         ctx.textAlign = 'right';
@@ -3515,4 +3532,3 @@ document.querySelectorAll('.delete-button').forEach(button => {
 </script>
 </body>
 </html>
-

@@ -1004,13 +1004,15 @@
     }
 
     .taskbar-clock {
-      min-width: 78px;
+      min-width: 245px;
       padding: 5px 8px;
       text-align: center;
       border-top: 2px solid #808080;
       border-left: 2px solid #808080;
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
+      font-size: 12px;
+      white-space: nowrap;
     }
 
     .start-menu {
@@ -1745,6 +1747,7 @@
     const euchreOrder = document.getElementById('euchreOrder');
     const euchrePass = document.getElementById('euchrePass');
     let activeZ = 30;
+    let taskbarTotals = { runs: 0, seconds: 0 };
 
     const mineState = {
       rows: 9,
@@ -2244,7 +2247,8 @@
 
     function updateClock() {
       const now = new Date();
-      taskbarClock.textContent = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      const hours = (taskbarTotals.seconds / 3600).toFixed(1);
+      taskbarClock.textContent = `${now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} | Runs: ${taskbarTotals.runs} | Hours: ${hours}`;
     }
 
     function startDrag(event, win) {
@@ -3030,8 +3034,10 @@ document.querySelectorAll('.delete-button').forEach(button => {
     async function fetchEntries() {
       const snapshot = await entriesCollection.get();
       entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      updateTaskbarTotals();
       drawNameWheel();
       renderScoreboard();
+      renderStatsDashboard();
       if (pendingStatsEntryId) {
         showRunStats(pendingStatsEntryId);
         pendingStatsEntryId = null;
@@ -3251,6 +3257,15 @@ document.querySelectorAll('.delete-button').forEach(button => {
         .sort((a, b) => new Date(a.date) - new Date(b.date));
     }
 
+    function updateTaskbarTotals() {
+      const timedEntries = validTimedEntries();
+      taskbarTotals = {
+        runs: entries.length,
+        seconds: timedEntries.reduce((total, entry) => total + entry.totalSeconds, 0)
+      };
+      updateClock();
+    }
+
     function drawChartFrame(ctx, width, height, title) {
       ctx.clearRect(0, 0, width, height);
       ctx.fillStyle = '#fff';
@@ -3277,9 +3292,11 @@ document.querySelectorAll('.delete-button').forEach(button => {
       });
       const data = Object.values(monthly).filter(item => item.best).sort((a, b) => a.key.localeCompare(b.key));
       const left = 52;
-      const rightPad = 22;
+      const leaderboardWidth = 178;
       const barWidth = 26;
-      const width = Math.max(520, left + data.length * barWidth + rightPad);
+      const chartRight = left + data.length * barWidth;
+      const leaderboardLeft = chartRight + 34;
+      const width = Math.max(700, leaderboardLeft + leaderboardWidth + 18);
       const height = 286;
       statsCanvas.width = width;
       statsCanvas.height = height;
@@ -3288,7 +3305,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
       drawChartFrame(ctx, width, height, 'Monthly Leaders');
       const top = 36;
       const bottom = 218;
-      const maxTime = Math.max(...data.map(month => month.best.totalSeconds), 60);
+      const maxTime = Math.max(60, ...data.map(month => month.best.totalSeconds));
       const roundedMax = Math.ceil(maxTime / 60) * 60;
       const scale = seconds => bottom - (seconds / roundedMax) * (bottom - top);
 
@@ -3296,7 +3313,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
       ctx.beginPath();
       ctx.moveTo(left, top);
       ctx.lineTo(left, bottom);
-      ctx.lineTo(width - rightPad, bottom);
+      ctx.lineTo(Math.max(left + 1, chartRight), bottom);
       ctx.stroke();
 
       ctx.font = '10px Roboto, Arial';
@@ -3307,7 +3324,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
         ctx.strokeStyle = '#dcdcdc';
         ctx.beginPath();
         ctx.moveTo(left, y);
-        ctx.lineTo(width - rightPad, y);
+        ctx.lineTo(Math.max(left + 1, chartRight), y);
         ctx.stroke();
         ctx.fillStyle = '#000';
         ctx.fillText(`${seconds / 60}:00`, left - 5, y + 3);
@@ -3327,14 +3344,6 @@ document.querySelectorAll('.delete-button').forEach(button => {
           ctx.moveTo(x, top);
           ctx.lineTo(x, bottom + 64);
           ctx.stroke();
-          ctx.save();
-          ctx.translate(x + 4, top + 12);
-          ctx.rotate(-Math.PI / 2);
-          ctx.fillStyle = '#000080';
-          ctx.font = 'bold 10px Roboto, Arial';
-          ctx.textAlign = 'right';
-          ctx.fillText(year, 0, 0);
-          ctx.restore();
         }
         ctx.fillStyle = isBarstool ? '#1084d0' : '#f2c94c';
         ctx.fillRect(x, y, barWidth, barHeight);
@@ -3356,13 +3365,41 @@ document.querySelectorAll('.delete-button').forEach(button => {
 
       ctx.textAlign = 'left';
       ctx.fillStyle = '#1084d0';
-      ctx.fillRect(width - 210, 10, 12, 12);
+      ctx.fillRect(150, 10, 12, 12);
       ctx.fillStyle = '#000';
-      ctx.fillText('Barstool winner', width - 193, 20);
+      ctx.fillText('Barstool winner', 167, 20);
       ctx.fillStyle = '#f2c94c';
-      ctx.fillRect(width - 102, 10, 12, 12);
+      ctx.fillRect(268, 10, 12, 12);
       ctx.fillStyle = '#000';
-      ctx.fillText('Guest winner', width - 85, 20);
+      ctx.fillText('Guest winner', 285, 20);
+
+      const monthlyWins = {};
+      data.forEach(month => {
+        const name = month.best.name || 'Unknown';
+        monthlyWins[name] = (monthlyWins[name] || 0) + 1;
+      });
+      const winnerRows = Object.entries(monthlyWins).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+      ctx.fillStyle = '#c0c0c0';
+      ctx.fillRect(leaderboardLeft, top, leaderboardWidth, bottom - top);
+      ctx.strokeStyle = '#000';
+      ctx.strokeRect(leaderboardLeft, top, leaderboardWidth, bottom - top);
+      ctx.fillStyle = '#000080';
+      ctx.fillRect(leaderboardLeft + 1, top + 1, leaderboardWidth - 2, 20);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 11px Roboto, Arial';
+      ctx.textAlign = 'left';
+      ctx.fillText('Monthly Wins', leaderboardLeft + 8, top + 15);
+      ctx.fillStyle = '#000';
+      ctx.font = '10px Roboto, Arial';
+      winnerRows.forEach(([name, wins], index) => {
+        const y = top + 40 + index * 15;
+        if (y > bottom - 8) return;
+        const clippedName = name.length > 18 ? `${name.slice(0, 17)}...` : name;
+        ctx.fillText(clippedName, leaderboardLeft + 8, y);
+        ctx.textAlign = 'right';
+        ctx.fillText(String(wins), leaderboardLeft + leaderboardWidth - 8, y);
+        ctx.textAlign = 'left';
+      });
     }
 
     function median(values) {
@@ -3478,3 +3515,4 @@ document.querySelectorAll('.delete-button').forEach(button => {
 </script>
 </body>
 </html>
+

@@ -1204,14 +1204,15 @@
     .mine-cell.n8 { color: #808080; }
 
     .euchre-window {
-      width: 100%;
+      width: 460px;
+      max-width: calc(100vw - 24px);
     }
 
     .euchre-panel {
       display: grid;
-      gap: 8px;
+      gap: 7px;
       padding: 6px;
-      background: #008080;
+      background: #007060;
       border-top: 2px solid #fff;
       border-left: 2px solid #fff;
       border-right: 2px solid #404040;
@@ -1225,6 +1226,7 @@
     }
 
     .euchre-score div,
+    .euchre-tricks div,
     .euchre-status,
     .euchre-log {
       padding: 5px 6px;
@@ -1238,14 +1240,46 @@
       font-weight: 700;
     }
 
+    .euchre-score div,
+    .euchre-tricks div {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .euchre-score span,
+    .euchre-tricks span {
+      font-size: 10px;
+      text-transform: uppercase;
+      opacity: 0.85;
+    }
+
+    .euchre-score strong,
+    .euchre-tricks strong {
+      font-size: 15px;
+    }
+
+    .euchre-tricks {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .euchre-tricks div {
+      color: #000;
+      background: #c0c0c0;
+    }
+
     .euchre-status {
       background: #000;
       font-family: "Courier New", monospace;
       min-height: 28px;
+      white-space: normal;
     }
 
     .euchre-table {
-      min-height: 126px;
+      min-height: 142px;
       position: relative;
       display: grid;
       grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr;
@@ -1266,6 +1300,15 @@
       font-size: 11px;
       font-weight: 700;
       text-align: center;
+    }
+
+    .euchre-play-slot span {
+      display: inline-block;
+      min-width: 48px;
+      padding: 2px 4px;
+      color: #fff;
+      background: #000080;
+      border: 1px solid #fff;
     }
 
     .euchre-play-slot:nth-child(1) { grid-column: 2; grid-row: 1; }
@@ -1336,6 +1379,19 @@
       min-height: 28px;
       font-size: 12px;
       font-weight: 700;
+    }
+
+    .euchre-hand-label {
+      padding: 3px 6px;
+      color: #000;
+      background: #c0c0c0;
+      border-top: 1px solid #fff;
+      border-left: 1px solid #fff;
+      border-right: 1px solid #404040;
+      border-bottom: 1px solid #404040;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
     }
 
     .euchre-log {
@@ -1549,8 +1605,12 @@
         <div class="window-body">
           <div class="euchre-panel">
             <div class="euchre-score">
-              <div id="euchreScoreUs">US 0</div>
-              <div id="euchreScoreThem">THEM 0</div>
+              <div><span>Us</span><strong id="euchreScoreUs">0</strong></div>
+              <div><span>Them</span><strong id="euchreScoreThem">0</strong></div>
+            </div>
+            <div class="euchre-tricks">
+              <div><span>Tricks Us</span><strong id="euchreTricksUs">0</strong></div>
+              <div><span>Tricks Them</span><strong id="euchreTricksThem">0</strong></div>
             </div>
             <div class="euchre-status" id="euchreStatus">NEW HAND READY</div>
             <div class="euchre-table" id="euchreTable" aria-label="Euchre table">
@@ -1564,6 +1624,7 @@
               <button type="button" id="euchreOrder">Order Up</button>
               <button type="button" id="euchrePass">Pass</button>
             </div>
+            <div class="euchre-hand-label">Your Hand</div>
             <div class="euchre-hand" id="euchreHand" aria-label="Your Euchre hand"></div>
             <div class="euchre-log" id="euchreLog">Click New Hand to deal.</div>
           </div>
@@ -1751,6 +1812,8 @@
     const mineReset = document.getElementById('mineReset');
     const euchreScoreUs = document.getElementById('euchreScoreUs');
     const euchreScoreThem = document.getElementById('euchreScoreThem');
+    const euchreTricksUs = document.getElementById('euchreTricksUs');
+    const euchreTricksThem = document.getElementById('euchreTricksThem');
     const euchreStatus = document.getElementById('euchreStatus');
     const euchreTable = document.getElementById('euchreTable');
     const euchreHand = document.getElementById('euchreHand');
@@ -2026,11 +2089,14 @@
 
     function renderEuchre() {
       if (!euchreHand) return;
-      if (euchreScoreUs) euchreScoreUs.textContent = `US ${euchreState.score[0]}`;
-      if (euchreScoreThem) euchreScoreThem.textContent = `THEM ${euchreState.score[1]}`;
+      if (euchreScoreUs) euchreScoreUs.textContent = euchreState.score[0];
+      if (euchreScoreThem) euchreScoreThem.textContent = euchreState.score[1];
+      if (euchreTricksUs) euchreTricksUs.textContent = euchreState.tricks[0];
+      if (euchreTricksThem) euchreTricksThem.textContent = euchreState.tricks[1];
       const trumpText = euchreState.trump ? `TRUMP: ${euchreSuitNames[euchreState.trump].toUpperCase()}` : `UPCARD: ${euchreCardLabel(euchreState.upcard || { rank: '-', suit: 'S' })}`;
       const dealerText = `DEALER: ${euchrePlayers[euchreState.dealer].toUpperCase()}`;
-      if (euchreStatus) euchreStatus.textContent = `${trumpText} | ${dealerText} | TURN: ${euchrePlayers[euchreState.turn].toUpperCase()}`;
+      const phaseText = euchreState.phase === 'bidding' ? 'BIDDING' : euchreState.phase === 'playing' ? 'PLAYING' : 'READY';
+      if (euchreStatus) euchreStatus.textContent = `${phaseText} | ${trumpText} | ${dealerText} | TURN: ${euchrePlayers[euchreState.turn].toUpperCase()}`;
       if (euchreLog) euchreLog.innerHTML = euchreState.log.map(line => `<div>${line}</div>`).join('');
 
       if (euchreTable) {
@@ -2247,6 +2313,19 @@
       win.style.zIndex = '';
     }
 
+    function positionGameWindow(win, id) {
+      const isMine = id === 'minesweeper';
+      const width = isMine ? 270 : 460;
+      const left = isMine ? 16 : Math.min(Math.max(300, window.innerWidth - width - 18), window.innerWidth - width - 12);
+      const top = isMine ? 314 : 120;
+      win.classList.remove('maximized');
+      win.classList.add('detached');
+      win.style.position = 'fixed';
+      win.style.left = `${Math.max(12, left)}px`;
+      win.style.top = `${Math.max(58, Math.min(top, window.innerHeight - 120))}px`;
+      win.style.width = `${Math.min(width, window.innerWidth - 24)}px`;
+    }
+
     function restoreWindow(id) {
       const win = document.querySelector(`[data-window-id="${id}"]`);
       if (!win) return;
@@ -2254,7 +2333,7 @@
       if (id === 'statsDashboard' || id === 'wheelConfig') {
         positionOverScoreboard(win);
       } else if (id === 'minesweeper' || id === 'euchre') {
-        restoreStackedWindow(win);
+        positionGameWindow(win, id);
       }
       bringWindowToFront(win);
       startMenu.classList.remove('open');

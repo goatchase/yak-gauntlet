@@ -1261,7 +1261,7 @@
 
 .euchre-leaderboard-controls {
   display: grid;
-  grid-template-columns: 22px 26px 22px;
+  grid-template-columns: 22px 22px;
   align-items: center;
   gap: 3px;
 }
@@ -1732,7 +1732,7 @@
 
     .euchre-leaderboard-row {
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: 1fr 26px auto;
       align-items: center;
       gap: 8px;
     }
@@ -1741,6 +1741,10 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+
+    .euchre-leaderboard-wins {
+      text-align: right;
     }
 
     @media (max-width: 768px) {
@@ -2496,15 +2500,45 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const rows = [...euchreCompletedLeaderboard].sort((a, b) => b.wins - a.wins || a.name.localeCompare(b.name));
       euchreLeaderboard.innerHTML = '<div class="euchre-leaderboard-title">Completed Games</div>' +
         (rows.length
-          ? rows.map(row => `<div class="euchre-leaderboard-row"><span>${escapeHTML(row.name)}</span><div class="euchre-leaderboard-controls"><button type="button" class="euchre-leaderboard-icon" data-euchre-leaderboard-edit="${escapeHTML(row.name)}" data-delta="-1" aria-label="Decrease ${escapeHTML(row.name)} wins">-</button><strong>${row.wins}</strong><button type="button" class="euchre-leaderboard-icon" data-euchre-leaderboard-edit="${escapeHTML(row.name)}" data-delta="1" aria-label="Increase ${escapeHTML(row.name)} wins">+</button></div></div>`).join('')
+          ? rows.map(row => {
+            const rowIndex = euchreCompletedLeaderboard.indexOf(row);
+            const safeName = escapeHTML(row.name);
+            return `<div class="euchre-leaderboard-row"><span>${safeName}</span><strong class="euchre-leaderboard-wins">${row.wins}</strong><div class="euchre-leaderboard-controls"><button type="button" class="euchre-leaderboard-icon" data-euchre-leaderboard-action="edit" data-euchre-leaderboard-index="${rowIndex}" aria-label="Edit ${safeName} completed games">E</button><button type="button" class="euchre-leaderboard-icon" data-euchre-leaderboard-action="delete" data-euchre-leaderboard-index="${rowIndex}" aria-label="Delete ${safeName} completed games">X</button></div></div>`;
+          }).join('')
           : '<div>No games yet.</div>');
     }
 
-    function editEuchreLeaderboard(name, delta) {
-      const row = euchreCompletedLeaderboard.find(item => item.name === name);
+    function editEuchreLeaderboard(index) {
+      const row = euchreCompletedLeaderboard[index];
       if (!row) return;
-      row.wins = Math.max(0, row.wins + delta);
-      euchreCompletedLeaderboard = euchreCompletedLeaderboard.filter(item => item.wins > 0);
+      const newName = window.prompt('Edit completed-games name:', row.name);
+      if (newName === null) return;
+      const trimmedName = newName.trim();
+      if (!trimmedName) return;
+      const winsText = window.prompt('Edit completed-games wins:', row.wins);
+      if (winsText === null) return;
+      const wins = Math.max(0, Math.floor(Number(winsText)));
+      if (!Number.isFinite(wins)) return;
+      row.name = trimmedName;
+      row.wins = wins;
+      euchreCompletedLeaderboard = euchreCompletedLeaderboard
+        .filter(item => item.wins > 0)
+        .reduce((merged, item) => {
+          const existing = merged.find(row => row.name.toUpperCase() === item.name.toUpperCase());
+          if (existing) {
+            existing.wins += item.wins;
+          } else {
+            merged.push({ name: item.name, wins: item.wins });
+          }
+          return merged;
+        }, []);
+      saveEuchreLeaderboard();
+      renderEuchreLeaderboard();
+    }
+
+    function deleteEuchreLeaderboard(index) {
+      if (!euchreCompletedLeaderboard[index]) return;
+      euchreCompletedLeaderboard.splice(index, 1);
       saveEuchreLeaderboard();
       renderEuchreLeaderboard();
     }
@@ -4122,9 +4156,16 @@ document.querySelectorAll('.delete-button').forEach(button => {
     if (euchreLeaderboard) {
       euchreLeaderboard.addEventListener('click', (event) => {
         const target = event.target instanceof Element ? event.target : event.target.parentElement;
-        const button = target ? target.closest('[data-euchre-leaderboard-edit]') : null;
+        const button = target ? target.closest('[data-euchre-leaderboard-action]') : null;
         if (!button) return;
-        editEuchreLeaderboard(button.dataset.euchreLeaderboardEdit, Number(button.dataset.delta) || 0);
+        const rowIndex = Number(button.dataset.euchreLeaderboardIndex);
+        if (!Number.isInteger(rowIndex)) return;
+        if (button.dataset.euchreLeaderboardAction === 'edit') {
+          editEuchreLeaderboard(rowIndex);
+        }
+        if (button.dataset.euchreLeaderboardAction === 'delete') {
+          deleteEuchreLeaderboard(rowIndex);
+        }
       });
     }
     if (euchrePlayTo) {

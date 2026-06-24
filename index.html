@@ -1204,7 +1204,7 @@
     .mine-cell.n8 { color: #808080; }
 
     .euchre-window {
-      width: 460px;
+      width: 760px;
       max-width: calc(100vw - 24px);
     }
 
@@ -1212,7 +1212,7 @@
       display: grid;
       gap: 7px;
       padding: 6px;
-      background: #007060;
+      background: #0b6f68;
       border-top: 2px solid #fff;
       border-left: 2px solid #fff;
       border-right: 2px solid #404040;
@@ -1221,7 +1221,7 @@
 
     .euchre-score {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 6px;
     }
 
@@ -1279,23 +1279,141 @@
     }
 
     .euchre-table {
-      min-height: 142px;
+      min-height: 366px;
       position: relative;
-      display: grid;
-      grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr;
-      gap: 5px;
-      padding: 8px;
-      background: #008000;
-      border-top: 3px solid #004000;
-      border-left: 3px solid #004000;
-      border-right: 3px solid #7ad67a;
-      border-bottom: 3px solid #7ad67a;
+      overflow: hidden;
+      display: block;
+      padding: 0;
+      background:
+        linear-gradient(#2f8f92 0 44%, #136a4d 44% 100%);
+      border-top: 3px solid #004040;
+      border-left: 3px solid #004040;
+      border-right: 3px solid #62c8bb;
+      border-bottom: 3px solid #62c8bb;
+    }
+
+    .euchre-table::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 55%;
+      width: 330px;
+      height: 220px;
+      transform: translate(-50%, -50%);
+      background:
+        radial-gradient(ellipse at 50% 42%, #202020 0 56%, #050505 57% 100%);
+      border-radius: 50%;
+      border: 8px solid #111;
+      box-shadow:
+        inset 0 0 0 5px #353535,
+        0 16px 0 rgba(0, 0, 0, 0.35);
+      z-index: 1;
+    }
+
+    .euchre-table::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 86px;
+      background:
+        repeating-linear-gradient(90deg, rgba(0,0,0,0.16) 0 2px, transparent 2px 40px),
+        #8a6a3d;
+      z-index: 0;
+    }
+
+    .euchre-popcorn {
+      position: absolute;
+      left: 18px;
+      top: 70px;
+      width: 62px;
+      height: 108px;
+      z-index: 2;
+      background:
+        repeating-linear-gradient(90deg, #c00000 0 10px, #fff 10px 20px);
+      border: 3px solid #500;
+      box-shadow: 5px 5px 0 rgba(0,0,0,0.25);
+    }
+
+    .euchre-popcorn::before {
+      content: "POP";
+      position: absolute;
+      left: 6px;
+      right: 6px;
+      top: -24px;
+      padding: 3px 0;
+      color: #fff;
+      background: #c00000;
+      border: 2px solid #fff;
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .euchre-popcorn::after {
+      content: "";
+      position: absolute;
+      left: 9px;
+      top: 14px;
+      width: 40px;
+      height: 38px;
+      background:
+        radial-gradient(circle at 8px 9px, #fff2a8 0 5px, transparent 6px),
+        radial-gradient(circle at 19px 13px, #fff2a8 0 6px, transparent 7px),
+        radial-gradient(circle at 30px 8px, #fff2a8 0 5px, transparent 6px),
+        #202020;
+      border: 2px solid #fff;
+    }
+
+    .euchre-cactus {
+      position: absolute;
+      bottom: 88px;
+      width: 28px;
+      height: 88px;
+      z-index: 1;
+      background: #1d8c39;
+      border: 2px solid #0d4d1f;
+      border-radius: 15px 15px 6px 6px;
+    }
+
+    .euchre-cactus::before,
+    .euchre-cactus::after {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 44px;
+      background: #1d8c39;
+      border: 2px solid #0d4d1f;
+      border-radius: 14px;
+    }
+
+    .euchre-cactus::before {
+      left: -17px;
+      top: 26px;
+    }
+
+    .euchre-cactus::after {
+      right: -17px;
+      top: 12px;
+    }
+
+    .euchre-cactus.one { right: 106px; }
+    .euchre-cactus.two {
+      right: 38px;
+      height: 68px;
+      transform: scale(0.86);
     }
 
     .euchre-play-slot {
-      min-height: 34px;
+      position: absolute;
+      z-index: 3;
+      width: 142px;
+      min-height: 86px;
       display: grid;
-      place-items: center;
+      justify-items: center;
+      align-content: start;
+      gap: 4px;
       color: #fff;
       font-size: 11px;
       font-weight: 700;
@@ -1304,17 +1422,57 @@
 
     .euchre-play-slot span {
       display: inline-block;
-      min-width: 48px;
-      padding: 2px 4px;
+      min-width: 72px;
+      padding: 3px 5px;
       color: #fff;
       background: #000080;
       border: 1px solid #fff;
     }
 
-    .euchre-play-slot:nth-child(1) { grid-column: 2; grid-row: 1; }
-    .euchre-play-slot:nth-child(2) { grid-column: 1; grid-row: 2; }
-    .euchre-play-slot:nth-child(3) { grid-column: 3; grid-row: 2; }
-    .euchre-play-slot:nth-child(4) { grid-column: 2; grid-row: 3; }
+    .euchre-avatar {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      color: #000;
+      background: #ffd6a8;
+      border: 3px solid #202020;
+      border-radius: 50%;
+      box-shadow: inset 0 -9px 0 rgba(0,0,0,0.12), 0 4px 0 rgba(0,0,0,0.25);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .euchre-play-slot .euchre-card {
+      width: 38px;
+      min-width: 38px;
+      height: 50px;
+      min-height: 50px;
+      margin-top: 2px;
+      z-index: 4;
+    }
+
+    .euchre-play-slot[data-euchre-slot="2"] {
+      left: 50%;
+      top: 18px;
+      transform: translateX(-50%);
+    }
+
+    .euchre-play-slot[data-euchre-slot="1"] {
+      left: 112px;
+      top: 154px;
+    }
+
+    .euchre-play-slot[data-euchre-slot="3"] {
+      right: 112px;
+      top: 154px;
+    }
+
+    .euchre-play-slot[data-euchre-slot="0"] {
+      left: 50%;
+      bottom: 12px;
+      transform: translateX(-50%);
+    }
 
     .euchre-card {
       width: 44px;
@@ -1614,6 +1772,9 @@
             </div>
             <div class="euchre-status" id="euchreStatus">NEW HAND READY</div>
             <div class="euchre-table" id="euchreTable" aria-label="Euchre table">
+              <div class="euchre-popcorn" aria-hidden="true"></div>
+              <div class="euchre-cactus one" aria-hidden="true"></div>
+              <div class="euchre-cactus two" aria-hidden="true"></div>
               <div class="euchre-play-slot" data-euchre-slot="2">Partner</div>
               <div class="euchre-play-slot" data-euchre-slot="1">Lefty</div>
               <div class="euchre-play-slot" data-euchre-slot="3">Righty</div>
@@ -1837,6 +1998,12 @@
     };
 
     const euchrePlayers = ['You', 'Lefty', 'Partner', 'Righty'];
+    const euchreSeatProfiles = [
+      { name: 'You', initials: 'YOU' },
+      { name: 'Big Cat', initials: 'BC' },
+      { name: 'PFT', initials: 'PFT' },
+      { name: 'KB', initials: 'KB' }
+    ];
     const euchreRanks = ['9', '10', 'J', 'Q', 'K', 'A'];
     const euchreSuits = ['S', 'H', 'D', 'C'];
     const euchreSuitNames = { S: 'Spades', H: 'Hearts', D: 'Diamonds', C: 'Clubs' };
@@ -2102,7 +2269,8 @@
       if (euchreTable) {
         euchreTable.querySelectorAll('[data-euchre-slot]').forEach(slot => {
           const player = Number(slot.dataset.euchreSlot);
-          slot.innerHTML = `<span>${euchrePlayers[player]}</span>`;
+          const profile = euchreSeatProfiles[player] || { name: euchrePlayers[player], initials: euchrePlayers[player].slice(0, 2).toUpperCase() };
+          slot.innerHTML = `<div class="euchre-avatar" aria-hidden="true">${profile.initials}</div><span>${profile.name}</span>`;
           const play = euchreState.currentTrick.find(item => item.player === player);
           if (play) slot.appendChild(euchreRenderCard(play.card));
         });
@@ -2315,9 +2483,9 @@
 
     function positionGameWindow(win, id) {
       const isMine = id === 'minesweeper';
-      const width = isMine ? 270 : 460;
-      const left = isMine ? 16 : Math.min(Math.max(300, window.innerWidth - width - 18), window.innerWidth - width - 12);
-      const top = isMine ? 314 : 120;
+      const width = isMine ? 270 : 760;
+      const left = isMine ? 16 : Math.min(Math.max(320, window.innerWidth - width - 18), window.innerWidth - width - 12);
+      const top = isMine ? 314 : 74;
       win.classList.remove('maximized');
       win.classList.add('detached');
       win.style.position = 'fixed';

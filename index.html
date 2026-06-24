@@ -1106,7 +1106,7 @@
 
     .minesweeper-window {
       width: max-content;
-      min-width: 262px;
+      min-width: 354px;
     }
 
     .minesweeper-panel {
@@ -1148,18 +1148,18 @@
     }
 
     .mine-reset {
-      width: 30px;
-      min-width: 30px;
-      height: 30px;
+      width: 36px;
+      min-width: 36px;
+      height: 36px;
       padding: 0;
-      font-size: 17px;
+      font-size: 20px;
       line-height: 1;
     }
 
     .mine-board {
       display: grid;
-      grid-template-columns: repeat(9, 24px);
-      grid-template-rows: repeat(9, 24px);
+      grid-template-columns: repeat(9, 34px);
+      grid-template-rows: repeat(9, 34px);
       border-top: 3px solid #808080;
       border-left: 3px solid #808080;
       border-right: 3px solid #fff;
@@ -1168,10 +1168,10 @@
     }
 
     .mine-cell {
-      width: 24px;
-      min-width: 24px;
-      height: 24px;
-      min-height: 24px;
+      width: 34px;
+      min-width: 34px;
+      height: 34px;
+      min-height: 34px;
       padding: 0;
       display: grid;
       place-items: center;
@@ -1183,6 +1183,19 @@
       font-size: 14px;
       font-weight: 700;
       line-height: 1;
+    }
+
+    .mine-cell.mintz-mine {
+      padding: 1px;
+      overflow: hidden;
+    }
+
+    .mine-cell.mintz-mine img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: auto;
+      pointer-events: none;
     }
 
     .mine-cell.revealed {
@@ -1828,9 +1841,9 @@
       <span class="desktop-icon-art cards-icon" aria-hidden="true"></span>
       <span>Euchre</span>
     </button>
-    <button type="button" class="desktop-icon" data-window-restore="minesweeper">
+  <button type="button" class="desktop-icon" data-window-restore="minesweeper">
       <span class="desktop-icon-art mine-icon" aria-hidden="true"></span>
-      <span>Minesweeper</span>
+      <span>Mintzweeper</span>
     </button>
   </div>
 
@@ -1916,9 +1929,9 @@
         </div>
       </section>
 
-      <section class="desktop-window minimized minesweeper-window" data-window-id="minesweeper" data-window-title="MINESWEEPER">
+      <section class="desktop-window minimized minesweeper-window" data-window-id="minesweeper" data-window-title="MINTZWEEPER">
         <div class="window-titlebar">
-          <span class="titlebar-label"><span class="window-icon"></span>MINESWEEPER</span>
+          <span class="titlebar-label"><span class="window-icon"></span>MINTZWEEPER</span>
           <div class="window-controls">
             <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
             <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
@@ -1929,10 +1942,10 @@
           <div class="minesweeper-panel">
             <div class="mine-status">
               <div class="mine-counter" id="mineCounter">010</div>
-              <button type="button" class="mine-reset" id="mineReset" aria-label="Reset Minesweeper">☺</button>
+              <button type="button" class="mine-reset" id="mineReset" aria-label="Reset Mintzweeper">☺</button>
               <div class="mine-timer" id="mineTimer">000</div>
             </div>
-            <div class="mine-board" id="mineBoard" aria-label="Minesweeper board"></div>
+            <div class="mine-board" id="mineBoard" aria-label="Mintzweeper board"></div>
           </div>
         </div>
       </section>
@@ -2131,7 +2144,7 @@
       <button type="button" class="start-menu-folder-button">GAMES</button>
       <div class="start-submenu">
         <button type="button" data-window-restore="euchre">Euchre</button>
-        <button type="button" data-window-restore="minesweeper">Minesweeper</button>
+        <button type="button" data-window-restore="minesweeper">Mintzweeper</button>
       </div>
     </div>
   </div>
@@ -2286,7 +2299,8 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       if (cell.revealed) {
         button.classList.add('revealed');
         if (cell.mine) {
-          button.textContent = '✹';
+          button.classList.add('mintz-mine');
+          button.innerHTML = '<img src="assets/mintz-head.png" alt="Mintz mine" />';
         } else if (cell.count) {
           button.textContent = cell.count;
           button.classList.add(`n${cell.count}`);
@@ -2855,7 +2869,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
 
     function positionGameWindow(win, id) {
       const isMine = id === 'minesweeper';
-      const width = isMine ? 270 : 760;
+      const width = isMine ? 362 : 760;
       const left = isMine ? 16 : Math.min(Math.max(320, window.innerWidth - width - 18), window.innerWidth - width - 12);
       const top = isMine ? 314 : 74;
       win.classList.remove('maximized');

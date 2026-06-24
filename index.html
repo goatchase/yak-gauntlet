@@ -1259,14 +1259,14 @@
   font-size: 15px;
 }
 
-.euchre-score-controls {
+.euchre-leaderboard-controls {
   display: grid;
-  grid-template-columns: 22px 28px 22px;
+  grid-template-columns: 22px 26px 22px;
   align-items: center;
   gap: 3px;
 }
 
-.euchre-score-icon {
+.euchre-leaderboard-icon {
   width: 22px;
   height: 22px;
   min-height: 0;
@@ -1284,7 +1284,7 @@
   box-shadow: none;
 }
 
-.euchre-score-icon:active {
+.euchre-leaderboard-icon:active {
   border-top-color: #000040;
   border-left-color: #000040;
   border-right-color: #b8b8ff;
@@ -1539,16 +1539,23 @@
     .euchre-name {
       display: inline-block;
       min-width: 72px;
+      max-width: 132px;
       padding: 3px 5px;
       color: #fff;
       background: #000080;
       border: 1px solid #fff;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .euchre-player-wrap {
       position: relative;
       display: grid;
       justify-items: center;
+      max-width: 144px;
+      min-width: 0;
+      white-space: nowrap;
     }
 
     .euchre-badges {
@@ -1726,7 +1733,14 @@
     .euchre-leaderboard-row {
       display: grid;
       grid-template-columns: 1fr auto;
+      align-items: center;
       gap: 8px;
+    }
+
+    .euchre-leaderboard-row span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     @media (max-width: 768px) {
@@ -1931,8 +1945,8 @@
         <div class="window-body">
           <div class="euchre-panel">
 <div class="euchre-score">
-  <div><span>Us</span><div class="euchre-score-controls"><button type="button" class="euchre-score-icon" data-euchre-score-edit="0:-1" aria-label="Decrease Us score">-</button><strong id="euchreScoreUs">0</strong><button type="button" class="euchre-score-icon" data-euchre-score-edit="0:1" aria-label="Increase Us score">+</button></div></div>
-  <div><span>Them</span><div class="euchre-score-controls"><button type="button" class="euchre-score-icon" data-euchre-score-edit="1:-1" aria-label="Decrease Them score">-</button><strong id="euchreScoreThem">0</strong><button type="button" class="euchre-score-icon" data-euchre-score-edit="1:1" aria-label="Increase Them score">+</button></div></div>
+  <div><span>Us</span><strong id="euchreScoreUs">0</strong></div>
+  <div><span>Them</span><strong id="euchreScoreThem">0</strong></div>
 </div>
             <div class="euchre-tricks">
               <div><span>Tricks Us</span><strong id="euchreTricksUs">0</strong></div>
@@ -2159,7 +2173,6 @@ const euchreScoreUs = document.getElementById('euchreScoreUs');
 const euchreScoreThem = document.getElementById('euchreScoreThem');
 const euchreTricksUs = document.getElementById('euchreTricksUs');
 const euchreTricksThem = document.getElementById('euchreTricksThem');
-const euchreScoreEditButtons = Array.from(document.querySelectorAll('[data-euchre-score-edit]'));
     const euchreStatus = document.getElementById('euchreStatus');
     const euchreTrumpHud = document.getElementById('euchreTrumpHud');
     const euchrePlayTo = document.getElementById('euchrePlayTo');
@@ -2483,8 +2496,17 @@ const euchreScoreEditButtons = Array.from(document.querySelectorAll('[data-euchr
       const rows = [...euchreCompletedLeaderboard].sort((a, b) => b.wins - a.wins || a.name.localeCompare(b.name));
       euchreLeaderboard.innerHTML = '<div class="euchre-leaderboard-title">Completed Games</div>' +
         (rows.length
-          ? rows.map(row => `<div class="euchre-leaderboard-row"><span>${row.name}</span><strong>${row.wins}</strong></div>`).join('')
+          ? rows.map(row => `<div class="euchre-leaderboard-row"><span>${escapeHTML(row.name)}</span><div class="euchre-leaderboard-controls"><button type="button" class="euchre-leaderboard-icon" data-euchre-leaderboard-edit="${escapeHTML(row.name)}" data-delta="-1" aria-label="Decrease ${escapeHTML(row.name)} wins">-</button><strong>${row.wins}</strong><button type="button" class="euchre-leaderboard-icon" data-euchre-leaderboard-edit="${escapeHTML(row.name)}" data-delta="1" aria-label="Increase ${escapeHTML(row.name)} wins">+</button></div></div>`).join('')
           : '<div>No games yet.</div>');
+    }
+
+    function editEuchreLeaderboard(name, delta) {
+      const row = euchreCompletedLeaderboard.find(item => item.name === name);
+      if (!row) return;
+      row.wins = Math.max(0, row.wins + delta);
+      euchreCompletedLeaderboard = euchreCompletedLeaderboard.filter(item => item.wins > 0);
+      saveEuchreLeaderboard();
+      renderEuchreLeaderboard();
     }
 
     function recordEuchreWinners(teamIndex) {
@@ -4097,6 +4119,14 @@ document.querySelectorAll('.delete-button').forEach(button => {
         euchreLogButton.textContent = open ? 'Hide Log' : 'View Log';
       });
     }
+    if (euchreLeaderboard) {
+      euchreLeaderboard.addEventListener('click', (event) => {
+        const target = event.target instanceof Element ? event.target : event.target.parentElement;
+        const button = target ? target.closest('[data-euchre-leaderboard-edit]') : null;
+        if (!button) return;
+        editEuchreLeaderboard(button.dataset.euchreLeaderboardEdit, Number(button.dataset.delta) || 0);
+      });
+    }
     if (euchrePlayTo) {
       euchrePlayTo.addEventListener('input', () => {
         euchreSettings.playTo = Math.max(1, Math.min(15, Number(euchrePlayTo.value) || 5));
@@ -4115,17 +4145,6 @@ document.querySelectorAll('.delete-button').forEach(button => {
     }
     fetchEntries();
   });
-euchreScoreEditButtons.forEach((button) => {
-  button.addEventListener('click', () => {
-    const [teamIndex, delta] = button.dataset.euchreScoreEdit.split(':').map(Number);
-    if (!Number.isFinite(teamIndex) || !Number.isFinite(delta) || teamIndex < 0 || teamIndex >= euchreState.score.length) return;
-    euchreState.score[teamIndex] = Math.max(0, Math.min(99, euchreState.score[teamIndex] + delta));
-    if (euchreState.phase === 'gameOver' && Math.max(...euchreState.score) < euchreState.playTo) {
-      euchreState.phase = 'handOver';
-    }
-    renderEuchre();
-  });
-});
 
 </script>
 </body>

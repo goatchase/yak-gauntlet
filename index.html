@@ -1323,7 +1323,7 @@
 
     .euchre-hud {
       position: absolute;
-      top: 10px;
+      top: 74px;
       right: 10px;
       z-index: 5;
       min-width: 112px;
@@ -1343,6 +1343,41 @@
       color: #ffef5a;
       font-size: 16px;
       line-height: 1.2;
+    }
+
+    .euchre-config {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 6;
+      display: grid;
+      grid-template-columns: auto 46px;
+      gap: 4px 6px;
+      align-items: center;
+      padding: 6px;
+      color: #fff;
+      background: #000;
+      border: 3px solid #fff;
+      box-shadow: 3px 3px 0 #000;
+      font-family: "Courier New", monospace;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .euchre-config input {
+      width: 100%;
+      min-height: 22px;
+      padding: 2px 3px;
+      color: #000;
+      background: #fff;
+      border: 2px solid #808080;
+      font-family: "Courier New", monospace;
+      font-size: 11px;
+    }
+
+    .euchre-config .euchre-you-name {
+      grid-column: span 2;
+      width: 138px;
     }
 
     .euchre-popcorn {
@@ -1388,6 +1423,52 @@
         #202020;
       border: 2px solid #fff;
       animation: popcornPop 0.8s steps(3, end) infinite;
+    }
+
+    .euchre-icecream {
+      position: absolute;
+      left: 92px;
+      top: 86px;
+      width: 54px;
+      height: 90px;
+      z-index: 2;
+      background: #d8f0ff;
+      border: 3px solid #103050;
+      box-shadow: 5px 5px 0 rgba(0,0,0,0.25);
+    }
+
+    .euchre-icecream::before {
+      content: "ICE";
+      position: absolute;
+      left: 6px;
+      right: 6px;
+      top: -22px;
+      padding: 3px 0;
+      color: #103050;
+      background: #fff;
+      border: 2px solid #103050;
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .euchre-icecream::after {
+      content: "";
+      position: absolute;
+      left: 12px;
+      top: 13px;
+      width: 26px;
+      height: 48px;
+      background:
+        radial-gradient(circle at 12px 8px, #ff9fd4 0 9px, transparent 10px),
+        linear-gradient(120deg, transparent 0 39%, #d58a3a 40% 60%, transparent 61%),
+        linear-gradient(60deg, transparent 0 39%, #d58a3a 40% 60%, transparent 61%);
+      animation: iceCreamBlink 1.4s steps(2, end) infinite;
+    }
+
+    @keyframes iceCreamBlink {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.35); }
     }
 
     @keyframes popcornBounce {
@@ -1467,19 +1548,106 @@
     .euchre-avatar {
       width: 58px;
       height: 58px;
-      display: grid;
-      place-items: center;
+      position: relative;
+      display: block;
       color: #fff;
       background:
-        linear-gradient(#2020a0 0 18%, transparent 18%),
-        linear-gradient(90deg, transparent 0 20%, #ffd09a 20% 80%, transparent 80%),
-        linear-gradient(#ffd09a 0 58%, #c05050 58% 78%, #3030b8 78%);
+        linear-gradient(#2020a0 0 20%, transparent 20%),
+        linear-gradient(90deg, transparent 0 16%, #ffd09a 16% 84%, transparent 84%),
+        linear-gradient(#ffd09a 0 62%, #c05050 62% 78%, #3030b8 78%);
       border: 4px solid #050505;
       border-radius: 0;
       box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
       font-size: 12px;
       font-weight: 800;
       text-shadow: 2px 2px 0 #000;
+    }
+
+    .euchre-face-hair,
+    .euchre-face-eyes,
+    .euchre-face-mouth,
+    .euchre-face-label {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .euchre-face-hair {
+      top: 4px;
+      width: 38px;
+      height: 12px;
+      background: #3a1d0c;
+      box-shadow: 0 5px 0 #3a1d0c;
+    }
+
+    .euchre-face-eyes {
+      top: 24px;
+      width: 30px;
+      height: 6px;
+      background:
+        linear-gradient(90deg, #000 0 6px, transparent 6px 24px, #000 24px 30px);
+    }
+
+    .euchre-face-mouth {
+      top: 38px;
+      width: 18px;
+      height: 5px;
+      background: #702020;
+    }
+
+    .euchre-face-label {
+      bottom: 2px;
+      font-size: 9px;
+      line-height: 1;
+    }
+
+    .euchre-avatar.face-1 {
+      background:
+        linear-gradient(#800000 0 20%, transparent 20%),
+        linear-gradient(90deg, transparent 0 16%, #f1b783 16% 84%, transparent 84%),
+        linear-gradient(#f1b783 0 62%, #008080 62% 78%, #3030b8 78%);
+    }
+
+    .euchre-avatar.face-1 .euchre-face-hair {
+      width: 46px;
+      height: 9px;
+      background: #111;
+      box-shadow: -8px 7px 0 -1px #111, 8px 7px 0 -1px #111;
+    }
+
+    .euchre-avatar.face-2 {
+      background:
+        linear-gradient(#d0d000 0 17%, transparent 17%),
+        linear-gradient(90deg, transparent 0 16%, #ffd8a8 16% 84%, transparent 84%),
+        linear-gradient(#ffd8a8 0 62%, #7830a8 62% 78%, #3030b8 78%);
+    }
+
+    .euchre-avatar.face-2 .euchre-face-eyes {
+      width: 34px;
+      background:
+        linear-gradient(90deg, #000 0 5px, transparent 5px 14px, #000 14px 20px, transparent 20px 29px, #000 29px 34px);
+    }
+
+    .euchre-avatar.face-3 {
+      background:
+        linear-gradient(#104010 0 22%, transparent 22%),
+        linear-gradient(90deg, transparent 0 16%, #c9895c 16% 84%, transparent 84%),
+        linear-gradient(#c9895c 0 62%, #d06020 62% 78%, #3030b8 78%);
+    }
+
+    .euchre-avatar.face-3 .euchre-face-mouth {
+      width: 24px;
+      height: 8px;
+      background:
+        linear-gradient(90deg, #702020 0 33%, transparent 33% 66%, #702020 66%);
+    }
+
+    .euchre-avatar.face-4 {
+      background:
+        linear-gradient(#f8f8f8 0 18%, transparent 18%),
+        linear-gradient(90deg, transparent 0 16%, #f0c090 16% 84%, transparent 84%),
+        linear-gradient(#f0c090 0 62%, #202020 62% 78%, #3030b8 78%);
     }
 
     .euchre-player-wrap {
@@ -1600,6 +1768,12 @@
       gap: 5px;
     }
 
+    .euchre-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
     .euchre-actions button {
       min-height: 28px;
       font-size: 12px;
@@ -1626,6 +1800,33 @@
       background: #fff;
       color: #000;
       font-weight: 500;
+    }
+
+    .euchre-leaderboard {
+      min-height: 84px;
+      max-height: 112px;
+      overflow: auto;
+      padding: 5px 6px;
+      color: #fff;
+      background: #000;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      font-family: "Courier New", monospace;
+      font-size: 11px;
+    }
+
+    .euchre-leaderboard-title {
+      color: #ffef5a;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .euchre-leaderboard-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
     }
 
     @media (max-width: 768px) {
@@ -1839,8 +2040,14 @@
             </div>
             <div class="euchre-status" id="euchreStatus">NEW HAND READY</div>
             <div class="euchre-table" id="euchreTable" aria-label="Euchre table">
+              <div class="euchre-config">
+                <label for="euchrePlayTo">PLAY TO</label>
+                <input id="euchrePlayTo" type="number" min="1" max="15" step="1" value="5" />
+                <input id="euchreYouName" class="euchre-you-name" type="text" value="You" aria-label="Your Euchre name" />
+              </div>
               <div class="euchre-hud">TRUMP<span id="euchreTrumpHud">--</span></div>
               <div class="euchre-popcorn" aria-hidden="true"></div>
+              <div class="euchre-icecream" aria-hidden="true"></div>
               <div class="euchre-cactus one" aria-hidden="true"></div>
               <div class="euchre-cactus two" aria-hidden="true"></div>
               <div class="euchre-play-slot" data-euchre-slot="2">Partner</div>
@@ -1853,9 +2060,17 @@
               <button type="button" id="euchreOrder">Order Up</button>
               <button type="button" id="euchrePass">Pass</button>
             </div>
-            <div class="euchre-hand-label">Your Hand</div>
-            <div class="euchre-hand" id="euchreHand" aria-label="Your Euchre hand"></div>
-            <div class="euchre-log" id="euchreLog">Click New Hand to deal.</div>
+            <div class="euchre-meta">
+              <div>
+                <div class="euchre-hand-label">Your Hand</div>
+                <div class="euchre-hand" id="euchreHand" aria-label="Your Euchre hand"></div>
+                <div class="euchre-log" id="euchreLog">Click New Hand to deal.</div>
+              </div>
+              <div class="euchre-leaderboard" id="euchreLeaderboard">
+                <div class="euchre-leaderboard-title">Completed Games</div>
+                <div>No games yet.</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -2045,6 +2260,9 @@
     const euchreTricksThem = document.getElementById('euchreTricksThem');
     const euchreStatus = document.getElementById('euchreStatus');
     const euchreTrumpHud = document.getElementById('euchreTrumpHud');
+    const euchrePlayTo = document.getElementById('euchrePlayTo');
+    const euchreYouName = document.getElementById('euchreYouName');
+    const euchreLeaderboard = document.getElementById('euchreLeaderboard');
     const euchreTable = document.getElementById('euchreTable');
     const euchreHand = document.getElementById('euchreHand');
     const euchreLog = document.getElementById('euchreLog');
@@ -2079,8 +2297,13 @@
     const euchreSuitSymbols = { S: '♠', H: '♥', D: '♦', C: '♣' };
     const euchreRedSuits = new Set(['H', 'D']);
     const euchreSameColor = { S: 'C', C: 'S', H: 'D', D: 'H' };
+    const euchreSettingsStorageKey = 'yakEuchreSettingsV1';
+    const euchreLeaderboardStorageKey = 'yakEuchreLeaderboardV1';
+    let euchreSettings = loadEuchreSettings();
+    let euchreCompletedLeaderboard = loadEuchreLeaderboard();
     const euchreState = {
       score: [0, 0],
+      playTo: euchreSettings.playTo,
       dealer: 3,
       hands: [[], [], [], []],
       kitty: [],
@@ -2323,6 +2546,59 @@
       return node;
     }
 
+    function loadEuchreSettings() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(euchreSettingsStorageKey));
+        return {
+          playTo: Math.max(1, Math.min(15, Number(saved?.playTo) || 5)),
+          youName: String(saved?.youName || 'You').trim() || 'You'
+        };
+      } catch (error) {
+        return { playTo: 5, youName: 'You' };
+      }
+    }
+
+    function saveEuchreSettings() {
+      localStorage.setItem(euchreSettingsStorageKey, JSON.stringify(euchreSettings));
+    }
+
+    function loadEuchreLeaderboard() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(euchreLeaderboardStorageKey));
+        return Array.isArray(saved) ? saved : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveEuchreLeaderboard() {
+      localStorage.setItem(euchreLeaderboardStorageKey, JSON.stringify(euchreCompletedLeaderboard));
+    }
+
+    function renderEuchreLeaderboard() {
+      if (!euchreLeaderboard) return;
+      const rows = [...euchreCompletedLeaderboard].sort((a, b) => b.wins - a.wins || a.name.localeCompare(b.name));
+      euchreLeaderboard.innerHTML = '<div class="euchre-leaderboard-title">Completed Games</div>' +
+        (rows.length
+          ? rows.map(row => `<div class="euchre-leaderboard-row"><span>${row.name}</span><strong>${row.wins}</strong></div>`).join('')
+          : '<div>No games yet.</div>');
+    }
+
+    function recordEuchreWinners(teamIndex) {
+      const winnerIndexes = teamIndex === 0 ? [0, 2] : [1, 3];
+      winnerIndexes.forEach(index => {
+        const name = euchreDisplayName(index);
+        const existing = euchreCompletedLeaderboard.find(row => row.name.toUpperCase() === name.toUpperCase());
+        if (existing) {
+          existing.wins += 1;
+        } else {
+          euchreCompletedLeaderboard.push({ name, wins: 1 });
+        }
+      });
+      saveEuchreLeaderboard();
+      renderEuchreLeaderboard();
+    }
+
     function euchreInitials(name) {
       const words = String(name || '').trim().split(/\s+/).filter(Boolean);
       if (!words.length) return 'YG';
@@ -2355,11 +2631,14 @@
     }
 
     function randomizeEuchreSeats() {
-      const names = shuffledEuchreNames().slice(0, 4);
-      euchreSeatProfiles = names.map(name => ({ name, initials: euchreInitials(name) }));
+      const names = shuffledEuchreNames().filter(name => name.toUpperCase() !== euchreSettings.youName.toUpperCase()).slice(0, 3);
+      euchreSeatProfiles = [
+        { name: euchreSettings.youName, initials: euchreInitials(euchreSettings.youName), face: 0 },
+        ...names.map((name, index) => ({ name, initials: euchreInitials(name), face: index + 1 }))
+      ];
       while (euchreSeatProfiles.length < 4) {
         const fallback = ['You', 'Big Cat', 'PFT', 'KB'][euchreSeatProfiles.length];
-        euchreSeatProfiles.push({ name: fallback, initials: euchreInitials(fallback) });
+        euchreSeatProfiles.push({ name: fallback, initials: euchreInitials(fallback), face: euchreSeatProfiles.length });
       }
       renderEuchre();
     }
@@ -2374,6 +2653,9 @@
       if (euchreScoreThem) euchreScoreThem.textContent = euchreState.score[1];
       if (euchreTricksUs) euchreTricksUs.textContent = euchreState.tricks[0];
       if (euchreTricksThem) euchreTricksThem.textContent = euchreState.tricks[1];
+      if (euchrePlayTo && document.activeElement !== euchrePlayTo) euchrePlayTo.value = euchreState.playTo;
+      if (euchreYouName && document.activeElement !== euchreYouName) euchreYouName.value = euchreSettings.youName;
+      renderEuchreLeaderboard();
       const trumpText = euchreState.trump ? `TRUMP: ${euchreSuitNames[euchreState.trump].toUpperCase()}` : `UPCARD: ${euchreCardLabel(euchreState.upcard || { rank: '-', suit: 'S' })}`;
       if (euchreTrumpHud) euchreTrumpHud.textContent = euchreState.trump ? euchreSuitSymbols[euchreState.trump] : euchreState.upcard ? euchreCardLabel(euchreState.upcard) : '--';
       const dealerText = `DEALER: ${euchreDisplayName(euchreState.dealer).toUpperCase()}`;
@@ -2389,7 +2671,8 @@
             player === euchreState.dealer ? '<span class="euchre-badge">D</span>' : '',
             player === euchreState.turn ? '<span class="euchre-badge">T</span>' : ''
           ].join('');
-          slot.innerHTML = `<div class="euchre-player-wrap"><div class="euchre-avatar" aria-hidden="true">${profile.initials}</div><div class="euchre-badges">${badges}</div></div><span class="euchre-name">${profile.name}</span>`;
+          const faceClass = `face-${profile.face || 0}`;
+          slot.innerHTML = `<div class="euchre-player-wrap"><div class="euchre-avatar ${faceClass}" aria-hidden="true"><span class="euchre-face-hair"></span><span class="euchre-face-eyes"></span><span class="euchre-face-mouth"></span><span class="euchre-face-label">${profile.initials}</span></div><div class="euchre-badges">${badges}</div></div><span class="euchre-name">${profile.name}</span>`;
           const play = euchreState.currentTrick.find(item => item.player === player);
           if (play) slot.appendChild(euchreRenderCard(play.card));
         });
@@ -2464,6 +2747,9 @@
 
     function euchreNewDeal() {
       window.clearTimeout(euchreState.cpuTimer);
+      if (euchreState.phase === 'gameOver') {
+        euchreState.score = [0, 0];
+      }
       randomizeEuchreSeats();
       const deck = euchreShuffle(euchreBuildDeck());
       euchreState.handNumber += 1;
@@ -2536,6 +2822,14 @@
       } else {
         euchreState.score[defenders] += 2;
         euchreLogLine(`${defenders === 0 ? 'Your team' : 'Their team'} euchres for 2.`);
+      }
+      const winningTeam = euchreState.score[0] >= euchreState.playTo ? 0 : euchreState.score[1] >= euchreState.playTo ? 1 : null;
+      if (winningTeam !== null) {
+        recordEuchreWinners(winningTeam);
+        euchreState.phase = 'gameOver';
+        euchreLogLine(`${winningTeam === 0 ? 'Your team' : 'Their team'} wins the game to ${euchreState.playTo}.`);
+        renderEuchre();
+        return;
       }
       euchreState.phase = 'handOver';
       renderEuchre();
@@ -3895,6 +4189,22 @@ document.querySelectorAll('.delete-button').forEach(button => {
     if (euchreNewHand) euchreNewHand.addEventListener('click', euchreNewDeal);
     if (euchreOrder) euchreOrder.addEventListener('click', euchreOrderUp);
     if (euchrePass) euchrePass.addEventListener('click', euchrePassBid);
+    if (euchrePlayTo) {
+      euchrePlayTo.addEventListener('input', () => {
+        euchreSettings.playTo = Math.max(1, Math.min(15, Number(euchrePlayTo.value) || 5));
+        euchreState.playTo = euchreSettings.playTo;
+        saveEuchreSettings();
+        renderEuchre();
+      });
+    }
+    if (euchreYouName) {
+      euchreYouName.addEventListener('input', () => {
+        euchreSettings.youName = euchreYouName.value.trim() || 'You';
+        euchreSeatProfiles[0] = { name: euchreSettings.youName, initials: euchreInitials(euchreSettings.youName), face: 0 };
+        saveEuchreSettings();
+        renderEuchre();
+      });
+    }
     fetchEntries();
   });
 </script>

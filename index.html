@@ -1212,7 +1212,7 @@
       display: grid;
       gap: 7px;
       padding: 6px;
-      background: #0b6f68;
+      background: #101018;
       border-top: 2px solid #fff;
       border-left: 2px solid #fff;
       border-right: 2px solid #404040;
@@ -1227,7 +1227,6 @@
 
     .euchre-score div,
     .euchre-tricks div,
-    .euchre-status,
     .euchre-log {
       padding: 5px 6px;
       color: #fff;
@@ -1272,10 +1271,7 @@
     }
 
     .euchre-status {
-      background: #000;
-      font-family: "Courier New", monospace;
-      min-height: 28px;
-      white-space: normal;
+      display: none;
     }
 
     .euchre-table {
@@ -1285,11 +1281,13 @@
       display: block;
       padding: 0;
       background:
-        linear-gradient(#2f8f92 0 44%, #136a4d 44% 100%);
-      border-top: 3px solid #004040;
-      border-left: 3px solid #004040;
-      border-right: 3px solid #62c8bb;
-      border-bottom: 3px solid #62c8bb;
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 8px),
+        linear-gradient(#1d255c 0 42%, #303050 42% 64%, #181820 64% 100%);
+      border-top: 4px solid #7c7cff;
+      border-left: 4px solid #7c7cff;
+      border-right: 4px solid #080810;
+      border-bottom: 4px solid #080810;
+      image-rendering: pixelated;
     }
 
     .euchre-table::before {
@@ -1301,11 +1299,11 @@
       height: 220px;
       transform: translate(-50%, -50%);
       background:
-        radial-gradient(ellipse at 50% 42%, #202020 0 56%, #050505 57% 100%);
+        radial-gradient(ellipse at 50% 42%, #282830 0 48%, #050508 49% 100%);
       border-radius: 50%;
-      border: 8px solid #111;
+      border: 8px solid #3b3b48;
       box-shadow:
-        inset 0 0 0 5px #353535,
+        inset 0 0 0 5px #000,
         0 16px 0 rgba(0, 0, 0, 0.35);
       z-index: 1;
     }
@@ -1319,8 +1317,32 @@
       height: 86px;
       background:
         repeating-linear-gradient(90deg, rgba(0,0,0,0.16) 0 2px, transparent 2px 40px),
-        #8a6a3d;
+        #5c3a28;
       z-index: 0;
+    }
+
+    .euchre-hud {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 5;
+      min-width: 112px;
+      padding: 6px 8px;
+      color: #fff;
+      background: #000;
+      border: 3px solid #fff;
+      box-shadow: 3px 3px 0 #000;
+      font-family: "Courier New", monospace;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: left;
+    }
+
+    .euchre-hud span {
+      display: block;
+      color: #ffef5a;
+      font-size: 16px;
+      line-height: 1.2;
     }
 
     .euchre-popcorn {
@@ -1334,6 +1356,7 @@
         repeating-linear-gradient(90deg, #c00000 0 10px, #fff 10px 20px);
       border: 3px solid #500;
       box-shadow: 5px 5px 0 rgba(0,0,0,0.25);
+      animation: popcornBounce 1.1s steps(2, end) infinite;
     }
 
     .euchre-popcorn::before {
@@ -1364,6 +1387,18 @@
         radial-gradient(circle at 30px 8px, #fff2a8 0 5px, transparent 6px),
         #202020;
       border: 2px solid #fff;
+      animation: popcornPop 0.8s steps(3, end) infinite;
+    }
+
+    @keyframes popcornBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    @keyframes popcornPop {
+      0% { background-position: 0 0; filter: brightness(1); }
+      50% { background-position: 4px -3px; filter: brightness(1.35); }
+      100% { background-position: -2px 2px; filter: brightness(1); }
     }
 
     .euchre-cactus {
@@ -1420,7 +1455,7 @@
       text-align: center;
     }
 
-    .euchre-play-slot span {
+    .euchre-name {
       display: inline-block;
       min-width: 72px;
       padding: 3px 5px;
@@ -1430,17 +1465,49 @@
     }
 
     .euchre-avatar {
-      width: 52px;
-      height: 52px;
+      width: 58px;
+      height: 58px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background:
+        linear-gradient(#2020a0 0 18%, transparent 18%),
+        linear-gradient(90deg, transparent 0 20%, #ffd09a 20% 80%, transparent 80%),
+        linear-gradient(#ffd09a 0 58%, #c05050 58% 78%, #3030b8 78%);
+      border: 4px solid #050505;
+      border-radius: 0;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+      font-size: 12px;
+      font-weight: 800;
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    .euchre-player-wrap {
+      position: relative;
+      display: grid;
+      justify-items: center;
+    }
+
+    .euchre-badges {
+      position: absolute;
+      right: -23px;
+      top: 1px;
+      display: grid;
+      gap: 3px;
+    }
+
+    .euchre-badge {
+      width: 19px;
+      height: 19px;
       display: grid;
       place-items: center;
       color: #000;
-      background: #ffd6a8;
-      border: 3px solid #202020;
-      border-radius: 50%;
-      box-shadow: inset 0 -9px 0 rgba(0,0,0,0.12), 0 4px 0 rgba(0,0,0,0.25);
-      font-size: 14px;
-      font-weight: 800;
+      background: #ffef5a;
+      border: 2px solid #000;
+      box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1;
     }
 
     .euchre-play-slot .euchre-card {
@@ -1772,6 +1839,7 @@
             </div>
             <div class="euchre-status" id="euchreStatus">NEW HAND READY</div>
             <div class="euchre-table" id="euchreTable" aria-label="Euchre table">
+              <div class="euchre-hud">TRUMP<span id="euchreTrumpHud">--</span></div>
               <div class="euchre-popcorn" aria-hidden="true"></div>
               <div class="euchre-cactus one" aria-hidden="true"></div>
               <div class="euchre-cactus two" aria-hidden="true"></div>
@@ -1976,6 +2044,7 @@
     const euchreTricksUs = document.getElementById('euchreTricksUs');
     const euchreTricksThem = document.getElementById('euchreTricksThem');
     const euchreStatus = document.getElementById('euchreStatus');
+    const euchreTrumpHud = document.getElementById('euchreTrumpHud');
     const euchreTable = document.getElementById('euchreTable');
     const euchreHand = document.getElementById('euchreHand');
     const euchreLog = document.getElementById('euchreLog');
@@ -1998,7 +2067,7 @@
     };
 
     const euchrePlayers = ['You', 'Lefty', 'Partner', 'Righty'];
-    const euchreSeatProfiles = [
+    let euchreSeatProfiles = [
       { name: 'You', initials: 'YOU' },
       { name: 'Big Cat', initials: 'BC' },
       { name: 'PFT', initials: 'PFT' },
@@ -2254,6 +2323,51 @@
       return node;
     }
 
+    function euchreInitials(name) {
+      const words = String(name || '').trim().split(/\s+/).filter(Boolean);
+      if (!words.length) return 'YG';
+      if (words.length === 1) return words[0].slice(0, 3).toUpperCase();
+      return words.slice(0, 2).map(word => word[0]).join('').toUpperCase();
+    }
+
+    function shuffledEuchreNames() {
+      const names = [];
+      const seen = new Set();
+      [...entries]
+        .map(entry => ({ name: entry.name, totalSeconds: parseTimeToSeconds(entry.time) }))
+        .filter(entry => entry.name && Number.isFinite(entry.totalSeconds))
+        .sort((a, b) => a.totalSeconds - b.totalSeconds)
+        .forEach(entry => {
+          const key = entry.name.trim().toUpperCase();
+          if (!seen.has(key)) {
+            seen.add(key);
+            names.push(entry.name.trim());
+          }
+        });
+      ['Big Cat', 'PFT', 'KB', 'Nick', 'Kate', 'Brandon'].forEach(name => {
+        const key = name.toUpperCase();
+        if (!seen.has(key)) names.push(name);
+      });
+      return names
+        .map(name => ({ name, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort)
+        .map(item => item.name);
+    }
+
+    function randomizeEuchreSeats() {
+      const names = shuffledEuchreNames().slice(0, 4);
+      euchreSeatProfiles = names.map(name => ({ name, initials: euchreInitials(name) }));
+      while (euchreSeatProfiles.length < 4) {
+        const fallback = ['You', 'Big Cat', 'PFT', 'KB'][euchreSeatProfiles.length];
+        euchreSeatProfiles.push({ name: fallback, initials: euchreInitials(fallback) });
+      }
+      renderEuchre();
+    }
+
+    function euchreDisplayName(playerIndex) {
+      return euchreSeatProfiles[playerIndex]?.name || euchrePlayers[playerIndex];
+    }
+
     function renderEuchre() {
       if (!euchreHand) return;
       if (euchreScoreUs) euchreScoreUs.textContent = euchreState.score[0];
@@ -2261,16 +2375,21 @@
       if (euchreTricksUs) euchreTricksUs.textContent = euchreState.tricks[0];
       if (euchreTricksThem) euchreTricksThem.textContent = euchreState.tricks[1];
       const trumpText = euchreState.trump ? `TRUMP: ${euchreSuitNames[euchreState.trump].toUpperCase()}` : `UPCARD: ${euchreCardLabel(euchreState.upcard || { rank: '-', suit: 'S' })}`;
-      const dealerText = `DEALER: ${euchrePlayers[euchreState.dealer].toUpperCase()}`;
+      if (euchreTrumpHud) euchreTrumpHud.textContent = euchreState.trump ? euchreSuitSymbols[euchreState.trump] : euchreState.upcard ? euchreCardLabel(euchreState.upcard) : '--';
+      const dealerText = `DEALER: ${euchreDisplayName(euchreState.dealer).toUpperCase()}`;
       const phaseText = euchreState.phase === 'bidding' ? 'BIDDING' : euchreState.phase === 'playing' ? 'PLAYING' : 'READY';
-      if (euchreStatus) euchreStatus.textContent = `${phaseText} | ${trumpText} | ${dealerText} | TURN: ${euchrePlayers[euchreState.turn].toUpperCase()}`;
+      if (euchreStatus) euchreStatus.textContent = `${phaseText} | ${trumpText} | ${dealerText} | TURN: ${euchreDisplayName(euchreState.turn).toUpperCase()}`;
       if (euchreLog) euchreLog.innerHTML = euchreState.log.map(line => `<div>${line}</div>`).join('');
 
       if (euchreTable) {
         euchreTable.querySelectorAll('[data-euchre-slot]').forEach(slot => {
           const player = Number(slot.dataset.euchreSlot);
           const profile = euchreSeatProfiles[player] || { name: euchrePlayers[player], initials: euchrePlayers[player].slice(0, 2).toUpperCase() };
-          slot.innerHTML = `<div class="euchre-avatar" aria-hidden="true">${profile.initials}</div><span>${profile.name}</span>`;
+          const badges = [
+            player === euchreState.dealer ? '<span class="euchre-badge">D</span>' : '',
+            player === euchreState.turn ? '<span class="euchre-badge">T</span>' : ''
+          ].join('');
+          slot.innerHTML = `<div class="euchre-player-wrap"><div class="euchre-avatar" aria-hidden="true">${profile.initials}</div><div class="euchre-badges">${badges}</div></div><span class="euchre-name">${profile.name}</span>`;
           const play = euchreState.currentTrick.find(item => item.player === player);
           if (play) slot.appendChild(euchreRenderCard(play.card));
         });
@@ -2295,7 +2414,7 @@
       dealerHand.push(euchreState.upcard);
       const discard = euchreLowestCard(dealerHand);
       euchreState.hands[euchreState.dealer] = dealerHand.filter(card => card.id !== discard.id);
-      euchreLogLine(`${euchrePlayers[euchreState.dealer]} picked up and discarded.`);
+      euchreLogLine(`${euchreDisplayName(euchreState.dealer)} picked up and discarded.`);
     }
 
     function euchreStartPlaying(makerTeam, trump, pickup = false) {
@@ -2307,7 +2426,7 @@
       euchreState.leader = (euchreState.dealer + 1) % 4;
       euchreState.turn = euchreState.leader;
       if (pickup) euchreDealerPickup();
-      euchreLogLine(`${euchrePlayers[makerTeam === 0 ? 0 : 1]}'s team called ${euchreSuitNames[trump]}.`);
+      euchreLogLine(`${euchreDisplayName(makerTeam === 0 ? 0 : 1)}'s team called ${euchreSuitNames[trump]}.`);
       renderEuchre();
       euchreMaybeCpuTurn();
     }
@@ -2345,6 +2464,7 @@
 
     function euchreNewDeal() {
       window.clearTimeout(euchreState.cpuTimer);
+      randomizeEuchreSeats();
       const deck = euchreShuffle(euchreBuildDeck());
       euchreState.handNumber += 1;
       euchreState.dealer = (euchreState.dealer + 1) % 4;
@@ -2379,7 +2499,7 @@
       const card = hand.find(item => item.id === cardId);
       euchreState.hands[playerIndex] = hand.filter(item => item.id !== cardId);
       euchreState.currentTrick.push({ player: playerIndex, card });
-      euchreLogLine(`${euchrePlayers[playerIndex]} played ${euchreCardLabel(card)}.`);
+      euchreLogLine(`${euchreDisplayName(playerIndex)} played ${euchreCardLabel(card)}.`);
       if (euchreState.currentTrick.length === 4) {
         renderEuchre();
         euchreState.cpuTimer = window.setTimeout(euchreFinishTrick, 650);
@@ -2394,7 +2514,7 @@
       const ledSuit = euchreEffectiveSuit(euchreState.currentTrick[0].card);
       const winner = [...euchreState.currentTrick].sort((a, b) => euchreCardStrength(b.card, ledSuit) - euchreCardStrength(a.card, ledSuit))[0].player;
       euchreState.tricks[euchreTeam(winner)] += 1;
-      euchreLogLine(`${euchrePlayers[winner]} takes the trick. Tricks ${euchreState.tricks[0]}-${euchreState.tricks[1]}.`);
+      euchreLogLine(`${euchreDisplayName(winner)} takes the trick. Tricks ${euchreState.tricks[0]}-${euchreState.tricks[1]}.`);
       euchreState.currentTrick = [];
       euchreState.leader = winner;
       euchreState.turn = winner;
@@ -3299,6 +3419,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
       const snapshot = await entriesCollection.get();
       entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       updateTaskbarTotals();
+      randomizeEuchreSeats();
       drawNameWheel();
       renderScoreboard();
       renderStatsDashboard();

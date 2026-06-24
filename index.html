@@ -2300,7 +2300,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         button.classList.add('revealed');
         if (cell.mine) {
           button.classList.add('mintz-mine');
-          button.innerHTML = '<img src="assets/mintz-head.png" alt="Mintz mine" />';
+          button.innerHTML = '<img src="mintz-head.png" alt="Mintz mine" />';
         } else if (cell.count) {
           button.textContent = cell.count;
           button.classList.add(`n${cell.count}`);

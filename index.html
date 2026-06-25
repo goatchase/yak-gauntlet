@@ -25,6 +25,25 @@
       overflow-x: hidden;
     }
 
+    body.wallpaper-after-dark {
+      background: #050514;
+      color: #000;
+    }
+
+    body.wallpaper-after-dark::before {
+      content: "";
+      position: fixed;
+      inset: 0 0 34px;
+      z-index: -1;
+      background:
+        radial-gradient(circle at 16% 22%, #f8f8f8 0 1px, transparent 2px),
+        radial-gradient(circle at 62% 17%, #f8f8f8 0 1px, transparent 2px),
+        radial-gradient(circle at 78% 44%, #f8f8f8 0 1px, transparent 2px),
+        radial-gradient(circle at 32% 64%, #f8f8f8 0 1px, transparent 2px),
+        radial-gradient(circle at 89% 79%, #f8f8f8 0 1px, transparent 2px),
+        #050514;
+    }
+
     .stella-popup {
       position: fixed;
       left: 12px;
@@ -1021,6 +1040,74 @@
 
     .taskbar-hours {
       min-width: 104px;
+    }
+
+    .taskbar-tray {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      margin-left: 4px;
+      padding: 2px 3px;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      background: #c0c0c0;
+    }
+
+    .tray-icon {
+      width: 25px;
+      min-width: 25px;
+      height: 24px;
+      min-height: 24px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border-top: 1px solid #fff;
+      border-left: 1px solid #fff;
+      border-right: 1px solid #404040;
+      border-bottom: 1px solid #404040;
+      background: #c0c0c0;
+      box-shadow: none;
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    .tray-icon:active,
+    .tray-icon.active {
+      border-top-color: #404040;
+      border-left-color: #404040;
+      border-right-color: #fff;
+      border-bottom-color: #fff;
+    }
+
+    .insight-window {
+      width: 360px;
+      max-width: calc(100vw - 24px);
+    }
+
+    .insight-panel {
+      display: grid;
+      gap: 7px;
+      padding: 7px;
+      background: #c0c0c0;
+    }
+
+    .insight-card {
+      padding: 7px;
+      background: #fff;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      line-height: 1.35;
+    }
+
+    .insight-card strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #000080;
+      font-size: 12px;
     }
 
     .start-menu {
@@ -2116,6 +2203,39 @@
           </div>
         </div>
       </section>
+
+      <section class="desktop-window minimized insight-window" data-window-id="coffeeStats" data-window-title="COFFEE STATS">
+        <div class="window-titlebar">
+          <span class="titlebar-label"><span class="window-icon"></span>COFFEE STATS</span>
+          <div class="window-controls">
+            <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="insight-panel" id="coffeeStatsPanel">
+            <div class="insight-card">Coffee stats will brew after entries load.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="desktop-window minimized insight-window" data-window-id="yakExcerpts" data-window-title="YAK EXCERPTS">
+        <div class="window-titlebar">
+          <span class="titlebar-label"><span class="window-icon"></span>YAK EXCERPTS</span>
+          <div class="window-controls">
+            <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="insight-panel" id="yakExcerptPanel">
+            <div class="insight-card">Click the Yak tray icon for a random Podscripts card.</div>
+            <button type="button" id="yakExcerptRefresh">Random Excerpt</button>
+          </div>
+        </div>
+      </section>
     </div>
 
   </main>
@@ -2129,8 +2249,16 @@
       <button type="button" class="start-menu-folder-button">GAUNTLET SETTINGS</button>
       <div class="start-submenu">
         <button type="button" data-window-restore="wheelConfig">Configurations</button>
+        <button type="button" id="soundPackButton">Sound Pack: ON</button>
         <button type="button" id="editButton" class="edit-button">Edit</button>
         <button type="button" id="exportCsvButton" class="export-button">Export CSV</button>
+      </div>
+    </div>
+    <div class="start-menu-folder">
+      <button type="button" class="start-menu-folder-button">WALLPAPER</button>
+      <div class="start-submenu">
+        <button type="button" data-wallpaper-mode="classic">Classic</button>
+        <button type="button" data-wallpaper-mode="after-dark">After Dark</button>
       </div>
     </div>
     <div class="start-menu-folder">
@@ -2154,6 +2282,10 @@
     <div class="taskbar-spacer"></div>
     <div class="taskbar-status taskbar-runs" id="taskbarRuns">Runs: 0</div>
     <div class="taskbar-status taskbar-hours" id="taskbarHours">Hours: 0.0</div>
+    <div class="taskbar-tray" aria-label="System tray">
+      <button type="button" class="tray-icon" id="coffeeTrayButton" title="Coffee stats">☕</button>
+      <button type="button" class="tray-icon" id="yakTrayButton" title="Yak excerpts">Y</button>
+    </div>
     <div class="taskbar-status taskbar-clock" id="taskbarClock">--:--</div>
   </div>
 
@@ -2165,6 +2297,12 @@
     const taskbarClock = document.getElementById('taskbarClock');
     const taskbarRuns = document.getElementById('taskbarRuns');
     const taskbarHours = document.getElementById('taskbarHours');
+    const coffeeTrayButton = document.getElementById('coffeeTrayButton');
+    const yakTrayButton = document.getElementById('yakTrayButton');
+    const coffeeStatsPanel = document.getElementById('coffeeStatsPanel');
+    const yakExcerptPanel = document.getElementById('yakExcerptPanel');
+    const yakExcerptRefresh = document.getElementById('yakExcerptRefresh');
+    const soundPackButton = document.getElementById('soundPackButton');
     const desktopIcons = [...document.querySelectorAll('.desktop-icon')];
     const desktopWindows = [...document.querySelectorAll('.desktop-window')];
     const runStatsContent = document.getElementById('runStatsContent');
@@ -2299,8 +2437,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       if (cell.revealed) {
         button.classList.add('revealed');
         if (cell.mine) {
+          playUiSound('grunt');
           button.classList.add('mintz-mine');
-          button.innerHTML = '<img src="mintz-head.png" alt="mintz-mine" />';
+          button.innerHTML = '<img src="assets/mintz-head.png" alt="Mintz mine" />';
         } else if (cell.count) {
           button.textContent = cell.count;
           button.classList.add(`n${cell.count}`);
@@ -2880,6 +3019,16 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       win.style.width = `${Math.min(width, window.innerWidth - 24)}px`;
     }
 
+    function positionTrayWindow(win, offset = 0) {
+      const width = 360;
+      win.classList.remove('maximized');
+      win.classList.add('detached');
+      win.style.position = 'fixed';
+      win.style.width = `${Math.min(width, window.innerWidth - 24)}px`;
+      win.style.left = `${Math.max(12, window.innerWidth - Math.min(width, window.innerWidth - 24) - 12 - offset)}px`;
+      win.style.top = `${Math.max(58, window.innerHeight - 330)}px`;
+    }
+
     function restoreWindow(id) {
       const win = document.querySelector(`[data-window-id="${id}"]`);
       if (!win) return;
@@ -2888,6 +3037,8 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         positionOverScoreboard(win);
       } else if (id === 'minesweeper' || id === 'euchre') {
         positionGameWindow(win, id);
+      } else if (id === 'coffeeStats' || id === 'yakExcerpts') {
+        positionTrayWindow(win, id === 'yakExcerpts' ? 24 : 0);
       }
       bringWindowToFront(win);
       startMenu.classList.remove('open');
@@ -3007,10 +3158,46 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       icon.addEventListener('mousedown', event => startDesktopIconDrag(event, icon));
     });
 
+    setWallpaperMode(localStorage.getItem(wallpaperStorageKey) || 'classic');
+    renderSoundPackButton();
+
+    document.addEventListener('click', event => {
+      if (event.target.closest('button')) playUiSound('click');
+    }, true);
+
     startButton.addEventListener('click', event => {
       event.stopPropagation();
       startMenu.classList.toggle('open');
     });
+
+    if (soundPackButton) {
+      soundPackButton.addEventListener('click', () => setSoundPack(!soundPackEnabled));
+    }
+
+    document.querySelectorAll('[data-wallpaper-mode]').forEach(button => {
+      button.addEventListener('click', () => {
+        setWallpaperMode(button.dataset.wallpaperMode);
+        startMenu.classList.remove('open');
+      });
+    });
+
+    if (coffeeTrayButton) {
+      coffeeTrayButton.addEventListener('click', () => {
+        renderCoffeeStats();
+        restoreWindow('coffeeStats');
+      });
+    }
+
+    if (yakTrayButton) {
+      yakTrayButton.addEventListener('click', () => {
+        renderYakExcerpt();
+        restoreWindow('yakExcerpts');
+      });
+    }
+
+    if (yakExcerptRefresh) {
+      yakExcerptRefresh.addEventListener('click', renderYakExcerpt);
+    }
 
     document.querySelectorAll('[data-window-restore]').forEach(button => {
       button.addEventListener('click', event => {
@@ -3073,6 +3260,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     let currentStatsView = 'histogram';
     let statsHoverPoints = [];
     let currentRunStatsEntry = null;
+    const soundPackStorageKey = 'yakSoundPackEnabledV1';
+    const wallpaperStorageKey = 'yakWallpaperModeV1';
+    let soundPackEnabled = localStorage.getItem(soundPackStorageKey) !== 'off';
     const wheelConfigStorageKey = 'yakQuartileWheelConfigV2';
     const defaultWheelConfig = {
       enabled: true,
@@ -3108,6 +3298,42 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     };
 
    let lastSubmittedTime = null;
+
+    function setWallpaperMode(mode) {
+      const normalized = mode === 'after-dark' ? 'after-dark' : 'classic';
+      document.body.classList.toggle('wallpaper-after-dark', normalized === 'after-dark');
+      localStorage.setItem(wallpaperStorageKey, normalized);
+    }
+
+    function renderSoundPackButton() {
+      if (!soundPackButton) return;
+      soundPackButton.textContent = `Sound Pack: ${soundPackEnabled ? 'ON' : 'OFF'}`;
+    }
+
+    function setSoundPack(enabled) {
+      soundPackEnabled = !!enabled;
+      localStorage.setItem(soundPackStorageKey, soundPackEnabled ? 'on' : 'off');
+      renderSoundPackButton();
+    }
+
+    function playUiSound(type = 'click') {
+      if (!soundPackEnabled) return;
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      const gain = ctx.createGain();
+      gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(type === 'grunt' ? 0.09 : 0.035, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (type === 'grunt' ? 0.28 : 0.08));
+      const oscillator = ctx.createOscillator();
+      oscillator.connect(gain);
+      oscillator.type = type === 'grunt' ? 'sawtooth' : 'square';
+      oscillator.frequency.setValueAtTime(type === 'grunt' ? 118 : 720, ctx.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(type === 'grunt' ? 54 : 420, ctx.currentTime + (type === 'grunt' ? 0.24 : 0.07));
+      oscillator.start();
+      oscillator.stop(ctx.currentTime + (type === 'grunt' ? 0.28 : 0.08));
+      oscillator.addEventListener('ended', () => ctx.close());
+    }
 
     function normalizeDivision(value) {
       return String(value || '').trim().toUpperCase();
@@ -3915,6 +4141,78 @@ document.querySelectorAll('.delete-button').forEach(button => {
         seconds: timedEntries.reduce((total, entry) => total + entry.totalSeconds, 0)
       };
       updateClock();
+      renderCoffeeStats();
+    }
+
+    function categoryLabel(value) {
+      return value || 'UNKNOWN';
+    }
+
+    function bestCategoryFor(filterFn) {
+      const grouped = {};
+      validTimedEntries().filter(filterFn).forEach(entry => {
+        const key = categoryLabel(entry.category);
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(entry.totalSeconds);
+      });
+      return Object.entries(grouped)
+        .map(([category, times]) => ({
+          category,
+          count: times.length,
+          average: times.reduce((sum, seconds) => sum + seconds, 0) / times.length
+        }))
+        .filter(item => item.count >= 2)
+        .sort((a, b) => a.average - b.average)[0];
+    }
+
+    function renderCoffeeStats() {
+      if (!coffeeStatsPanel) return;
+      const timedEntries = validTimedEntries();
+      if (!timedEntries.length) {
+        coffeeStatsPanel.innerHTML = '<div class="insight-card">No run data yet. Coffee is standing by.</div>';
+        return;
+      }
+      const now = new Date();
+      const lastYearMatches = timedEntries.filter(entry => {
+        const date = new Date(entry.date);
+        return date.getFullYear() === now.getFullYear() - 1 && date.getMonth() === now.getMonth() && date.getDate() === now.getDate();
+      }).sort((a, b) => a.totalSeconds - b.totalSeconds);
+      const bestGuestCategory = bestCategoryFor(entry => normalizeDivision(entry.division) !== 'BARSTOOL');
+      const bestBarstoolCategory = bestCategoryFor(entry => normalizeDivision(entry.division) === 'BARSTOOL');
+      const weekdayCounts = {};
+      timedEntries.forEach(entry => {
+        const weekday = new Date(entry.date).toLocaleDateString(undefined, { weekday: 'long' });
+        weekdayCounts[weekday] = (weekdayCounts[weekday] || 0) + 1;
+      });
+      const busiestDay = Object.entries(weekdayCounts).sort((a, b) => b[1] - a[1])[0];
+      const fastest = timedEntries.reduce((best, entry) => entry.totalSeconds < best.totalSeconds ? entry : best, timedEntries[0]);
+      coffeeStatsPanel.innerHTML = `
+        <div class="insight-card"><strong>On This Day Last Year</strong>${lastYearMatches.length ? `${escapeHTML(lastYearMatches[0].name)} led ${lastYearMatches.length} run${lastYearMatches.length === 1 ? '' : 's'} with ${escapeHTML(lastYearMatches[0].time)}.` : 'No same-date run from last year. The archive is silent.'}</div>
+        <div class="insight-card"><strong>Best Guest Category</strong>${bestGuestCategory ? `${escapeHTML(bestGuestCategory.category)} averages ${formatTime(bestGuestCategory.average)} across ${bestGuestCategory.count} guest runs.` : 'Need at least two guest runs in a category.'}</div>
+        <div class="insight-card"><strong>Best Barstool Category</strong>${bestBarstoolCategory ? `${escapeHTML(bestBarstoolCategory.category)} averages ${formatTime(bestBarstoolCategory.average)} across ${bestBarstoolCategory.count} Barstool runs.` : 'Need at least two Barstool runs in a category.'}</div>
+        <div class="insight-card"><strong>Busiest Run Day</strong>${busiestDay ? `${escapeHTML(busiestDay[0])} owns the desk with ${busiestDay[1]} total runs.` : 'No pattern yet.'}</div>
+        <div class="insight-card"><strong>All-Time Coffee Breaker</strong>${escapeHTML(fastest.name)} still holds the fastest logged run at ${escapeHTML(fastest.time)}.</div>
+      `;
+    }
+
+    const yakExcerptCards = [
+      'A chaotic desk debate becomes a full group investigation within seconds.',
+      'Someone makes a confident sports take, then the room immediately turns it into a trial.',
+      'The conversation pivots from a normal topic into a punishment-wheel level problem.',
+      'A throwaway line gets repeated until it becomes the main event.',
+      'The room collectively decides that the bit is more important than the original question.'
+    ];
+
+    function renderYakExcerpt() {
+      if (!yakExcerptPanel) return;
+      const text = yakExcerptCards[Math.floor(Math.random() * yakExcerptCards.length)];
+      yakExcerptPanel.innerHTML = `
+        <div class="insight-card"><strong>Random Yak Excerpt Card</strong>${escapeHTML(text)}</div>
+        <div class="insight-card"><strong>Source</strong><a href="https://www.podscripts.co/podcasts/the-yak/" target="_blank" rel="noopener">Open The Yak on Podscripts</a></div>
+        <button type="button" id="yakExcerptRefresh">Random Excerpt</button>
+      `;
+      const refresh = document.getElementById('yakExcerptRefresh');
+      if (refresh) refresh.addEventListener('click', renderYakExcerpt);
     }
 
     function drawChartFrame(ctx, width, height, title) {
@@ -4030,25 +4328,28 @@ document.querySelectorAll('.delete-button').forEach(button => {
       ctx.fillStyle = '#000';
       ctx.fillText('Guest winner', 285, 20);
 
-      ctx.fillStyle = '#c0c0c0';
+      ctx.fillStyle = '#f7e29c';
       const leaderboardBottom = Math.max(bottom, top + 52 + winnerRows.length * 15);
       ctx.fillRect(leaderboardLeft, top, leaderboardWidth, leaderboardBottom - top);
       ctx.strokeStyle = '#000';
       ctx.strokeRect(leaderboardLeft, top, leaderboardWidth, leaderboardBottom - top);
-      ctx.fillStyle = '#000080';
+      ctx.strokeStyle = '#8a6b00';
+      ctx.strokeRect(leaderboardLeft + 4, top + 4, leaderboardWidth - 8, leaderboardBottom - top - 8);
+      ctx.fillStyle = '#6b4b00';
       ctx.fillRect(leaderboardLeft + 1, top + 1, leaderboardWidth - 2, 20);
       ctx.fillStyle = '#fff';
       ctx.font = 'bold 11px Roboto, Arial';
       ctx.textAlign = 'left';
-      ctx.fillText('Monthly Wins', leaderboardLeft + 8, top + 15);
+      ctx.fillText('🏆 Hall Of Fame', leaderboardLeft + 8, top + 15);
       ctx.fillStyle = '#000';
-      ctx.font = '10px Roboto, Arial';
+      ctx.font = 'bold 10px Roboto, Arial';
       winnerRows.forEach(([name, wins], index) => {
         const y = top + 40 + index * 15;
-        const clippedName = name.length > 18 ? `${name.slice(0, 17)}...` : name;
-        ctx.fillText(clippedName, leaderboardLeft + 8, y);
+        const clippedName = name.length > 15 ? `${name.slice(0, 14)}...` : name;
+        ctx.fillStyle = index === 0 ? '#8a5a00' : '#000';
+        ctx.fillText(`${index + 1}. ${clippedName}`, leaderboardLeft + 8, y);
         ctx.textAlign = 'right';
-        ctx.fillText(String(wins), leaderboardLeft + leaderboardWidth - 8, y);
+        ctx.fillText(`${wins} W`, leaderboardLeft + leaderboardWidth - 8, y);
         ctx.textAlign = 'left';
       });
     }

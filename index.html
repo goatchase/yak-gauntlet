@@ -1036,7 +1036,8 @@
     }
 
     .taskbar-status {
-      min-width: 78px;
+      width: 104px;
+      min-width: 104px;
       padding: 5px 8px;
       text-align: center;
       border-top: 2px solid #808080;
@@ -1048,7 +1049,7 @@
     }
 
     .taskbar-runs {
-      min-width: 86px;
+      min-width: 104px;
     }
 
     .taskbar-hours {
@@ -1271,7 +1272,7 @@
     }
 
     .yug-station-window {
-      width: 760px;
+      width: 680px;
       max-width: calc(100vw - 24px);
     }
 
@@ -1297,9 +1298,9 @@
 
     .yug-timer-panel {
       display: grid;
-      grid-template-columns: 1fr 112px 190px 180px;
-      align-items: end;
-      gap: 7px;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      align-items: stretch;
+      gap: 5px;
     }
 
     .yug-station-title {
@@ -1314,6 +1315,9 @@
 
     .yug-timer {
       margin: 0;
+      min-height: 29px;
+      display: grid;
+      place-items: center;
       padding: 4px 6px;
       color: #00ff66;
       background: #000;
@@ -1322,15 +1326,13 @@
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
       font-family: "Courier New", monospace;
-      font-size: 24px;
+      font-size: 15px;
       font-weight: 700;
       text-align: center;
     }
 
     .yug-controls {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 4px;
+      display: contents;
     }
 
     .yug-controls button,
@@ -1372,25 +1374,64 @@
 
     .yug-leaderboard {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
       font-size: 11px;
     }
 
     .yug-leaderboard th {
       position: sticky;
       top: 0;
-      padding: 5px 6px;
-      color: #fff;
-      background: #000080;
+      z-index: 2;
+      padding: 6px 8px;
+      color: #000;
+      background: #c0c0c0;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #808080;
+      border-bottom: 2px solid #808080;
       text-align: left;
     }
 
     .yug-leaderboard td {
-      padding: 5px 6px;
+      padding: 6px 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      border-right: 1px solid #c0c0c0;
       border-bottom: 1px solid #d0d0d0;
     }
 
-    @media (max-width: 760px) {
+    .yug-leaderboard th:nth-child(1),
+    .yug-leaderboard td:nth-child(1) {
+      width: 42px;
+      text-align: center;
+    }
+
+    .yug-leaderboard th:nth-child(3),
+    .yug-leaderboard td:nth-child(3) {
+      width: 112px;
+    }
+
+    .yug-leaderboard th:nth-child(4),
+    .yug-leaderboard td:nth-child(4) {
+      width: 118px;
+    }
+
+    .yug-leaderboard tbody tr:hover {
+      color: #000;
+      background-color: #dcdcdc;
+    }
+
+    .yug-leaderboard .yug-delete-button {
+      min-height: 18px;
+      padding: 1px 4px;
+      font-size: 10px;
+      line-height: 1;
+    }
+
+    @media (max-width: 680px) {
       .yug-timer-panel {
         grid-template-columns: 1fr;
       }
@@ -2314,14 +2355,13 @@
         <div class="window-body">
           <div class="yug-station-panel">
             <div class="yug-timer-panel">
-              <div class="yug-station-title">Barstool Yug Station</div>
-              <div class="yug-timer" id="yugTimer">0.00</div>
+              <input id="yugNameInput" class="yug-name-input" type="text" placeholder="Name" />
               <div class="yug-controls">
                 <button type="button" id="yugStartButton">Start</button>
                 <button type="button" id="yugStopButton">Stop</button>
                 <button type="button" id="yugResetButton">Reset</button>
               </div>
-              <input id="yugNameInput" class="yug-name-input" type="text" placeholder="Enter name..." />
+              <div class="yug-timer" id="yugTimer">0.00</div>
             </div>
             <div class="yug-board-panel">
               <div class="yug-station-title">Leaderboard</div>
@@ -2332,7 +2372,7 @@
                       <th>Rank</th>
                       <th>Name</th>
                       <th>Time</th>
-                      <th>Delete</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody id="yugLeaderboard"></tbody>
@@ -2466,15 +2506,17 @@
   <div class="start-menu" id="startMenu">
     <div class="start-menu-title">YakOS 95</div>
     <div class="start-menu-folder">
-      <button type="button" class="start-menu-folder-button">GAUNTLET WINDOWS</button>
+      <button type="button" class="start-menu-folder-button">GAUNTLET</button>
       <div class="start-submenu">
         <button type="button" data-window-restore="gauntlet">NEW ENTRY</button>
         <button type="button" data-window-restore="filters">OPTIONS</button>
         <button type="button" data-window-restore="scoreboard">SCOREBOARD</button>
+        <button type="button" data-window-restore="runStats">Run Statistics</button>
+        <button type="button" data-window-restore="statsDashboard">Monthly Leaders</button>
       </div>
     </div>
     <div class="start-menu-folder">
-      <button type="button" class="start-menu-folder-button">GAUNTLET SETTINGS</button>
+      <button type="button" class="start-menu-folder-button">SETTINGS</button>
       <div class="start-submenu">
         <button type="button" data-window-restore="wheelConfig">Configurations</button>
         <button type="button" id="soundPackButton">Sound Pack: ON</button>
@@ -2487,13 +2529,6 @@
       <div class="start-submenu">
         <button type="button" data-wallpaper-mode="classic">Classic</button>
         <button type="button" data-wallpaper-mode="after-dark">After Dark</button>
-      </div>
-    </div>
-    <div class="start-menu-folder">
-      <button type="button" class="start-menu-folder-button">GAUNTLET STATS</button>
-      <div class="start-submenu">
-        <button type="button" data-window-restore="runStats">Run Statistics</button>
-        <button type="button" data-window-restore="statsDashboard">Monthly Leaders</button>
       </div>
     </div>
     <div class="start-menu-folder">
@@ -3216,11 +3251,15 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       yugEntries.forEach((entry, index) => {
         const row = document.createElement('tr');
         const rankClass = index === 0 ? 'rank1' : index === 1 ? 'rank2' : index === 2 ? 'rank3' : '';
+        const actionId = entry.id ? entry.id : `local:${index}`;
         row.innerHTML = `
           <td class="${rankClass}">${index + 1}</td>
           <td>${entry.name}</td>
           <td>${Number(entry.time).toFixed(2)}</td>
-          <td><button type="button" class="yug-delete-button" data-yug-delete="${entry.id || index}">X</button></td>
+          <td>
+            <button type="button" class="yug-delete-button" data-yug-edit="${actionId}">Edit</button>
+            <button type="button" class="yug-delete-button" data-yug-delete="${actionId}">X</button>
+          </td>
         `;
         yugLeaderboard.appendChild(row);
       });
@@ -3278,17 +3317,47 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     async function deleteYugEntry(id) {
       if (!confirm('Delete this Yug Station entry?')) return;
       try {
-        if (yugEntriesCollection && Number.isNaN(Number(id))) {
+        if (yugEntriesCollection && typeof id === 'string' && id && !id.startsWith('local:')) {
           await yugEntriesCollection.doc(id).delete();
           await fetchYugEntries();
           return;
         }
-        yugEntries.splice(Number(id), 1);
+        yugEntries.splice(Number(String(id).replace('local:', '')), 1);
         saveYugLeaderboard();
         renderYugLeaderboard();
       } catch (error) {
         console.error('Yug Station delete failed:', error);
         alert('Yug Station could not delete from Firebase. Check Firestore rules for the yugEntries collection.');
+      }
+    }
+
+    async function editYugEntry(id) {
+      const localIndex = String(id).startsWith('local:') ? Number(String(id).replace('local:', '')) : -1;
+      const entry = localIndex >= 0 ? yugEntries[localIndex] : yugEntries.find(item => String(item.id) === String(id));
+      if (!entry) return;
+      const name = prompt('Edit Yug Station name:', entry.name || '');
+      if (name === null) return;
+      const timeText = prompt('Edit Yug Station time:', Number(entry.time).toFixed(2));
+      if (timeText === null) return;
+      const time = Number(timeText);
+      if (!name.trim() || !Number.isFinite(time)) {
+        alert('Enter a valid name and numeric time.');
+        return;
+      }
+      const update = { name: name.trim(), time, updatedAt: new Date().toISOString() };
+      try {
+        if (yugEntriesCollection && typeof id === 'string' && id && !id.startsWith('local:')) {
+          await yugEntriesCollection.doc(id).update(update);
+          await fetchYugEntries();
+          return;
+        }
+        Object.assign(entry, update);
+        yugEntries.sort((a, b) => Number(a.time) - Number(b.time));
+        saveYugLeaderboard();
+        renderYugLeaderboard();
+      } catch (error) {
+        console.error('Yug Station edit failed:', error);
+        alert('Yug Station could not edit this entry. Check Firestore rules for the yugEntries collection.');
       }
     }
 
@@ -3346,7 +3415,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     function positionGameWindow(win, id) {
       const isMine = id === 'minesweeper';
       const isYug = id === 'yugStation';
-      const width = isMine ? 362 : isYug ? 760 : 760;
+      const width = isMine ? 362 : isYug ? 680 : 760;
       const left = isMine ? 16 : isYug ? Math.min(Math.max(250, window.innerWidth - width - 28), window.innerWidth - width - 12) : Math.min(Math.max(320, window.innerWidth - width - 18), window.innerWidth - width - 12);
       const top = isMine ? 314 : isYug ? 120 : 74;
       win.classList.remove('maximized');
@@ -4826,9 +4895,14 @@ document.querySelectorAll('.delete-button').forEach(button => {
     if (yugResetButton) yugResetButton.addEventListener('click', resetYugTimer);
     if (yugLeaderboard) {
       yugLeaderboard.addEventListener('click', event => {
-        const button = event.target.closest('[data-yug-delete]');
-        if (!button) return;
-        deleteYugEntry(Number(button.dataset.yugDelete));
+        const editButton = event.target.closest('[data-yug-edit]');
+        if (editButton) {
+          editYugEntry(editButton.dataset.yugEdit);
+          return;
+        }
+        const deleteButton = event.target.closest('[data-yug-delete]');
+        if (!deleteButton) return;
+        deleteYugEntry(deleteButton.dataset.yugDelete);
       });
     }
     fetchEntries();

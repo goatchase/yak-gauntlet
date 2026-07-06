@@ -25,12 +25,18 @@
       overflow-x: hidden;
     }
 
+    body.wallpaper-after-dark {
+      background: #050514;
+      color: #000;
+    }
+
+
     .stella-popup {
       position: fixed;
       left: 12px;
       bottom: 30px;
-      width: 210px;
-      max-height: 210px;
+      width: 150px;
+      height: 106px;
       z-index: 1420;
       pointer-events: none;
       opacity: 0;
@@ -39,13 +45,17 @@
       top: auto;
       transition: opacity 0.18s ease-out, transform 0.22s steps(3, end);
       filter: drop-shadow(2px 2px 0 #004040);
+      overflow: hidden;
     }
 
     .stella-art {
       display: block;
-      width: 100%;
-      max-height: 210px;
-      object-fit: contain;
+      width: 230px;
+      height: 230px;
+      max-width: none;
+      object-fit: cover;
+      object-position: 70% 80%;
+      transform: translate(-54px, -96px);
     }
 
 
@@ -174,6 +184,29 @@
       background: #c00000;
       transform: rotate(45deg);
       box-shadow: 8px -9px 0 -1px #000;
+    }
+
+    .desktop-icon-art.yug-icon::before {
+      left: 3px;
+      top: 5px;
+      width: 22px;
+      height: 18px;
+      background: #000080;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      box-shadow: inset 0 -5px 0 #1084d0;
+    }
+
+    .desktop-icon-art.yug-icon::after {
+      left: 8px;
+      top: 1px;
+      width: 12px;
+      height: 9px;
+      background: #f2c94c;
+      border: 2px solid #000;
+      box-shadow: 0 17px 0 -2px #fff;
     }
 
     .desktop-left-column,
@@ -1023,6 +1056,135 @@
       min-width: 104px;
     }
 
+    .taskbar-tray {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      margin-left: 4px;
+      padding: 2px 3px;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      background: #c0c0c0;
+    }
+
+    .tray-icon {
+      width: 25px;
+      min-width: 25px;
+      height: 24px;
+      min-height: 24px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border-top: 1px solid #fff;
+      border-left: 1px solid #fff;
+      border-right: 1px solid #404040;
+      border-bottom: 1px solid #404040;
+      background: #c0c0c0;
+      box-shadow: none;
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    .tray-icon:active,
+    .tray-icon.active {
+      border-top-color: #404040;
+      border-left-color: #404040;
+      border-right-color: #fff;
+      border-bottom-color: #fff;
+    }
+
+    .coffee-icon span {
+      position: relative;
+      width: 15px;
+      height: 11px;
+      display: block;
+      background: #fff;
+      border: 2px solid #000;
+      border-top-color: #8b4513;
+      box-shadow: inset 0 2px 0 #d6a15d;
+    }
+
+    .coffee-icon span::before {
+      content: "";
+      position: absolute;
+      right: -7px;
+      top: 2px;
+      width: 6px;
+      height: 6px;
+      border: 2px solid #000;
+      border-left: 0;
+      background: transparent;
+    }
+
+    .coffee-icon span::after {
+      content: "";
+      position: absolute;
+      left: 1px;
+      bottom: -5px;
+      width: 17px;
+      height: 2px;
+      background: #000;
+    }
+
+    .insight-window {
+      width: 360px;
+      max-width: calc(100vw - 24px);
+    }
+
+    .insight-panel {
+      display: grid;
+      gap: 7px;
+      padding: 7px;
+      background: #c0c0c0;
+    }
+
+    .insight-card {
+      padding: 7px;
+      background: #fff;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      line-height: 1.35;
+    }
+
+    .insight-card strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #000080;
+      font-size: 12px;
+    }
+
+    .tray-panel {
+      position: fixed;
+      right: 8px;
+      bottom: 38px;
+      z-index: 1320;
+      width: min(360px, calc(100vw - 16px));
+      display: none;
+      padding: 6px;
+      background: #c0c0c0;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      box-shadow: 2px 2px 0 #000;
+    }
+
+    .tray-panel.open {
+      display: grid;
+      gap: 6px;
+    }
+
+    .tray-panel-title {
+      padding: 4px 6px;
+      color: #fff;
+      background: #000080;
+      font-weight: 700;
+    }
+
     .start-menu {
       position: fixed;
       left: 4px;
@@ -1108,6 +1270,126 @@
       width: max-content;
       min-width: 354px;
     }
+
+    .yug-station-window {
+      width: 720px;
+      max-width: calc(100vw - 24px);
+    }
+
+    .yug-station-panel {
+      display: grid;
+      grid-template-columns: 245px 1fr;
+      gap: 12px;
+      padding: 10px;
+      color: #fff;
+      background: #101018;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+    }
+
+    .yug-timer-panel,
+    .yug-board-panel {
+      padding: 8px;
+      background: #c0c0c0;
+      color: #000;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+    }
+
+    .yug-station-title {
+      margin: 0 0 8px;
+      padding: 5px 6px;
+      color: #fff;
+      background: #000080;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .yug-timer {
+      margin: 10px 0;
+      padding: 10px 6px;
+      color: #00ff66;
+      background: #000;
+      border-top: 2px solid #404040;
+      border-left: 2px solid #404040;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      font-family: "Courier New", monospace;
+      font-size: 42px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .yug-controls {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+    }
+
+    .yug-controls button,
+    .yug-delete-button {
+      min-height: 25px;
+      padding: 3px 6px;
+      color: #000;
+      background: #c0c0c0;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      font-weight: 700;
+    }
+
+    .yug-controls button:active,
+    .yug-delete-button:active {
+      border-top-color: #404040;
+      border-left-color: #404040;
+      border-right-color: #fff;
+      border-bottom-color: #fff;
+    }
+
+    .yug-name-input {
+      width: 100%;
+      margin: 9px 0 0;
+      min-height: 28px;
+      padding: 4px 6px;
+      border: 2px inset #fff;
+      font-size: 13px;
+    }
+
+    .yug-leaderboard-wrap {
+      max-height: 326px;
+      overflow: auto;
+      background: #fff;
+      border: 2px inset #fff;
+    }
+
+    .yug-leaderboard {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .yug-leaderboard th {
+      position: sticky;
+      top: 0;
+      padding: 5px;
+      color: #fff;
+      background: #000080;
+      text-align: left;
+    }
+
+    .yug-leaderboard td {
+      padding: 5px;
+      border-bottom: 1px solid #d0d0d0;
+    }
+
+    .yug-leaderboard .rank1 { color: #8a5a00; font-weight: 700; }
+    .yug-leaderboard .rank2 { color: #606060; font-weight: 700; }
+    .yug-leaderboard .rank3 { color: #8a4f18; font-weight: 700; }
 
     .minesweeper-panel {
       display: grid;
@@ -1845,6 +2127,10 @@
       <span class="desktop-icon-art mine-icon" aria-hidden="true"></span>
       <span>Mintzweeper</span>
     </button>
+    <button type="button" class="desktop-icon" data-window-restore="yugStation">
+      <span class="desktop-icon-art yug-icon" aria-hidden="true"></span>
+      <span>Yug Station</span>
+    </button>
   </div>
 
   <main class="desktop-shell">
@@ -2007,6 +2293,47 @@
         </div>
       </section>
 
+      <section class="desktop-window minimized yug-station-window" data-window-id="yugStation" data-window-title="YUG STATION">
+        <div class="window-titlebar">
+          <span class="titlebar-label"><span class="window-icon"></span>YUG STATION</span>
+          <div class="window-controls">
+            <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="yug-station-panel">
+            <div class="yug-timer-panel">
+              <div class="yug-station-title">Barstool Yug Station</div>
+              <div class="yug-timer" id="yugTimer">0.00</div>
+              <div class="yug-controls">
+                <button type="button" id="yugStartButton">Start</button>
+                <button type="button" id="yugStopButton">Stop</button>
+                <button type="button" id="yugResetButton">Reset</button>
+              </div>
+              <input id="yugNameInput" class="yug-name-input" type="text" placeholder="Enter name..." />
+            </div>
+            <div class="yug-board-panel">
+              <div class="yug-station-title">Leaderboard</div>
+              <div class="yug-leaderboard-wrap">
+                <table class="yug-leaderboard">
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Name</th>
+                      <th>Time</th>
+                      <th>Delete</th>
+                    </tr>
+                  </thead>
+                  <tbody id="yugLeaderboard"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
 
     <div class="desktop-right-column">
@@ -2116,21 +2443,41 @@
           </div>
         </div>
       </section>
+
+      <div class="tray-panel" id="yakExcerptPanel" aria-live="polite">
+        <div class="tray-panel-title">YAK EXCERPTS</div>
+        <div class="insight-card">Click the coffee cup for a random Yak excerpt card.</div>
+        <button type="button" id="yakExcerptRefresh">Random Excerpt</button>
+      </div>
+
     </div>
 
   </main>
 
   <div class="start-menu" id="startMenu">
     <div class="start-menu-title">YakOS 95</div>
-    <button type="button" data-window-restore="gauntlet">NEW ENTRY</button>
-    <button type="button" data-window-restore="filters">OPTIONS</button>
-    <button type="button" data-window-restore="scoreboard">SCOREBOARD</button>
+    <div class="start-menu-folder">
+      <button type="button" class="start-menu-folder-button">GAUNTLET WINDOWS</button>
+      <div class="start-submenu">
+        <button type="button" data-window-restore="gauntlet">NEW ENTRY</button>
+        <button type="button" data-window-restore="filters">OPTIONS</button>
+        <button type="button" data-window-restore="scoreboard">SCOREBOARD</button>
+      </div>
+    </div>
     <div class="start-menu-folder">
       <button type="button" class="start-menu-folder-button">GAUNTLET SETTINGS</button>
       <div class="start-submenu">
         <button type="button" data-window-restore="wheelConfig">Configurations</button>
+        <button type="button" id="soundPackButton">Sound Pack: ON</button>
         <button type="button" id="editButton" class="edit-button">Edit</button>
         <button type="button" id="exportCsvButton" class="export-button">Export CSV</button>
+      </div>
+    </div>
+    <div class="start-menu-folder">
+      <button type="button" class="start-menu-folder-button">WALLPAPER</button>
+      <div class="start-submenu">
+        <button type="button" data-wallpaper-mode="classic">Classic</button>
+        <button type="button" data-wallpaper-mode="after-dark">After Dark</button>
       </div>
     </div>
     <div class="start-menu-folder">
@@ -2147,11 +2494,20 @@
         <button type="button" data-window-restore="minesweeper">Mintzweeper</button>
       </div>
     </div>
+    <div class="start-menu-folder">
+      <button type="button" class="start-menu-folder-button">YUG STATION</button>
+      <div class="start-submenu">
+        <button type="button" data-window-restore="yugStation">Open Yug Station</button>
+      </div>
+    </div>
   </div>
 
   <div class="desktop-taskbar">
     <button type="button" class="start-button" id="startButton">Start</button>
     <div class="taskbar-spacer"></div>
+    <div class="taskbar-tray" aria-label="System tray">
+      <button type="button" class="tray-icon coffee-icon" id="coffeeTrayButton" title="Yak excerpts" aria-label="Yak excerpts"><span aria-hidden="true"></span></button>
+    </div>
     <div class="taskbar-status taskbar-runs" id="taskbarRuns">Runs: 0</div>
     <div class="taskbar-status taskbar-hours" id="taskbarHours">Hours: 0.0</div>
     <div class="taskbar-status taskbar-clock" id="taskbarClock">--:--</div>
@@ -2165,6 +2521,10 @@
     const taskbarClock = document.getElementById('taskbarClock');
     const taskbarRuns = document.getElementById('taskbarRuns');
     const taskbarHours = document.getElementById('taskbarHours');
+    const coffeeTrayButton = document.getElementById('coffeeTrayButton');
+    const yakExcerptPanel = document.getElementById('yakExcerptPanel');
+    const yakExcerptRefresh = document.getElementById('yakExcerptRefresh');
+    const soundPackButton = document.getElementById('soundPackButton');
     const desktopIcons = [...document.querySelectorAll('.desktop-icon')];
     const desktopWindows = [...document.querySelectorAll('.desktop-window')];
     const runStatsContent = document.getElementById('runStatsContent');
@@ -2202,6 +2562,12 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     const euchreNewHand = document.getElementById('euchreNewHand');
     const euchreOrder = document.getElementById('euchreOrder');
     const euchrePass = document.getElementById('euchrePass');
+    const yugTimer = document.getElementById('yugTimer');
+    const yugStartButton = document.getElementById('yugStartButton');
+    const yugStopButton = document.getElementById('yugStopButton');
+    const yugResetButton = document.getElementById('yugResetButton');
+    const yugNameInput = document.getElementById('yugNameInput');
+    const yugLeaderboard = document.getElementById('yugLeaderboard');
     let activeZ = 30;
     let taskbarTotals = { runs: 0, seconds: 0 };
 
@@ -2299,8 +2665,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       if (cell.revealed) {
         button.classList.add('revealed');
         if (cell.mine) {
+          playUiSound('grunt');
           button.classList.add('mintz-mine');
-          button.innerHTML = '<img src="mintz-head.png" alt="mintz-mine" />';
+          button.innerHTML = '<img src="assets/mintz-head.png" alt="Mintz mine" />';
         } else if (cell.count) {
           button.textContent = cell.count;
           button.classList.add(`n${cell.count}`);
@@ -2816,13 +3183,77 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }, 520);
     }
 
+    function saveYugLeaderboard() {
+      localStorage.setItem('yugLeaderboard', JSON.stringify(yugEntries));
+    }
+
+    function renderYugLeaderboard() {
+      if (!yugLeaderboard) return;
+      yugLeaderboard.innerHTML = '';
+      if (!yugEntries.length) {
+        yugLeaderboard.innerHTML = '<tr><td colspan="4">No yugs recorded.</td></tr>';
+        return;
+      }
+      yugEntries.forEach((entry, index) => {
+        const row = document.createElement('tr');
+        const rankClass = index === 0 ? 'rank1' : index === 1 ? 'rank2' : index === 2 ? 'rank3' : '';
+        row.innerHTML = `
+          <td class="${rankClass}">${index + 1}</td>
+          <td>${entry.name}</td>
+          <td>${Number(entry.time).toFixed(2)}</td>
+          <td><button type="button" class="yug-delete-button" data-yug-delete="${index}">X</button></td>
+        `;
+        yugLeaderboard.appendChild(row);
+      });
+    }
+
+    function updateYugTimer() {
+      if (!yugTimer || !yugStartTime) return;
+      const elapsed = (Date.now() - yugStartTime) / 1000;
+      yugTimer.textContent = elapsed.toFixed(2);
+    }
+
+    function startYugTimer() {
+      if (yugInterval) return;
+      yugStartTime = Date.now();
+      yugInterval = window.setInterval(updateYugTimer, 10);
+    }
+
+    function stopYugTimer() {
+      if (!yugInterval || !yugTimer || !yugNameInput) return;
+      window.clearInterval(yugInterval);
+      yugInterval = null;
+      const name = yugNameInput.value.trim();
+      if (!name) {
+        alert('Enter a name first.');
+        return;
+      }
+      yugEntries.push({ name, time: Number(yugTimer.textContent) || 0 });
+      yugEntries.sort((a, b) => Number(a.time) - Number(b.time));
+      saveYugLeaderboard();
+      renderYugLeaderboard();
+    }
+
+    function resetYugTimer() {
+      window.clearInterval(yugInterval);
+      yugInterval = null;
+      yugStartTime = null;
+      if (yugTimer) yugTimer.textContent = '0.00';
+    }
+
+    function deleteYugEntry(index) {
+      yugEntries.splice(index, 1);
+      saveYugLeaderboard();
+      renderYugLeaderboard();
+    }
+
     function randomizeStellaPosition() {
       if (!stellaPopup) return;
-      const popupWidth = stellaPopup.offsetWidth || 210;
+      const popupWidth = stellaPopup.offsetWidth || 150;
       const safeLeft = Math.max(4, window.innerWidth - popupWidth - 4);
       stellaPopup.style.left = `${Math.random() * safeLeft}px`;
       stellaPopup.style.top = 'auto';
-      stellaPopup.style.bottom = '22px';
+      stellaPopup.style.bottom = '24px';
     }
 
     function scheduleStellaPopup() {
@@ -2869,9 +3300,10 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
 
     function positionGameWindow(win, id) {
       const isMine = id === 'minesweeper';
-      const width = isMine ? 362 : 760;
-      const left = isMine ? 16 : Math.min(Math.max(320, window.innerWidth - width - 18), window.innerWidth - width - 12);
-      const top = isMine ? 314 : 74;
+      const isYug = id === 'yugStation';
+      const width = isMine ? 362 : isYug ? 720 : 760;
+      const left = isMine ? 16 : isYug ? Math.min(Math.max(250, window.innerWidth - width - 28), window.innerWidth - width - 12) : Math.min(Math.max(320, window.innerWidth - width - 18), window.innerWidth - width - 12);
+      const top = isMine ? 314 : isYug ? 120 : 74;
       win.classList.remove('maximized');
       win.classList.add('detached');
       win.style.position = 'fixed';
@@ -2880,13 +3312,14 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       win.style.width = `${Math.min(width, window.innerWidth - 24)}px`;
     }
 
+
     function restoreWindow(id) {
       const win = document.querySelector(`[data-window-id="${id}"]`);
       if (!win) return;
       win.classList.remove('minimized');
       if (id === 'statsDashboard' || id === 'wheelConfig') {
         positionOverScoreboard(win);
-      } else if (id === 'minesweeper' || id === 'euchre') {
+      } else if (id === 'minesweeper' || id === 'euchre' || id === 'yugStation') {
         positionGameWindow(win, id);
       }
       bringWindowToFront(win);
@@ -3003,14 +3436,32 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       });
     });
 
-    desktopIcons.forEach(icon => {
-      icon.addEventListener('mousedown', event => startDesktopIconDrag(event, icon));
-    });
-
     startButton.addEventListener('click', event => {
       event.stopPropagation();
       startMenu.classList.toggle('open');
     });
+
+    if (soundPackButton) {
+      soundPackButton.addEventListener('click', () => setSoundPack(!soundPackEnabled));
+    }
+
+    document.querySelectorAll('[data-wallpaper-mode]').forEach(button => {
+      button.addEventListener('click', () => {
+        setWallpaperMode(button.dataset.wallpaperMode);
+        startMenu.classList.remove('open');
+      });
+    });
+
+    if (coffeeTrayButton) {
+      coffeeTrayButton.addEventListener('click', () => {
+        renderYakExcerpt();
+        toggleTrayPanel('yak');
+      });
+    }
+
+    if (yakExcerptRefresh) {
+      yakExcerptRefresh.addEventListener('click', renderYakExcerpt);
+    }
 
     document.querySelectorAll('[data-window-restore]').forEach(button => {
       button.addEventListener('click', event => {
@@ -3073,6 +3524,12 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     let currentStatsView = 'histogram';
     let statsHoverPoints = [];
     let currentRunStatsEntry = null;
+    let yugStartTime = null;
+    let yugInterval = null;
+    let yugEntries = JSON.parse(localStorage.getItem('yugLeaderboard') || '[]');
+    const soundPackStorageKey = 'yakSoundPackEnabledV1';
+    const wallpaperStorageKey = 'yakWallpaperModeV1';
+    let soundPackEnabled = localStorage.getItem(soundPackStorageKey) !== 'off';
     const wheelConfigStorageKey = 'yakQuartileWheelConfigV2';
     const defaultWheelConfig = {
       enabled: true,
@@ -3094,7 +3551,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       q100: {
         label: 'Bottom 25%',
         rewards: ['Safe'],
-        punishments: ['Antique', 'Wet', '24 hour fast', 'Oklahoma drill with Katic', 'Guest on WUM', '5k vs. WSD']
+        punishments: ['Antique', 'Wet', '24 hour fast', 'Oklahoma drill with Katic', 'Guest on WUM', '5k vs. WSD', 'Eat a sports card']
       }
     };
     let wheelConfig = loadWheelConfig();
@@ -3108,6 +3565,51 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     };
 
    let lastSubmittedTime = null;
+
+    function setWallpaperMode(mode) {
+      const normalized = mode === 'after-dark' ? 'after-dark' : 'classic';
+      document.body.classList.toggle('wallpaper-after-dark', normalized === 'after-dark');
+      localStorage.setItem(wallpaperStorageKey, normalized);
+    }
+
+    function renderSoundPackButton() {
+      if (!soundPackButton) return;
+      soundPackButton.textContent = `Sound Pack: ${soundPackEnabled ? 'ON' : 'OFF'}`;
+    }
+
+    function setSoundPack(enabled) {
+      soundPackEnabled = !!enabled;
+      localStorage.setItem(soundPackStorageKey, soundPackEnabled ? 'on' : 'off');
+      renderSoundPackButton();
+    }
+
+    function toggleTrayPanel(kind) {
+      const yakOpen = kind === 'yak' && !yakExcerptPanel?.classList.contains('open');
+      yakExcerptPanel?.classList.toggle('open', yakOpen);
+      coffeeTrayButton?.classList.toggle('active', yakOpen);
+    }
+
+    function playUiSound(type = 'click') {
+      if (!soundPackEnabled) return;
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      const gain = ctx.createGain();
+      gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(type === 'grunt' ? 0.09 : 0.035, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (type === 'grunt' ? 0.28 : 0.08));
+      const oscillator = ctx.createOscillator();
+      oscillator.connect(gain);
+      oscillator.type = type === 'grunt' ? 'sawtooth' : 'square';
+      oscillator.frequency.setValueAtTime(type === 'grunt' ? 118 : 720, ctx.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(type === 'grunt' ? 54 : 420, ctx.currentTime + (type === 'grunt' ? 0.24 : 0.07));
+      oscillator.start();
+      oscillator.stop(ctx.currentTime + (type === 'grunt' ? 0.28 : 0.08));
+      oscillator.addEventListener('ended', () => ctx.close());
+    }
+
+    setWallpaperMode(localStorage.getItem(wallpaperStorageKey) || 'classic');
+    renderSoundPackButton();
 
     function normalizeDivision(value) {
       return String(value || '').trim().toUpperCase();
@@ -3131,7 +3633,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     }
 
     function parseTimeToSeconds(timeStr) {
-      const parts = timeStr.trim().split(" ");
+      const parts = String(timeStr || '').trim().split(" ");
       if (parts.length !== 2) return NaN;
       const [min, sec] = parts.map(parseFloat);
       return min * 60 + sec;
@@ -3224,6 +3726,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         });
       } catch (error) {
         console.warn('Wheel config reset:', error);
+      }
+      if (!fallback.q100.punishments.includes('Eat a sports card')) {
+        fallback.q100.punishments.push('Eat a sports card');
       }
       return fallback;
     }
@@ -3917,12 +4422,60 @@ document.querySelectorAll('.delete-button').forEach(button => {
       updateClock();
     }
 
+    const yakExcerptParts = {
+      openers: [
+        'A harmless question',
+        'A confident sports take',
+        'One tossed-off joke',
+        'A punishment-wheel suggestion',
+        'A caller-grade hypothetical',
+        'A random food opinion',
+        'A suspiciously specific memory',
+        'A desk-wide misunderstanding'
+      ],
+      turns: [
+        'turns into a full investigation',
+        'gets treated like courtroom evidence',
+        'derails the room for reasons no one can explain',
+        'becomes the only thing anyone cares about',
+        'somehow becomes a legacy debate',
+        'gets upgraded into official policy',
+        'is immediately challenged by three people',
+        'spawns a side quest nobody asked for'
+      ],
+      closers: [
+        'before the original topic can defend itself.',
+        'while the board quietly loses control.',
+        'and the room agrees to make it worse.',
+        'with total confidence and very little information.',
+        'until someone suggests putting it on a wheel.',
+        'as if this was always the plan.',
+        'and nobody remembers how it started.',
+        'right when the show finds a new gear.'
+      ]
+    };
+
+    function pickRandom(items) {
+      return items[Math.floor(Math.random() * items.length)];
+    }
+
+    function renderYakExcerpt() {
+      if (!yakExcerptPanel) return;
+      const text = `${pickRandom(yakExcerptParts.openers)} ${pickRandom(yakExcerptParts.turns)} ${pickRandom(yakExcerptParts.closers)}`;
+      yakExcerptPanel.innerHTML = `
+        <div class="tray-panel-title">YAK EXCERPTS</div>
+        <div class="insight-card"><strong>Random Yak Excerpt</strong>${escapeHTML(text)}</div>
+        <div class="insight-card"><strong>Source</strong><a href="https://www.podscripts.co/podcasts/the-yak/" target="_blank" rel="noopener">Open The Yak on Podscripts</a></div>
+        <button type="button" id="yakExcerptRefresh">Random Excerpt</button>
+      `;
+      const refresh = document.getElementById('yakExcerptRefresh');
+      if (refresh) refresh.addEventListener('click', renderYakExcerpt);
+    }
+
     function drawChartFrame(ctx, width, height, title) {
       ctx.clearRect(0, 0, width, height);
       ctx.fillStyle = '#fff';
       ctx.fillRect(0, 0, width, height);
-      ctx.strokeStyle = '#000';
-      ctx.strokeRect(0, 0, width, height);
       ctx.fillStyle = '#000';
       ctx.font = 'bold 13px Roboto, Arial';
       ctx.fillText(title, 12, 18);
@@ -3931,7 +4484,8 @@ document.querySelectorAll('.delete-button').forEach(button => {
     function drawStatsHistogram() {
       if (!statsCanvas) return;
       const monthly = {};
-      validTimedEntries().forEach(entry => {
+      const timedEntries = validTimedEntries();
+      timedEntries.forEach(entry => {
         const date = new Date(entry.date);
         if (isNaN(date)) return;
         const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -3954,14 +4508,14 @@ document.querySelectorAll('.delete-button').forEach(button => {
       const chartRight = left + data.length * barWidth;
       const leaderboardLeft = chartRight + 34;
       const width = Math.max(700, leaderboardLeft + leaderboardWidth + 18);
-      const height = Math.max(286, 90 + winnerRows.length * 15);
+      const height = Math.max(374, 150 + winnerRows.length * 15);
       statsCanvas.width = width;
       statsCanvas.height = height;
       statsHoverPoints = [];
       const ctx = statsCanvas.getContext('2d');
       drawChartFrame(ctx, width, height, 'Monthly Leaders');
-      const top = 36;
-      const bottom = 218;
+      const top = 42;
+      const bottom = 304;
       const maxTime = Math.max(60, ...data.map(month => month.best.totalSeconds));
       const roundedMax = Math.ceil(maxTime / 60) * 60;
       const scale = seconds => bottom - (seconds / roundedMax) * (bottom - top);
@@ -3985,6 +4539,24 @@ document.querySelectorAll('.delete-button').forEach(button => {
         ctx.stroke();
         ctx.fillStyle = '#000';
         ctx.fillText(`${seconds / 60}:00`, left - 5, y + 3);
+      }
+
+      const bestOverallTime = Math.min(...timedEntries.map(entry => entry.totalSeconds));
+      if (Number.isFinite(bestOverallTime)) {
+        const bestY = scale(bestOverallTime);
+        ctx.save();
+        ctx.strokeStyle = '#c00000';
+        ctx.setLineDash([5, 3]);
+        ctx.beginPath();
+        ctx.moveTo(left, bestY);
+        ctx.lineTo(Math.max(left + 1, chartRight), bestY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#c00000';
+        ctx.font = 'bold 10px Roboto, Arial';
+        ctx.textAlign = 'left';
+        ctx.fillText(`BEST ${formatTime(bestOverallTime)}`, left + 4, bestY - 5);
+        ctx.restore();
       }
 
       data.forEach((month, index) => {
@@ -4030,25 +4602,28 @@ document.querySelectorAll('.delete-button').forEach(button => {
       ctx.fillStyle = '#000';
       ctx.fillText('Guest winner', 285, 20);
 
-      ctx.fillStyle = '#c0c0c0';
+      ctx.fillStyle = '#f7e29c';
       const leaderboardBottom = Math.max(bottom, top + 52 + winnerRows.length * 15);
       ctx.fillRect(leaderboardLeft, top, leaderboardWidth, leaderboardBottom - top);
       ctx.strokeStyle = '#000';
       ctx.strokeRect(leaderboardLeft, top, leaderboardWidth, leaderboardBottom - top);
-      ctx.fillStyle = '#000080';
+      ctx.strokeStyle = '#8a6b00';
+      ctx.strokeRect(leaderboardLeft + 4, top + 4, leaderboardWidth - 8, leaderboardBottom - top - 8);
+      ctx.fillStyle = '#6b4b00';
       ctx.fillRect(leaderboardLeft + 1, top + 1, leaderboardWidth - 2, 20);
       ctx.fillStyle = '#fff';
       ctx.font = 'bold 11px Roboto, Arial';
       ctx.textAlign = 'left';
-      ctx.fillText('Monthly Wins', leaderboardLeft + 8, top + 15);
+      ctx.fillText('🏆 Hall Of Fame', leaderboardLeft + 8, top + 15);
       ctx.fillStyle = '#000';
-      ctx.font = '10px Roboto, Arial';
+      ctx.font = 'bold 10px Roboto, Arial';
       winnerRows.forEach(([name, wins], index) => {
         const y = top + 40 + index * 15;
-        const clippedName = name.length > 18 ? `${name.slice(0, 17)}...` : name;
-        ctx.fillText(clippedName, leaderboardLeft + 8, y);
+        const clippedName = name.length > 15 ? `${name.slice(0, 14)}...` : name;
+        ctx.fillStyle = index === 0 ? '#8a5a00' : '#000';
+        ctx.fillText(`${index + 1}. ${clippedName}`, leaderboardLeft + 8, y);
         ctx.textAlign = 'right';
-        ctx.fillText(String(wins), leaderboardLeft + leaderboardWidth - 8, y);
+        ctx.fillText(`${wins} W`, leaderboardLeft + leaderboardWidth - 8, y);
         ctx.textAlign = 'left';
       });
     }
@@ -4196,6 +4771,17 @@ document.querySelectorAll('.delete-button').forEach(button => {
         euchreSeatProfiles[0] = { name: euchreSettings.youName, initials: euchreInitials(euchreSettings.youName), face: 0 };
         saveEuchreSettings();
         renderEuchre();
+      });
+    }
+    renderYugLeaderboard();
+    if (yugStartButton) yugStartButton.addEventListener('click', startYugTimer);
+    if (yugStopButton) yugStopButton.addEventListener('click', stopYugTimer);
+    if (yugResetButton) yugResetButton.addEventListener('click', resetYugTimer);
+    if (yugLeaderboard) {
+      yugLeaderboard.addEventListener('click', event => {
+        const button = event.target.closest('[data-yug-delete]');
+        if (!button) return;
+        deleteYugEntry(Number(button.dataset.yugDelete));
       });
     }
     fetchEntries();

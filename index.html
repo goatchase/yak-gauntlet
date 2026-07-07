@@ -109,6 +109,7 @@
       font-size: 8px;
       line-height: 1.1;
       white-space: nowrap;
+      text-decoration: none;
       cursor: default;
     }
 
@@ -206,6 +207,25 @@
       background: #f2c94c;
       border: 2px solid #000;
       box-shadow: 0 17px 0 -2px #fff;
+    }
+
+    .desktop-icon-art.script-icon::before {
+      left: 6px;
+      top: 3px;
+      width: 18px;
+      height: 23px;
+      background: #fff;
+      border: 2px solid #000;
+      box-shadow: inset 0 5px 0 #000080;
+    }
+
+    .desktop-icon-art.script-icon::after {
+      left: 10px;
+      top: 12px;
+      width: 11px;
+      height: 2px;
+      background: #000;
+      box-shadow: 0 5px 0 #000, 0 10px 0 #000;
     }
 
     .desktop-left-column,
@@ -651,11 +671,24 @@
       width: 132px;
     }
 
+    .scoreboard-edit-bar {
+      display: none;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .scoreboard-edit-bar.active {
+      display: flex;
+    }
+
     .scoreboard-note-edit {
-      min-height: 38px;
-      margin-bottom: 4px;
-      resize: vertical;
+      width: 74px;
+      height: 18px;
+      min-height: 0;
+      margin: 0 4px 0 0;
       font-size: 10px;
+      line-height: 14px;
     }
 
     th.sortable {
@@ -706,8 +739,8 @@
     }
 
     .note-icon {
-      display: inline-grid;
-      place-items: center;
+      position: relative;
+      display: inline-block;
       width: 15px;
       height: 15px;
       margin-left: 5px;
@@ -718,6 +751,29 @@
       line-height: 1;
       vertical-align: middle;
       cursor: help;
+    }
+
+    .note-icon::before {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 2px;
+      width: 8px;
+      height: 10px;
+      background: #fff;
+      border: 1px solid #000;
+      box-shadow: inset 0 2px 0 #ffff99;
+    }
+
+    .note-icon::after {
+      content: "";
+      position: absolute;
+      left: 5px;
+      top: 6px;
+      width: 5px;
+      height: 1px;
+      background: #000;
+      box-shadow: 0 3px 0 #000;
     }
 
     .gold,
@@ -1562,7 +1618,8 @@
       overflow: hidden;
     }
 
-    .mine-cell.mintz-mine img {
+    .mine-cell.mintz-mine img,
+    .mine-cell.mintz-mine .mintz-head-svg {
       width: 100%;
       height: 100%;
       object-fit: contain;
@@ -2221,6 +2278,10 @@
       <span class="desktop-icon-art yug-icon" aria-hidden="true"></span>
       <span>Yug Station</span>
     </button>
+    <a class="desktop-icon" href="https://www.podscripts.co/podcasts/the-yak/" target="_blank" rel="noopener">
+      <span class="desktop-icon-art script-icon" aria-hidden="true"></span>
+      <span>Yak Excerpts</span>
+    </a>
   </div>
 
   <main class="desktop-shell">
@@ -2437,6 +2498,9 @@
           </div>
         </div>
         <div class="window-body">
+          <div class="scoreboard-edit-bar" id="scoreboardEditBar">
+            <button type="button" id="saveChangesButton" class="edit-button">Save Changes</button>
+          </div>
           <div class="table-wrapper">
             <table id="scoreboard">
               <thead>
@@ -2534,12 +2598,6 @@
         </div>
       </section>
 
-      <div class="tray-panel" id="yakExcerptPanel" aria-live="polite">
-        <div class="tray-panel-title">YAK EXCERPTS</div>
-        <div class="insight-card">Click the coffee cup for a random Yak excerpt card.</div>
-        <button type="button" id="yakExcerptRefresh">Random Excerpt</button>
-      </div>
-
     </div>
 
   </main>
@@ -2590,9 +2648,6 @@
   <div class="desktop-taskbar">
     <button type="button" class="start-button" id="startButton">Start</button>
     <div class="taskbar-spacer"></div>
-    <div class="taskbar-tray" aria-label="System tray">
-      <button type="button" class="tray-icon coffee-icon" id="coffeeTrayButton" title="Yak excerpts" aria-label="Yak excerpts"><span aria-hidden="true"></span></button>
-    </div>
     <div class="taskbar-status taskbar-runs" id="taskbarRuns">Runs: 0</div>
     <div class="taskbar-status taskbar-hours" id="taskbarHours">Hours: 0.0</div>
     <div class="taskbar-status taskbar-clock" id="taskbarClock">--:--</div>
@@ -2606,9 +2661,6 @@
     const taskbarClock = document.getElementById('taskbarClock');
     const taskbarRuns = document.getElementById('taskbarRuns');
     const taskbarHours = document.getElementById('taskbarHours');
-    const coffeeTrayButton = document.getElementById('coffeeTrayButton');
-    const yakExcerptPanel = document.getElementById('yakExcerptPanel');
-    const yakExcerptRefresh = document.getElementById('yakExcerptRefresh');
     const soundPackButton = document.getElementById('soundPackButton');
     const desktopIcons = [...document.querySelectorAll('.desktop-icon')];
     const desktopWindows = [...document.querySelectorAll('.desktop-window')];
@@ -2745,6 +2797,23 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       mineState.timerId = null;
     }
 
+    function mintzMineMarkup() {
+      return `
+        <svg class="mintz-head-svg" viewBox="0 0 96 96" aria-label="Mintz mine" role="img">
+          <rect width="96" height="96" fill="#c0c0c0"></rect>
+          <circle cx="48" cy="51" r="34" fill="#ffd0a6" stroke="#000" stroke-width="4"></circle>
+          <path d="M17 42c5-22 18-31 38-30 15 1 25 11 27 28-11-8-24-11-40-9-10 1-18 5-25 11z" fill="#d28b24" stroke="#000" stroke-width="4" stroke-linejoin="round"></path>
+          <path d="M20 40c9-8 20-12 34-12 11 0 20 3 27 9-3-19-16-28-37-27-16 1-25 10-24 30z" fill="#efb14a"></path>
+          <circle cx="35" cy="52" r="5" fill="#000"></circle>
+          <circle cx="61" cy="52" r="5" fill="#000"></circle>
+          <path d="M39 68c6 5 13 5 20 0" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round"></path>
+          <path d="M47 56l-4 7h9z" fill="#e28f78" stroke="#000" stroke-width="2" stroke-linejoin="round"></path>
+          <path d="M25 38c13-11 32-12 47-3" fill="none" stroke="#fff2a8" stroke-width="4" stroke-linecap="round"></path>
+          <rect x="20" y="78" width="56" height="11" fill="#d31f2b" stroke="#000" stroke-width="4"></rect>
+        </svg>
+      `;
+    }
+
     function renderMineCell(cell) {
       const button = cell.button;
       button.className = 'mine-cell';
@@ -2754,7 +2823,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         if (cell.mine) {
           playUiSound('grunt');
           button.classList.add('mintz-mine');
-          button.innerHTML = '<img src="assets/mintz-head.svg" alt="Mintz mine" />';
+          button.innerHTML = mintzMineMarkup();
         } else if (cell.count) {
           button.textContent = cell.count;
           button.classList.add(`n${cell.count}`);
@@ -3617,17 +3686,6 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       });
     });
 
-    if (coffeeTrayButton) {
-      coffeeTrayButton.addEventListener('click', () => {
-        renderYakExcerpt();
-        toggleTrayPanel('yak');
-      });
-    }
-
-    if (yakExcerptRefresh) {
-      yakExcerptRefresh.addEventListener('click', renderYakExcerpt);
-    }
-
     document.querySelectorAll('[data-window-restore]').forEach(button => {
       button.addEventListener('click', event => {
         if (button.dataset.dragSuppressClick === 'true') {
@@ -3676,6 +3734,8 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     const divisionFilter = document.getElementById('divisionFilter');
     const categoryFilter = document.getElementById('categoryFilter');
     const actionHeader = document.getElementById('actionHeader');
+    const scoreboardEditBar = document.getElementById('scoreboardEditBar');
+    const saveChangesButton = document.getElementById('saveChangesButton');
     const divisionSelect = document.getElementById('division');
     const categorySelect = document.getElementById('category');
     const wheelConfigInputs = [...document.querySelectorAll('[data-wheel-config]')];
@@ -3749,12 +3809,6 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       soundPackEnabled = !!enabled;
       localStorage.setItem(soundPackStorageKey, soundPackEnabled ? 'on' : 'off');
       renderSoundPackButton();
-    }
-
-    function toggleTrayPanel(kind) {
-      const yakOpen = kind === 'yak' && !yakExcerptPanel?.classList.contains('open');
-      yakExcerptPanel?.classList.toggle('open', yakOpen);
-      coffeeTrayButton?.classList.toggle('active', yakOpen);
     }
 
     function playUiSound(type = 'click') {
@@ -4237,6 +4291,8 @@ function showRunStats(entryId) {
 
     async function renderScoreboard() {
       scoreboard.innerHTML = '';
+      if (actionHeader) actionHeader.style.display = isEditMode ? 'table-cell' : 'none';
+      if (scoreboardEditBar) scoreboardEditBar.classList.toggle('active', isEditMode);
 
       // Calculate totalSeconds for sorting & finding leaders
       entries.forEach(entry => {
@@ -4315,7 +4371,7 @@ function showRunStats(entryId) {
 
         if (isLeader) iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince} days</span>`;
         else if (isDivisionLeader) iconHTML = `<span class="stopwatch blue" title="Days since: ${daysSince}">⏱️${daysSince} days</span>`;
-        const noteHTML = !isEditMode && entry.notes ? `<span class="note-icon" title="${escapeHTML(entry.notes)}">📝</span>` : '';
+        const noteHTML = !isEditMode && entry.notes ? `<span class="note-icon" title="${escapeHTML(entry.notes.toUpperCase())}" aria-label="Note"></span>` : '';
 
         row.innerHTML = `
           <td>${index + 1}</td>
@@ -4325,7 +4381,7 @@ function showRunStats(entryId) {
           <td contenteditable="${isEditMode}">${formatTime(entry.totalSeconds)} ${iconHTML}</td>
           <td contenteditable="${isEditMode}">${formatDate(entry.date)}</td>
           <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
-            <textarea class="scoreboard-note-edit" aria-label="Notes">${escapeHTML(entry.notes || '')}</textarea>
+            <input class="scoreboard-note-edit" type="text" aria-label="Notes" value="${escapeHTML(entry.notes || '')}">
             <button class="delete-button" data-id="${entry.id}">Delete</button>
           </td>
         `;
@@ -4440,7 +4496,44 @@ document.querySelectorAll('.delete-button').forEach(button => {
       form.reset();
     });
 
-    // 🔐 Password-protected edit toggle
+    async function saveScoreboardChanges() {
+      if (!isEditMode) return;
+      const rows = [...scoreboard.querySelectorAll('tr')].filter(row => row.dataset.entryId);
+      for (let index = 0; index < rows.length; index++) {
+        const row = rows[index];
+        const entry = entries.find(item => item.id === row.dataset.entryId);
+        if (!entry) continue;
+        const cells = row.querySelectorAll('td');
+        const newName = cells[1].innerText.trim();
+        const newDivision = cells[2].innerText.trim();
+        const newCategory = cells[3].innerText.trim();
+        const timeParts = cells[4].innerText.trim().split(/\s+/);
+        const newTime = `${timeParts[0] || '0'} ${timeParts[1] || '0.00'}`;
+        const newDateText = cells[5].innerText.trim();
+        const newNotes = row.querySelector('.scoreboard-note-edit')?.value.trim() || '';
+        const [m, d, y] = newDateText.split('/');
+        const newDate = new Date(y, m - 1, d).toISOString();
+
+        await entriesCollection.doc(entry.id).update({
+          name: newName,
+          division: newDivision,
+          category: newCategory,
+          time: newTime,
+          date: newDate,
+          notes: newNotes,
+        });
+      }
+      alert('Changes saved.');
+      isEditMode = false;
+      editButton.textContent = "Edit";
+      await fetchEntries();
+    }
+
+    if (saveChangesButton) {
+      saveChangesButton.addEventListener('click', saveScoreboardChanges);
+    }
+
+    // Password-protected edit toggle
     editButton.addEventListener('click', () => {
       if (!isEditMode) {
         const input = prompt("Enter edit password:");
@@ -4451,49 +4544,6 @@ document.querySelectorAll('.delete-button').forEach(button => {
       }
       isEditMode = !isEditMode;
       editButton.textContent = isEditMode ? "Done" : "Edit";
-      if (isEditMode) {
-        const saveButton = document.createElement('button');
-        saveButton.textContent = 'Save Changes';
-        saveButton.id = 'saveChangesButton';
-        saveButton.className = 'edit-button';
-        editButton.after(saveButton);
-
-        saveButton.addEventListener('click', async () => {
-          const rows = [...scoreboard.querySelectorAll('tr')].filter(row => row.dataset.entryId);
-          for (let index = 0; index < rows.length; index++) {
-            const row = rows[index];
-            const entry = entries.find(item => item.id === row.dataset.entryId);
-            if (!entry) continue;
-            const cells = row.querySelectorAll('td');
-            const newName = cells[1].innerText.trim();
-            const newDivision = cells[2].innerText.trim();
-            const newCategory = cells[3].innerText.trim();
-            const newTime = cells[4].innerText.trim().split(' ')[0] + ' ' + cells[4].innerText.trim().split(' ')[1]; // "mm ss.ss"
-            const newDateText = cells[5].innerText.trim();
-            const newNotes = row.querySelector('.scoreboard-note-edit')?.value.trim() || '';
-            // Parse mm/dd/yyyy to yyyy-mm-dd
-            const [m, d, y] = newDateText.split('/');
-            const newDate = new Date(y, m - 1, d).toISOString();
-
-            await entriesCollection.doc(entry.id).update({
-              name: newName,
-              division: newDivision,
-              category: newCategory,
-              time: newTime,
-              date: newDate,
-              notes: newNotes,
-            });
-          }
-          alert('Changes saved.');
-          fetchEntries();
-          isEditMode = false;
-          editButton.textContent = "Edit";
-          saveButton.remove();
-        });
-      } else {
-        const saveButton = document.getElementById('saveChangesButton');
-        if (saveButton) saveButton.remove();
-      }
       renderScoreboard();
     });
 
@@ -4624,32 +4674,6 @@ document.querySelectorAll('.delete-button').forEach(button => {
         seconds: timedEntries.reduce((total, entry) => total + entry.totalSeconds, 0)
       };
       updateClock();
-    }
-
-    const yakExactQuotes = [
-      {
-        quote: 'Transcript quotes are ready to load here once source text is added.',
-        date: 'Source needed',
-        time: '--:--',
-        source: 'https://www.podscripts.co/podcasts/the-yak/'
-      }
-    ];
-
-    function pickRandom(items) {
-      return items[Math.floor(Math.random() * items.length)];
-    }
-
-    function renderYakExcerpt() {
-      if (!yakExcerptPanel) return;
-      const excerpt = pickRandom(yakExactQuotes);
-      yakExcerptPanel.innerHTML = `
-        <div class="tray-panel-title">YAK EXCERPTS</div>
-        <div class="insight-card"><strong>${escapeHTML(excerpt.date)} ${escapeHTML(excerpt.time)}</strong>"${escapeHTML(excerpt.quote)}"</div>
-        <div class="insight-card"><strong>Source</strong><a href="${escapeHTML(excerpt.source)}" target="_blank" rel="noopener">Open The Yak on Podscripts</a></div>
-        <button type="button" id="yakExcerptRefresh">Random Excerpt</button>
-      `;
-      const refresh = document.getElementById('yakExcerptRefresh');
-      if (refresh) refresh.addEventListener('click', renderYakExcerpt);
     }
 
     function drawChartFrame(ctx, width, height, title) {

@@ -209,25 +209,6 @@
       box-shadow: 0 17px 0 -2px #fff;
     }
 
-    .desktop-icon-art.script-icon::before {
-      left: 6px;
-      top: 3px;
-      width: 18px;
-      height: 23px;
-      background: #fff;
-      border: 2px solid #000;
-      box-shadow: inset 0 5px 0 #000080;
-    }
-
-    .desktop-icon-art.script-icon::after {
-      left: 10px;
-      top: 12px;
-      width: 11px;
-      height: 2px;
-      background: #000;
-      box-shadow: 0 5px 0 #000, 0 10px 0 #000;
-    }
-
     .desktop-left-column,
     .desktop-right-column {
       display: flex;
@@ -740,13 +721,17 @@
 
     .note-icon {
       position: relative;
-      display: inline-block;
-      width: 15px;
-      height: 15px;
-      margin-left: 5px;
+      display: inline-flex;
+      width: 13px;
+      height: 13px;
+      margin-left: 4px;
       color: #000;
-      background: #ffffcc;
-      border: 1px solid #808080;
+      background: #fff8b8;
+      border-top: 1px solid #fff;
+      border-left: 1px solid #fff;
+      border-right: 1px solid #404040;
+      border-bottom: 1px solid #404040;
+      box-shadow: 1px 1px 0 #808080;
       font-size: 10px;
       line-height: 1;
       vertical-align: middle;
@@ -756,24 +741,23 @@
     .note-icon::before {
       content: "";
       position: absolute;
-      left: 3px;
-      top: 2px;
-      width: 8px;
-      height: 10px;
-      background: #fff;
-      border: 1px solid #000;
-      box-shadow: inset 0 2px 0 #ffff99;
+      right: 0;
+      bottom: 0;
+      width: 4px;
+      height: 4px;
+      background:
+        linear-gradient(135deg, transparent 0 48%, #808080 49% 51%, #f7df73 52%);
     }
 
     .note-icon::after {
       content: "";
       position: absolute;
-      left: 5px;
-      top: 6px;
-      width: 5px;
+      left: 3px;
+      top: 3px;
+      width: 6px;
       height: 1px;
       background: #000;
-      box-shadow: 0 3px 0 #000;
+      box-shadow: 0 3px 0 #000, 0 6px 0 #000;
     }
 
     .gold,
@@ -1282,6 +1266,9 @@
       bottom: 34px;
       z-index: 1300;
       width: min(250px, calc(100vw - 12px));
+      max-height: calc(100vh - 44px);
+      overflow-y: auto;
+      overflow-x: visible;
       display: none;
       background-color: #c0c0c0;
       border-top: 2px solid #fff;
@@ -1304,7 +1291,7 @@
 
     .start-menu button {
       width: 100%;
-      min-height: 31px;
+      min-height: 27px;
       display: block;
       text-align: left;
       border: 0;
@@ -1342,6 +1329,8 @@
       top: -2px;
       z-index: 1310;
       width: 210px;
+      max-height: calc(100vh - 48px);
+      overflow-y: auto;
       display: none;
       padding: 2px;
       background: #c0c0c0;
@@ -1618,8 +1607,7 @@
       overflow: hidden;
     }
 
-    .mine-cell.mintz-mine img,
-    .mine-cell.mintz-mine .mintz-head-svg {
+    .mine-cell.mintz-mine img {
       width: 100%;
       height: 100%;
       object-fit: contain;
@@ -2278,10 +2266,6 @@
       <span class="desktop-icon-art yug-icon" aria-hidden="true"></span>
       <span>Yug Station</span>
     </button>
-    <a class="desktop-icon" href="https://www.podscripts.co/podcasts/the-yak/" target="_blank" rel="noopener">
-      <span class="desktop-icon-art script-icon" aria-hidden="true"></span>
-      <span>Yak Excerpts</span>
-    </a>
   </div>
 
   <main class="desktop-shell">
@@ -2797,23 +2781,6 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       mineState.timerId = null;
     }
 
-    function mintzMineMarkup() {
-      return `
-        <svg class="mintz-head-svg" viewBox="0 0 96 96" aria-label="Mintz mine" role="img">
-          <rect width="96" height="96" fill="#c0c0c0"></rect>
-          <circle cx="48" cy="51" r="34" fill="#ffd0a6" stroke="#000" stroke-width="4"></circle>
-          <path d="M17 42c5-22 18-31 38-30 15 1 25 11 27 28-11-8-24-11-40-9-10 1-18 5-25 11z" fill="#d28b24" stroke="#000" stroke-width="4" stroke-linejoin="round"></path>
-          <path d="M20 40c9-8 20-12 34-12 11 0 20 3 27 9-3-19-16-28-37-27-16 1-25 10-24 30z" fill="#efb14a"></path>
-          <circle cx="35" cy="52" r="5" fill="#000"></circle>
-          <circle cx="61" cy="52" r="5" fill="#000"></circle>
-          <path d="M39 68c6 5 13 5 20 0" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round"></path>
-          <path d="M47 56l-4 7h9z" fill="#e28f78" stroke="#000" stroke-width="2" stroke-linejoin="round"></path>
-          <path d="M25 38c13-11 32-12 47-3" fill="none" stroke="#fff2a8" stroke-width="4" stroke-linecap="round"></path>
-          <rect x="20" y="78" width="56" height="11" fill="#d31f2b" stroke="#000" stroke-width="4"></rect>
-        </svg>
-      `;
-    }
-
     function renderMineCell(cell) {
       const button = cell.button;
       button.className = 'mine-cell';
@@ -2823,7 +2790,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         if (cell.mine) {
           playUiSound('grunt');
           button.classList.add('mintz-mine');
-          button.innerHTML = mintzMineMarkup();
+          button.innerHTML = '<img src="mintz-head.png" alt="Mintz mine" />';
         } else if (cell.count) {
           button.textContent = cell.count;
           button.classList.add(`n${cell.count}`);

@@ -1342,6 +1342,110 @@
       display: block;
     }
 
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.18);
+    }
+
+    .login-overlay.open {
+      display: flex;
+    }
+
+    .login-dialog {
+      width: min(330px, calc(100vw - 28px));
+      background: #c0c0c0;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      box-shadow: 2px 2px 0 #000;
+    }
+
+    .login-titlebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 3px 4px 3px 7px;
+      color: #fff;
+      background: #000080;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .login-body {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+    }
+
+    .login-copy {
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+    }
+
+    .login-key-icon {
+      width: 28px;
+      height: 28px;
+      position: relative;
+      background: #f2c94c;
+      border: 2px solid #000;
+      border-radius: 50%;
+      box-shadow: inset -4px -4px 0 #c99a00;
+    }
+
+    .login-key-icon::before {
+      content: "";
+      position: absolute;
+      left: 20px;
+      top: 11px;
+      width: 22px;
+      height: 6px;
+      background: #f2c94c;
+      border: 2px solid #000;
+      border-left: 0;
+    }
+
+    .login-key-icon::after {
+      content: "";
+      position: absolute;
+      left: 34px;
+      top: 17px;
+      width: 5px;
+      height: 8px;
+      background: #f2c94c;
+      border-left: 2px solid #000;
+      border-right: 2px solid #000;
+    }
+
+    .login-form {
+      display: grid;
+      gap: 8px;
+    }
+
+    .login-form label {
+      display: grid;
+      gap: 3px;
+      font-weight: 700;
+    }
+
+    .login-form input {
+      width: 100%;
+    }
+
+    .login-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 7px;
+      margin-top: 4px;
+    }
+
     .minesweeper-window {
       width: max-content;
       min-width: 354px;
@@ -2584,6 +2688,7 @@
 
   <div class="start-menu" id="startMenu">
     <div class="start-menu-title">YakOS 95</div>
+    <button type="button" id="adminAuthButton">Login</button>
     <div class="start-menu-folder">
       <button type="button" class="start-menu-folder-button">GAUNTLET</button>
       <div class="start-submenu">
@@ -2600,7 +2705,6 @@
       <button type="button" class="start-menu-folder-button">SETTINGS</button>
       <div class="start-submenu">
         <button type="button" data-window-restore="wheelConfig">Configurations</button>
-        <button type="button" id="adminAuthButton">Admin Sign In</button>
         <button type="button" id="soundPackButton">Sound Pack: ON</button>
       </div>
     </div>
@@ -2634,6 +2738,33 @@
     <div class="taskbar-status taskbar-clock" id="taskbarClock">--:--</div>
   </div>
 
+  <div class="login-overlay" id="loginOverlay" aria-hidden="true">
+    <div class="login-dialog" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <div class="login-titlebar">
+        <span id="loginTitle">Admin Login</span>
+        <button type="button" class="window-control" id="loginCloseButton" aria-label="Close">×</button>
+      </div>
+      <form class="login-body" id="adminLoginForm">
+        <div class="login-copy">
+          <span class="login-key-icon" aria-hidden="true"></span>
+          <span>Enter Firebase administrator credentials to unlock scoreboard changes.</span>
+        </div>
+        <div class="login-form">
+          <label for="adminEmailInput">Email
+            <input id="adminEmailInput" type="email" autocomplete="username" required>
+          </label>
+          <label for="adminPasswordInput">Password
+            <input id="adminPasswordInput" type="password" autocomplete="current-password" required>
+          </label>
+        </div>
+        <div class="login-actions">
+          <button type="submit">OK</button>
+          <button type="button" id="loginCancelButton">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const startButton = document.getElementById('startButton');
@@ -2643,6 +2774,12 @@
     const taskbarRuns = document.getElementById('taskbarRuns');
     const taskbarHours = document.getElementById('taskbarHours');
     const adminAuthButton = document.getElementById('adminAuthButton');
+    const loginOverlay = document.getElementById('loginOverlay');
+    const adminLoginForm = document.getElementById('adminLoginForm');
+    const adminEmailInput = document.getElementById('adminEmailInput');
+    const adminPasswordInput = document.getElementById('adminPasswordInput');
+    const loginCloseButton = document.getElementById('loginCloseButton');
+    const loginCancelButton = document.getElementById('loginCancelButton');
     const soundPackButton = document.getElementById('soundPackButton');
     const desktopIcons = [...document.querySelectorAll('.desktop-icon')];
     const desktopWindows = [...document.querySelectorAll('.desktop-window')];
@@ -3651,6 +3788,26 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       adminAuthButton.addEventListener('click', toggleAdminAuth);
     }
 
+    if (adminLoginForm) {
+      adminLoginForm.addEventListener('submit', submitAdminLogin);
+    }
+
+    [loginCloseButton, loginCancelButton].forEach(button => {
+      if (button) button.addEventListener('click', closeLoginDialog);
+    });
+
+    if (loginOverlay) {
+      loginOverlay.addEventListener('click', event => {
+        if (event.target === loginOverlay) closeLoginDialog();
+      });
+    }
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && loginOverlay?.classList.contains('open')) {
+        closeLoginDialog();
+      }
+    });
+
     document.querySelectorAll('[data-wallpaper-mode]').forEach(button => {
       button.addEventListener('click', () => {
         setWallpaperMode(button.dataset.wallpaperMode);
@@ -3786,8 +3943,8 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
 
     function renderAdminAuthButton() {
       if (!adminAuthButton) return;
-      adminAuthButton.textContent = adminUser ? `Admin: ${adminUser.email || 'Signed In'}` : 'Admin Sign In';
-      adminAuthButton.title = adminUser ? 'Click to sign out' : 'Click to sign in before adding, editing, or deleting data';
+      adminAuthButton.textContent = adminUser ? 'Logout' : 'Login';
+      adminAuthButton.title = adminUser ? 'Sign out of admin mode' : 'Sign in before adding, editing, or deleting data';
     }
 
     function requireAdmin(action = 'make changes') {
@@ -3796,17 +3953,40 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       return false;
     }
 
+    function openLoginDialog() {
+      if (!loginOverlay || !adminEmailInput) return;
+      loginOverlay.classList.add('open');
+      loginOverlay.setAttribute('aria-hidden', 'false');
+      startMenu.classList.remove('open');
+      window.setTimeout(() => adminEmailInput.focus(), 0);
+    }
+
+    function closeLoginDialog() {
+      if (!loginOverlay) return;
+      loginOverlay.classList.remove('open');
+      loginOverlay.setAttribute('aria-hidden', 'true');
+      if (adminLoginForm) adminLoginForm.reset();
+    }
+
     async function toggleAdminAuth() {
       try {
         if (adminUser) {
           await auth.signOut();
           return;
         }
-        const email = prompt('Admin email:');
-        if (!email) return;
-        const password = prompt('Admin password:');
-        if (!password) return;
-        await auth.signInWithEmailAndPassword(email.trim(), password);
+        openLoginDialog();
+      } catch (error) {
+        console.error('Admin sign-in failed:', error);
+        alert(`Admin sign-in failed: ${error.message || 'Check the Firebase user and password.'}`);
+      }
+    }
+
+    async function submitAdminLogin(event) {
+      event.preventDefault();
+      if (!adminEmailInput || !adminPasswordInput) return;
+      try {
+        await auth.signInWithEmailAndPassword(adminEmailInput.value.trim(), adminPasswordInput.value);
+        closeLoginDialog();
       } catch (error) {
         console.error('Admin sign-in failed:', error);
         alert(`Admin sign-in failed: ${error.message || 'Check the Firebase user and password.'}`);

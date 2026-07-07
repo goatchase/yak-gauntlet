@@ -6,6 +6,7 @@
   <title>THE YAK GAUNTLET</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <style>
     * {
@@ -2599,6 +2600,7 @@
       <button type="button" class="start-menu-folder-button">SETTINGS</button>
       <div class="start-submenu">
         <button type="button" data-window-restore="wheelConfig">Configurations</button>
+        <button type="button" id="adminAuthButton">Admin Sign In</button>
         <button type="button" id="soundPackButton">Sound Pack: ON</button>
       </div>
     </div>
@@ -2640,6 +2642,7 @@
     const taskbarClock = document.getElementById('taskbarClock');
     const taskbarRuns = document.getElementById('taskbarRuns');
     const taskbarHours = document.getElementById('taskbarHours');
+    const adminAuthButton = document.getElementById('adminAuthButton');
     const soundPackButton = document.getElementById('soundPackButton');
     const desktopIcons = [...document.querySelectorAll('.desktop-icon')];
     const desktopWindows = [...document.querySelectorAll('.desktop-window')];
@@ -3362,6 +3365,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         alert('Enter a name first.');
         return;
       }
+      if (!requireAdmin('save Yug Station entries')) return;
       const entry = {
         name,
         time: Number(yugTimer.textContent) || 0,
@@ -3397,6 +3401,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     }
 
     async function deleteYugEntry(id) {
+      if (!requireAdmin('delete Yug Station entries')) return;
       if (!confirm('Delete this Yug Station entry?')) return;
       try {
         if (yugEntriesCollection && typeof id === 'string' && id && !id.startsWith('local:')) {
@@ -3414,6 +3419,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     }
 
     async function editYugEntry(id) {
+      if (!requireAdmin('edit Yug Station entries')) return;
       const localIndex = String(id).startsWith('local:') ? Number(String(id).replace('local:', '')) : -1;
       const entry = localIndex >= 0 ? yugEntries[localIndex] : yugEntries.find(item => String(item.id) === String(id));
       if (!entry) return;
@@ -3641,6 +3647,10 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       soundPackButton.addEventListener('click', () => setSoundPack(!soundPackEnabled));
     }
 
+    if (adminAuthButton) {
+      adminAuthButton.addEventListener('click', toggleAdminAuth);
+    }
+
     document.querySelectorAll('[data-wallpaper-mode]').forEach(button => {
       button.addEventListener('click', () => {
         setWallpaperMode(button.dataset.wallpaperMode);
@@ -3681,6 +3691,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     };
 
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const db = firebase.firestore();
     const entriesCollection = db.collection("entries");
     const yugEntriesCollection = db.collection("yugEntries");
@@ -3746,7 +3757,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     };
     let wheelConfig = loadWheelConfig();
     let activeWheelQuartile = 'q25';
-    const editPassword = "benjaminmintz1"; // 🔐 Change this password as needed
+    let adminUser = null;
 
     // Sort state
     let currentSort = {
@@ -3772,6 +3783,50 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       localStorage.setItem(soundPackStorageKey, soundPackEnabled ? 'on' : 'off');
       renderSoundPackButton();
     }
+
+    function renderAdminAuthButton() {
+      if (!adminAuthButton) return;
+      adminAuthButton.textContent = adminUser ? `Admin: ${adminUser.email || 'Signed In'}` : 'Admin Sign In';
+      adminAuthButton.title = adminUser ? 'Click to sign out' : 'Click to sign in before adding, editing, or deleting data';
+    }
+
+    function requireAdmin(action = 'make changes') {
+      if (adminUser) return true;
+      alert(`Admin sign-in is required to ${action}.`);
+      return false;
+    }
+
+    async function toggleAdminAuth() {
+      try {
+        if (adminUser) {
+          await auth.signOut();
+          return;
+        }
+        const email = prompt('Admin email:');
+        if (!email) return;
+        const password = prompt('Admin password:');
+        if (!password) return;
+        await auth.signInWithEmailAndPassword(email.trim(), password);
+      } catch (error) {
+        console.error('Admin sign-in failed:', error);
+        alert(`Admin sign-in failed: ${error.message || 'Check the Firebase user and password.'}`);
+      }
+    }
+
+    auth.onAuthStateChanged(user => {
+      adminUser = user;
+      if (!adminUser && isEditMode) {
+        isEditMode = false;
+        editButton.textContent = "Edit";
+        renderScoreboard();
+      }
+      if (!adminUser && yugEditMode) {
+        yugEditMode = false;
+        if (yugEditButton) yugEditButton.textContent = 'Edit';
+        renderYugLeaderboard();
+      }
+      renderAdminAuthButton();
+    });
 
     function playUiSound(type = 'click') {
       if (!soundPackEnabled) return;
@@ -4409,12 +4464,14 @@ document.querySelectorAll('.delete-button').forEach(button => {
     }
 
     async function addEntry(entry) {
+      if (!requireAdmin('submit Gauntlet entries')) return;
       const docRef = await entriesCollection.add(entry);
       pendingStatsEntryId = docRef.id;
       await fetchEntries();
     }
 
     async function deleteEntry(id) {
+      if (!requireAdmin('delete Gauntlet entries')) return;
       if (confirm("Delete this entry?")) {
         await entriesCollection.doc(id).delete();
         fetchEntries();
@@ -4423,6 +4480,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (!requireAdmin('submit Gauntlet entries')) return;
 
       const name = document.getElementById('name').value.trim();
       const division = divisionSelect.value;
@@ -4460,6 +4518,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
 
     async function saveScoreboardChanges() {
       if (!isEditMode) return;
+      if (!requireAdmin('save scoreboard changes')) return;
       const rows = [...scoreboard.querySelectorAll('tr')].filter(row => row.dataset.entryId);
       for (let index = 0; index < rows.length; index++) {
         const row = rows[index];
@@ -4495,14 +4554,10 @@ document.querySelectorAll('.delete-button').forEach(button => {
       saveChangesButton.addEventListener('click', saveScoreboardChanges);
     }
 
-    // Password-protected edit toggle
+    // Firebase Auth-protected edit toggle
     editButton.addEventListener('click', () => {
       if (!isEditMode) {
-        const input = prompt("Enter edit password:");
-        if (input !== editPassword) {
-          alert("Incorrect password.");
-          return;
-        }
+        if (!requireAdmin('edit the scoreboard')) return;
       }
       isEditMode = !isEditMode;
       editButton.textContent = isEditMode ? "Done" : "Edit";

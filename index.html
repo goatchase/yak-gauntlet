@@ -37,7 +37,7 @@
       bottom: 30px;
       width: 132px;
       height: auto;
-      z-index: 1420;
+      z-index: 1295;
       pointer-events: none;
       opacity: 0;
       transform: translateY(54px) scale(0.86);
@@ -426,6 +426,18 @@
       width: 100%;
     }
 
+    .filter-button-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+      width: 100%;
+    }
+
+    .notes-input {
+      min-height: 44px;
+      resize: vertical;
+    }
+
     .filter-group {
       display: flex;
       flex-direction: column;
@@ -439,7 +451,8 @@
     }
 
     input,
-    select {
+    select,
+    textarea {
       min-height: 21px;
       padding: 1px 4px;
       color: #000;
@@ -635,7 +648,14 @@
 
     table#scoreboard th:nth-child(7),
     table#scoreboard td:nth-child(7) {
-      width: 70px;
+      width: 132px;
+    }
+
+    .scoreboard-note-edit {
+      min-height: 38px;
+      margin-bottom: 4px;
+      resize: vertical;
+      font-size: 10px;
     }
 
     th.sortable {
@@ -683,6 +703,21 @@
       margin-left: 6px;
       color: #000;
       font-size: 11px;
+    }
+
+    .note-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 15px;
+      height: 15px;
+      margin-left: 5px;
+      color: #000;
+      background: #ffffcc;
+      border: 1px solid #808080;
+      font-size: 10px;
+      line-height: 1;
+      vertical-align: middle;
+      cursor: help;
     }
 
     .gold,
@@ -1298,7 +1333,7 @@
 
     .yug-timer-panel {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(6, minmax(0, 1fr));
       align-items: stretch;
       gap: 5px;
     }
@@ -1395,7 +1430,7 @@
     }
 
     .yug-leaderboard td {
-      padding: 6px 8px;
+      padding: 4px 8px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -1419,14 +1454,19 @@
       width: 118px;
     }
 
+    .yug-leaderboard:not(.editing) th:nth-child(4),
+    .yug-leaderboard:not(.editing) td:nth-child(4) {
+      display: none;
+    }
+
     .yug-leaderboard tbody tr:hover {
       color: #000;
       background-color: #dcdcdc;
     }
 
     .yug-leaderboard .yug-delete-button {
-      min-height: 18px;
-      padding: 1px 4px;
+      min-height: 16px;
+      padding: 0 4px;
       font-size: 10px;
       line-height: 1;
     }
@@ -2207,6 +2247,7 @@
               <input id="time" placeholder="Time (mm ss.ss)" required />
               <input id="date" type="date" required />
             </div>
+            <textarea id="notes" class="notes-input" placeholder="Notes"></textarea>
             <button type="submit">Submit</button>
           </form>
         </div>
@@ -2240,9 +2281,9 @@
         </div>
       </section>
 
-      <section class="desktop-window filter-window" data-window-id="filters" data-window-title="OPTIONS">
+      <section class="desktop-window filter-window" data-window-id="filters" data-window-title="SCOREBOARD FILTERS">
         <div class="window-titlebar">
-          <span class="titlebar-label"><span class="window-icon"></span>OPTIONS</span>
+          <span class="titlebar-label"><span class="window-icon"></span>SCOREBOARD FILTERS</span>
           <div class="window-controls">
             <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
             <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
@@ -2252,15 +2293,14 @@
         <div class="window-body">
           <div class="filter-stack">
             <input id="searchInput" type="search" placeholder="Search name" />
-            <div class="button-row audience-stack">
+            <div class="filter-button-grid">
               <button id="barstoolButton" class="audience-button">Barstool</button>
               <button id="guestsButton" class="audience-button">Guests</button>
-            </div>
-            <div class="button-row utility-stack">
+              <button id="statsButton" class="open-stats-button" type="button">Monthly Leaders</button>
+              <button id="leadersButton" class="leaders-button" type="button">Overall Leaders</button>
+              <button id="bestTimesButton" class="leaders-button" type="button">Best Times</button>
               <button id="unfilterButton" class="unfilter-button" type="button">Unfilter</button>
-              <button id="leadersButton" class="leaders-button" type="button">Leaders</button>
             </div>
-            <button id="statsButton" class="open-stats-button" type="button">Monthly Leaders</button>
           </div>
         </div>
       </section>
@@ -2360,6 +2400,7 @@
                 <button type="button" id="yugStartButton">Start</button>
                 <button type="button" id="yugStopButton">Stop</button>
                 <button type="button" id="yugResetButton">Reset</button>
+                <button type="button" id="yugEditButton">Edit</button>
               </div>
               <div class="yug-timer" id="yugTimer">0.00</div>
             </div>
@@ -2509,10 +2550,12 @@
       <button type="button" class="start-menu-folder-button">GAUNTLET</button>
       <div class="start-submenu">
         <button type="button" data-window-restore="gauntlet">NEW ENTRY</button>
-        <button type="button" data-window-restore="filters">OPTIONS</button>
+        <button type="button" data-window-restore="filters">Scoreboard Filters</button>
         <button type="button" data-window-restore="scoreboard">SCOREBOARD</button>
         <button type="button" data-window-restore="runStats">Run Statistics</button>
         <button type="button" data-window-restore="statsDashboard">Monthly Leaders</button>
+        <button type="button" id="editButton" class="edit-button">Edit</button>
+        <button type="button" id="exportCsvButton" class="export-button">Export CSV</button>
       </div>
     </div>
     <div class="start-menu-folder">
@@ -2520,8 +2563,6 @@
       <div class="start-submenu">
         <button type="button" data-window-restore="wheelConfig">Configurations</button>
         <button type="button" id="soundPackButton">Sound Pack: ON</button>
-        <button type="button" id="editButton" class="edit-button">Edit</button>
-        <button type="button" id="exportCsvButton" class="export-button">Export CSV</button>
       </div>
     </div>
     <div class="start-menu-folder">
@@ -2582,6 +2623,7 @@
     const wheelPanel = document.getElementById('wheelPanel');
     const wheelEnabledButton = document.getElementById('wheelEnabledButton');
     const leadersButton = document.getElementById('leadersButton');
+    const bestTimesButton = document.getElementById('bestTimesButton');
     const statsButton = document.getElementById('statsButton');
     const statsCanvas = document.getElementById('statsCanvas');
     const statsScroll = document.getElementById('statsScroll');
@@ -2610,6 +2652,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     const yugStartButton = document.getElementById('yugStartButton');
     const yugStopButton = document.getElementById('yugStopButton');
     const yugResetButton = document.getElementById('yugResetButton');
+    const yugEditButton = document.getElementById('yugEditButton');
     const yugNameInput = document.getElementById('yugNameInput');
     const yugLeaderboard = document.getElementById('yugLeaderboard');
     let activeZ = 30;
@@ -2711,7 +2754,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         if (cell.mine) {
           playUiSound('grunt');
           button.classList.add('mintz-mine');
-          button.innerHTML = '<img src="assets/mintz-head.png" alt="Mintz mine" />';
+          button.innerHTML = '<img src="assets/mintz-head.svg" alt="Mintz mine" />';
         } else if (cell.count) {
           button.textContent = cell.count;
           button.classList.add(`n${cell.count}`);
@@ -3244,6 +3287,8 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     function renderYugLeaderboard() {
       if (!yugLeaderboard) return;
       yugLeaderboard.innerHTML = '';
+      const yugTable = yugLeaderboard.closest('.yug-leaderboard');
+      if (yugTable) yugTable.classList.toggle('editing', yugEditMode);
       if (!yugEntries.length) {
         yugLeaderboard.innerHTML = '<tr><td colspan="4">No yugs recorded.</td></tr>';
         return;
@@ -3312,6 +3357,12 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       yugInterval = null;
       yugStartTime = null;
       if (yugTimer) yugTimer.textContent = '0.00';
+    }
+
+    function toggleYugEditMode() {
+      yugEditMode = !yugEditMode;
+      if (yugEditButton) yugEditButton.textContent = yugEditMode ? 'Done' : 'Edit';
+      renderYugLeaderboard();
     }
 
     async function deleteYugEntry(id) {
@@ -3633,6 +3684,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     let isEditMode = false;
     let audienceFilter = 'All';
     let leadersOnly = false;
+    let bestTimesOnly = false;
     let pendingStatsEntryId = null;
     let wheelRotation = 0;
     let wheelSpinning = false;
@@ -3641,6 +3693,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     let currentRunStatsEntry = null;
     let yugStartTime = null;
     let yugInterval = null;
+    let yugEditMode = false;
     let yugEntries = JSON.parse(localStorage.getItem('yugLeaderboard') || '[]');
     const soundPackStorageKey = 'yakSoundPackEnabledV1';
     const wallpaperStorageKey = 'yakWallpaperModeV1';
@@ -4130,6 +4183,22 @@ function showRunStats(entryId) {
       if (leadersButton) leadersButton.classList.toggle('active', leadersOnly);
     }
 
+    function updateBestTimesButton() {
+      if (bestTimesButton) bestTimesButton.classList.toggle('active', bestTimesOnly);
+    }
+
+    function bestEntriesByName(sourceEntries) {
+      const best = {};
+      sourceEntries.forEach(entry => {
+        const key = (entry.name || '').trim().toUpperCase();
+        if (!key || !Number.isFinite(entry.totalSeconds)) return;
+        if (!best[key] || entry.totalSeconds < best[key].totalSeconds) {
+          best[key] = entry;
+        }
+      });
+      return Object.values(best);
+    }
+
     function updateFilterOptions() {
       const divisions = [...new Set(entries.map(e => e.division))].sort();
       const categories = [...new Set(entries.map(e => e.category))].sort();
@@ -4193,6 +4262,10 @@ function showRunStats(entryId) {
         (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
       );
 
+      if (bestTimesOnly) {
+        filteredEntries = bestEntriesByName(filteredEntries);
+      }
+
       // Sort filtered entries by current sort column and direction
       filteredEntries.sort((a, b) => {
         let cmp = compareEntries(a, b, currentSort.column);
@@ -4242,15 +4315,17 @@ function showRunStats(entryId) {
 
         if (isLeader) iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince} days</span>`;
         else if (isDivisionLeader) iconHTML = `<span class="stopwatch blue" title="Days since: ${daysSince}">⏱️${daysSince} days</span>`;
+        const noteHTML = !isEditMode && entry.notes ? `<span class="note-icon" title="${escapeHTML(entry.notes)}">📝</span>` : '';
 
         row.innerHTML = `
           <td>${index + 1}</td>
-          <td contenteditable="${isEditMode}">${entry.name}</td>
+          <td contenteditable="${isEditMode}">${escapeHTML(entry.name)}${noteHTML}</td>
           <td contenteditable="${isEditMode}">${entry.division}</td>
           <td contenteditable="${isEditMode}">${entry.category}</td>
           <td contenteditable="${isEditMode}">${formatTime(entry.totalSeconds)} ${iconHTML}</td>
           <td contenteditable="${isEditMode}">${formatDate(entry.date)}</td>
           <td style="display: ${isEditMode ? 'table-cell' : 'none'}">
+            <textarea class="scoreboard-note-edit" aria-label="Notes">${escapeHTML(entry.notes || '')}</textarea>
             <button class="delete-button" data-id="${entry.id}">Delete</button>
           </td>
         `;
@@ -4336,6 +4411,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
       const category = categorySelect.value;
       const time = document.getElementById('time').value.trim();
       const dateInput = document.getElementById('date').value; // e.g. "2025-05-29"
+      const notes = document.getElementById('notes').value.trim();
 
       if (!name || !division || !category || !time || !dateInput) {
         alert("Please fill in all fields.");
@@ -4359,7 +4435,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
       const dateTimeString = combinedDate.toISOString();
 
       lastSubmittedTime = parseTimeToSeconds(time);
-      await addEntry({ name, division, category, time, date: dateTimeString });
+      await addEntry({ name, division, category, time, date: dateTimeString, notes });
 
       form.reset();
     });
@@ -4394,6 +4470,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
             const newCategory = cells[3].innerText.trim();
             const newTime = cells[4].innerText.trim().split(' ')[0] + ' ' + cells[4].innerText.trim().split(' ')[1]; // "mm ss.ss"
             const newDateText = cells[5].innerText.trim();
+            const newNotes = row.querySelector('.scoreboard-note-edit')?.value.trim() || '';
             // Parse mm/dd/yyyy to yyyy-mm-dd
             const [m, d, y] = newDateText.split('/');
             const newDate = new Date(y, m - 1, d).toISOString();
@@ -4404,6 +4481,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
               category: newCategory,
               time: newTime,
               date: newDate,
+              notes: newNotes,
             });
           }
           alert('Changes saved.');
@@ -4444,8 +4522,10 @@ document.querySelectorAll('.delete-button').forEach(button => {
       searchInput.value = '';
       audienceFilter = 'All';
       leadersOnly = false;
+      bestTimesOnly = false;
       updateAudienceButtons();
       updateLeaderButton();
+      updateBestTimesButton();
       renderScoreboard();
     });
 
@@ -4471,24 +4551,33 @@ document.querySelectorAll('.delete-button').forEach(button => {
       });
     }
 
+    if (bestTimesButton) {
+      bestTimesButton.addEventListener('click', () => {
+        bestTimesOnly = !bestTimesOnly;
+        updateBestTimesButton();
+        renderScoreboard();
+      });
+    }
+
     if (statsButton) {
       statsButton.addEventListener('click', () => openStatsDashboard('histogram'));
     }
 
     function getVisibleScoreboardEntries() {
-      return entries
+      let visibleEntries = entries
         .map(entry => ({ ...entry, totalSeconds: parseTimeToSeconds(entry.time) }))
-        .filter(entry =>
-          entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
-          matchesAudienceFilter(entry) &&
-          (!leadersOnly || isDivisionLeaderEntry(entry, getDivisionLeaders(entries))) &&
-          (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
-          (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
-        )
-        .sort((a, b) => {
-          const cmp = compareEntries(a, b, currentSort.column);
-          return currentSort.direction === 'asc' ? cmp : -cmp;
+        .filter(entry => {
+          return entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
+            matchesAudienceFilter(entry) &&
+            (!leadersOnly || isDivisionLeaderEntry(entry, getDivisionLeaders(entries))) &&
+            (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
+            (categoryFilter.value === 'All' || entry.category === categoryFilter.value);
         });
+      if (bestTimesOnly) visibleEntries = bestEntriesByName(visibleEntries);
+      return visibleEntries.sort((a, b) => {
+        const cmp = compareEntries(a, b, currentSort.column);
+        return currentSort.direction === 'asc' ? cmp : -cmp;
+      });
     }
 
     function csvCell(value) {
@@ -4537,38 +4626,14 @@ document.querySelectorAll('.delete-button').forEach(button => {
       updateClock();
     }
 
-    const yakExcerptParts = {
-      openers: [
-        'A harmless question',
-        'A confident sports take',
-        'One tossed-off joke',
-        'A punishment-wheel suggestion',
-        'A caller-grade hypothetical',
-        'A random food opinion',
-        'A suspiciously specific memory',
-        'A desk-wide misunderstanding'
-      ],
-      turns: [
-        'turns into a full investigation',
-        'gets treated like courtroom evidence',
-        'derails the room for reasons no one can explain',
-        'becomes the only thing anyone cares about',
-        'somehow becomes a legacy debate',
-        'gets upgraded into official policy',
-        'is immediately challenged by three people',
-        'spawns a side quest nobody asked for'
-      ],
-      closers: [
-        'before the original topic can defend itself.',
-        'while the board quietly loses control.',
-        'and the room agrees to make it worse.',
-        'with total confidence and very little information.',
-        'until someone suggests putting it on a wheel.',
-        'as if this was always the plan.',
-        'and nobody remembers how it started.',
-        'right when the show finds a new gear.'
-      ]
-    };
+    const yakExactQuotes = [
+      {
+        quote: 'Transcript quotes are ready to load here once source text is added.',
+        date: 'Source needed',
+        time: '--:--',
+        source: 'https://www.podscripts.co/podcasts/the-yak/'
+      }
+    ];
 
     function pickRandom(items) {
       return items[Math.floor(Math.random() * items.length)];
@@ -4576,11 +4641,11 @@ document.querySelectorAll('.delete-button').forEach(button => {
 
     function renderYakExcerpt() {
       if (!yakExcerptPanel) return;
-      const text = `${pickRandom(yakExcerptParts.openers)} ${pickRandom(yakExcerptParts.turns)} ${pickRandom(yakExcerptParts.closers)}`;
+      const excerpt = pickRandom(yakExactQuotes);
       yakExcerptPanel.innerHTML = `
         <div class="tray-panel-title">YAK EXCERPTS</div>
-        <div class="insight-card"><strong>Random Yak Excerpt</strong>${escapeHTML(text)}</div>
-        <div class="insight-card"><strong>Source</strong><a href="https://www.podscripts.co/podcasts/the-yak/" target="_blank" rel="noopener">Open The Yak on Podscripts</a></div>
+        <div class="insight-card"><strong>${escapeHTML(excerpt.date)} ${escapeHTML(excerpt.time)}</strong>"${escapeHTML(excerpt.quote)}"</div>
+        <div class="insight-card"><strong>Source</strong><a href="${escapeHTML(excerpt.source)}" target="_blank" rel="noopener">Open The Yak on Podscripts</a></div>
         <button type="button" id="yakExcerptRefresh">Random Excerpt</button>
       `;
       const refresh = document.getElementById('yakExcerptRefresh');
@@ -4893,6 +4958,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
     if (yugStartButton) yugStartButton.addEventListener('click', startYugTimer);
     if (yugStopButton) yugStopButton.addEventListener('click', stopYugTimer);
     if (yugResetButton) yugResetButton.addEventListener('click', resetYugTimer);
+    if (yugEditButton) yugEditButton.addEventListener('click', toggleYugEditMode);
     if (yugLeaderboard) {
       yugLeaderboard.addEventListener('click', event => {
         const editButton = event.target.closest('[data-yug-edit]');

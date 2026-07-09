@@ -26,8 +26,8 @@
       overflow-x: hidden;
     }
 
-    body.wallpaper-after-dark {
-      background: #050514;
+    body.wallpaper-van-talk {
+      background: #008080 url("vantalk.png") center center / cover fixed no-repeat;
       color: #000;
     }
 
@@ -2758,7 +2758,7 @@
       <button type="button" class="start-menu-folder-button">WALLPAPER</button>
       <div class="start-submenu">
         <button type="button" data-wallpaper-mode="classic">Classic</button>
-        <button type="button" data-wallpaper-mode="after-dark">After Dark</button>
+        <button type="button" data-wallpaper-mode="van-talk">Van Talk</button>
         <button type="button" data-wallpaper-mode="more-cow-bell">More Cow Bell</button>
       </div>
     </div>
@@ -3985,8 +3985,8 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
    let lastSubmittedTime = null;
 
     function setWallpaperMode(mode) {
-      const normalized = ['after-dark', 'more-cow-bell'].includes(mode) ? mode : 'classic';
-      document.body.classList.toggle('wallpaper-after-dark', normalized === 'after-dark');
+      const normalized = ['van-talk', 'more-cow-bell'].includes(mode) ? mode : 'classic';
+      document.body.classList.toggle('wallpaper-van-talk', normalized === 'van-talk');
       document.body.classList.toggle('wallpaper-more-cow-bell', normalized === 'more-cow-bell');
       localStorage.setItem(wallpaperStorageKey, normalized);
     }

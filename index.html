@@ -4468,7 +4468,7 @@ function showRunStats(entryId) {
       runStatsContent.innerHTML = `
         ${statBar('Overall', overallRank, validEntries.length)}
         ${statBar('Division', rankInGroup(entry, divisionEntries), divisionEntries.length)}
-        ${statBar('Monthly', rankInGroup(entry, monthlyEntries), monthlyEntries.length)}
+        ${statBar('Month', rankInGroup(entry, monthlyEntries), monthlyEntries.length)}
       `;
 
       const statsWindow = document.querySelector('[data-window-id="runStats"]');

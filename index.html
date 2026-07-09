@@ -436,8 +436,7 @@
     }
 
     .notes-input {
-      min-height: 44px;
-      resize: vertical;
+      min-height: 21px;
     }
 
     .filter-group {
@@ -534,7 +533,7 @@
       height: 18px;
       min-height: 18px;
       padding: 0 2px;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 700;
     }
 
@@ -569,7 +568,7 @@
 
     .table-wrapper {
       width: 100%;
-      max-height: calc(100vh - 86px);
+      max-height: calc(100vh - 106px);
       overflow: auto;
       background-color: #fff;
       border-top: 2px solid #404040;
@@ -603,7 +602,7 @@
 
     th,
     td {
-      padding: 6px 8px;
+      padding: 4px 5px;
       text-align: left;
       cursor: default;
       user-select: none;
@@ -622,13 +621,13 @@
 
     table#scoreboard th:nth-child(1),
     table#scoreboard td:nth-child(1) {
-      width: 42px;
+      width: 34px;
       text-align: center;
     }
 
     table#scoreboard th:nth-child(2),
     table#scoreboard td:nth-child(2) {
-      width: 23%;
+      width: 22%;
     }
 
     table#scoreboard th:nth-child(3),
@@ -640,17 +639,17 @@
 
     table#scoreboard th:nth-child(5),
     table#scoreboard td:nth-child(5) {
-      width: 132px;
+      width: 84px;
     }
 
     table#scoreboard th:nth-child(6),
     table#scoreboard td:nth-child(6) {
-      width: 96px;
+      width: 68px;
     }
 
     table#scoreboard th:nth-child(7),
     table#scoreboard td:nth-child(7) {
-      width: 132px;
+      width: 104px;
     }
 
     .scoreboard-edit-bar {
@@ -2392,7 +2391,7 @@
               <input id="time" placeholder="Time (mm ss.ss)" required />
               <input id="date" type="date" required />
             </div>
-            <textarea id="notes" class="notes-input" placeholder="Notes"></textarea>
+            <input id="notes" class="notes-input" type="text" placeholder="Notes" />
             <button type="submit">Submit</button>
           </form>
         </div>
@@ -4534,12 +4533,20 @@ function showRunStats(entryId) {
       });
 
       const todayStr = new Date().toISOString().split('T')[0];
+      const hasActiveTableFilter =
+        searchInput.value.trim() ||
+        divisionFilter.value !== 'All' ||
+        categoryFilter.value !== 'All' ||
+        audienceFilter !== 'All' ||
+        leadersOnly ||
+        bestTimesOnly;
+      const showQuartileMarkers = !hasActiveTableFilter;
 
-      const quartileMarkers = [
+      const quartileMarkers = showQuartileMarkers ? [
         { index: Math.ceil(filteredEntries.length * 0.25), label: 'Top 25% Cutoff' },
         { index: Math.ceil(filteredEntries.length * 0.50), label: 'Top 50% / Bottom 50%' },
         { index: Math.ceil(filteredEntries.length * 0.75), label: 'Bottom 25% Cutoff' },
-      ].filter(marker => marker.index > 0 && marker.index < filteredEntries.length);
+      ].filter(marker => marker.index > 0 && marker.index < filteredEntries.length) : [];
 
       filteredEntries.forEach((entry, index) => {
         quartileMarkers

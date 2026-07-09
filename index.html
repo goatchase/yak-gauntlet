@@ -26,6 +26,11 @@
       overflow-x: hidden;
     }
 
+    body.wallpaper-after-dark {
+      background: #050514;
+      color: #000;
+    }
+
     body.wallpaper-van-talk {
       background: #008080 url("vantalk.png") center center / cover fixed no-repeat;
       color: #000;
@@ -2760,6 +2765,7 @@
         <button type="button" data-wallpaper-mode="classic">Classic</button>
         <button type="button" data-wallpaper-mode="van-talk">Van Talk</button>
         <button type="button" data-wallpaper-mode="more-cow-bell">More Cow Bell</button>
+        <button type="button" data-wallpaper-mode="rotating">Rotating</button>
       </div>
     </div>
     <div class="start-menu-folder">
@@ -3947,6 +3953,11 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     let yugEntries = JSON.parse(localStorage.getItem('yugLeaderboard') || '[]');
     const soundPackStorageKey = 'yakSoundPackEnabledV1';
     const wallpaperStorageKey = 'yakWallpaperModeV1';
+    const defaultWallpaperMode = 'classic';
+    const wallpaperModes = ['classic', 'van-talk', 'more-cow-bell', 'rotating'];
+    const rotatingWallpaperModes = ['classic', 'van-talk', 'more-cow-bell'];
+    let wallpaperRotationTimer = null;
+    let wallpaperRotationIndex = 0;
     let soundPackEnabled = localStorage.getItem(soundPackStorageKey) !== 'off';
     const wheelConfigStorageKey = 'yakQuartileWheelConfigV2';
     const defaultWheelConfig = {
@@ -3984,10 +3995,28 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
 
    let lastSubmittedTime = null;
 
+    function applyWallpaperVisual(mode) {
+      document.body.classList.toggle('wallpaper-after-dark', false);
+      document.body.classList.toggle('wallpaper-van-talk', mode === 'van-talk');
+      document.body.classList.toggle('wallpaper-more-cow-bell', mode === 'more-cow-bell');
+    }
+
+    function rotateWallpaperVisual() {
+      const mode = rotatingWallpaperModes[wallpaperRotationIndex % rotatingWallpaperModes.length];
+      wallpaperRotationIndex += 1;
+      applyWallpaperVisual(mode);
+    }
+
     function setWallpaperMode(mode) {
-      const normalized = ['van-talk', 'more-cow-bell'].includes(mode) ? mode : 'classic';
-      document.body.classList.toggle('wallpaper-van-talk', normalized === 'van-talk');
-      document.body.classList.toggle('wallpaper-more-cow-bell', normalized === 'more-cow-bell');
+      const normalized = wallpaperModes.includes(mode) ? mode : defaultWallpaperMode;
+      window.clearInterval(wallpaperRotationTimer);
+      wallpaperRotationTimer = null;
+      if (normalized === 'rotating') {
+        rotateWallpaperVisual();
+        wallpaperRotationTimer = window.setInterval(rotateWallpaperVisual, 60000);
+      } else {
+        applyWallpaperVisual(normalized);
+      }
       localStorage.setItem(wallpaperStorageKey, normalized);
     }
 
@@ -4088,7 +4117,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       oscillator.addEventListener('ended', () => ctx.close());
     }
 
-    setWallpaperMode(localStorage.getItem(wallpaperStorageKey) || 'classic');
+    setWallpaperMode(localStorage.getItem(wallpaperStorageKey) || defaultWallpaperMode);
     renderSoundPackButton();
 
     function normalizeDivision(value) {

@@ -31,6 +31,11 @@
       color: #000;
     }
 
+    body.wallpaper-more-cow-bell {
+      background: #008080 url("assets/more-cow-bell-wallpaper.png") center center / cover fixed no-repeat;
+      color: #000;
+    }
+
 
     .stella-popup {
       position: fixed;
@@ -221,6 +226,17 @@
     .desktop-left-column .desktop-window,
     .desktop-right-column .desktop-window {
       width: 100%;
+    }
+
+    .desktop-window:not(.minesweeper-window):not(.euchre-window),
+    .desktop-window:not(.minesweeper-window):not(.euchre-window) button,
+    .desktop-window:not(.minesweeper-window):not(.euchre-window) input,
+    .desktop-window:not(.minesweeper-window):not(.euchre-window) select,
+    .desktop-window:not(.minesweeper-window):not(.euchre-window) textarea,
+    .desktop-window:not(.minesweeper-window):not(.euchre-window) table,
+    .desktop-window:not(.minesweeper-window):not(.euchre-window) th,
+    .desktop-window:not(.minesweeper-window):not(.euchre-window) td {
+      font-size: 11px;
     }
 
     .desktop-window {
@@ -594,10 +610,10 @@
       z-index: 10;
       color: #000;
       background-color: #c0c0c0;
-      border-top: 2px solid #fff;
-      border-left: 2px solid #fff;
-      border-right: 2px solid #808080;
-      border-bottom: 2px solid #808080;
+      border-top: 1px solid #fff;
+      border-left: 1px solid #fff;
+      border-right: 1px solid #808080;
+      border-bottom: 1px solid #808080;
     }
 
     th,
@@ -644,7 +660,7 @@
 
     table#scoreboard th:nth-child(6),
     table#scoreboard td:nth-child(6) {
-      width: 68px;
+      width: 56px;
     }
 
     table#scoreboard th:nth-child(7),
@@ -825,21 +841,37 @@
 
     .run-stats-graphic {
       display: grid;
-      gap: 7px;
+      gap: 6px;
       min-width: min(330px, 100%);
-      padding: 7px;
+      padding: 6px;
       background: #fff;
       border-top: 2px solid #404040;
       border-left: 2px solid #404040;
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
+      font-size: 11px;
+    }
+
+    #runStatsTitleLabel {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .stat-bar-row {
       display: grid;
-      grid-template-columns: 116px 1fr 46px;
+      grid-template-columns: 48px 1fr 44px;
       align-items: center;
-      gap: 6px;
+      gap: 3px;
+      white-space: nowrap;
+    }
+
+    .stat-bar-row span,
+    .stat-bar-row strong {
+      overflow: hidden;
+      text-overflow: clip;
+      white-space: nowrap;
     }
 
     .stat-bar-track {
@@ -1040,6 +1072,19 @@
       border-bottom: 10px solid transparent;
       border-right: 18px solid #f00;
       transform: translateY(-50%);
+    }
+
+    #spinWheelButton {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 2;
+      width: 58px;
+      height: 58px;
+      padding: 0;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: 700;
     }
 
     .wheel-result {
@@ -1451,7 +1496,7 @@
     }
 
     .yug-station-window {
-      width: 680px;
+      width: 610px;
       max-width: calc(100vw - 24px);
     }
 
@@ -1477,19 +1522,9 @@
 
     .yug-timer-panel {
       display: grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
+      grid-template-columns: minmax(110px, 1.35fr) 88px repeat(4, minmax(54px, .72fr)) 72px;
       align-items: stretch;
       gap: 5px;
-    }
-
-    .yug-station-title {
-      margin: 0;
-      padding: 4px 6px;
-      color: #fff;
-      background: #000080;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
     }
 
     .yug-timer {
@@ -1535,7 +1570,8 @@
       border-bottom-color: #fff;
     }
 
-    .yug-name-input {
+    .yug-name-input,
+    .yug-date-input {
       width: 100%;
       margin: 0;
       min-height: 29px;
@@ -1545,7 +1581,7 @@
     }
 
     .yug-leaderboard-wrap {
-      max-height: 330px;
+      max-height: calc(100vh - 176px);
       overflow: auto;
       background: #fff;
       border: 2px inset #fff;
@@ -1563,18 +1599,18 @@
       position: sticky;
       top: 0;
       z-index: 2;
-      padding: 6px 8px;
+      padding: 4px 6px;
       color: #000;
       background: #c0c0c0;
-      border-top: 2px solid #fff;
-      border-left: 2px solid #fff;
-      border-right: 2px solid #808080;
-      border-bottom: 2px solid #808080;
+      border-top: 1px solid #fff;
+      border-left: 1px solid #fff;
+      border-right: 1px solid #808080;
+      border-bottom: 1px solid #808080;
       text-align: left;
     }
 
     .yug-leaderboard td {
-      padding: 4px 8px;
+      padding: 4px 6px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -1590,16 +1626,21 @@
 
     .yug-leaderboard th:nth-child(3),
     .yug-leaderboard td:nth-child(3) {
-      width: 112px;
+      width: 72px;
     }
 
     .yug-leaderboard th:nth-child(4),
     .yug-leaderboard td:nth-child(4) {
-      width: 118px;
+      width: 72px;
     }
 
-    .yug-leaderboard:not(.editing) th:nth-child(4),
-    .yug-leaderboard:not(.editing) td:nth-child(4) {
+    .yug-leaderboard th:nth-child(5),
+    .yug-leaderboard td:nth-child(5) {
+      width: 102px;
+    }
+
+    .yug-leaderboard:not(.editing) th:nth-child(5),
+    .yug-leaderboard:not(.editing) td:nth-child(5) {
       display: none;
     }
 
@@ -2276,6 +2317,11 @@
       text-align: right;
     }
 
+    .desktop-window:not(.minesweeper-window):not(.euchre-window),
+    .desktop-window:not(.minesweeper-window):not(.euchre-window) * {
+      font-size: 11px;
+    }
+
     @media (max-width: 768px) {
       body {
         padding: 8px 8px 46px;
@@ -2399,7 +2445,7 @@
 
       <section class="desktop-window minimized" data-window-id="runStats" data-window-title="RUN STATISTICS">
         <div class="window-titlebar">
-          <span class="titlebar-label"><span class="window-icon"></span>RUN STATISTICS</span>
+          <span class="titlebar-label" id="runStatsTitleLabel"><span class="window-icon"></span>RUN STATISTICS</span>
           <div class="window-controls">
             <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
             <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
@@ -2418,8 +2464,8 @@
             <div class="wheel-wrap">
               <canvas id="nameWheel" width="220" height="220"></canvas>
               <div class="wheel-pointer"></div>
+              <button type="button" id="spinWheelButton">SPIN</button>
             </div>
-            <button type="button" id="spinWheelButton">Spin Wheel</button>
             <div class="wheel-result" id="wheelResult">READY</div>
           </div>
         </div>
@@ -2540,6 +2586,7 @@
           <div class="yug-station-panel">
             <div class="yug-timer-panel">
               <input id="yugNameInput" class="yug-name-input" type="text" placeholder="Name" />
+              <input id="yugDateInput" class="yug-date-input" type="date" />
               <div class="yug-controls">
                 <button type="button" id="yugStartButton">Start</button>
                 <button type="button" id="yugStopButton">Stop</button>
@@ -2549,7 +2596,6 @@
               <div class="yug-timer" id="yugTimer">0.00</div>
             </div>
             <div class="yug-board-panel">
-              <div class="yug-station-title">Leaderboard</div>
               <div class="yug-leaderboard-wrap">
                 <table class="yug-leaderboard">
                   <thead>
@@ -2557,6 +2603,7 @@
                       <th>Rank</th>
                       <th>Name</th>
                       <th>Time</th>
+                      <th>Date</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -2712,6 +2759,7 @@
       <div class="start-submenu">
         <button type="button" data-wallpaper-mode="classic">Classic</button>
         <button type="button" data-wallpaper-mode="after-dark">After Dark</button>
+        <button type="button" data-wallpaper-mode="more-cow-bell">More Cow Bell</button>
       </div>
     </div>
     <div class="start-menu-folder">
@@ -2783,6 +2831,7 @@
     const desktopIcons = [...document.querySelectorAll('.desktop-icon')];
     const desktopWindows = [...document.querySelectorAll('.desktop-window')];
     const runStatsContent = document.getElementById('runStatsContent');
+    const runStatsTitleLabel = document.getElementById('runStatsTitleLabel');
     const nameWheel = document.getElementById('nameWheel');
     const spinWheelButton = document.getElementById('spinWheelButton');
     const wheelResult = document.getElementById('wheelResult');
@@ -2824,6 +2873,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     const yugResetButton = document.getElementById('yugResetButton');
     const yugEditButton = document.getElementById('yugEditButton');
     const yugNameInput = document.getElementById('yugNameInput');
+    const yugDateInput = document.getElementById('yugDateInput');
     const yugLeaderboard = document.getElementById('yugLeaderboard');
     let activeZ = 30;
     let taskbarTotals = { runs: 0, seconds: 0 };
@@ -3460,7 +3510,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const yugTable = yugLeaderboard.closest('.yug-leaderboard');
       if (yugTable) yugTable.classList.toggle('editing', yugEditMode);
       if (!yugEntries.length) {
-        yugLeaderboard.innerHTML = '<tr><td colspan="4">No yugs recorded.</td></tr>';
+        yugLeaderboard.innerHTML = '<tr><td colspan="5">No yugs recorded.</td></tr>';
         return;
       }
       yugEntries.forEach((entry, index) => {
@@ -3471,6 +3521,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
           <td class="${rankClass}">${index + 1}</td>
           <td>${entry.name}</td>
           <td>${Number(entry.time).toFixed(2)}</td>
+          <td>${formatYugDate(entry)}</td>
           <td>
             <button type="button" class="yug-delete-button" data-yug-edit="${actionId}">Edit</button>
             <button type="button" class="yug-delete-button" data-yug-delete="${actionId}">X</button>
@@ -3505,6 +3556,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const entry = {
         name,
         time: Number(yugTimer.textContent) || 0,
+        date: yugDateInput?.value || new Date().toISOString().slice(0, 10),
         createdAt: new Date().toISOString()
       };
       try {
@@ -3564,11 +3616,19 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const timeText = prompt('Edit Yug Station time:', Number(entry.time).toFixed(2));
       if (timeText === null) return;
       const time = Number(timeText);
+      const dateText = prompt('Edit Yug Station date (YYYY-MM-DD):', entry.date || String(entry.createdAt || new Date().toISOString()).slice(0, 10));
+      if (dateText === null) return;
+      const parsedDate = /^\d{4}-\d{2}-\d{2}$/.test(dateText.trim()) ? dateText.trim() : new Date(dateText);
+      const cleanDate = typeof parsedDate === 'string' ? parsedDate : (Number.isNaN(parsedDate.getTime()) ? '' : parsedDate.toISOString().slice(0, 10));
       if (!name.trim() || !Number.isFinite(time)) {
         alert('Enter a valid name and numeric time.');
         return;
       }
-      const update = { name: name.trim(), time, updatedAt: new Date().toISOString() };
+      if (!cleanDate) {
+        alert('Enter a valid date.');
+        return;
+      }
+      const update = { name: name.trim(), time, date: cleanDate, updatedAt: new Date().toISOString() };
       try {
         if (yugEntriesCollection && typeof id === 'string' && id && !id.startsWith('local:')) {
           await yugEntriesCollection.doc(id).update(update);
@@ -3836,6 +3896,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     setInterval(updateClock, 30000);
 
   document.getElementById('date').valueAsDate = new Date();
+    if (yugDateInput) yugDateInput.valueAsDate = new Date();
     const firebaseConfig = {
       apiKey: "AIzaSyCLIgqUBUH-9OLNbPihVrNmy7UaEKzDKZ0",
       authDomain: "goatchase-e9502.firebaseapp.com",
@@ -3924,8 +3985,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
    let lastSubmittedTime = null;
 
     function setWallpaperMode(mode) {
-      const normalized = mode === 'after-dark' ? 'after-dark' : 'classic';
+      const normalized = ['after-dark', 'more-cow-bell'].includes(mode) ? mode : 'classic';
       document.body.classList.toggle('wallpaper-after-dark', normalized === 'after-dark');
+      document.body.classList.toggle('wallpaper-more-cow-bell', normalized === 'more-cow-bell');
       localStorage.setItem(wallpaperStorageKey, normalized);
     }
 
@@ -4048,6 +4110,15 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     function formatDate(input) {
       const d = new Date(input);
       return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
+    }
+
+    function formatYugDate(entry) {
+      const raw = entry?.date || entry?.createdAt || new Date().toISOString();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+        const [year, month, day] = raw.split('-');
+        return `${month}/${day}/${year}`;
+      }
+      return formatDate(raw);
     }
 
     function parseTimeToSeconds(timeStr) {
@@ -4390,12 +4461,14 @@ function showRunStats(entryId) {
         ? Math.round(((overallRank - 1) / (validEntries.length - 1)) * 100)
         : 0;
 
+      if (runStatsTitleLabel) {
+        runStatsTitleLabel.innerHTML = `<span class="window-icon"></span>${escapeHTML(entry.name)} STATISTICS`;
+      }
+
       runStatsContent.innerHTML = `
-        <strong>${escapeHTML(entry.name)}</strong>
-        ${percentileBar(percentile)}
-        ${statBar('Overall Rank', overallRank, validEntries.length)}
-        ${statBar('Division Rank', rankInGroup(entry, divisionEntries), divisionEntries.length)}
-        ${statBar('Monthly Rank', rankInGroup(entry, monthlyEntries), monthlyEntries.length)}
+        ${statBar('Overall', overallRank, validEntries.length)}
+        ${statBar('Division', rankInGroup(entry, divisionEntries), divisionEntries.length)}
+        ${statBar('Monthly', rankInGroup(entry, monthlyEntries), monthlyEntries.length)}
       `;
 
       const statsWindow = document.querySelector('[data-window-id="runStats"]');
@@ -4450,19 +4523,23 @@ function showRunStats(entryId) {
     }
 
     function updateFilterOptions() {
+      const selectedDivision = divisionFilter.value || 'All';
+      const selectedCategory = categoryFilter.value || 'All';
       const divisions = [...new Set(entries.map(e => e.division))].sort();
       const categories = [...new Set(entries.map(e => e.category))].sort();
 
-      divisionFilter.innerHTML = '<option value="All">Division: All</option>' +
-        divisions.map(d => `<option value="${d}">${d}</option>`).join('');
-      categoryFilter.innerHTML = '<option value="All">Category: All</option>' +
-        categories.map(c => `<option value="${c}">${c}</option>`).join('');
+      divisionFilter.innerHTML = `<option value="All">${selectedDivision === 'All' ? 'Division: All' : 'Clear Division Filter'}</option>` +
+        divisions.map(d => `<option value="${escapeHTML(d)}">${escapeHTML(d)}</option>`).join('');
+      categoryFilter.innerHTML = `<option value="All">${selectedCategory === 'All' ? 'Category: All' : 'Clear Category Filter'}</option>` +
+        categories.map(c => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join('');
+      divisionFilter.value = divisions.includes(selectedDivision) ? selectedDivision : 'All';
+      categoryFilter.value = categories.includes(selectedCategory) ? selectedCategory : 'All';
 
       divisionSelect.innerHTML = '<option value="" disabled selected>Select Division</option>' +
-        divisions.map(d => `<option value="${d}">${d}</option>`).join('') +
+        divisions.map(d => `<option value="${escapeHTML(d)}">${escapeHTML(d)}</option>`).join('') +
         '<option value="__add_new__">+ Add New Division</option>';
       categorySelect.innerHTML = '<option value="" disabled selected>Select Category</option>' +
-        categories.map(c => `<option value="${c}">${c}</option>`).join('') +
+        categories.map(c => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join('') +
         '<option value="__add_new__">+ Add New Category</option>';
     }
 

@@ -36,6 +36,11 @@
       color: #000;
     }
 
+    body.wallpaper-yak-special {
+      background: #008080 url("special.png") center center / cover fixed no-repeat;
+      color: #000;
+    }
+
     body.wallpaper-more-cow-bell {
       background: #008080 url("more-cow-bell-wallpaper.png") center center / cover fixed no-repeat;
       color: #000;
@@ -2764,6 +2769,7 @@
       <div class="start-submenu">
         <button type="button" data-wallpaper-mode="classic">Classic</button>
         <button type="button" data-wallpaper-mode="van-talk">Van Talk</button>
+        <button type="button" data-wallpaper-mode="yak-special">Yak Special</button>        
         <button type="button" data-wallpaper-mode="more-cow-bell">More Cow Bell</button>
         <button type="button" data-wallpaper-mode="rotating">Rotating</button>
       </div>
@@ -3954,8 +3960,8 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     const soundPackStorageKey = 'yakSoundPackEnabledV1';
     const wallpaperStorageKey = 'yakWallpaperModeV1';
     const defaultWallpaperMode = 'rotating';
-    const wallpaperModes = ['classic', 'van-talk', 'more-cow-bell', 'rotating'];
-    const rotatingWallpaperModes = ['classic', 'van-talk', 'more-cow-bell'];
+    const wallpaperModes = ['classic', 'van-talk', 'yak-special', 'more-cow-bell', 'rotating'];
+    const rotatingWallpaperModes = ['classic', 'van-talk', 'yak-special', 'more-cow-bell'];
     let wallpaperRotationTimer = null;
     let wallpaperRotationIndex = 0;
     let soundPackEnabled = localStorage.getItem(soundPackStorageKey) !== 'off';
@@ -3998,6 +4004,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     function applyWallpaperVisual(mode) {
       document.body.classList.toggle('wallpaper-after-dark', false);
       document.body.classList.toggle('wallpaper-van-talk', mode === 'van-talk');
+      document.body.classList.toggle('wallpaper-yak-special', mode === 'yak-special');
       document.body.classList.toggle('wallpaper-more-cow-bell', mode === 'more-cow-bell');
     }
 

@@ -954,9 +954,9 @@
  
     .stat-bar-row {
       display: grid;
-      grid-template-columns: 48px 1fr 44px;
+      grid-template-columns: 66px minmax(80px, 1fr) 82px;
       align-items: center;
-      gap: 3px;
+      gap: 8px;
       white-space: nowrap;
     }
  
@@ -969,6 +969,7 @@
  
     .stat-bar-track {
       height: 16px;
+      min-width: 0;
       background: #c0c0c0;
       border-top: 2px solid #808080;
       border-left: 2px solid #808080;
@@ -4116,7 +4117,11 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const audio = new Audio('thank-you.m4a');
       audio.volume = 0.85;
       audio.play().catch(() => {
-        playUiSound('grunt');
+        const fallback = new Audio('https://raw.githubusercontent.com/goatchase/yak-gauntlet/main/thank-you.m4a');
+        fallback.volume = 0.85;
+        fallback.play().catch(() => {
+          playUiSound('grunt');
+        });
       });
     }
  
@@ -4476,9 +4481,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = '#000';
-      ctx.font = 'bold 12pt Roboto, "MS Sans Serif", Tahoma, Arial';
+      ctx.font = '9pt Roboto, "MS Sans Serif", Tahoma, Arial';
       const distance = Math.max(44, radius * 0.63);
-      const lineHeight = 16;
+      const lineHeight = 12;
       lines.forEach((line, lineIndex) => {
         ctx.fillText(line, distance, (lineIndex - (lines.length - 1) / 2) * lineHeight);
       });

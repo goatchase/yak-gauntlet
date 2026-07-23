@@ -12,7 +12,7 @@
     * {
       box-sizing: border-box;
     }
-
+ 
     body {
       font-family: "Roboto", "MS Sans Serif", Tahoma, Arial, sans-serif;
       margin: 0;
@@ -21,27 +21,32 @@
       background: #008080;
       color: #000;
       text-transform: uppercase;
-      font-size: 11px;
+      font-size: 11pt;
       letter-spacing: 0;
       overflow-x: hidden;
     }
-
+ 
     body.wallpaper-after-dark {
       background: #050514;
       color: #000;
     }
-
+ 
     body.wallpaper-van-talk {
       background: #008080 url("vantalk.png") center center / cover fixed no-repeat;
       color: #000;
     }
-
+ 
+    body.wallpaper-yak-special {
+      background: #008080 url("special.png") center center / cover fixed no-repeat;
+      color: #000;
+    }
+ 
     body.wallpaper-more-cow-bell {
       background: #008080 url("more-cow-bell-wallpaper.png") center center / cover fixed no-repeat;
       color: #000;
     }
-
-
+ 
+ 
     .stella-popup {
       position: fixed;
       left: 12px;
@@ -58,7 +63,7 @@
       filter: drop-shadow(2px 2px 0 #004040);
       overflow: visible;
     }
-
+ 
     .stella-art {
       display: block;
       width: 132px;
@@ -67,14 +72,14 @@
       object-fit: contain;
       transform: none;
     }
-
-
+ 
+ 
     .stella-popup.show {
       opacity: 1;
       transform: translateY(0) scale(1);
       animation: stellaPeek 0.9s steps(2, end) infinite;
     }
-
+ 
     @keyframes stellaPeek {
       0%, 100% {
         margin-bottom: 0;
@@ -83,16 +88,16 @@
         margin-bottom: 4px;
       }
     }
-
+ 
     .desktop-shell {
       width: min(1380px, calc(100vw - 24px));
       margin: 0 auto;
       display: grid;
-      grid-template-columns: 300px minmax(0, 1fr);
+      grid-template-columns: 360px minmax(0, 1fr);
       align-items: start;
       gap: 10px;
     }
-
+ 
     .desktop-icons {
       position: fixed;
       left: 10px;
@@ -100,30 +105,38 @@
       z-index: 1;
       display: grid;
       gap: 12px;
-      width: 78px;
+      width: 88px;
+      justify-items: center;
     }
-
+ 
     .desktop-icon {
-      width: 66px;
-      min-height: 70px;
+      width: 82px;
+      min-height: 72px;
       display: grid;
       justify-items: center;
       align-content: start;
       gap: 4px;
-      padding: 4px 3px;
+      padding: 5px 3px;
       color: #fff;
       background: transparent;
       border: 1px dotted transparent;
       box-shadow: none;
       text-align: center;
       text-shadow: 1px 1px 0 #000;
-      font-size: 8px;
+      font-size: 10px;
       line-height: 1.1;
       white-space: nowrap;
       text-decoration: none;
       cursor: default;
     }
-
+ 
+    .desktop-icon span:last-child {
+      display: block;
+      width: 100%;
+      text-align: center;
+      white-space: nowrap;
+    }
+ 
     .desktop-icon:hover,
     .desktop-icon:focus {
       color: #fff;
@@ -131,7 +144,7 @@
       border-color: #fff;
       outline: 0;
     }
-
+ 
     .desktop-icon-art {
       width: 28px;
       height: 27px;
@@ -139,14 +152,21 @@
       display: block;
       image-rendering: pixelated;
     }
-
+ 
+    .desktop-icon-art img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+    }
+ 
     .desktop-icon-art::before,
     .desktop-icon-art::after {
       content: "";
       position: absolute;
       box-sizing: border-box;
     }
-
+ 
     .desktop-icon-art.mine-icon::before {
       left: 2px;
       top: 3px;
@@ -161,7 +181,7 @@
       border-right: 2px solid #404040;
       border-bottom: 2px solid #404040;
     }
-
+ 
     .desktop-icon-art.mine-icon::after {
       left: 11px;
       top: 11px;
@@ -175,7 +195,7 @@
         0 -8px 0 -3px #000,
         0 8px 0 -3px #000;
     }
-
+ 
     .desktop-icon-art.cards-icon::before {
       left: 5px;
       top: 6px;
@@ -186,7 +206,7 @@
       box-shadow: 4px -4px 0 #fff, 6px -6px 0 #000;
       transform: rotate(-7deg);
     }
-
+ 
     .desktop-icon-art.cards-icon::after {
       left: 10px;
       top: 11px;
@@ -196,30 +216,57 @@
       transform: rotate(45deg);
       box-shadow: 8px -9px 0 -1px #000;
     }
-
-    .desktop-icon-art.yug-icon::before {
-      left: 3px;
-      top: 5px;
-      width: 22px;
-      height: 18px;
-      background: #000080;
-      border-top: 2px solid #fff;
-      border-left: 2px solid #fff;
-      border-right: 2px solid #404040;
-      border-bottom: 2px solid #404040;
-      box-shadow: inset 0 -5px 0 #1084d0;
+ 
+    .desktop-icon-art.yug-icon {
+      width: 30px;
+      height: 30px;
     }
-
-    .desktop-icon-art.yug-icon::after {
+ 
+    .desktop-icon-art.euchre-icon {
+      width: 30px;
+      height: 30px;
+    }
+ 
+    .desktop-icon-art.gauntlet-icon {
+      width: 30px;
+      height: 30px;
+    }
+ 
+    .desktop-icon-art.gauntlet-icon::before,
+    .desktop-icon-art.gauntlet-icon::after {
+      content: none;
+    }
+ 
+    .desktop-icon-art.gauntlet-icon::before {
+      left: 5px;
+      top: 2px;
+      width: 19px;
+      height: 7px;
+      background: #cc1731;
+      border-radius: 50%;
+      transform: rotate(-6deg);
+      box-shadow:
+        0 -8px 0 -3px #0c1628,
+        7px -5px 0 -3px #0c1628,
+        9px 2px 0 -3px #0c1628,
+        6px 9px 0 -3px #0c1628,
+        -1px 11px 0 -3px #0c1628,
+        -8px 7px 0 -3px #0c1628,
+        -10px 0 0 -3px #0c1628,
+        -6px -6px 0 -3px #0c1628;
+    }
+ 
+    .desktop-icon-art.gauntlet-icon::after {
       left: 8px;
-      top: 1px;
+      top: 8px;
       width: 12px;
-      height: 9px;
-      background: #f2c94c;
-      border: 2px solid #000;
-      box-shadow: 0 17px 0 -2px #fff;
+      height: 18px;
+      border-left: 4px solid #cc1731;
+      border-right: 4px solid #cc1731;
+      border-bottom: 3px solid #cc1731;
+      transform: skewX(-7deg);
     }
-
+ 
     .desktop-left-column,
     .desktop-right-column {
       display: flex;
@@ -227,12 +274,12 @@
       gap: 10px;
       min-width: 0;
     }
-
+ 
     .desktop-left-column .desktop-window,
     .desktop-right-column .desktop-window {
       width: 100%;
     }
-
+ 
     .desktop-window:not(.minesweeper-window):not(.euchre-window),
     .desktop-window:not(.minesweeper-window):not(.euchre-window) button,
     .desktop-window:not(.minesweeper-window):not(.euchre-window) input,
@@ -241,9 +288,16 @@
     .desktop-window:not(.minesweeper-window):not(.euchre-window) table,
     .desktop-window:not(.minesweeper-window):not(.euchre-window) th,
     .desktop-window:not(.minesweeper-window):not(.euchre-window) td {
-      font-size: 11px;
+      font-size: 11pt;
     }
-
+ 
+    .desktop-window .window-control,
+    .login-panel .window-control {
+      font-size: 10px;
+      font-weight: 400;
+      line-height: 0.8;
+    }
+ 
     .desktop-window {
       position: relative;
       width: 100%;
@@ -255,25 +309,25 @@
       box-shadow: 2px 2px 0 #000;
       min-width: min(100%, 290px);
     }
-
+ 
     .desktop-window.is-dragging {
       opacity: 0.96;
       cursor: move;
     }
-
+ 
     .desktop-window.minimized {
       display: none;
     }
-
+ 
     .desktop-window.detached {
       max-height: calc(100vh - 54px);
     }
-
+ 
     .desktop-window.detached .window-body {
       max-height: calc(100vh - 84px);
       overflow: auto;
     }
-
+ 
     .desktop-window.maximized {
       position: fixed !important;
       top: 8px !important;
@@ -282,12 +336,12 @@
       height: calc(100vh - 54px) !important;
       z-index: 900 !important;
     }
-
+ 
     .desktop-window.maximized .window-body {
       height: calc(100% - 25px);
       overflow: auto;
     }
-
+ 
     .window-titlebar {
       display: flex;
       align-items: center;
@@ -300,7 +354,7 @@
       cursor: move;
       user-select: none;
     }
-
+ 
     .titlebar-label {
       display: inline-flex;
       align-items: center;
@@ -310,58 +364,62 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-
+ 
     .window-icon {
       width: 14px;
       height: 14px;
       display: inline-block;
       position: relative;
       flex: 0 0 auto;
-      background: #fff;
+      background: #c0c0c0;
       border-top: 1px solid #fff;
       border-left: 1px solid #fff;
       border-right: 1px solid #404040;
       border-bottom: 1px solid #404040;
       box-shadow: inset 0 0 0 1px #c0c0c0;
+      overflow: hidden;
     }
-
+ 
     .window-icon::before {
       content: "";
       position: absolute;
-      right: 0;
-      top: 0;
-      width: 5px;
-      height: 5px;
-      background: linear-gradient(135deg, #c0c0c0 0 50%, #fff 50%);
-      border-left: 1px solid #808080;
-      border-bottom: 1px solid #808080;
+      left: 2px;
+      top: 2px;
+      width: 8px;
+      height: 9px;
+      background: #fff;
+      border: 1px solid #000;
+      box-shadow: 2px 2px 0 #808080;
+      transform: none;
     }
-
+ 
     .window-icon::after {
       content: "";
       position: absolute;
-      left: 3px;
+      left: 4px;
       top: 5px;
-      width: 7px;
+      width: 5px;
       height: 1px;
       background: #000080;
-      box-shadow: 0 3px 0 #000080;
+      box-shadow: 0 2px 0 #000080, 0 4px 0 #000080;
+      transform: none;
     }
-
+ 
     .window-controls {
       display: flex;
       gap: 2px;
       flex: 0 0 auto;
     }
-
+ 
     .window-control {
+      position: relative;
       width: 17px;
       min-width: 17px;
       height: 16px;
       min-height: 16px;
-      padding: 0;
+      padding: 0 0 2px;
       display: inline-grid;
-      place-items: center;
+      place-items: end center;
       line-height: 1;
       color: #000;
       background-color: #c0c0c0;
@@ -369,11 +427,18 @@
       border-left: 2px solid #fff;
       border-right: 2px solid #404040;
       border-bottom: 2px solid #404040;
-      font-size: 11px;
-      font-weight: 700;
+      font-size: 10px;
+      font-weight: 400;
+      text-transform: none;
+      overflow: hidden;
       cursor: pointer;
     }
-
+ 
+    .window-control::before,
+    .window-control::after {
+      content: none;
+    }
+ 
     .window-body {
       padding: 7px;
       border-top: 1px solid #808080;
@@ -381,7 +446,7 @@
       border-right: 1px solid #fff;
       border-bottom: 1px solid #fff;
     }
-
+ 
     .app-header {
       display: flex;
       align-items: center;
@@ -395,16 +460,16 @@
       border-right: 1px solid #fff;
       border-bottom: 1px solid #fff;
     }
-
+ 
     h1 {
       margin: 0;
       color: #000080;
-      font-size: clamp(17px, 2.2vw, 26px);
+      font-size: 11pt;
       line-height: 1;
       font-weight: 700;
       text-shadow: 1px 1px 0 #fff;
     }
-
+ 
     .subtitle {
       display: flex;
       align-items: center;
@@ -414,7 +479,7 @@
       flex: 0 0 auto;
       overflow: hidden;
     }
-
+ 
     .subtitle-img {
       max-width: 38px;
       max-height: 34px;
@@ -422,7 +487,7 @@
       object-fit: contain;
       display: block;
     }
-
+ 
     .controls-wrapper,
     .filter-stack,
     .audience-stack,
@@ -435,11 +500,11 @@
       gap: 6px;
       margin: 0;
     }
-
+ 
     .filter-stack {
       gap: 7px;
     }
-
+ 
     .filter-row,
     .button-row,
     .time-date-row {
@@ -448,34 +513,35 @@
       gap: 5px;
       width: 100%;
     }
-
+ 
     .filter-button-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 5px;
       width: 100%;
     }
-
+ 
     .notes-input {
       min-height: 21px;
     }
-
+ 
     .filter-group {
       display: flex;
       flex-direction: column;
       gap: 1px;
-      font-size: 10px;
+      font-size: 11pt;
       font-weight: 700;
     }
-
+ 
     label {
       color: #000;
     }
-
+ 
     input,
     select,
     textarea {
       min-height: 21px;
+      min-width: 0;
       padding: 1px 4px;
       color: #000;
       background-color: #fff;
@@ -487,11 +553,15 @@
       font: inherit;
       text-transform: uppercase;
     }
-
+ 
+    input[type="date"] {
+      min-width: 150px;
+    }
+ 
     input[type="search"] {
       min-width: 160px;
     }
-
+ 
     button,
     .edit-button,
     .unfilter-button,
@@ -510,8 +580,9 @@
       font: inherit;
       font-weight: 700;
       text-transform: uppercase;
+      white-space: nowrap;
     }
-
+ 
     button:hover,
     .edit-button:hover,
     .unfilter-button:hover,
@@ -519,7 +590,7 @@
     .audience-button:hover {
       background-color: #dcdcdc;
     }
-
+ 
     button:active,
     .audience-button.active {
       color: #fff;
@@ -529,64 +600,86 @@
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
     }
-
+ 
     .audience-button.active:hover {
       background-color: #1084d0;
     }
-
+ 
     .scoreboard-window {
       min-height: 240px;
       width: 100%;
       align-self: stretch;
     }
-
+ 
     .scoreboard-heading-filter {
       display: grid;
-      grid-template-columns: 13px minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr) 22px;
       align-items: center;
-      gap: 3px;
       min-width: 0;
+      min-height: 24px;
+      margin: -4px -5px;
     }
-
+ 
     .scoreboard-heading-filter select {
+      grid-column: 1 / -1;
+      grid-row: 1;
       width: 100%;
       min-width: 0;
-      height: 18px;
-      min-height: 18px;
-      padding: 0 2px;
-      font-size: 11px;
+      height: 24px;
+      min-height: 24px;
+      padding: 1px 28px 1px 4px;
+      color: #000;
+      background: #c0c0c0;
+      border: 0;
+      border-radius: 0;
+      appearance: none;
+      font-size: 11pt;
       font-weight: 700;
+      cursor: pointer;
     }
-
+ 
     .scoreboard-heading-filter .filter-symbol {
-      width: 11px;
-      height: 11px;
+      grid-column: 2;
+      grid-row: 1;
+      width: 22px;
+      height: 24px;
       position: relative;
-      display: inline-block;
+      display: block;
+      pointer-events: none;
+      background: #c0c0c0;
+      border-left: 1px solid #808080;
     }
-
+ 
     .scoreboard-heading-filter .filter-symbol::before {
       content: "";
       position: absolute;
-      left: 0;
-      top: 1px;
+      left: 5px;
+      top: 6px;
       width: 0;
       height: 0;
       border-left: 6px solid transparent;
       border-right: 6px solid transparent;
       border-top: 7px solid #000080;
     }
-
+ 
+    .scoreboard-heading-filter.is-filtered .filter-symbol::before {
+      border-top-color: #c00000;
+    }
+ 
     .scoreboard-heading-filter .filter-symbol::after {
       content: "";
       position: absolute;
-      left: 5px;
-      top: 7px;
+      left: 10px;
+      top: 12px;
       width: 2px;
-      height: 4px;
+      height: 5px;
       background: #000080;
     }
-
+ 
+    .scoreboard-heading-filter.is-filtered .filter-symbol::after {
+      background: #c00000;
+    }
+ 
     .table-wrapper {
       width: 100%;
       max-height: calc(100vh - 106px);
@@ -597,7 +690,7 @@
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
     }
-
+ 
     table#scoreboard,
     table {
       width: 100%;
@@ -608,7 +701,7 @@
       table-layout: fixed;
       background-color: #fff;
     }
-
+ 
     #scoreboard thead th {
       position: sticky;
       top: 0;
@@ -620,7 +713,7 @@
       border-right: 1px solid #808080;
       border-bottom: 1px solid #808080;
     }
-
+ 
     th,
     td {
       padding: 4px 5px;
@@ -631,87 +724,87 @@
       border-bottom: 1px solid #dcdcdc;
       white-space: nowrap;
     }
-
-
+ 
+ 
     table#scoreboard th,
     table#scoreboard td {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-
+ 
     table#scoreboard th:nth-child(1),
     table#scoreboard td:nth-child(1) {
-      width: 34px;
+      width: 30px;
       text-align: center;
     }
-
+ 
     table#scoreboard th:nth-child(2),
     table#scoreboard td:nth-child(2) {
       width: 22%;
     }
-
+ 
     table#scoreboard th:nth-child(3),
     table#scoreboard td:nth-child(3),
     table#scoreboard th:nth-child(4),
     table#scoreboard td:nth-child(4) {
       width: 18%;
     }
-
+ 
     table#scoreboard th:nth-child(5),
     table#scoreboard td:nth-child(5) {
       width: 84px;
     }
-
+ 
     table#scoreboard th:nth-child(6),
     table#scoreboard td:nth-child(6) {
       width: 56px;
     }
-
+ 
     table#scoreboard th:nth-child(7),
     table#scoreboard td:nth-child(7) {
       width: 104px;
     }
-
+ 
     .scoreboard-edit-bar {
       display: none;
       justify-content: flex-end;
       gap: 6px;
       margin-bottom: 6px;
     }
-
+ 
     .scoreboard-edit-bar.active {
       display: flex;
     }
-
+ 
     .scoreboard-note-edit {
       width: 74px;
       height: 18px;
       min-height: 0;
       margin: 0 4px 0 0;
-      font-size: 10px;
+      font-size: 11pt;
       line-height: 14px;
     }
-
+ 
     th.sortable {
       cursor: pointer;
     }
-
+ 
     th.sortable:hover {
       background-color: #dcdcdc;
     }
-
+ 
     th.sorted-asc::after {
       content: " ▲";
-      font-size: 0.8em;
+      font-size: 11pt;
     }
-
+ 
     th.sorted-desc::after {
       content: " ▼";
-      font-size: 0.8em;
+      font-size: 11pt;
     }
-
-
+ 
+ 
     #scoreboard tbody tr:hover,
     #scoreboard tbody tr.leader:hover,
     #scoreboard tbody tr.division-leader:hover,
@@ -719,27 +812,27 @@
       color: #000 !important;
       background-color: #dcdcdc !important;
     }
-
+ 
     #scoreboard tbody tr:hover .stopwatch {
       color: #000 !important;
     }
-
+ 
     .leader,
     .division-leader {
       background-color: #cfe8ff !important;
     }
-
+ 
     .today-entry {
       background-color: #fff3a6 !important;
     }
-
+ 
     .stopwatch {
       display: inline-block;
       margin-left: 6px;
       color: #000;
-      font-size: 11px;
+      font-size: 11pt;
     }
-
+ 
     .note-icon {
       position: relative;
       display: inline-flex;
@@ -753,12 +846,12 @@
       border-right: 1px solid #404040;
       border-bottom: 1px solid #404040;
       box-shadow: 1px 1px 0 #808080;
-      font-size: 10px;
+      font-size: 11pt;
       line-height: 1;
       vertical-align: middle;
       cursor: help;
     }
-
+ 
     .note-icon::before {
       content: "";
       position: absolute;
@@ -769,7 +862,7 @@
       background:
         linear-gradient(135deg, transparent 0 48%, #808080 49% 51%, #f7df73 52%);
     }
-
+ 
     .note-icon::after {
       content: "";
       position: absolute;
@@ -780,12 +873,12 @@
       background: #000;
       box-shadow: 0 3px 0 #000, 0 6px 0 #000;
     }
-
+ 
     .gold,
     .blue {
       color: #000;
     }
-
+ 
     .status-bar {
       width: 100%;
       display: flex;
@@ -795,9 +888,9 @@
       justify-content: space-between;
       margin-top: 7px;
       color: #000;
-      font-size: 11px;
+      font-size: 11pt;
     }
-
+ 
     .status-bar span {
       flex: 1 1 160px;
       min-height: 19px;
@@ -808,8 +901,8 @@
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
     }
-
-
+ 
+ 
     .quartile-row td {
       padding: 4px 8px;
       color: #fff;
@@ -820,7 +913,7 @@
       text-align: center;
       letter-spacing: 0;
     }
-
+ 
     .run-stats-grid {
       display: grid;
       grid-template-columns: auto 1fr;
@@ -833,17 +926,17 @@
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
     }
-
+ 
     .run-stats-grid dt {
       font-weight: 700;
     }
-
+ 
     .run-stats-grid dd {
       margin: 0;
       text-align: right;
     }
-
-
+ 
+ 
     .run-stats-graphic {
       display: grid;
       gap: 6px;
@@ -854,33 +947,34 @@
       border-left: 2px solid #404040;
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
-      font-size: 11px;
+      font-size: 11pt;
     }
-
+ 
     #runStatsTitleLabel {
       min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-
+ 
     .stat-bar-row {
       display: grid;
-      grid-template-columns: 48px 1fr 44px;
+      grid-template-columns: 66px minmax(80px, 1fr) 82px;
       align-items: center;
-      gap: 3px;
+      gap: 8px;
       white-space: nowrap;
     }
-
+ 
     .stat-bar-row span,
     .stat-bar-row strong {
       overflow: hidden;
       text-overflow: clip;
       white-space: nowrap;
     }
-
+ 
     .stat-bar-track {
       height: 16px;
+      min-width: 0;
       background: #c0c0c0;
       border-top: 2px solid #808080;
       border-left: 2px solid #808080;
@@ -888,13 +982,13 @@
       border-bottom: 2px solid #fff;
       overflow: hidden;
     }
-
+ 
     .stat-bar-fill {
       height: 100%;
       min-width: 2px;
       background: #000080;
     }
-
+ 
     .wheel-panel {
       margin-top: 8px;
       padding: 7px;
@@ -905,11 +999,11 @@
       border-bottom: 2px solid #fff;
       text-align: center;
     }
-
+ 
     .wheel-panel.is-hidden {
       display: none;
     }
-
+ 
     .config-toggle-row {
       display: flex;
       align-items: center;
@@ -923,7 +1017,7 @@
       border-bottom: 2px solid #404040;
       font-weight: 700;
     }
-
+ 
     .leaders-button.active,
     .config-toggle.active {
       color: #fff;
@@ -933,7 +1027,7 @@
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
     }
-
+ 
     .stats-scroll {
       position: relative;
       width: 100%;
@@ -946,14 +1040,14 @@
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
     }
-
+ 
     .stats-canvas {
       display: block;
-      min-width: 680px;
+      min-width: 920px;
       height: auto;
       background: #fff;
     }
-
+ 
     .chart-tooltip {
       position: absolute;
       display: none;
@@ -967,22 +1061,22 @@
       border-right: 2px solid #404040;
       border-bottom: 2px solid #404040;
       pointer-events: none;
-      font-size: 11px;
+      font-size: 11pt;
       line-height: 1.35;
     }
-
-
+ 
+ 
     .wheel-entry-row {
       display: flex;
       gap: 5px;
       margin-bottom: 6px;
     }
-
+ 
     .wheel-entry-row input {
       flex: 1;
       min-width: 0;
     }
-
+ 
     .wheel-list {
       width: 100%;
       min-height: 58px;
@@ -998,20 +1092,20 @@
       font: inherit;
       text-transform: none;
     }
-
-
-
+ 
+ 
+ 
     .config-window .window-body {
       display: grid;
       gap: 8px;
     }
-
+ 
     .wheel-config-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
     }
-
+ 
     .wheel-config-card {
       padding: 7px;
       background: #c0c0c0;
@@ -1020,21 +1114,21 @@
       border-right: 2px solid #404040;
       border-bottom: 2px solid #404040;
     }
-
+ 
     .wheel-config-card h3 {
       margin: 0 0 6px;
       padding: 3px 5px;
       color: #fff;
       background: #000080;
-      font-size: 12px;
+      font-size: 11pt;
     }
-
+ 
     .wheel-config-card label {
       display: block;
       margin: 5px 0 3px;
       font-weight: 700;
     }
-
+ 
     .wheel-config-card textarea {
       width: 100%;
       min-height: 68px;
@@ -1049,14 +1143,14 @@
       font: inherit;
       text-transform: none;
     }
-
+ 
     .wheel-wrap {
       position: relative;
       width: 220px;
       max-width: 100%;
       margin: 0 auto 6px;
     }
-
+ 
     #nameWheel {
       width: 220px;
       height: 220px;
@@ -1066,7 +1160,7 @@
       border: 2px solid #404040;
       box-shadow: inset 2px 2px 0 #fff, 2px 2px 0 #000;
     }
-
+ 
     .wheel-pointer {
       position: absolute;
       top: 50%;
@@ -1078,7 +1172,7 @@
       border-right: 18px solid #f00;
       transform: translateY(-50%);
     }
-
+ 
     #spinWheelButton {
       position: absolute;
       top: 50%;
@@ -1091,7 +1185,7 @@
       transform: translate(-50%, -50%);
       font-weight: 700;
     }
-
+ 
     .wheel-result {
       min-height: 20px;
       padding: 3px 6px;
@@ -1102,7 +1196,7 @@
       border-bottom: 2px solid #fff;
       font-weight: 700;
     }
-
+ 
     .desktop-taskbar {
       position: fixed;
       left: 0;
@@ -1118,7 +1212,7 @@
       border-top: 2px solid #fff;
       box-shadow: inset 0 1px 0 #dfdfdf;
     }
-
+ 
     .start-button {
       min-width: 74px;
       min-height: 27px;
@@ -1126,11 +1220,11 @@
       align-items: center;
       gap: 5px;
       padding: 2px 9px 2px 6px;
-      font-size: 13px;
+      font-size: 11pt;
       font-weight: 700;
       text-transform: none;
     }
-
+ 
     .start-button::before {
       content: "";
       width: 18px;
@@ -1146,7 +1240,7 @@
       clip-path: polygon(0 12%, 88% 0, 100% 44%, 12% 48%, 12% 56%, 100% 52%, 88% 100%, 0 88%);
       image-rendering: pixelated;
     }
-
+ 
     .taskbar-button {
       min-width: 128px;
       max-width: 190px;
@@ -1155,11 +1249,11 @@
       white-space: nowrap;
       text-align: left;
     }
-
+ 
     .taskbar-spacer {
       flex: 1;
     }
-
+ 
     .taskbar-status {
       width: 104px;
       min-width: 104px;
@@ -1169,18 +1263,18 @@
       border-left: 2px solid #808080;
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
-      font-size: 12px;
+      font-size: 11pt;
       white-space: nowrap;
     }
-
+ 
     .taskbar-runs {
       min-width: 104px;
     }
-
+ 
     .taskbar-hours {
       min-width: 104px;
     }
-
+ 
     .taskbar-tray {
       display: flex;
       align-items: center;
@@ -1193,7 +1287,7 @@
       border-bottom: 2px solid #fff;
       background: #c0c0c0;
     }
-
+ 
     .tray-icon {
       width: 25px;
       min-width: 25px;
@@ -1208,10 +1302,10 @@
       border-bottom: 1px solid #404040;
       background: #c0c0c0;
       box-shadow: none;
-      font-size: 15px;
+      font-size: 11pt;
       line-height: 1;
     }
-
+ 
     .tray-icon:active,
     .tray-icon.active {
       border-top-color: #404040;
@@ -1219,7 +1313,7 @@
       border-right-color: #fff;
       border-bottom-color: #fff;
     }
-
+ 
     .coffee-icon span {
       position: relative;
       width: 15px;
@@ -1230,7 +1324,7 @@
       border-top-color: #8b4513;
       box-shadow: inset 0 2px 0 #d6a15d;
     }
-
+ 
     .coffee-icon span::before {
       content: "";
       position: absolute;
@@ -1242,7 +1336,7 @@
       border-left: 0;
       background: transparent;
     }
-
+ 
     .coffee-icon span::after {
       content: "";
       position: absolute;
@@ -1252,19 +1346,19 @@
       height: 2px;
       background: #000;
     }
-
+ 
     .insight-window {
       width: 360px;
       max-width: calc(100vw - 24px);
     }
-
+ 
     .insight-panel {
       display: grid;
       gap: 7px;
       padding: 7px;
       background: #c0c0c0;
     }
-
+ 
     .insight-card {
       padding: 7px;
       background: #fff;
@@ -1274,14 +1368,14 @@
       border-bottom: 2px solid #fff;
       line-height: 1.35;
     }
-
+ 
     .insight-card strong {
       display: block;
       margin-bottom: 3px;
       color: #000080;
-      font-size: 12px;
+      font-size: 11pt;
     }
-
+ 
     .tray-panel {
       position: fixed;
       right: 8px;
@@ -1297,19 +1391,19 @@
       border-bottom: 2px solid #404040;
       box-shadow: 2px 2px 0 #000;
     }
-
+ 
     .tray-panel.open {
       display: grid;
       gap: 6px;
     }
-
+ 
     .tray-panel-title {
       padding: 4px 6px;
       color: #fff;
       background: #000080;
       font-weight: 700;
     }
-
+ 
     .start-menu {
       position: fixed;
       left: 4px;
@@ -1324,18 +1418,18 @@
       border-bottom: 2px solid #404040;
       box-shadow: 2px 2px 0 #000;
     }
-
+ 
     .start-menu.open {
       display: block;
     }
-
+ 
     .start-menu-title {
       padding: 7px 9px;
       color: #fff;
       background: linear-gradient(90deg, #000080, #1084d0);
       font-weight: 700;
     }
-
+ 
     .start-menu button {
       width: 100%;
       min-height: 31px;
@@ -1346,36 +1440,39 @@
       background: transparent;
       box-shadow: none;
     }
-
+ 
     .start-menu button:hover {
       color: #fff;
       background-color: #000080;
     }
-
+ 
     .start-menu-folder {
       position: relative;
     }
-
+ 
     .start-menu-folder-button {
       padding-right: 24px;
       position: relative;
     }
-
+ 
     .start-menu-folder-button::after {
       content: "▶";
       position: absolute;
       right: 8px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 10px;
+      font-size: 11pt;
     }
-
+ 
     .start-submenu {
       position: absolute;
       left: calc(100% - 3px);
-      top: -2px;
+      top: auto;
+      bottom: -2px;
       z-index: 1310;
       width: 210px;
+      max-height: calc(100vh - 44px);
+      overflow-y: auto;
       display: none;
       padding: 2px;
       background: #c0c0c0;
@@ -1385,12 +1482,12 @@
       border-bottom: 2px solid #404040;
       box-shadow: 2px 2px 0 #000;
     }
-
+ 
     .start-menu-folder:hover > .start-submenu,
     .start-menu-folder:focus-within > .start-submenu {
       display: block;
     }
-
+ 
     .login-overlay {
       position: fixed;
       inset: 0;
@@ -1400,11 +1497,11 @@
       justify-content: center;
       background: rgba(0, 0, 0, 0.18);
     }
-
+ 
     .login-overlay.open {
       display: flex;
     }
-
+ 
     .login-dialog {
       width: min(330px, calc(100vw - 28px));
       background: #c0c0c0;
@@ -1414,7 +1511,7 @@
       border-bottom: 2px solid #404040;
       box-shadow: 2px 2px 0 #000;
     }
-
+ 
     .login-titlebar {
       display: flex;
       align-items: center;
@@ -1425,86 +1522,45 @@
       font-weight: 700;
       line-height: 1;
     }
-
+ 
     .login-body {
       display: grid;
       gap: 10px;
       padding: 14px;
     }
-
-    .login-copy {
-      display: grid;
-      grid-template-columns: 32px minmax(0, 1fr);
-      gap: 10px;
-      align-items: center;
-    }
-
-    .login-key-icon {
-      width: 28px;
-      height: 28px;
-      position: relative;
-      background: #f2c94c;
-      border: 2px solid #000;
-      border-radius: 50%;
-      box-shadow: inset -4px -4px 0 #c99a00;
-    }
-
-    .login-key-icon::before {
-      content: "";
-      position: absolute;
-      left: 20px;
-      top: 11px;
-      width: 22px;
-      height: 6px;
-      background: #f2c94c;
-      border: 2px solid #000;
-      border-left: 0;
-    }
-
-    .login-key-icon::after {
-      content: "";
-      position: absolute;
-      left: 34px;
-      top: 17px;
-      width: 5px;
-      height: 8px;
-      background: #f2c94c;
-      border-left: 2px solid #000;
-      border-right: 2px solid #000;
-    }
-
+ 
     .login-form {
       display: grid;
       gap: 8px;
     }
-
+ 
     .login-form label {
       display: grid;
       gap: 3px;
       font-weight: 700;
     }
-
+ 
     .login-form input {
       width: 100%;
     }
-
+ 
     .login-actions {
       display: flex;
       justify-content: flex-end;
       gap: 7px;
       margin-top: 4px;
     }
-
+ 
     .minesweeper-window {
       width: max-content;
       min-width: 354px;
     }
-
+ 
     .yug-station-window {
       width: 610px;
       max-width: calc(100vw - 24px);
     }
-
+ 
     .yug-station-panel {
       display: grid;
       grid-template-columns: 1fr;
@@ -1513,7 +1569,7 @@
       color: #000;
       background: #c0c0c0;
     }
-
+ 
     .yug-timer-panel,
     .yug-board-panel {
       padding: 7px;
@@ -1524,20 +1580,22 @@
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
     }
-
+ 
     .yug-timer-panel {
       display: grid;
-      grid-template-columns: minmax(110px, 1.35fr) 88px repeat(4, minmax(54px, .72fr)) 72px;
-      align-items: stretch;
+      grid-template-columns: minmax(110px, 1.35fr) 150px repeat(4, minmax(54px, .72fr)) 72px;
+      align-items: center;
       gap: 5px;
     }
-
+ 
     .yug-timer {
       margin: 0;
-      min-height: 29px;
+      height: 21px;
+      min-height: 21px;
+      box-sizing: border-box;
       display: grid;
       place-items: center;
-      padding: 4px 6px;
+      padding: 1px 4px;
       color: #00ff66;
       background: #000;
       border-top: 2px solid #404040;
@@ -1545,19 +1603,22 @@
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
       font-family: "Courier New", monospace;
-      font-size: 15px;
+      font-size: 11pt;
       font-weight: 700;
+      line-height: 1;
       text-align: center;
     }
-
+ 
     .yug-controls {
       display: contents;
     }
-
+ 
     .yug-controls button,
     .yug-delete-button {
-      min-height: 25px;
-      padding: 3px 6px;
+      height: 21px;
+      min-height: 21px;
+      box-sizing: border-box;
+      padding: 1px 6px;
       color: #000;
       background: #c0c0c0;
       border-top: 2px solid #fff;
@@ -1565,8 +1626,10 @@
       border-right: 2px solid #404040;
       border-bottom: 2px solid #404040;
       font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
     }
-
+ 
     .yug-controls button:active,
     .yug-delete-button:active {
       border-top-color: #404040;
@@ -1574,32 +1637,35 @@
       border-right-color: #fff;
       border-bottom-color: #fff;
     }
-
+ 
     .yug-name-input,
     .yug-date-input {
       width: 100%;
       margin: 0;
-      min-height: 29px;
-      padding: 5px 7px;
+      height: 21px;
+      min-height: 21px;
+      box-sizing: border-box;
+      padding: 1px 4px;
       border: 2px inset #fff;
-      font-size: 11px;
+      font-size: 11pt;
+      line-height: 1;
     }
-
+ 
     .yug-leaderboard-wrap {
       max-height: calc(100vh - 176px);
       overflow: auto;
       background: #fff;
       border: 2px inset #fff;
     }
-
+ 
     .yug-leaderboard {
       width: 100%;
       border-collapse: separate;
       border-spacing: 0;
       table-layout: fixed;
-      font-size: 11px;
+      font-size: 11pt;
     }
-
+ 
     .yug-leaderboard th {
       position: sticky;
       top: 0;
@@ -1613,7 +1679,7 @@
       border-bottom: 1px solid #808080;
       text-align: left;
     }
-
+ 
     .yug-leaderboard td {
       padding: 4px 6px;
       overflow: hidden;
@@ -1622,55 +1688,60 @@
       border-right: 1px solid #c0c0c0;
       border-bottom: 1px solid #d0d0d0;
     }
-
+ 
     .yug-leaderboard th:nth-child(1),
     .yug-leaderboard td:nth-child(1) {
-      width: 42px;
+      width: 48px;
       text-align: center;
     }
-
+ 
+    .yug-leaderboard th:nth-child(2),
+    .yug-leaderboard td:nth-child(2) {
+      width: 130px;
+    }
+ 
     .yug-leaderboard th:nth-child(3),
     .yug-leaderboard td:nth-child(3) {
-      width: 72px;
+      width: 112px;
     }
-
+ 
     .yug-leaderboard th:nth-child(4),
     .yug-leaderboard td:nth-child(4) {
-      width: 72px;
+      width: 112px;
     }
-
+ 
     .yug-leaderboard th:nth-child(5),
     .yug-leaderboard td:nth-child(5) {
       width: 102px;
     }
-
+ 
     .yug-leaderboard:not(.editing) th:nth-child(5),
     .yug-leaderboard:not(.editing) td:nth-child(5) {
       display: none;
     }
-
+ 
     .yug-leaderboard tbody tr:hover {
       color: #000;
       background-color: #dcdcdc;
     }
-
+ 
     .yug-leaderboard .yug-delete-button {
       min-height: 16px;
       padding: 0 4px;
-      font-size: 10px;
+      font-size: 11pt;
       line-height: 1;
     }
-
+ 
     @media (max-width: 680px) {
       .yug-timer-panel {
         grid-template-columns: 1fr;
       }
     }
-
+ 
     .yug-leaderboard .rank1 { color: #8a5a00; font-weight: 700; }
     .yug-leaderboard .rank2 { color: #606060; font-weight: 700; }
     .yug-leaderboard .rank3 { color: #8a4f18; font-weight: 700; }
-
+ 
     .minesweeper-panel {
       display: grid;
       gap: 6px;
@@ -1678,7 +1749,7 @@
       padding: 6px;
       background: #c0c0c0;
     }
-
+ 
     .mine-status {
       width: 100%;
       display: grid;
@@ -1692,7 +1763,7 @@
       border-bottom: 2px solid #fff;
       background: #c0c0c0;
     }
-
+ 
     .mine-counter,
     .mine-timer {
       min-width: 54px;
@@ -1704,20 +1775,20 @@
       border-right: 1px solid #fff;
       border-bottom: 1px solid #fff;
       font-family: "Courier New", monospace;
-      font-size: 18px;
+      font-size: 11pt;
       font-weight: 700;
       text-align: center;
     }
-
+ 
     .mine-reset {
       width: 36px;
       min-width: 36px;
       height: 36px;
       padding: 0;
-      font-size: 20px;
+      font-size: 11pt;
       line-height: 1;
     }
-
+ 
     .mine-board {
       display: grid;
       grid-template-columns: repeat(9, 34px);
@@ -1728,7 +1799,7 @@
       border-bottom: 3px solid #fff;
       background: #808080;
     }
-
+ 
     .mine-cell {
       width: 34px;
       min-width: 34px;
@@ -1742,16 +1813,16 @@
       border-right: 2px solid #404040;
       border-bottom: 2px solid #404040;
       background: #c0c0c0;
-      font-size: 14px;
+      font-size: 11pt;
       font-weight: 700;
       line-height: 1;
     }
-
+ 
     .mine-cell.mintz-mine {
       padding: 1px;
       overflow: hidden;
     }
-
+ 
     .mine-cell.mintz-mine img {
       width: 100%;
       height: 100%;
@@ -1759,16 +1830,16 @@
       image-rendering: auto;
       pointer-events: none;
     }
-
+ 
     .mine-cell.revealed {
       border: 1px solid #808080;
       background: #c0c0c0;
     }
-
+ 
     .mine-cell.flagged {
       color: #c00000;
     }
-
+ 
     .mine-cell.n1 { color: #0000ff; }
     .mine-cell.n2 { color: #008000; }
     .mine-cell.n3 { color: #ff0000; }
@@ -1777,12 +1848,12 @@
     .mine-cell.n6 { color: #008080; }
     .mine-cell.n7 { color: #000; }
     .mine-cell.n8 { color: #808080; }
-
+ 
     .euchre-window {
       width: 760px;
       max-width: calc(100vw - 24px);
     }
-
+ 
     .euchre-panel {
       display: grid;
       gap: 7px;
@@ -1793,13 +1864,13 @@
       border-right: 2px solid #404040;
       border-bottom: 2px solid #404040;
     }
-
+ 
     .euchre-score {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 6px;
     }
-
+ 
 .euchre-score > div,
 .euchre-tricks > div,
 .euchre-log {
@@ -1810,10 +1881,10 @@
       border-left: 1px solid #fff;
       border-right: 1px solid #404040;
       border-bottom: 1px solid #404040;
-      font-size: 12px;
+      font-size: 11pt;
       font-weight: 700;
     }
-
+ 
 .euchre-score > div,
 .euchre-tricks > div {
   display: grid;
@@ -1821,26 +1892,26 @@
   align-items: center;
   gap: 6px;
 }
-
+ 
 .euchre-score > div > span,
 .euchre-tricks > div > span {
-  font-size: 10px;
+  font-size: 11pt;
   text-transform: uppercase;
   opacity: 0.85;
 }
-
+ 
 .euchre-score strong,
 .euchre-tricks strong {
-  font-size: 15px;
+  font-size: 11pt;
 }
-
+ 
 .euchre-leaderboard-controls {
   display: grid;
   grid-template-columns: 22px 22px;
   align-items: center;
   gap: 3px;
 }
-
+ 
 .euchre-leaderboard-icon {
   width: 22px;
   height: 22px;
@@ -1853,53 +1924,50 @@
   border-right: 2px solid #000040;
   border-bottom: 2px solid #000040;
   font-family: "Courier New", monospace;
-  font-size: 14px;
+  font-size: 11pt;
   font-weight: 900;
   line-height: 1;
   box-shadow: none;
 }
-
+ 
 .euchre-leaderboard-icon:active {
   border-top-color: #000040;
   border-left-color: #000040;
   border-right-color: #b8b8ff;
   border-bottom-color: #b8b8ff;
 }
-
+ 
     .euchre-tricks {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 6px;
     }
-
+ 
     .euchre-tricks div {
       color: #000;
       background: #c0c0c0;
     }
-
+ 
     .euchre-status {
       display: none;
     }
-
+ 
     .euchre-table {
       min-height: 366px;
       position: relative;
       overflow: hidden;
       display: block;
       padding: 0;
-      background:
-    repeating-linear-gradient(0deg, rgba(255,255,255,0.09) 0 2px, transparent 2px 8px),
-    repeating-linear-gradient(90deg, rgba(0,0,0,0.16) 0 4px, transparent 4px 12px),
-        linear-gradient(#1d255c 0 42%, #303050 42% 64%, #181820 64% 100%);
+      background: #101018 url("euchre-n64-round-blank-table.png") center center / cover no-repeat;
       border-top: 4px solid #7c7cff;
       border-left: 4px solid #7c7cff;
       border-right: 4px solid #080810;
       border-bottom: 4px solid #080810;
       image-rendering: pixelated;
     }
-
+ 
     .euchre-table::before {
-      content: "";
+      content: none;
       position: absolute;
       left: 50%;
       top: 55%;
@@ -1915,9 +1983,9 @@
         0 16px 0 rgba(0, 0, 0, 0.35);
       z-index: 1;
     }
-
+ 
     .euchre-table::after {
-      content: "";
+      content: none;
       position: absolute;
       left: 0;
       right: 0;
@@ -1928,32 +1996,32 @@
         #5c3a28;
       z-index: 0;
     }
-
+ 
 .euchre-hud {
   position: absolute;
-  top: 53%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 10px;
+  left: 10px;
+  transform: none;
   z-index: 5;
-  min-width: 96px;
-      padding: 6px 8px;
+  min-width: 76px;
+      padding: 4px 6px;
       color: #fff;
       background: #000;
       border: 3px solid #fff;
       box-shadow: 3px 3px 0 #000;
       font-family: "Courier New", monospace;
-      font-size: 12px;
+      font-size: 9pt;
       font-weight: 700;
   text-align: center;
 }
-
+ 
 .euchre-hud span {
   display: block;
   color: #ffef5a;
-  font-size: 24px;
+  font-size: 10pt;
   line-height: 1.2;
 }
-
+ 
     .euchre-config {
       position: absolute;
       top: 10px;
@@ -1969,14 +2037,14 @@
       border: 3px solid #fff;
       box-shadow: 3px 3px 0 #000;
       font-family: "Courier New", monospace;
-      font-size: 11px;
+      font-size: 11pt;
       font-weight: 700;
     }
-
+ 
     .euchre-config label {
       color: #fff;
     }
-
+ 
     .euchre-config input {
       width: 100%;
       min-height: 22px;
@@ -1985,63 +2053,19 @@
       background: #fff;
       border: 2px solid #808080;
       font-family: "Courier New", monospace;
-      font-size: 11px;
+      font-size: 11pt;
     }
-
+ 
     .euchre-config .euchre-name-label {
       grid-column: span 2;
       margin-top: 2px;
     }
-
+ 
     .euchre-config .euchre-you-name {
       grid-column: span 2;
       width: 138px;
     }
-
-.euchre-popcorn {
-  position: absolute;
-  left: 18px;
-  bottom: 18px;
-  width: 86px;
-  height: 126px;
-  z-index: 2;
-      background:
-        repeating-linear-gradient(90deg, #c00000 0 10px, #fff 10px 20px);
-      border: 3px solid #500;
-      box-shadow: 5px 5px 0 rgba(0,0,0,0.25);
-    }
-
-    .euchre-popcorn::before {
-  content: "POPCORN";
-      position: absolute;
-      left: 6px;
-      right: 6px;
-      top: -24px;
-      padding: 3px 0;
-      color: #fff;
-      background: #c00000;
-      border: 2px solid #fff;
-  font-size: 10px;
-      font-weight: 700;
-      text-align: center;
-    }
-
-    .euchre-popcorn::after {
-      content: "";
-      position: absolute;
-      left: 14px;
-      top: 18px;
-      width: 54px;
-      height: 46px;
-      background:
-        radial-gradient(circle at 8px 9px, #fff2a8 0 5px, transparent 6px),
-        radial-gradient(circle at 19px 13px, #fff2a8 0 6px, transparent 7px),
-        radial-gradient(circle at 30px 8px, #fff2a8 0 5px, transparent 6px),
-        #202020;
-      border: 2px solid #fff;
-      animation: popcornPop 0.8s steps(3, end) infinite;
-    }
-
+ 
 .euchre-name {
   display: inline-block;
   max-width: 132px;
@@ -2050,97 +2074,58 @@
   white-space: nowrap;
   vertical-align: bottom;
 }
-
-@keyframes popcornPop {
-      0% { background-position: 0 0; filter: brightness(1); }
-      50% { background-position: 4px -3px; filter: brightness(1.35); }
-      100% { background-position: -2px 2px; filter: brightness(1); }
-    }
-
-    .euchre-cactus {
-      position: absolute;
-      bottom: 88px;
-      width: 28px;
-      height: 88px;
-      z-index: 1;
-      background: #1d8c39;
-      border: 2px solid #0d4d1f;
-      border-radius: 15px 15px 6px 6px;
-    }
-
-    .euchre-cactus::before,
-    .euchre-cactus::after {
-      content: "";
-      position: absolute;
-      width: 18px;
-      height: 44px;
-      background: #1d8c39;
-      border: 2px solid #0d4d1f;
-      border-radius: 14px;
-    }
-
-    .euchre-cactus::before {
-      left: -17px;
-      top: 26px;
-    }
-
-    .euchre-cactus::after {
-      right: -17px;
-      top: 12px;
-    }
-
-    .euchre-cactus.one { right: 106px; }
-    .euchre-cactus.two {
-      right: 38px;
-      height: 68px;
-      transform: scale(0.86);
-    }
-
+ 
     .euchre-play-slot {
       position: absolute;
       z-index: 3;
-      width: 142px;
+      width: 150px;
       min-height: 86px;
       display: grid;
       justify-items: center;
       align-content: start;
       gap: 4px;
       color: #fff;
-      font-size: 11px;
+      font-size: 8pt;
       font-weight: 700;
       text-align: center;
     }
-
+ 
     .euchre-name {
-      display: inline-block;
-      min-width: 72px;
-      max-width: 132px;
-      padding: 3px 5px;
+      display: block;
+      box-sizing: border-box;
+      width: max-content;
+      min-width: 74px;
+      max-width: 148px;
+      padding: 2px 3px;
       color: #fff;
       background: #000080;
       border: 1px solid #fff;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      font-size: 8pt;
+      line-height: 1.1;
     }
-
+ 
     .euchre-player-wrap {
       position: relative;
       display: grid;
       justify-items: center;
-      max-width: 144px;
+      width: 150px;
+      max-width: 150px;
       min-width: 0;
+      overflow: visible;
       white-space: nowrap;
     }
-
+ 
     .euchre-badges {
       position: absolute;
-      right: -22px;
+      right: 0;
       top: -4px;
       display: grid;
       gap: 3px;
     }
-
+ 
     .euchre-badge {
       width: 19px;
       height: 19px;
@@ -2150,11 +2135,11 @@
       background: #ffef5a;
       border: 2px solid #000;
       box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
-      font-size: 11px;
+      font-size: 11pt;
       font-weight: 900;
       line-height: 1;
     }
-
+ 
     .euchre-play-slot .euchre-card {
       width: 38px;
       min-width: 38px;
@@ -2163,29 +2148,34 @@
       margin-top: 2px;
       z-index: 4;
     }
-
+ 
     .euchre-play-slot[data-euchre-slot="2"] {
       left: 50%;
-      top: 18px;
+      top: 38px;
       transform: translateX(-50%);
     }
-
+ 
     .euchre-play-slot[data-euchre-slot="1"] {
-      left: 112px;
-      top: 154px;
+      left: 76px;
+      top: 174px;
     }
-
+ 
     .euchre-play-slot[data-euchre-slot="3"] {
-      right: 112px;
-      top: 154px;
+      right: 76px;
+      top: 174px;
     }
-
+ 
     .euchre-play-slot[data-euchre-slot="0"] {
       left: 50%;
-      bottom: 12px;
+      bottom: 4px;
       transform: translateX(-50%);
     }
-
+ 
+    .euchre-play-slot[data-euchre-slot="1"] .euchre-name,
+    .euchre-play-slot[data-euchre-slot="3"] .euchre-name {
+      max-width: 132px;
+    }
+ 
     .euchre-card {
       width: 44px;
       min-width: 44px;
@@ -2200,31 +2190,31 @@
       border-left: 2px solid #fff;
       border-right: 2px solid #404040;
       border-bottom: 2px solid #404040;
-      font-size: 13px;
+      font-size: 11pt;
       font-weight: 800;
       line-height: 1.05;
       text-align: center;
     }
-
+ 
     .euchre-card.red {
       color: #c00000;
     }
-
+ 
     button.euchre-card {
       cursor: pointer;
     }
-
+ 
     button.euchre-card:disabled {
       color: #808080;
       cursor: default;
       opacity: 0.75;
     }
-
+ 
     button.euchre-card.playable {
       outline: 2px solid #ffff00;
       outline-offset: -4px;
     }
-
+ 
     .euchre-hand {
       display: flex;
       flex-wrap: wrap;
@@ -2238,25 +2228,25 @@
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
     }
-
+ 
     .euchre-actions {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 5px;
     }
-
+ 
     .euchre-meta {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 6px;
     }
-
+ 
     .euchre-actions button {
       min-height: 28px;
-      font-size: 12px;
+      font-size: 11pt;
       font-weight: 700;
     }
-
+ 
     .euchre-hand-label {
       padding: 3px 6px;
       color: #000;
@@ -2265,11 +2255,11 @@
       border-left: 1px solid #fff;
       border-right: 1px solid #404040;
       border-bottom: 1px solid #404040;
-      font-size: 11px;
+      font-size: 11pt;
       font-weight: 700;
       text-transform: uppercase;
     }
-
+ 
     .euchre-log {
       display: none;
       min-height: 48px;
@@ -2279,11 +2269,11 @@
       color: #000;
       font-weight: 500;
     }
-
+ 
     .euchre-log.open {
       display: block;
     }
-
+ 
     .euchre-leaderboard {
       min-height: 84px;
       max-height: 112px;
@@ -2296,56 +2286,56 @@
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
       font-family: "Courier New", monospace;
-      font-size: 11px;
+      font-size: 11pt;
     }
-
+ 
     .euchre-leaderboard-title {
       color: #ffef5a;
       font-weight: 700;
       margin-bottom: 4px;
     }
-
+ 
     .euchre-leaderboard-row {
       display: grid;
       grid-template-columns: 1fr 26px auto;
       align-items: center;
       gap: 8px;
     }
-
+ 
     .euchre-leaderboard-row span {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-
+ 
     .euchre-leaderboard-wins {
       text-align: right;
     }
-
+ 
     .desktop-window:not(.minesweeper-window):not(.euchre-window),
     .desktop-window:not(.minesweeper-window):not(.euchre-window) * {
-      font-size: 11px;
+      font-size: 11pt;
     }
-
+ 
     @media (max-width: 768px) {
       body {
         padding: 8px 8px 46px;
       }
-
+ 
       .desktop-shell {
         width: 100%;
         margin: 0;
         grid-template-columns: 1fr;
       }
-
+ 
       .window-body {
         padding: 6px;
       }
-
+ 
       .app-header {
         justify-content: flex-start;
       }
-
+ 
       .desktop-left-column,
       .desktop-right-column,
       .controls-wrapper,
@@ -2355,44 +2345,41 @@
       form {
         align-items: stretch;
       }
-
+ 
       .filter-row,
       .button-row,
       .time-date-row {
         grid-template-columns: 1fr;
       }
-
+ 
       .scoreboard-heading-filter {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr) 22px;
       }
-
-      .scoreboard-heading-filter .filter-symbol {
-        display: none;
-      }
-
+ 
       input,
       select,
       button,
+      input[type="date"],
       input[type="search"] {
         width: 100%;
         min-width: 0;
       }
-
+ 
       .status-bar {
         flex-direction: column;
         align-items: stretch;
       }
-
+ 
       .window-titlebar {
-        font-size: 11px;
+        font-size: 11pt;
       }
-
-
-
+ 
+ 
+ 
       .wheel-config-grid {
         grid-template-columns: 1fr;
       }
-
+ 
       .taskbar-button {
         display: none;
       }
@@ -2400,24 +2387,28 @@
   </style>
 </head>
 <body>
-
+ 
   <div class="stella-popup" id="stellaPopup" aria-hidden="true"><img src="stella-blue-sign.png" class="stella-art" alt="" /></div>
-
+ 
   <div class="desktop-icons" aria-label="Desktop shortcuts">
+    <button type="button" class="desktop-icon" data-window-restore="gauntletHome">
+      <span class="desktop-icon-art gauntlet-icon" aria-hidden="true"><img src="gauntlet-icon.png" alt="" /></span>
+      <span>Gauntlet</span>
+    </button>
     <button type="button" class="desktop-icon" data-window-restore="euchre">
-      <span class="desktop-icon-art cards-icon" aria-hidden="true"></span>
+      <span class="desktop-icon-art euchre-icon" aria-hidden="true"><img src="n64-baseball-cap-head.png" alt="" /></span>
       <span>Euchre</span>
     </button>
-  <button type="button" class="desktop-icon" data-window-restore="minesweeper">
+    <button type="button" class="desktop-icon" data-window-restore="minesweeper">
       <span class="desktop-icon-art mine-icon" aria-hidden="true"></span>
       <span>Mintzweeper</span>
     </button>
     <button type="button" class="desktop-icon" data-window-restore="yugStation">
-      <span class="desktop-icon-art yug-icon" aria-hidden="true"></span>
+      <span class="desktop-icon-art yug-icon" aria-hidden="true"><img src="yug-station-icon.svg" alt="" /></span>
       <span>Yug Station</span>
     </button>
   </div>
-
+ 
   <main class="desktop-shell">
     <div class="desktop-left-column">
       <section class="desktop-window form-window" data-window-id="gauntlet" data-window-title="NEW ENTRY">
@@ -2447,7 +2438,7 @@
           </form>
         </div>
       </section>
-
+ 
       <section class="desktop-window minimized" data-window-id="runStats" data-window-title="RUN STATISTICS">
         <div class="window-titlebar">
           <span class="titlebar-label" id="runStatsTitleLabel"><span class="window-icon"></span>RUN STATISTICS</span>
@@ -2475,7 +2466,7 @@
           </div>
         </div>
       </section>
-
+ 
       <section class="desktop-window filter-window" data-window-id="filters" data-window-title="SCOREBOARD FILTERS">
         <div class="window-titlebar">
           <span class="titlebar-label"><span class="window-icon"></span>SCOREBOARD FILTERS</span>
@@ -2499,7 +2490,7 @@
           </div>
         </div>
       </section>
-
+ 
       <section class="desktop-window minimized minesweeper-window" data-window-id="minesweeper" data-window-title="MINTZWEEPER">
         <div class="window-titlebar">
           <span class="titlebar-label"><span class="window-icon"></span>MINTZWEEPER</span>
@@ -2520,7 +2511,7 @@
           </div>
         </div>
       </section>
-
+ 
       <section class="desktop-window minimized euchre-window" data-window-id="euchre" data-window-title="EUCHRE">
         <div class="window-titlebar">
           <span class="titlebar-label"><span class="window-icon"></span>EUCHRE</span>
@@ -2549,9 +2540,6 @@
                 <input id="euchreYouName" class="euchre-you-name" type="text" value="You" aria-label="Your Euchre name" />
               </div>
               <div class="euchre-hud">TRUMP<span id="euchreTrumpHud">--</span></div>
-              <div class="euchre-popcorn" aria-hidden="true"></div>
-              <div class="euchre-cactus one" aria-hidden="true"></div>
-              <div class="euchre-cactus two" aria-hidden="true"></div>
               <div class="euchre-play-slot" data-euchre-slot="2">Partner</div>
               <div class="euchre-play-slot" data-euchre-slot="1">Lefty</div>
               <div class="euchre-play-slot" data-euchre-slot="3">Righty</div>
@@ -2577,7 +2565,7 @@
           </div>
         </div>
       </section>
-
+ 
       <section class="desktop-window minimized yug-station-window" data-window-id="yugStation" data-window-title="YUG STATION">
         <div class="window-titlebar">
           <span class="titlebar-label"><span class="window-icon"></span>YUG STATION</span>
@@ -2605,7 +2593,7 @@
                 <table class="yug-leaderboard">
                   <thead>
                     <tr>
-                      <th>Rank</th>
+                      <th>No.</th>
                       <th>Name</th>
                       <th>Time</th>
                       <th>Date</th>
@@ -2619,9 +2607,9 @@
           </div>
         </div>
       </section>
-
+ 
     </div>
-
+ 
     <div class="desktop-right-column">
       <section class="desktop-window scoreboard-window" data-window-id="scoreboard" data-window-title="SCOREBOARD">
         <div class="window-titlebar">
@@ -2640,18 +2628,18 @@
             <table id="scoreboard">
               <thead>
                 <tr>
-                  <th class="sortable" data-column="rank">Rank</th>
+                  <th class="sortable" data-column="rank">No.</th>
                   <th class="sortable" data-column="name">Name</th>
                   <th>
                     <div class="scoreboard-heading-filter">
+                      <select id="divisionFilter" aria-label="Filter Division"><option value="All">Division</option></select>
                       <span class="filter-symbol" aria-hidden="true"></span>
-                      <select id="divisionFilter" aria-label="Filter Division"><option value="All">Division: All</option></select>
                     </div>
                   </th>
                   <th>
                     <div class="scoreboard-heading-filter">
+                      <select id="categoryFilter" aria-label="Filter Category"><option value="All">Category</option></select>
                       <span class="filter-symbol" aria-hidden="true"></span>
-                      <select id="categoryFilter" aria-label="Filter Category"><option value="All">Category: All</option></select>
                     </div>
                   </th>
                   <th class="sortable" data-column="time">Time</th>
@@ -2664,7 +2652,7 @@
           </div>
         </div>
       </section>
-
+ 
       <section class="desktop-window minimized stats-window" data-window-id="statsDashboard" data-window-title="MONTHLY LEADERS">
         <div class="window-titlebar">
           <span class="titlebar-label"><span class="window-icon"></span>MONTHLY LEADERS</span>
@@ -2676,12 +2664,12 @@
         </div>
         <div class="window-body">
           <div class="stats-scroll" id="statsScroll">
-            <canvas id="statsCanvas" class="stats-canvas" width="760" height="270"></canvas>
+            <canvas id="statsCanvas" class="stats-canvas" width="940" height="500"></canvas>
             <div id="chartTooltip" class="chart-tooltip"></div>
           </div>
         </div>
       </section>
-
+ 
       <section class="desktop-window minimized config-window" data-window-id="wheelConfig" data-window-title="CONFIGURATIONS">
         <div class="window-titlebar">
           <span class="titlebar-label"><span class="window-icon"></span>CONFIGURATIONS</span>
@@ -2732,11 +2720,11 @@
           </div>
         </div>
       </section>
-
+ 
     </div>
-
+ 
   </main>
-
+ 
   <div class="start-menu" id="startMenu">
     <div class="start-menu-title">YakOS 95</div>
     <button type="button" id="adminAuthButton">Login</button>
@@ -2764,6 +2752,7 @@
       <div class="start-submenu">
         <button type="button" data-wallpaper-mode="classic">Classic</button>
         <button type="button" data-wallpaper-mode="van-talk">Van Talk</button>
+        <button type="button" data-wallpaper-mode="yak-special">Yak Special</button>        
         <button type="button" data-wallpaper-mode="more-cow-bell">More Cow Bell</button>
         <button type="button" data-wallpaper-mode="rotating">Rotating</button>
       </div>
@@ -2782,15 +2771,15 @@
       </div>
     </div>
   </div>
-
+ 
   <div class="desktop-taskbar">
     <button type="button" class="start-button" id="startButton">Start</button>
     <div class="taskbar-spacer"></div>
     <div class="taskbar-status taskbar-runs" id="taskbarRuns">Runs: 0</div>
-    <div class="taskbar-status taskbar-hours" id="taskbarHours">Hours: 0.0</div>
+    <div class="taskbar-status taskbar-hours" id="taskbarHours">Hours: 0</div>
     <div class="taskbar-status taskbar-clock" id="taskbarClock">--:--</div>
   </div>
-
+ 
   <div class="login-overlay" id="loginOverlay" aria-hidden="true">
     <div class="login-dialog" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
       <div class="login-titlebar">
@@ -2798,10 +2787,6 @@
         <button type="button" class="window-control" id="loginCloseButton" aria-label="Close">×</button>
       </div>
       <form class="login-body" id="adminLoginForm">
-        <div class="login-copy">
-          <span class="login-key-icon" aria-hidden="true"></span>
-          <span>Enter Firebase administrator credentials to unlock scoreboard changes.</span>
-        </div>
         <div class="login-form">
           <label for="adminEmailInput">Email
             <input id="adminEmailInput" type="email" autocomplete="username" required>
@@ -2817,7 +2802,7 @@
       </form>
     </div>
   </div>
-
+ 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const startButton = document.getElementById('startButton');
@@ -2883,7 +2868,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     const yugLeaderboard = document.getElementById('yugLeaderboard');
     let activeZ = 30;
     let taskbarTotals = { runs: 0, seconds: 0 };
-
+ 
     const mineState = {
       rows: 9,
       cols: 9,
@@ -2895,7 +2880,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       seconds: 0,
       timerId: null
     };
-
+ 
     const euchrePlayers = ['You', 'Lefty', 'Partner', 'Righty'];
     let euchreSeatProfiles = [
       { name: 'You', initials: 'YOU' },
@@ -2931,16 +2916,16 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       log: ['Click New Hand to deal.'],
       cpuTimer: null
     };
-
+ 
     function padMineNumber(value) {
       return String(Math.max(0, Math.min(999, value))).padStart(3, '0');
     }
-
+ 
     function updateMineDisplays() {
       if (mineCounter) mineCounter.textContent = padMineNumber(mineState.mines - mineState.flags);
       if (mineTimer) mineTimer.textContent = padMineNumber(mineState.seconds);
     }
-
+ 
     function mineNeighbors(row, col) {
       const neighbors = [];
       for (let dr = -1; dr <= 1; dr++) {
@@ -2955,7 +2940,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }
       return neighbors;
     }
-
+ 
     function startMineTimer() {
       if (mineState.started) return;
       mineState.started = true;
@@ -2965,12 +2950,12 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         updateMineDisplays();
       }, 1000);
     }
-
+ 
     function stopMineTimer() {
       if (mineState.timerId) window.clearInterval(mineState.timerId);
       mineState.timerId = null;
     }
-
+ 
     function renderMineCell(cell) {
       const button = cell.button;
       button.className = 'mine-cell';
@@ -2978,7 +2963,6 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       if (cell.revealed) {
         button.classList.add('revealed');
         if (cell.mine) {
-          playUiSound('grunt');
           button.classList.add('mintz-mine');
           button.innerHTML = '<img src="mintz-head.png" alt="Mintz mine" />';
         } else if (cell.count) {
@@ -2990,7 +2974,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         button.textContent = '⚑';
       }
     }
-
+ 
     function revealMineCell(cell) {
       if (mineState.ended || cell.revealed || cell.flagged) return;
       startMineTimer();
@@ -2998,6 +2982,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       if (cell.mine) {
         mineState.ended = true;
         stopMineTimer();
+        playMineBombSound();
         if (mineReset) mineReset.textContent = '☹';
         mineState.cells.flat().forEach(item => {
           if (item.mine) item.revealed = true;
@@ -3011,7 +2996,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }
       checkMineWin();
     }
-
+ 
     function toggleMineFlag(cell) {
       if (mineState.ended || cell.revealed) return;
       startMineTimer();
@@ -3021,7 +3006,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       updateMineDisplays();
       checkMineWin();
     }
-
+ 
     function checkMineWin() {
       if (mineState.ended) return;
       const won = mineState.cells.flat().every(cell => cell.mine || cell.revealed);
@@ -3038,7 +3023,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       });
       updateMineDisplays();
     }
-
+ 
     function resetMinesweeper() {
       stopMineTimer();
       Object.assign(mineState, {
@@ -3090,15 +3075,15 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       if (mineReset) mineReset.textContent = '☺';
       updateMineDisplays();
     }
-
+ 
     function euchreTeam(playerIndex) {
       return playerIndex % 2 === 0 ? 0 : 1;
     }
-
+ 
     function euchreBuildDeck() {
       return euchreSuits.flatMap(suit => euchreRanks.map(rank => ({ rank, suit, id: `${rank}${suit}-${Math.random()}` })));
     }
-
+ 
     function euchreShuffle(cards) {
       const deck = [...cards];
       for (let i = deck.length - 1; i > 0; i--) {
@@ -3107,41 +3092,41 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }
       return deck;
     }
-
+ 
     function euchreCardLabel(card) {
       return `${card.rank}${euchreSuitSymbols[card.suit]}`;
     }
-
+ 
     function euchreEffectiveSuit(card) {
       if (euchreState.trump && card.rank === 'J' && card.suit === euchreSameColor[euchreState.trump]) {
         return euchreState.trump;
       }
       return card.suit;
     }
-
+ 
     function euchreRankValue(card) {
       if (card.rank === 'J' && card.suit === euchreState.trump) return 100;
       if (card.rank === 'J' && card.suit === euchreSameColor[euchreState.trump]) return 99;
       const values = { '9': 1, '10': 2, J: 3, Q: 4, K: 5, A: 6 };
       return values[card.rank] || 0;
     }
-
+ 
     function euchreCardStrength(card, ledSuit = null) {
       const suit = euchreEffectiveSuit(card);
       if (suit === euchreState.trump) return 50 + euchreRankValue(card);
       if (ledSuit && suit === ledSuit) return 20 + euchreRankValue(card);
       return euchreRankValue(card);
     }
-
+ 
     function euchreLowestCard(hand) {
       return [...hand].sort((a, b) => euchreCardStrength(a) - euchreCardStrength(b))[0];
     }
-
+ 
     function euchreLogLine(text) {
       euchreState.log.unshift(text);
       euchreState.log = euchreState.log.slice(0, 6);
     }
-
+ 
     function euchreLegalCards(playerIndex) {
       const hand = euchreState.hands[playerIndex];
       if (!euchreState.currentTrick.length) return hand;
@@ -3149,7 +3134,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const following = hand.filter(card => euchreEffectiveSuit(card) === ledSuit);
       return following.length ? following : hand;
     }
-
+ 
     function euchreRenderCard(card, asButton = false, playable = false) {
       const node = document.createElement(asButton ? 'button' : 'div');
       node.className = 'euchre-card';
@@ -3159,7 +3144,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       node.textContent = euchreCardLabel(card);
       return node;
     }
-
+ 
     function loadEuchreSettings() {
       try {
         const saved = JSON.parse(localStorage.getItem(euchreSettingsStorageKey));
@@ -3171,11 +3156,11 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         return { playTo: 5, youName: 'You' };
       }
     }
-
+ 
     function saveEuchreSettings() {
       localStorage.setItem(euchreSettingsStorageKey, JSON.stringify(euchreSettings));
     }
-
+ 
     function loadEuchreLeaderboard() {
       try {
         const saved = JSON.parse(localStorage.getItem(euchreLeaderboardStorageKey));
@@ -3184,11 +3169,11 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         return [];
       }
     }
-
+ 
     function saveEuchreLeaderboard() {
       localStorage.setItem(euchreLeaderboardStorageKey, JSON.stringify(euchreCompletedLeaderboard));
     }
-
+ 
     function renderEuchreLeaderboard() {
       if (!euchreLeaderboard) return;
       const rows = [...euchreCompletedLeaderboard].sort((a, b) => b.wins - a.wins || a.name.localeCompare(b.name));
@@ -3201,7 +3186,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
           }).join('')
           : '<div>No games yet.</div>');
     }
-
+ 
     function editEuchreLeaderboard(index) {
       const row = euchreCompletedLeaderboard[index];
       if (!row) return;
@@ -3229,14 +3214,14 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       saveEuchreLeaderboard();
       renderEuchreLeaderboard();
     }
-
+ 
     function deleteEuchreLeaderboard(index) {
       if (!euchreCompletedLeaderboard[index]) return;
       euchreCompletedLeaderboard.splice(index, 1);
       saveEuchreLeaderboard();
       renderEuchreLeaderboard();
     }
-
+ 
     function recordEuchreWinners(teamIndex) {
       if (teamIndex !== 0) {
         renderEuchreLeaderboard();
@@ -3252,14 +3237,14 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       saveEuchreLeaderboard();
       renderEuchreLeaderboard();
     }
-
+ 
     function euchreInitials(name) {
       const words = String(name || '').trim().split(/\s+/).filter(Boolean);
       if (!words.length) return 'YG';
       if (words.length === 1) return words[0].slice(0, 3).toUpperCase();
       return words.slice(0, 2).map(word => word[0]).join('').toUpperCase();
     }
-
+ 
     function shuffledEuchreNames() {
       const names = [];
       const seen = new Set();
@@ -3283,7 +3268,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         .sort((a, b) => a.sort - b.sort)
         .map(item => item.name);
     }
-
+ 
     function randomizeEuchreSeats() {
       const names = shuffledEuchreNames().filter(name => name.toUpperCase() !== euchreSettings.youName.toUpperCase()).slice(0, 3);
       euchreSeatProfiles = [
@@ -3296,11 +3281,11 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }
       renderEuchre();
     }
-
+ 
     function euchreDisplayName(playerIndex) {
       return euchreSeatProfiles[playerIndex]?.name || euchrePlayers[playerIndex];
     }
-
+ 
     function renderEuchre() {
       if (!euchreHand) return;
       if (euchreScoreUs) euchreScoreUs.textContent = euchreState.score[0];
@@ -3316,7 +3301,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const phaseText = euchreState.phase === 'bidding' ? 'BIDDING' : euchreState.phase === 'playing' ? 'PLAYING' : 'READY';
       if (euchreStatus) euchreStatus.textContent = `${phaseText} | ${trumpText} | ${dealerText} | TURN: ${euchreDisplayName(euchreState.turn).toUpperCase()}`;
       if (euchreLog) euchreLog.innerHTML = euchreState.log.map(line => `<div>${line}</div>`).join('');
-
+ 
       if (euchreTable) {
         euchreTable.querySelectorAll('[data-euchre-slot]').forEach(slot => {
           const player = Number(slot.dataset.euchreSlot);
@@ -3329,7 +3314,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
           if (play) slot.appendChild(euchreRenderCard(play.card));
         });
       }
-
+ 
       const legal = euchreState.phase === 'playing' && euchreState.turn === 0 ? new Set(euchreLegalCards(0).map(card => card.id)) : new Set();
       euchreHand.innerHTML = '';
       euchreState.hands[0].forEach(card => {
@@ -3338,11 +3323,11 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         button.addEventListener('click', () => euchrePlayCard(0, card.id));
         euchreHand.appendChild(button);
       });
-
+ 
       if (euchreOrder) euchreOrder.disabled = euchreState.phase !== 'bidding';
       if (euchrePass) euchrePass.disabled = euchreState.phase !== 'bidding';
     }
-
+ 
     function euchreDealerPickup() {
       if (!euchreState.upcard) return;
       const dealerHand = euchreState.hands[euchreState.dealer];
@@ -3351,7 +3336,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       euchreState.hands[euchreState.dealer] = dealerHand.filter(card => card.id !== discard.id);
       euchreLogLine(`${euchreDisplayName(euchreState.dealer)} picked up and discarded.`);
     }
-
+ 
     function euchreStartPlaying(makerTeam, trump, pickup = false) {
       euchreState.trump = trump;
       euchreState.makerTeam = makerTeam;
@@ -3365,7 +3350,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       renderEuchre();
       euchreMaybeCpuTurn();
     }
-
+ 
     function euchreCpuWantsTrump(playerIndex, suit) {
       const score = euchreState.hands[playerIndex].reduce((total, card) => {
         const effectiveSuit = card.rank === 'J' && card.suit === euchreSameColor[suit] ? suit : card.suit;
@@ -3375,12 +3360,12 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }, 0);
       return score >= 3 || (score >= 2 && Math.random() > 0.55);
     }
-
+ 
     function euchreOrderUp() {
       if (euchreState.phase !== 'bidding') return;
       euchreStartPlaying(0, euchreState.upcard.suit, true);
     }
-
+ 
     function euchrePassBid() {
       if (euchreState.phase !== 'bidding') return;
       const order = [1, 2, 3, euchreState.dealer].find(player => euchreCpuWantsTrump(player, euchreState.upcard.suit));
@@ -3392,11 +3377,11 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       euchreLogLine('Everyone passed. Dealer sticks it.');
       euchreStartPlaying(euchreTeam(euchreState.dealer), nextSuit, false);
     }
-
+ 
     function euchreEffectiveColor(suit) {
       return suit === 'H' || suit === 'D' ? 'red' : 'black';
     }
-
+ 
     function euchreNewDeal() {
       window.clearTimeout(euchreState.cpuTimer);
       if (euchreState.phase === 'gameOver') {
@@ -3422,13 +3407,13 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       euchreState.log = [`Hand ${euchreState.handNumber}: ${euchreCardLabel(euchreState.upcard)} is up. Order it or pass.`];
       renderEuchre();
     }
-
+ 
     function euchreChooseCpuCard(playerIndex) {
       const legal = euchreLegalCards(playerIndex);
       const ledSuit = euchreState.currentTrick.length ? euchreEffectiveSuit(euchreState.currentTrick[0].card) : null;
       return [...legal].sort((a, b) => euchreCardStrength(a, ledSuit) - euchreCardStrength(b, ledSuit))[0];
     }
-
+ 
     function euchrePlayCard(playerIndex, cardId) {
       if (euchreState.phase !== 'playing' || euchreState.turn !== playerIndex) return;
       const legalIds = new Set(euchreLegalCards(playerIndex).map(card => card.id));
@@ -3447,7 +3432,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       renderEuchre();
       euchreMaybeCpuTurn();
     }
-
+ 
     function euchreFinishTrick() {
       const ledSuit = euchreEffectiveSuit(euchreState.currentTrick[0].card);
       const winner = [...euchreState.currentTrick].sort((a, b) => euchreCardStrength(b.card, ledSuit) - euchreCardStrength(a.card, ledSuit))[0].player;
@@ -3463,7 +3448,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       renderEuchre();
       euchreMaybeCpuTurn();
     }
-
+ 
     function euchreScoreHand() {
       const makerTricks = euchreState.tricks[euchreState.makerTeam];
       const defenders = euchreState.makerTeam === 0 ? 1 : 0;
@@ -3486,7 +3471,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       euchreState.phase = 'handOver';
       renderEuchre();
     }
-
+ 
     function euchreMaybeCpuTurn() {
       window.clearTimeout(euchreState.cpuTimer);
       if (euchreState.phase !== 'playing' || euchreState.turn === 0) return;
@@ -3495,11 +3480,11 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         if (card) euchrePlayCard(euchreState.turn, card.id);
       }, 520);
     }
-
+ 
     function saveYugLeaderboard() {
       localStorage.setItem('yugLeaderboard', JSON.stringify(yugEntries));
     }
-
+ 
     async function fetchYugEntries() {
       if (!yugEntriesCollection) return;
       const snapshot = await yugEntriesCollection.get();
@@ -3509,7 +3494,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       saveYugLeaderboard();
       renderYugLeaderboard();
     }
-
+ 
     function renderYugLeaderboard() {
       if (!yugLeaderboard) return;
       yugLeaderboard.innerHTML = '';
@@ -3536,19 +3521,19 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         yugLeaderboard.appendChild(row);
       });
     }
-
+ 
     function updateYugTimer() {
       if (!yugTimer || !yugStartTime) return;
       const elapsed = (Date.now() - yugStartTime) / 1000;
       yugTimer.textContent = elapsed.toFixed(2);
     }
-
+ 
     function startYugTimer() {
       if (yugInterval) return;
       yugStartTime = Date.now();
       yugInterval = window.setInterval(updateYugTimer, 10);
     }
-
+ 
     async function stopYugTimer() {
       if (!yugInterval || !yugTimer || !yugNameInput) return;
       window.clearInterval(yugInterval);
@@ -3580,20 +3565,20 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         alert('Yug Station could not save to Firebase. Check Firestore rules for the yugEntries collection.');
       }
     }
-
+ 
     function resetYugTimer() {
       window.clearInterval(yugInterval);
       yugInterval = null;
       yugStartTime = null;
       if (yugTimer) yugTimer.textContent = '0.00';
     }
-
+ 
     function toggleYugEditMode() {
       yugEditMode = !yugEditMode;
       if (yugEditButton) yugEditButton.textContent = yugEditMode ? 'Done' : 'Edit';
       renderYugLeaderboard();
     }
-
+ 
     async function deleteYugEntry(id) {
       if (!requireAdmin('delete Yug Station entries')) return;
       if (!confirm('Delete this Yug Station entry?')) return;
@@ -3611,7 +3596,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         alert('Yug Station could not delete from Firebase. Check Firestore rules for the yugEntries collection.');
       }
     }
-
+ 
     async function editYugEntry(id) {
       if (!requireAdmin('edit Yug Station entries')) return;
       const localIndex = String(id).startsWith('local:') ? Number(String(id).replace('local:', '')) : -1;
@@ -3650,7 +3635,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         alert('Yug Station could not edit this entry. Check Firestore rules for the yugEntries collection.');
       }
     }
-
+ 
     function randomizeStellaPosition() {
       if (!stellaPopup) return;
       const popupWidth = stellaPopup.offsetWidth || 150;
@@ -3659,7 +3644,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       stellaPopup.style.top = 'auto';
       stellaPopup.style.bottom = '24px';
     }
-
+ 
     function scheduleStellaPopup() {
       const delay = 4500 + Math.random() * 11000;
       window.setTimeout(() => {
@@ -3673,26 +3658,28 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         }
       }, delay);
     }
-
+ 
     function bringWindowToFront(win) {
       activeZ += 1;
       win.style.zIndex = activeZ;
     }
-
+ 
     function positionOverScoreboard(win) {
       const scoreboardWindow = document.querySelector('[data-window-id="scoreboard"]');
       const rect = scoreboardWindow ? scoreboardWindow.getBoundingClientRect() : { left: 340, top: 12, width: window.innerWidth - 360 };
       const isStatsWindow = win.dataset.windowId === 'statsDashboard';
       const width = isStatsWindow
-        ? Math.min(Math.max(rect.width + 220, 920), window.innerWidth - 32)
+        ? Math.min(Math.max(rect.width + 340, 1080), window.innerWidth - 32)
         : Math.min(Math.max(rect.width * 0.82, 620), window.innerWidth - 32);
       win.classList.add('detached');
       win.style.position = 'fixed';
-      win.style.left = `${Math.max(12, isStatsWindow ? rect.left - 120 : rect.left + 18)}px`;
+      const desiredLeft = isStatsWindow ? rect.left - 220 : rect.left + 18;
+      const maxLeft = Math.max(12, window.innerWidth - width - 12);
+      win.style.left = `${Math.max(12, Math.min(desiredLeft, maxLeft))}px`;
       win.style.top = `${Math.max(12, rect.top + 34)}px`;
       win.style.width = `${width}px`;
     }
-
+ 
     function restoreStackedWindow(win) {
       win.classList.remove('detached', 'maximized');
       win.style.position = '';
@@ -3701,7 +3688,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       win.style.width = '';
       win.style.zIndex = '';
     }
-
+ 
     function positionGameWindow(win, id) {
       const isMine = id === 'minesweeper';
       const isYug = id === 'yugStation';
@@ -3715,9 +3702,23 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       win.style.top = `${Math.max(58, Math.min(top, window.innerHeight - 120))}px`;
       win.style.width = `${Math.min(width, window.innerWidth - 24)}px`;
     }
-
-
+ 
+    function restoreGauntletHome() {
+      ['gauntlet', 'filters', 'scoreboard'].forEach(id => {
+        const win = document.querySelector(`[data-window-id="${id}"]`);
+        if (!win) return;
+        restoreStackedWindow(win);
+        win.classList.remove('minimized');
+        bringWindowToFront(win);
+      });
+      startMenu.classList.remove('open');
+    }
+ 
     function restoreWindow(id) {
+      if (id === 'gauntletHome') {
+        restoreGauntletHome();
+        return;
+      }
       const win = document.querySelector(`[data-window-id="${id}"]`);
       if (!win) return;
       win.classList.remove('minimized');
@@ -3729,15 +3730,15 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       bringWindowToFront(win);
       startMenu.classList.remove('open');
     }
-
+ 
     function updateClock() {
       const now = new Date();
-      const hours = (taskbarTotals.seconds / 3600).toFixed(1);
+      const hours = Math.ceil(taskbarTotals.seconds / 3600);
       if (taskbarClock) taskbarClock.textContent = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
       if (taskbarRuns) taskbarRuns.textContent = `Runs: ${taskbarTotals.runs}`;
       if (taskbarHours) taskbarHours.textContent = `Hours: ${hours}`;
     }
-
+ 
     function startDrag(event, win) {
       if (event.button !== 0 || event.target.closest('.window-controls') || win.classList.contains('maximized')) return;
       const rect = win.getBoundingClientRect();
@@ -3750,7 +3751,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       win.classList.add('detached');
       bringWindowToFront(win);
       win.classList.add('is-dragging');
-
+ 
       function moveWindow(moveEvent) {
         const maxLeft = window.innerWidth - 80;
         const maxTop = window.innerHeight - 70;
@@ -3759,17 +3760,17 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         win.style.left = `${nextLeft}px`;
         win.style.top = `${nextTop}px`;
       }
-
+ 
       function stopDrag() {
         win.classList.remove('is-dragging');
         document.removeEventListener('mousemove', moveWindow);
         document.removeEventListener('mouseup', stopDrag);
       }
-
+ 
       document.addEventListener('mousemove', moveWindow);
       document.addEventListener('mouseup', stopDrag);
     }
-
+ 
     function startDesktopIconDrag(event, icon) {
       if (event.button !== 0) return;
       const rect = icon.getBoundingClientRect();
@@ -3778,13 +3779,13 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const startX = event.clientX;
       const startY = event.clientY;
       let moved = false;
-
+ 
       icon.style.position = 'fixed';
       icon.style.left = `${rect.left}px`;
       icon.style.top = `${rect.top}px`;
       icon.style.bottom = 'auto';
       icon.style.zIndex = '1';
-
+ 
       function moveIcon(moveEvent) {
         const distance = Math.hypot(moveEvent.clientX - startX, moveEvent.clientY - startY);
         if (distance > 4) moved = true;
@@ -3793,17 +3794,17 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         icon.style.left = `${Math.max(0, Math.min(maxLeft, moveEvent.clientX - offsetX))}px`;
         icon.style.top = `${Math.max(0, Math.min(maxTop, moveEvent.clientY - offsetY))}px`;
       }
-
+ 
       function stopIconDrag() {
         if (moved) icon.dataset.dragSuppressClick = 'true';
         document.removeEventListener('mousemove', moveIcon);
         document.removeEventListener('mouseup', stopIconDrag);
       }
-
+ 
       document.addEventListener('mousemove', moveIcon);
       document.addEventListener('mouseup', stopIconDrag);
     }
-
+ 
     function toggleMaximize(win) {
       bringWindowToFront(win);
       if (win.classList.contains('maximized')) {
@@ -3822,7 +3823,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         win.classList.add('maximized');
       }
     }
-
+ 
     desktopWindows.forEach(win => {
       const titlebar = win.querySelector('.window-titlebar');
       titlebar.addEventListener('mousedown', event => startDrag(event, win));
@@ -3839,47 +3840,47 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         });
       });
     });
-
+ 
     startButton.addEventListener('click', event => {
       event.stopPropagation();
       startMenu.classList.toggle('open');
     });
-
+ 
     if (soundPackButton) {
       soundPackButton.addEventListener('click', () => setSoundPack(!soundPackEnabled));
     }
-
+ 
     if (adminAuthButton) {
       adminAuthButton.addEventListener('click', toggleAdminAuth);
     }
-
+ 
     if (adminLoginForm) {
       adminLoginForm.addEventListener('submit', submitAdminLogin);
     }
-
+ 
     [loginCloseButton, loginCancelButton].forEach(button => {
       if (button) button.addEventListener('click', closeLoginDialog);
     });
-
+ 
     if (loginOverlay) {
       loginOverlay.addEventListener('click', event => {
         if (event.target === loginOverlay) closeLoginDialog();
       });
     }
-
+ 
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape' && loginOverlay?.classList.contains('open')) {
         closeLoginDialog();
       }
     });
-
+ 
     document.querySelectorAll('[data-wallpaper-mode]').forEach(button => {
       button.addEventListener('click', () => {
         setWallpaperMode(button.dataset.wallpaperMode);
         startMenu.classList.remove('open');
       });
     });
-
+ 
     document.querySelectorAll('[data-window-restore]').forEach(button => {
       button.addEventListener('click', event => {
         if (button.dataset.dragSuppressClick === 'true') {
@@ -3890,17 +3891,17 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         restoreWindow(button.dataset.windowRestore);
       });
     });
-
+ 
     document.addEventListener('click', event => {
       if (!event.target.closest('#startMenu') && !event.target.closest('#startButton')) {
         startMenu.classList.remove('open');
       }
     });
-
+ 
     scheduleStellaPopup();
     updateClock();
     setInterval(updateClock, 30000);
-
+ 
   document.getElementById('date').valueAsDate = new Date();
     if (yugDateInput) yugDateInput.valueAsDate = new Date();
     const firebaseConfig = {
@@ -3912,13 +3913,13 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       appId: "1:16998517478:web:6386aff8c1d1da2accc927",
       measurementId: "G-YWLJGQG0XD"
     };
-
+ 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
     const entriesCollection = db.collection("entries");
     const yugEntriesCollection = db.collection("yugEntries");
-
+ 
     const form = document.getElementById('entryForm');
     const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
     const editButton = document.getElementById('editButton');
@@ -3935,7 +3936,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     const divisionSelect = document.getElementById('division');
     const categorySelect = document.getElementById('category');
     const wheelConfigInputs = [...document.querySelectorAll('[data-wheel-config]')];
-
+ 
     let entries = [];
     let isEditMode = false;
     let audienceFilter = 'All';
@@ -3953,9 +3954,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     let yugEntries = JSON.parse(localStorage.getItem('yugLeaderboard') || '[]');
     const soundPackStorageKey = 'yakSoundPackEnabledV1';
     const wallpaperStorageKey = 'yakWallpaperModeV1';
-    const defaultWallpaperMode = 'classic';
-    const wallpaperModes = ['classic', 'van-talk', 'more-cow-bell', 'rotating'];
-    const rotatingWallpaperModes = ['classic', 'van-talk', 'more-cow-bell'];
+    const defaultWallpaperMode = 'rotating';
+    const wallpaperModes = ['classic', 'van-talk', 'yak-special', 'more-cow-bell', 'rotating'];
+    const rotatingWallpaperModes = ['classic', 'van-talk', 'yak-special', 'more-cow-bell'];
     let wallpaperRotationTimer = null;
     let wallpaperRotationIndex = 0;
     let soundPackEnabled = localStorage.getItem(soundPackStorageKey) !== 'off';
@@ -3986,27 +3987,28 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     let wheelConfig = loadWheelConfig();
     let activeWheelQuartile = 'q25';
     let adminUser = null;
-
+ 
     // Sort state
     let currentSort = {
       column: 'rank', // default sorting by rank (time ascending)
       direction: 'asc' // or 'desc'
     };
-
+ 
    let lastSubmittedTime = null;
-
+ 
     function applyWallpaperVisual(mode) {
       document.body.classList.toggle('wallpaper-after-dark', false);
       document.body.classList.toggle('wallpaper-van-talk', mode === 'van-talk');
+      document.body.classList.toggle('wallpaper-yak-special', mode === 'yak-special');
       document.body.classList.toggle('wallpaper-more-cow-bell', mode === 'more-cow-bell');
     }
-
+ 
     function rotateWallpaperVisual() {
       const mode = rotatingWallpaperModes[wallpaperRotationIndex % rotatingWallpaperModes.length];
       wallpaperRotationIndex += 1;
       applyWallpaperVisual(mode);
     }
-
+ 
     function setWallpaperMode(mode) {
       const normalized = wallpaperModes.includes(mode) ? mode : defaultWallpaperMode;
       window.clearInterval(wallpaperRotationTimer);
@@ -4019,30 +4021,43 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }
       localStorage.setItem(wallpaperStorageKey, normalized);
     }
-
+ 
     function renderSoundPackButton() {
       if (!soundPackButton) return;
       soundPackButton.textContent = `Sound Pack: ${soundPackEnabled ? 'ON' : 'OFF'}`;
     }
-
+ 
     function setSoundPack(enabled) {
       soundPackEnabled = !!enabled;
       localStorage.setItem(soundPackStorageKey, soundPackEnabled ? 'on' : 'off');
       renderSoundPackButton();
     }
-
+ 
+    function playMineBombSound() {
+      if (!soundPackEnabled) return;
+      const audio = new Audio('thank-you.m4a');
+      audio.volume = 0.85;
+      audio.play().catch(() => {
+        const fallback = new Audio('https://raw.githubusercontent.com/goatchase/yak-gauntlet/main/thank-you.m4a');
+        fallback.volume = 0.85;
+        fallback.play().catch(() => {
+          playUiSound('grunt');
+        });
+      });
+    }
+ 
     function renderAdminAuthButton() {
       if (!adminAuthButton) return;
       adminAuthButton.textContent = adminUser ? 'Logout' : 'Login';
       adminAuthButton.title = adminUser ? 'Sign out of admin mode' : 'Sign in before adding, editing, or deleting data';
     }
-
+ 
     function requireAdmin(action = 'make changes') {
       if (adminUser) return true;
       alert(`Admin sign-in is required to ${action}.`);
       return false;
     }
-
+ 
     function openLoginDialog() {
       if (!loginOverlay || !adminEmailInput) return;
       loginOverlay.classList.add('open');
@@ -4050,14 +4065,14 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       startMenu.classList.remove('open');
       window.setTimeout(() => adminEmailInput.focus(), 0);
     }
-
+ 
     function closeLoginDialog() {
       if (!loginOverlay) return;
       loginOverlay.classList.remove('open');
       loginOverlay.setAttribute('aria-hidden', 'true');
       if (adminLoginForm) adminLoginForm.reset();
     }
-
+ 
     async function toggleAdminAuth() {
       try {
         if (adminUser) {
@@ -4070,7 +4085,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         alert(`Admin sign-in failed: ${error.message || 'Check the Firebase user and password.'}`);
       }
     }
-
+ 
     async function submitAdminLogin(event) {
       event.preventDefault();
       if (!adminEmailInput || !adminPasswordInput) return;
@@ -4082,7 +4097,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         alert(`Admin sign-in failed: ${error.message || 'Check the Firebase user and password.'}`);
       }
     }
-
+ 
     auth.onAuthStateChanged(user => {
       adminUser = user;
       if (!adminUser && isEditMode) {
@@ -4097,7 +4112,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }
       renderAdminAuthButton();
     });
-
+ 
     function playUiSound(type = 'click') {
       if (!soundPackEnabled) return;
       const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -4116,31 +4131,31 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       oscillator.stop(ctx.currentTime + (type === 'grunt' ? 0.28 : 0.08));
       oscillator.addEventListener('ended', () => ctx.close());
     }
-
+ 
     setWallpaperMode(localStorage.getItem(wallpaperStorageKey) || defaultWallpaperMode);
     renderSoundPackButton();
-
+ 
     function normalizeDivision(value) {
       return String(value || '').trim().toUpperCase();
     }
-
+ 
     function updateAudienceButtons() {
       barstoolButton.classList.toggle('active', audienceFilter === 'Barstool');
       guestsButton.classList.toggle('active', audienceFilter === 'Guests');
     }
-
+ 
     function matchesAudienceFilter(entry) {
       const division = normalizeDivision(entry.division);
       if (audienceFilter === 'Barstool') return division === 'BARSTOOL';
       if (audienceFilter === 'Guests') return division !== 'BARSTOOL';
       return true;
     }
-
+ 
     function formatDate(input) {
       const d = new Date(input);
       return `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}/${d.getFullYear()}`;
     }
-
+ 
     function formatYugDate(entry) {
       const raw = entry?.date || entry?.createdAt || new Date().toISOString();
       if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
@@ -4149,27 +4164,27 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }
       return formatDate(raw);
     }
-
+ 
     function parseTimeToSeconds(timeStr) {
       const parts = String(timeStr || '').trim().split(" ");
       if (parts.length !== 2) return NaN;
       const [min, sec] = parts.map(parseFloat);
       return min * 60 + sec;
     }
-
+ 
     function formatTime(seconds) {
       const min = Math.floor(seconds / 60);
       const sec = (seconds % 60).toFixed(2).padStart(5, '0');
       return `${String(min).padStart(2,'0')} ${sec}`;
     }
-
+ 
     function getDaysSince(dateStr) {
       const date = new Date(dateStr);
       const now = new Date();
       const diffTime = now - date;
       return Math.floor(diffTime / (1000 * 60 * 60 * 24));
     }
-
+ 
     function escapeHTML(value) {
       return String(value ?? '').replace(/[&<>"']/g, char => ({
         '&': '&amp;',
@@ -4179,30 +4194,30 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         "'": '&#39;'
       }[char]));
     }
-
+ 
     function rankInGroup(entry, group) {
       const sorted = group
         .filter(item => !isNaN(item.totalSeconds))
         .sort((a, b) => a.totalSeconds - b.totalSeconds);
       return sorted.findIndex(item => item.id === entry.id) + 1;
     }
-
+ 
     function sameMonth(a, b) {
       const first = new Date(a);
       const second = new Date(b);
       return first.getFullYear() === second.getFullYear() && first.getMonth() === second.getMonth();
     }
-
+ 
     function formatRank(rank, total) {
       return rank > 0 ? `${rank} / ${total}` : '--';
     }
-
-
+ 
+ 
     function pct(value, total) {
       if (!total || total <= 0) return 0;
       return Math.max(0, Math.min(100, Math.round((value / total) * 100)));
     }
-
+ 
     function statBar(label, value, total) {
       const width = pct(value, total);
       return `
@@ -4213,7 +4228,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         </div>
       `;
     }
-
+ 
     function percentileBar(value) {
       return `
         <div class="stat-bar-row">
@@ -4223,15 +4238,15 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         </div>
       `;
     }
-
+ 
     function cloneDefaultWheelConfig() {
       return JSON.parse(JSON.stringify(defaultWheelConfig));
     }
-
+ 
     function parseWheelList(value) {
       return String(value || '').split(/\r?\n/).map(item => item.trim()).filter(Boolean);
     }
-
+ 
     function loadWheelConfig() {
       const fallback = cloneDefaultWheelConfig();
       try {
@@ -4250,22 +4265,22 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }
       return fallback;
     }
-
+ 
     function saveWheelConfig() {
       localStorage.setItem(wheelConfigStorageKey, JSON.stringify(wheelConfig));
     }
-
+ 
     function renderWheelEnabledButton() {
       if (!wheelEnabledButton) return;
       const enabled = wheelConfig.enabled !== false;
       wheelEnabledButton.textContent = enabled ? 'ON' : 'OFF';
       wheelEnabledButton.classList.toggle('active', enabled);
     }
-
+ 
     function shouldShowWheelForEntry(entry) {
       return wheelConfig.enabled !== false && entry && normalizeDivision(entry.division) === 'BARSTOOL';
     }
-
+ 
     function updateWheelPanelVisibility(entry) {
       if (!wheelPanel) return;
       const show = shouldShowWheelForEntry(entry);
@@ -4275,12 +4290,12 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }
       return show;
     }
-
-
+ 
+ 
     function cleanWheelItem(text) {
       return String(text || '').replace(/^(reward|punishment):\s*/i, '').trim();
     }
-
+ 
     function getConfiguredWheelEntries(key = activeWheelQuartile) {
       const config = wheelConfig[key] || wheelConfig.q25;
       return [
@@ -4288,14 +4303,14 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         ...config.punishments.map(cleanWheelItem)
       ];
     }
-
+ 
     function getQuartileKey(percentile) {
       if (percentile < 25) return 'q25';
       if (percentile < 50) return 'q50';
       if (percentile < 75) return 'q75';
       return 'q100';
     }
-
+ 
     function renderWheelConfigInputs() {
       wheelConfigInputs.forEach(input => {
         const [key, type] = input.dataset.wheelConfig.split('.');
@@ -4303,7 +4318,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       });
       renderWheelEnabledButton();
     }
-
+ 
     function updateWheelConfigFromInput(input) {
       const [key, type] = input.dataset.wheelConfig.split('.');
       if (!wheelConfig[key]) return;
@@ -4313,34 +4328,34 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         populateWheelFromQuartile(key);
       }
     }
-
+ 
     function setWheelEntries(items) {
       if (!wheelEntries) return;
       wheelEntries.value = items.join('\n');
       wheelRotation = 0;
       drawNameWheel();
     }
-
+ 
     function populateWheelFromQuartile(key) {
       activeWheelQuartile = key;
       setWheelEntries(getConfiguredWheelEntries(key));
       if (wheelResult) wheelResult.textContent = `${wheelConfig[key].label} LOADED`;
     }
-
+ 
     function populateWheelForPercentile(percentile) {
       populateWheelFromQuartile(getQuartileKey(percentile));
     }
-
+ 
     function getWheelNames() {
       const manualNames = wheelEntries ? parseWheelList(wheelEntries.value).map(cleanWheelItem).filter(Boolean) : [];
       return manualNames.length ? manualNames : ['ADD ENTRIES'];
     }
-
+ 
     function initializeWheelEntries() {
       renderWheelConfigInputs();
       populateWheelFromQuartile(activeWheelQuartile);
     }
-
+ 
     function addWheelEntry() {
       if (!wheelEntries || !wheelEntryInput) return;
       const value = wheelEntryInput.value.trim();
@@ -4351,14 +4366,14 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       wheelEntryInput.value = '';
       if (wheelResult) wheelResult.textContent = 'READY';
     }
-
+ 
     function clearWheelEntries() {
       if (!wheelEntries) return;
       setWheelEntries([]);
       if (wheelResult) wheelResult.textContent = 'READY';
     }
-
-
+ 
+ 
     function wrapWheelText(text, maxChars = 12, maxLines = 3) {
       const words = String(text || '').split(/\s+/).filter(Boolean);
       const lines = [];
@@ -4381,21 +4396,20 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }
       return lines.length ? lines : [''];
     }
-
+ 
     function drawWheelLabel(ctx, name, radius, slice) {
       const lines = wrapWheelText(name, slice < 0.55 ? 9 : 12, slice < 0.45 ? 2 : 3);
-      const fontSize = slice < 0.45 ? 8 : 9;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = '#000';
-      ctx.font = `bold ${fontSize}px Roboto, "MS Sans Serif", Tahoma, Arial`;
+      ctx.font = '9pt Roboto, "MS Sans Serif", Tahoma, Arial';
       const distance = Math.max(44, radius * 0.63);
-      const lineHeight = fontSize + 1;
+      const lineHeight = 12;
       lines.forEach((line, lineIndex) => {
         ctx.fillText(line, distance, (lineIndex - (lines.length - 1) / 2) * lineHeight);
       });
     }
-
+ 
     function drawNameWheel(rotation = wheelRotation) {
       if (!nameWheel) return;
       const ctx = nameWheel.getContext('2d');
@@ -4405,12 +4419,12 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const cy = nameWheel.height / 2;
       const radius = Math.min(cx, cy) - 4;
       const slice = (Math.PI * 2) / names.length;
-
+ 
       ctx.clearRect(0, 0, nameWheel.width, nameWheel.height);
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(rotation);
-
+ 
       names.forEach((name, index) => {
         ctx.beginPath();
         ctx.moveTo(0, 0);
@@ -4420,13 +4434,13 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         ctx.fill();
         ctx.strokeStyle = '#000';
         ctx.stroke();
-
+ 
         ctx.save();
         ctx.rotate(index * slice + slice / 2);
         drawWheelLabel(ctx, name, radius, slice);
         ctx.restore();
       });
-
+ 
       ctx.restore();
       ctx.beginPath();
       ctx.arc(cx, cy, 10, 0, Math.PI * 2);
@@ -4435,7 +4449,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       ctx.strokeStyle = '#000';
       ctx.stroke();
     }
-
+ 
     function spinNameWheel() {
       if (wheelSpinning || !nameWheel) return;
       const names = getWheelNames().filter(name => name !== 'ADD ENTRIES');
@@ -4444,7 +4458,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         drawNameWheel();
         return;
       }
-
+ 
       wheelSpinning = true;
       if (wheelResult) wheelResult.textContent = 'SPINNING...';
       const winnerIndex = Math.floor(Math.random() * names.length);
@@ -4454,7 +4468,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const finish = targetAngle + Math.PI * 2 * (5 + Math.floor(Math.random() * 3));
       const duration = 3200;
       const startedAt = performance.now();
-
+ 
       function animate(now) {
         const t = Math.min(1, (now - startedAt) / duration);
         const eased = 1 - Math.pow(1 - t, 3);
@@ -4469,18 +4483,18 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
           wheelSpinning = false;
         }
       }
-
+ 
       requestAnimationFrame(animate);
     }
 function showRunStats(entryId) {
       const entry = entries.find(item => item.id === entryId);
       if (!entry || !runStatsContent) return;
       currentRunStatsEntry = entry;
-
+ 
       entries.forEach(item => {
         item.totalSeconds = parseTimeToSeconds(item.time);
       });
-
+ 
       const validEntries = entries.filter(item => !isNaN(item.totalSeconds));
       const overallRank = rankInGroup(entry, validEntries);
       const divisionEntries = validEntries.filter(item => item.division === entry.division);
@@ -4489,17 +4503,17 @@ function showRunStats(entryId) {
       const percentile = overallRank > 0 && validEntries.length > 1
         ? Math.round(((overallRank - 1) / (validEntries.length - 1)) * 100)
         : 0;
-
+ 
       if (runStatsTitleLabel) {
         runStatsTitleLabel.innerHTML = `<span class="window-icon"></span>${escapeHTML(entry.name)} STATISTICS`;
       }
-
+ 
       runStatsContent.innerHTML = `
         ${statBar('Overall', overallRank, validEntries.length)}
         ${statBar('Division', rankInGroup(entry, divisionEntries), divisionEntries.length)}
-        ${statBar('Monthly', rankInGroup(entry, monthlyEntries), monthlyEntries.length)}
+        ${statBar('Month', rankInGroup(entry, monthlyEntries), monthlyEntries.length)}
       `;
-
+ 
       const statsWindow = document.querySelector('[data-window-id="runStats"]');
       if (statsWindow) {
         statsWindow.classList.remove('minimized', 'maximized', 'detached');
@@ -4513,7 +4527,7 @@ function showRunStats(entryId) {
         }
       }
     }
-
+ 
     function getDivisionLeaders(sourceEntries = entries) {
       const leaders = {};
       sourceEntries.forEach(entry => {
@@ -4526,19 +4540,19 @@ function showRunStats(entryId) {
       });
       return leaders;
     }
-
+ 
     function isDivisionLeaderEntry(entry, leaders) {
       return !!entry && !!leaders?.[entry.division] && leaders[entry.division].id === entry.id;
     }
-
+ 
     function updateLeaderButton() {
       if (leadersButton) leadersButton.classList.toggle('active', leadersOnly);
     }
-
+ 
     function updateBestTimesButton() {
       if (bestTimesButton) bestTimesButton.classList.toggle('active', bestTimesOnly);
     }
-
+ 
     function bestEntriesByName(sourceEntries) {
       const best = {};
       sourceEntries.forEach(entry => {
@@ -4550,20 +4564,21 @@ function showRunStats(entryId) {
       });
       return Object.values(best);
     }
-
+ 
     function updateFilterOptions() {
       const selectedDivision = divisionFilter.value || 'All';
       const selectedCategory = categoryFilter.value || 'All';
       const divisions = [...new Set(entries.map(e => e.division))].sort();
       const categories = [...new Set(entries.map(e => e.category))].sort();
-
-      divisionFilter.innerHTML = `<option value="All">${selectedDivision === 'All' ? 'Division: All' : 'Clear Division Filter'}</option>` +
-        divisions.map(d => `<option value="${escapeHTML(d)}">${escapeHTML(d)}</option>`).join('');
-      categoryFilter.innerHTML = `<option value="All">${selectedCategory === 'All' ? 'Category: All' : 'Clear Category Filter'}</option>` +
-        categories.map(c => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join('');
+ 
+      divisionFilter.innerHTML = `<option value="All">${selectedDivision === 'All' ? 'Division' : 'Clear Filter'}</option>` +
+        divisions.map(d => `<option value="${escapeHTML(d)}">${d === selectedDivision ? 'Division' : escapeHTML(d)}</option>`).join('');
+      categoryFilter.innerHTML = `<option value="All">${selectedCategory === 'All' ? 'Category' : 'Clear Filter'}</option>` +
+        categories.map(c => `<option value="${escapeHTML(c)}">${c === selectedCategory ? 'Category' : escapeHTML(c)}</option>`).join('');
       divisionFilter.value = divisions.includes(selectedDivision) ? selectedDivision : 'All';
       categoryFilter.value = categories.includes(selectedCategory) ? selectedCategory : 'All';
-
+      updateHeaderFilterStates();
+ 
       divisionSelect.innerHTML = '<option value="" disabled selected>Select Division</option>' +
         divisions.map(d => `<option value="${escapeHTML(d)}">${escapeHTML(d)}</option>`).join('') +
         '<option value="__add_new__">+ Add New Division</option>';
@@ -4571,7 +4586,12 @@ function showRunStats(entryId) {
         categories.map(c => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join('') +
         '<option value="__add_new__">+ Add New Category</option>';
     }
-
+ 
+    function updateHeaderFilterStates() {
+      divisionFilter.closest('.scoreboard-heading-filter')?.classList.toggle('is-filtered', divisionFilter.value !== 'All');
+      categoryFilter.closest('.scoreboard-heading-filter')?.classList.toggle('is-filtered', categoryFilter.value !== 'All');
+    }
+ 
     function compareEntries(a, b, column) {
       switch (column) {
         case 'rank':
@@ -4590,17 +4610,17 @@ function showRunStats(entryId) {
           return 0;
       }
     }
-
+ 
     async function renderScoreboard() {
       scoreboard.innerHTML = '';
       if (actionHeader) actionHeader.style.display = isEditMode ? 'table-cell' : 'none';
       if (scoreboardEditBar) scoreboardEditBar.classList.toggle('active', isEditMode);
-
+ 
       // Calculate totalSeconds for sorting & finding leaders
       entries.forEach(entry => {
         entry.totalSeconds = parseTimeToSeconds(entry.time);
       });
-
+ 
       // Find best overall and division leaders from all entries (unfiltered)
       let bestOverall = null;
       const bestByDivision = {};
@@ -4610,7 +4630,7 @@ function showRunStats(entryId) {
           bestByDivision[entry.division] = entry;
         }
       });
-
+ 
       // Apply filters and search
       let filteredEntries = entries.filter(entry =>
         entry.name.toUpperCase().includes(searchInput.value.toUpperCase()) &&
@@ -4619,17 +4639,17 @@ function showRunStats(entryId) {
         (divisionFilter.value === 'All' || entry.division === divisionFilter.value) &&
         (categoryFilter.value === 'All' || entry.category === categoryFilter.value)
       );
-
+ 
       if (bestTimesOnly) {
         filteredEntries = bestEntriesByName(filteredEntries);
       }
-
+ 
       // Sort filtered entries by current sort column and direction
       filteredEntries.sort((a, b) => {
         let cmp = compareEntries(a, b, currentSort.column);
         return currentSort.direction === 'asc' ? cmp : -cmp;
       });
-
+ 
       // Add sorted-asc/desc classes to headers
       document.querySelectorAll('th.sortable').forEach(th => {
         th.classList.remove('sorted-asc', 'sorted-desc');
@@ -4637,7 +4657,7 @@ function showRunStats(entryId) {
           th.classList.add(currentSort.direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
         }
       });
-
+ 
       const todayStr = new Date().toISOString().split('T')[0];
       const hasActiveTableFilter =
         searchInput.value.trim() ||
@@ -4647,13 +4667,13 @@ function showRunStats(entryId) {
         leadersOnly ||
         bestTimesOnly;
       const showQuartileMarkers = !hasActiveTableFilter;
-
+ 
       const quartileMarkers = showQuartileMarkers ? [
         { index: Math.ceil(filteredEntries.length * 0.25), label: 'Top 25% Cutoff' },
         { index: Math.ceil(filteredEntries.length * 0.50), label: 'Top 50% / Bottom 50%' },
         { index: Math.ceil(filteredEntries.length * 0.75), label: 'Bottom 25% Cutoff' },
       ].filter(marker => marker.index > 0 && marker.index < filteredEntries.length) : [];
-
+ 
       filteredEntries.forEach((entry, index) => {
         quartileMarkers
           .filter(marker => marker.index === index)
@@ -4663,26 +4683,26 @@ function showRunStats(entryId) {
             markerRow.innerHTML = `<td colspan="${isEditMode ? 7 : 6}">${marker.label}</td>`;
             scoreboard.appendChild(markerRow);
           });
-
+ 
         const row = document.createElement('tr');
         row.dataset.entryId = entry.id;
-
+ 
         const entryDateOnly = new Date(entry.date).toISOString().split('T')[0];
         const isToday = entryDateOnly === todayStr;
         const isLeader = entry === bestOverall;
         const isDivisionLeader = bestByDivision[entry.division] === entry;
-
+ 
         if (isLeader) row.classList.add('leader');
         else if (isDivisionLeader) row.classList.add('division-leader');
         if (isToday) row.classList.add('today-entry');
-
+ 
         const daysSince = getDaysSince(entry.date);
         let iconHTML = '';
-
-        if (isLeader) iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince} days</span>`;
-        else if (isDivisionLeader) iconHTML = `<span class="stopwatch blue" title="Days since: ${daysSince}">⏱️${daysSince} days</span>`;
+ 
+        if (isLeader) iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince}d</span>`;
+        else if (isDivisionLeader) iconHTML = `<span class="stopwatch blue" title="Days since: ${daysSince}">⏱️${daysSince}d</span>`;
         const noteHTML = !isEditMode && entry.notes ? `<span class="note-icon" title="${escapeHTML(entry.notes.toUpperCase())}" aria-label="Note"></span>` : '';
-
+ 
         row.innerHTML = `
           <td>${index + 1}</td>
           <td contenteditable="${isEditMode}">${escapeHTML(entry.name)}${noteHTML}</td>
@@ -4697,23 +4717,23 @@ function showRunStats(entryId) {
         `;
         scoreboard.appendChild(row);
       });
-
+ 
       updateFilterOptions();
-
+ 
 if (lastSubmittedTime !== null) {
   try {
     const rows = scoreboard.querySelectorAll('tr');
     for (const row of rows) {
       const timeCell = row.cells[4];
       if (!timeCell) continue;
-
+ 
       const parts = timeCell.textContent.trim().split(' ');
       if (parts.length < 2) continue;
-
+ 
       const timeText = parts[0] + ' ' + parts[1]; // "mm ss.ss"
       const timeInRow = parseTimeToSeconds(timeText);
       if (isNaN(timeInRow)) continue;
-
+ 
       if (Math.abs(timeInRow - lastSubmittedTime) < 0.01) {
         row.scrollIntoView({ behavior: 'smooth', block: 'center' });
         row.style.backgroundColor = '#ffffaa';
@@ -4726,14 +4746,14 @@ if (lastSubmittedTime !== null) {
   }
   lastSubmittedTime = null;
 }
-
+ 
 document.querySelectorAll('.delete-button').forEach(button => {
   button.addEventListener('click', (e) => {
     const entryId = e.target.dataset.id;
     deleteEntry(entryId);
   });
 });
-
+ 
       document.querySelectorAll('.delete-button').forEach(button => {
         button.addEventListener('click', (e) => {
           const entryId = e.target.dataset.id;
@@ -4741,7 +4761,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
         });
       });
     }
-
+ 
     async function fetchEntries() {
       const snapshot = await entriesCollection.get();
       entries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -4755,14 +4775,14 @@ document.querySelectorAll('.delete-button').forEach(button => {
         pendingStatsEntryId = null;
       }
     }
-
+ 
     async function addEntry(entry) {
       if (!requireAdmin('submit Gauntlet entries')) return;
       const docRef = await entriesCollection.add(entry);
       pendingStatsEntryId = docRef.id;
       await fetchEntries();
     }
-
+ 
     async function deleteEntry(id) {
       if (!requireAdmin('delete Gauntlet entries')) return;
       if (confirm("Delete this entry?")) {
@@ -4770,45 +4790,45 @@ document.querySelectorAll('.delete-button').forEach(button => {
         fetchEntries();
       }
     }
-
+ 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!requireAdmin('submit Gauntlet entries')) return;
-
+ 
       const name = document.getElementById('name').value.trim();
       const division = divisionSelect.value;
       const category = categorySelect.value;
       const time = document.getElementById('time').value.trim();
       const dateInput = document.getElementById('date').value; // e.g. "2025-05-29"
       const notes = document.getElementById('notes').value.trim();
-
+ 
       if (!name || !division || !category || !time || !dateInput) {
         alert("Please fill in all fields.");
         return;
       }
-
+ 
       // Extract year, month, day from the dateInput string
       const [year, month, day] = dateInput.split('-').map(Number);
-
+ 
       // Get current time components
       const now = new Date();
       const hours = now.getHours();
       const minutes = now.getMinutes();
       const seconds = now.getSeconds();
       const milliseconds = now.getMilliseconds();
-
+ 
       // Create a Date object with local time on selected day + current time
       const combinedDate = new Date(year, month - 1, day, hours, minutes, seconds, milliseconds);
-
+ 
       // Convert to ISO string for Firestore (UTC)
       const dateTimeString = combinedDate.toISOString();
-
+ 
       lastSubmittedTime = parseTimeToSeconds(time);
       await addEntry({ name, division, category, time, date: dateTimeString, notes });
-
+ 
       form.reset();
     });
-
+ 
     async function saveScoreboardChanges() {
       if (!isEditMode) return;
       if (!requireAdmin('save scoreboard changes')) return;
@@ -4827,7 +4847,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
         const newNotes = row.querySelector('.scoreboard-note-edit')?.value.trim() || '';
         const [m, d, y] = newDateText.split('/');
         const newDate = new Date(y, m - 1, d).toISOString();
-
+ 
         await entriesCollection.doc(entry.id).update({
           name: newName,
           division: newDivision,
@@ -4842,11 +4862,11 @@ document.querySelectorAll('.delete-button').forEach(button => {
       editButton.textContent = "Edit";
       await fetchEntries();
     }
-
+ 
     if (saveChangesButton) {
       saveChangesButton.addEventListener('click', saveScoreboardChanges);
     }
-
+ 
     // Firebase Auth-protected edit toggle
     editButton.addEventListener('click', () => {
       if (!isEditMode) {
@@ -4856,8 +4876,8 @@ document.querySelectorAll('.delete-button').forEach(button => {
       editButton.textContent = isEditMode ? "Done" : "Edit";
       renderScoreboard();
     });
-
-
+ 
+ 
     function handleAddNewOption(select, label) {
       if (select.value !== '__add_new__') return;
       const newValue = prompt(`Enter new ${label}:`);
@@ -4872,10 +4892,10 @@ document.querySelectorAll('.delete-button').forEach(button => {
         select.value = '';
       }
     }
-
+ 
     divisionSelect.addEventListener('change', () => handleAddNewOption(divisionSelect, 'division'));
     categorySelect.addEventListener('change', () => handleAddNewOption(categorySelect, 'category'));
-
+ 
     unfilterButton.addEventListener('click', () => {
       divisionFilter.value = 'All';
       categoryFilter.value = 'All';
@@ -4888,21 +4908,21 @@ document.querySelectorAll('.delete-button').forEach(button => {
       updateBestTimesButton();
       renderScoreboard();
     });
-
+ 
     barstoolButton.addEventListener('click', () => {
       audienceFilter = 'Barstool';
       divisionFilter.value = 'All';
       updateAudienceButtons();
       renderScoreboard();
     });
-
+ 
     guestsButton.addEventListener('click', () => {
       audienceFilter = 'Guests';
       divisionFilter.value = 'All';
       updateAudienceButtons();
       renderScoreboard();
     });
-
+ 
     if (leadersButton) {
       leadersButton.addEventListener('click', () => {
         leadersOnly = !leadersOnly;
@@ -4910,7 +4930,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
         renderScoreboard();
       });
     }
-
+ 
     if (bestTimesButton) {
       bestTimesButton.addEventListener('click', () => {
         bestTimesOnly = !bestTimesOnly;
@@ -4918,11 +4938,11 @@ document.querySelectorAll('.delete-button').forEach(button => {
         renderScoreboard();
       });
     }
-
+ 
     if (statsButton) {
       statsButton.addEventListener('click', () => openStatsDashboard('histogram'));
     }
-
+ 
     function getVisibleScoreboardEntries() {
       let visibleEntries = entries
         .map(entry => ({ ...entry, totalSeconds: parseTimeToSeconds(entry.time) }))
@@ -4939,12 +4959,12 @@ document.querySelectorAll('.delete-button').forEach(button => {
         return currentSort.direction === 'asc' ? cmp : -cmp;
       });
     }
-
+ 
     function csvCell(value) {
       const text = value == null ? '' : String(value);
       return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
     }
-
+ 
     function exportScoreboardCsv() {
       const rows = [['Rank', 'Name', 'Division', 'Category', 'Time', 'Date']];
       getVisibleScoreboardEntries().forEach((entry, index) => {
@@ -4967,16 +4987,16 @@ document.querySelectorAll('.delete-button').forEach(button => {
       URL.revokeObjectURL(link.href);
       link.remove();
     }
-
+ 
     exportCsvButton.addEventListener('click', exportScoreboardCsv);
-
+ 
     function validTimedEntries() {
       return entries
         .map(entry => ({ ...entry, totalSeconds: parseTimeToSeconds(entry.time) }))
         .filter(entry => Number.isFinite(entry.totalSeconds))
         .sort((a, b) => new Date(a.date) - new Date(b.date));
     }
-
+ 
     function updateTaskbarTotals() {
       const timedEntries = validTimedEntries();
       taskbarTotals = {
@@ -4985,16 +5005,16 @@ document.querySelectorAll('.delete-button').forEach(button => {
       };
       updateClock();
     }
-
+ 
     function drawChartFrame(ctx, width, height, title) {
       ctx.clearRect(0, 0, width, height);
       ctx.fillStyle = '#fff';
       ctx.fillRect(0, 0, width, height);
       ctx.fillStyle = '#000';
-      ctx.font = 'bold 13px Roboto, Arial';
+      ctx.font = 'bold 11pt Roboto, Arial';
       ctx.fillText(title, 12, 18);
     }
-
+ 
     function drawStatsHistogram() {
       if (!statsCanvas) return;
       const monthly = {};
@@ -5016,32 +5036,32 @@ document.querySelectorAll('.delete-button').forEach(button => {
         monthlyWins[name] = (monthlyWins[name] || 0) + 1;
       });
       const winnerRows = Object.entries(monthlyWins).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-      const left = 52;
-      const leaderboardWidth = 178;
+      const left = 58;
+      const leaderboardWidth = 250;
       const barWidth = 26;
       const chartRight = left + data.length * barWidth;
-      const leaderboardLeft = chartRight + 34;
-      const width = Math.max(700, leaderboardLeft + leaderboardWidth + 18);
-      const height = Math.max(374, 150 + winnerRows.length * 15);
+      const leaderboardLeft = chartRight + 46;
+      const width = Math.max(940, leaderboardLeft + leaderboardWidth + 22);
+      const height = Math.max(500, 168 + winnerRows.length * 18);
       statsCanvas.width = width;
       statsCanvas.height = height;
       statsHoverPoints = [];
       const ctx = statsCanvas.getContext('2d');
       drawChartFrame(ctx, width, height, 'Monthly Leaders');
-      const top = 42;
-      const bottom = 304;
+      const top = 52;
+      const bottom = 392;
       const maxTime = Math.max(60, ...data.map(month => month.best.totalSeconds));
       const roundedMax = Math.ceil(maxTime / 60) * 60;
       const scale = seconds => bottom - (seconds / roundedMax) * (bottom - top);
-
+ 
       ctx.strokeStyle = '#808080';
       ctx.beginPath();
       ctx.moveTo(left, top);
       ctx.lineTo(left, bottom);
       ctx.lineTo(Math.max(left + 1, chartRight), bottom);
       ctx.stroke();
-
-      ctx.font = '10px Roboto, Arial';
+ 
+      ctx.font = '11pt Roboto, Arial';
       ctx.textAlign = 'right';
       ctx.fillStyle = '#000';
       for (let seconds = 60; seconds <= roundedMax; seconds += 60) {
@@ -5054,7 +5074,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
         ctx.fillStyle = '#000';
         ctx.fillText(`${seconds / 60}:00`, left - 5, y + 3);
       }
-
+ 
       const bestOverallTime = Math.min(...timedEntries.map(entry => entry.totalSeconds));
       if (Number.isFinite(bestOverallTime)) {
         const bestY = scale(bestOverallTime);
@@ -5067,12 +5087,12 @@ document.querySelectorAll('.delete-button').forEach(button => {
         ctx.stroke();
         ctx.setLineDash([]);
         ctx.fillStyle = '#c00000';
-        ctx.font = 'bold 10px Roboto, Arial';
+        ctx.font = 'bold 11pt Roboto, Arial';
         ctx.textAlign = 'left';
         ctx.fillText(`BEST ${formatTime(bestOverallTime)}`, left + 4, bestY - 5);
         ctx.restore();
       }
-
+ 
       data.forEach((month, index) => {
         const best = month.best;
         const x = left + index * barWidth;
@@ -5085,7 +5105,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
           ctx.strokeStyle = '#000080';
           ctx.beginPath();
           ctx.moveTo(x, top);
-          ctx.lineTo(x, bottom + 64);
+          ctx.lineTo(x, bottom + 46);
           ctx.stroke();
         }
         ctx.fillStyle = isBarstool ? '#1084d0' : '#f2c94c';
@@ -5093,10 +5113,10 @@ document.querySelectorAll('.delete-button').forEach(button => {
         ctx.strokeStyle = '#000';
         ctx.strokeRect(x, y, barWidth, barHeight);
         ctx.save();
-        ctx.translate(x + barWidth / 2 + 3, bottom + 58);
+        ctx.translate(x + barWidth / 2 + 8, bottom + 82);
         ctx.rotate(-Math.PI / 2);
         ctx.fillStyle = '#000';
-        ctx.font = '10px Roboto, Arial';
+        ctx.font = '11pt Roboto, Arial';
         ctx.textAlign = 'left';
         ctx.fillText(month.key, 0, 0);
         ctx.restore();
@@ -5105,19 +5125,19 @@ document.querySelectorAll('.delete-button').forEach(button => {
           text: `${best.name}<hr>${formatTime(best.totalSeconds)}<hr>Total runs: ${month.totalRuns}`
         });
       });
-
+ 
       ctx.textAlign = 'left';
       ctx.fillStyle = '#1084d0';
       ctx.fillRect(150, 10, 12, 12);
       ctx.fillStyle = '#000';
-      ctx.fillText('Barstool winner', 167, 20);
+      ctx.fillText('Barstool', 167, 20);
       ctx.fillStyle = '#f2c94c';
       ctx.fillRect(268, 10, 12, 12);
       ctx.fillStyle = '#000';
-      ctx.fillText('Guest winner', 285, 20);
-
+      ctx.fillText('Guest', 285, 20);
+ 
       ctx.fillStyle = '#f7e29c';
-      const leaderboardBottom = Math.max(bottom, top + 52 + winnerRows.length * 15);
+      const leaderboardBottom = Math.max(bottom, top + 56 + winnerRows.length * 18);
       ctx.fillRect(leaderboardLeft, top, leaderboardWidth, leaderboardBottom - top);
       ctx.strokeStyle = '#000';
       ctx.strokeRect(leaderboardLeft, top, leaderboardWidth, leaderboardBottom - top);
@@ -5126,33 +5146,33 @@ document.querySelectorAll('.delete-button').forEach(button => {
       ctx.fillStyle = '#6b4b00';
       ctx.fillRect(leaderboardLeft + 1, top + 1, leaderboardWidth - 2, 20);
       ctx.fillStyle = '#fff';
-      ctx.font = 'bold 11px Roboto, Arial';
+      ctx.font = 'bold 11pt Roboto, Arial';
       ctx.textAlign = 'left';
       ctx.fillText('🏆 Hall Of Fame', leaderboardLeft + 8, top + 15);
       ctx.fillStyle = '#000';
-      ctx.font = 'bold 10px Roboto, Arial';
+      ctx.font = 'bold 11pt Roboto, Arial';
       winnerRows.forEach(([name, wins], index) => {
-        const y = top + 40 + index * 15;
-        const clippedName = name.length > 15 ? `${name.slice(0, 14)}...` : name;
+        const y = top + 42 + index * 18;
+        const clippedName = name.length > 23 ? `${name.slice(0, 22)}...` : name;
         ctx.fillStyle = index === 0 ? '#8a5a00' : '#000';
         ctx.fillText(`${index + 1}. ${clippedName}`, leaderboardLeft + 8, y);
         ctx.textAlign = 'right';
-        ctx.fillText(`${wins} W`, leaderboardLeft + leaderboardWidth - 8, y);
+        ctx.fillText(`${wins}`, leaderboardLeft + leaderboardWidth - 8, y);
         ctx.textAlign = 'left';
       });
     }
-
+ 
     function median(values) {
       if (!values.length) return 0;
       const mid = Math.floor(values.length / 2);
       return values.length % 2 ? values[mid] : (values[mid - 1] + values[mid]) / 2;
     }
-
+ 
     function renderStatsDashboard() {
       currentStatsView = 'histogram';
       drawStatsHistogram();
     }
-
+ 
     function openStatsDashboard(view = currentStatsView) {
       currentStatsView = view;
       const statsWindow = document.querySelector('[data-window-id="statsDashboard"]');
@@ -5163,7 +5183,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
       }
       renderStatsDashboard();
     }
-
+ 
     if (statsCanvas && statsScroll && chartTooltip) {
       statsCanvas.addEventListener('mousemove', event => {
         const rect = statsCanvas.getBoundingClientRect();
@@ -5183,15 +5203,19 @@ document.querySelectorAll('.delete-button').forEach(button => {
         chartTooltip.style.display = 'none';
       });
     }
-
+ 
     divisionFilter.addEventListener('change', () => {
       audienceFilter = 'All';
       updateAudienceButtons();
+      updateHeaderFilterStates();
       renderScoreboard();
     });
-    categoryFilter.addEventListener('change', renderScoreboard);
+    categoryFilter.addEventListener('change', () => {
+      updateHeaderFilterStates();
+      renderScoreboard();
+    });
     searchInput.addEventListener('input', renderScoreboard);
-
+ 
     // Add sorting on header click
     document.querySelectorAll('th.sortable').forEach(th => {
       th.addEventListener('click', () => {
@@ -5205,7 +5229,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
         renderScoreboard();
       });
     });
-
+ 
     initializeWheelEntries();
     updateWheelPanelVisibility(null);
     drawNameWheel();
@@ -5243,7 +5267,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
     wheelConfigInputs.forEach(input => {
       input.addEventListener('input', () => updateWheelConfigFromInput(input));
     });
-
+ 
     resetMinesweeper();
     if (mineReset) mineReset.addEventListener('click', resetMinesweeper);
     renderEuchre();
@@ -5307,245 +5331,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
     }
     fetchEntries();
   });
-
+ 
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -3270,7 +3270,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     const skiChefDogHead = new Image();
     const skiChefTreeSprite = new Image();
     const skiChefStartLogo = new Image();
-    const skiChefWalkers = ['skichef-walker-kb.png', 'skichef-walker-ben.png', 'skichef-walker-mark.png'].map(src => {
+    const skiChefWalkers = ['skichef-kb.png', 'skichef-ben.png', 'skichef-mark.png', 'skichef-nick.png'].map(src => {
       const image = new Image();
       image.src = src;
       image.addEventListener('load', drawSkiChef);
@@ -3827,7 +3827,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }
       const walkerHeight = 86;
       const walkerY = h - 62;
-      const walkerXs = [w / 2 - 92, w / 2, w / 2 + 92];
+      const walkerXs = [w / 2 - 132, w / 2 - 44, w / 2 + 44, w / 2 + 132];
       skiChefWalkers.forEach((sprite, index) => {
         if (!sprite.complete || !sprite.naturalWidth) return;
         const walkerWidth = walkerHeight * (sprite.naturalWidth / sprite.naturalHeight);

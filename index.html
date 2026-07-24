@@ -2125,9 +2125,18 @@
       width: 100%;
       min-height: 18px;
       padding: 0 3px;
+      color: #000;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
       font-family: "Courier New", monospace;
       font-size: 9pt;
       line-height: 1;
+    }
+ 
+    .skichef-score-row input:focus {
+      background: #fff;
+      outline: 1px dotted #000;
     }
  
     .skichef-score-actions {
@@ -2367,6 +2376,9 @@
     .euchre-config .euchre-name-label {
       grid-column: span 2;
       margin-top: 2px;
+      color: #fff;
+      font-size: 8pt;
+      line-height: 1;
     }
  
     .euchre-config .euchre-you-name {
@@ -3572,12 +3584,24 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       if (!meters || skiChefState.scoreRecorded) return;
       const name = (skiChefName?.value || '').trim();
       if (!name) return;
-      skiChefScoreEntries.push({
-        name: name.slice(0, 18),
-        meters,
-        hits: skiChefState.hits || 0,
-        recordedAt: new Date().toISOString()
-      });
+      const cleanName = name.slice(0, 18);
+      const existing = skiChefScoreEntries.find(entry => String(entry.name || '').trim().toUpperCase() === cleanName.toUpperCase());
+      if (existing) {
+        if ((existing.meters || 0) >= meters) {
+          skiChefState.scoreRecorded = true;
+          return;
+        }
+        existing.meters = meters;
+        existing.hits = skiChefState.hits || 0;
+        existing.recordedAt = new Date().toISOString();
+      } else {
+        skiChefScoreEntries.push({
+          name: cleanName,
+          meters,
+          hits: skiChefState.hits || 0,
+          recordedAt: new Date().toISOString()
+        });
+      }
       skiChefScoreEntries = skiChefScoreEntries
         .sort((a, b) => (b.meters || 0) - (a.meters || 0) || (a.hits || 0) - (b.hits || 0))
         .slice(0, 12);
@@ -3989,7 +4013,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         skiChefState.keys.right = pressed;
         event.preventDefault();
       }
-      if (pressed && event.key === ' ') {
+      if (pressed && (event.key === ' ' || event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
         startSkiChefJump();
         event.preventDefault();
       }

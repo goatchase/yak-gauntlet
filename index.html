@@ -21,7 +21,7 @@
       background: #008080;
       color: #000;
       text-transform: uppercase;
-      font-size: 11pt;
+      font-size: 10pt;
       letter-spacing: 0;
       overflow-x: hidden;
     }
@@ -90,10 +90,10 @@
     }
  
     .desktop-shell {
-      width: min(1380px, calc(100vw - 24px));
+      width: min(1400px, calc(100vw - 24px));
       margin: 0 auto;
       display: grid;
-      grid-template-columns: 360px minmax(0, 1fr);
+      grid-template-columns: 330px minmax(0, 1fr);
       align-items: start;
       gap: 10px;
     }
@@ -107,6 +107,11 @@
       gap: 12px;
       width: 88px;
       justify-items: center;
+    }
+ 
+    .desktop-shell {
+      position: relative;
+      z-index: 2;
     }
  
     .desktop-icon {
@@ -227,6 +232,41 @@
       height: 30px;
     }
  
+    .desktop-icon-art.ski-icon {
+      width: 30px;
+      height: 30px;
+    }
+ 
+    .desktop-icon-art.ski-icon::before,
+    .desktop-icon-art.ski-icon::after {
+      content: none;
+    }
+ 
+    .desktop-icon-art.ski-icon::before {
+      left: 7px;
+      top: 2px;
+      width: 15px;
+      height: 16px;
+      background:
+        linear-gradient(90deg, transparent 0 4px, #c00000 4px 11px, transparent 11px),
+        radial-gradient(circle at 50% 4px, #fff 0 5px, transparent 6px),
+        #fff;
+      border: 2px solid #000080;
+      border-radius: 6px 6px 3px 3px;
+    }
+ 
+    .desktop-icon-art.ski-icon::after {
+      left: 4px;
+      top: 20px;
+      width: 22px;
+      height: 7px;
+      border-bottom: 3px solid #000;
+      border-left: 3px solid #000;
+      border-radius: 0 0 0 8px;
+      box-shadow: 0 5px 0 -1px #c00000, 6px -4px 0 -2px #000080;
+      transform: rotate(-8deg);
+    }
+ 
     .desktop-icon-art.gauntlet-icon {
       width: 30px;
       height: 30px;
@@ -288,7 +328,7 @@
     .desktop-window:not(.minesweeper-window):not(.euchre-window) table,
     .desktop-window:not(.minesweeper-window):not(.euchre-window) th,
     .desktop-window:not(.minesweeper-window):not(.euchre-window) td {
-      font-size: 11pt;
+      font-size: 10pt;
     }
  
     .desktop-window .window-control,
@@ -417,17 +457,17 @@
       min-width: 17px;
       height: 16px;
       min-height: 16px;
-      padding: 0 0 2px;
+      padding: 0;
       display: inline-grid;
-      place-items: end center;
+      place-items: center;
       line-height: 1;
-      color: #000;
+      color: transparent;
       background-color: #c0c0c0;
       border-top: 2px solid #fff;
       border-left: 2px solid #fff;
       border-right: 2px solid #404040;
       border-bottom: 2px solid #404040;
-      font-size: 10px;
+      font-size: 0;
       font-weight: 400;
       text-transform: none;
       overflow: hidden;
@@ -437,6 +477,52 @@
     .window-control::before,
     .window-control::after {
       content: none;
+    }
+ 
+    .window-control[data-window-action="minimize"]::before {
+      content: "";
+      position: absolute;
+      left: 4px;
+      right: 4px;
+      top: 7px;
+      height: 2px;
+      background: #000;
+    }
+ 
+    .window-control[data-window-action="maximize"]::before {
+      content: "";
+      position: absolute;
+      left: 5px;
+      top: 4px;
+      width: 6px;
+      height: 6px;
+      border: 1px solid #000;
+      border-top-width: 2px;
+      background: transparent;
+    }
+ 
+    .window-control[data-window-action="close"]::before,
+    .login-panel .window-control::before {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 7px;
+      width: 10px;
+      height: 1px;
+      background: #000;
+      transform: rotate(45deg);
+    }
+ 
+    .window-control[data-window-action="close"]::after,
+    .login-panel .window-control::after {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 7px;
+      width: 10px;
+      height: 1px;
+      background: #000;
+      transform: rotate(-45deg);
     }
  
     .window-body {
@@ -464,7 +550,7 @@
     h1 {
       margin: 0;
       color: #000080;
-      font-size: 11pt;
+      font-size: 10pt;
       line-height: 1;
       font-weight: 700;
       text-shadow: 1px 1px 0 #fff;
@@ -529,7 +615,7 @@
       display: flex;
       flex-direction: column;
       gap: 1px;
-      font-size: 11pt;
+      font-size: 10pt;
       font-weight: 700;
     }
  
@@ -633,7 +719,7 @@
       border: 0;
       border-radius: 0;
       appearance: none;
-      font-size: 11pt;
+      font-size: 10pt;
       font-weight: 700;
       cursor: pointer;
     }
@@ -782,7 +868,7 @@
       height: 18px;
       min-height: 0;
       margin: 0 4px 0 0;
-      font-size: 11pt;
+      font-size: 10pt;
       line-height: 14px;
     }
  
@@ -795,13 +881,13 @@
     }
  
     th.sorted-asc::after {
-      content: " ▲";
-      font-size: 11pt;
+      content: " \25B2";
+      font-size: 10pt;
     }
  
     th.sorted-desc::after {
-      content: " ▼";
-      font-size: 11pt;
+      content: " \25BC";
+      font-size: 10pt;
     }
  
  
@@ -827,10 +913,28 @@
     }
  
     .stopwatch {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
       margin-left: 6px;
       color: #000;
-      font-size: 11pt;
+      font-size: 10pt;
+    }
+ 
+    .stopwatch::before {
+      display: inline-block;
+      width: 13px;
+      text-align: center;
+      font-size: 10pt;
+      line-height: 1;
+    }
+ 
+    .stopwatch.gold::before {
+      content: "\1F947";
+    }
+ 
+    .stopwatch.blue::before {
+      content: "\23F1";
     }
  
     .note-icon {
@@ -846,7 +950,7 @@
       border-right: 1px solid #404040;
       border-bottom: 1px solid #404040;
       box-shadow: 1px 1px 0 #808080;
-      font-size: 11pt;
+      font-size: 10pt;
       line-height: 1;
       vertical-align: middle;
       cursor: help;
@@ -888,7 +992,7 @@
       justify-content: space-between;
       margin-top: 7px;
       color: #000;
-      font-size: 11pt;
+      font-size: 10pt;
     }
  
     .status-bar span {
@@ -947,7 +1051,7 @@
       border-left: 2px solid #404040;
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
-      font-size: 11pt;
+      font-size: 10pt;
     }
  
     #runStatsTitleLabel {
@@ -1061,7 +1165,7 @@
       border-right: 2px solid #404040;
       border-bottom: 2px solid #404040;
       pointer-events: none;
-      font-size: 11pt;
+      font-size: 10pt;
       line-height: 1.35;
     }
  
@@ -1120,7 +1224,7 @@
       padding: 3px 5px;
       color: #fff;
       background: #000080;
-      font-size: 11pt;
+      font-size: 10pt;
     }
  
     .wheel-config-card label {
@@ -1220,7 +1324,7 @@
       align-items: center;
       gap: 5px;
       padding: 2px 9px 2px 6px;
-      font-size: 11pt;
+      font-size: 10pt;
       font-weight: 700;
       text-transform: none;
     }
@@ -1263,7 +1367,7 @@
       border-left: 2px solid #808080;
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
-      font-size: 11pt;
+      font-size: 10pt;
       white-space: nowrap;
     }
  
@@ -1302,7 +1406,7 @@
       border-bottom: 1px solid #404040;
       background: #c0c0c0;
       box-shadow: none;
-      font-size: 11pt;
+      font-size: 10pt;
       line-height: 1;
     }
  
@@ -1373,7 +1477,7 @@
       display: block;
       margin-bottom: 3px;
       color: #000080;
-      font-size: 11pt;
+      font-size: 10pt;
     }
  
     .tray-panel {
@@ -1456,12 +1560,12 @@
     }
  
     .start-menu-folder-button::after {
-      content: "▶";
+      content: "\25B6";
       position: absolute;
       right: 8px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 11pt;
+      font-size: 10pt;
     }
  
     .start-submenu {
@@ -1603,7 +1707,7 @@
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
       font-family: "Courier New", monospace;
-      font-size: 11pt;
+      font-size: 10pt;
       font-weight: 700;
       line-height: 1;
       text-align: center;
@@ -1647,7 +1751,7 @@
       box-sizing: border-box;
       padding: 1px 4px;
       border: 2px inset #fff;
-      font-size: 11pt;
+      font-size: 10pt;
       line-height: 1;
     }
  
@@ -1663,7 +1767,7 @@
       border-collapse: separate;
       border-spacing: 0;
       table-layout: fixed;
-      font-size: 11pt;
+      font-size: 10pt;
     }
  
     .yug-leaderboard th {
@@ -1728,7 +1832,7 @@
     .yug-leaderboard .yug-delete-button {
       min-height: 16px;
       padding: 0 4px;
-      font-size: 11pt;
+      font-size: 10pt;
       line-height: 1;
     }
  
@@ -1775,7 +1879,7 @@
       border-right: 1px solid #fff;
       border-bottom: 1px solid #fff;
       font-family: "Courier New", monospace;
-      font-size: 11pt;
+      font-size: 10pt;
       font-weight: 700;
       text-align: center;
     }
@@ -1785,7 +1889,7 @@
       min-width: 36px;
       height: 36px;
       padding: 0;
-      font-size: 11pt;
+      font-size: 10pt;
       line-height: 1;
     }
  
@@ -1813,7 +1917,7 @@
       border-right: 2px solid #404040;
       border-bottom: 2px solid #404040;
       background: #c0c0c0;
-      font-size: 11pt;
+      font-size: 10pt;
       font-weight: 700;
       line-height: 1;
     }
@@ -1849,6 +1953,128 @@
     .mine-cell.n7 { color: #000; }
     .mine-cell.n8 { color: #808080; }
  
+    .skichef-window {
+      width: 562px;
+      max-width: calc(100vw - 24px);
+    }
+ 
+    .skichef-panel {
+      display: grid;
+      gap: 6px;
+      padding: 6px;
+      background: #c0c0c0;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+    }
+ 
+    .skichef-status {
+      display: none;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      padding: 4px;
+      color: #000;
+      background: #c0c0c0;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      font-family: "Courier New", monospace;
+      font-size: 10pt;
+      font-weight: 700;
+      text-align: center;
+    }
+ 
+    .skichef-status strong {
+      display: inline-block;
+      min-width: 34px;
+      color: #c00000;
+      background: #000;
+      padding: 2px 4px;
+      border-top: 1px solid #404040;
+      border-left: 1px solid #404040;
+      border-right: 1px solid #fff;
+      border-bottom: 1px solid #fff;
+      line-height: 1;
+    }
+ 
+    .skichef-canvas {
+      width: 100%;
+      aspect-ratio: 53 / 52;
+      display: block;
+      background: #fff;
+      border-top: 3px solid #808080;
+      border-left: 3px solid #808080;
+      border-right: 3px solid #fff;
+      border-bottom: 3px solid #fff;
+      image-rendering: pixelated;
+      outline: 0;
+    }
+ 
+    .skichef-controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+    }
+ 
+    .skichef-controls button {
+      min-height: 26px;
+    }
+ 
+    .skichef-score-entry {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 82px;
+      gap: 5px;
+      align-items: stretch;
+    }
+ 
+    .skichef-score-entry input,
+    .skichef-score-entry button {
+      min-height: 24px;
+    }
+ 
+    .skichef-scoreboard {
+      min-height: 48px;
+      max-height: 78px;
+      overflow: auto;
+      padding: 3px 5px;
+      color: #000;
+      background: #fff;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      font-family: "Courier New", monospace;
+      font-size: 9pt;
+      line-height: 1.25;
+    }
+ 
+    .skichef-score-row {
+      display: grid;
+      grid-template-columns: 20px minmax(0, 1fr) 74px;
+      gap: 5px;
+      white-space: nowrap;
+    }
+ 
+    .skichef-score-row span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+ 
+    .skichef-help {
+      padding: 4px 6px;
+      color: #000;
+      background: #fff;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      font-size: 9pt;
+      line-height: 1.25;
+      text-align: center;
+    }
+ 
     .euchre-window {
       width: 760px;
       max-width: calc(100vw - 24px);
@@ -1881,7 +2107,7 @@
       border-left: 1px solid #fff;
       border-right: 1px solid #404040;
       border-bottom: 1px solid #404040;
-      font-size: 11pt;
+      font-size: 10pt;
       font-weight: 700;
     }
  
@@ -1895,14 +2121,14 @@
  
 .euchre-score > div > span,
 .euchre-tricks > div > span {
-  font-size: 11pt;
+  font-size: 10pt;
   text-transform: uppercase;
   opacity: 0.85;
 }
  
 .euchre-score strong,
 .euchre-tricks strong {
-  font-size: 11pt;
+  font-size: 10pt;
 }
  
 .euchre-leaderboard-controls {
@@ -1924,7 +2150,7 @@
   border-right: 2px solid #000040;
   border-bottom: 2px solid #000040;
   font-family: "Courier New", monospace;
-  font-size: 11pt;
+  font-size: 10pt;
   font-weight: 900;
   line-height: 1;
   box-shadow: none;
@@ -2037,7 +2263,7 @@
       border: 3px solid #fff;
       box-shadow: 3px 3px 0 #000;
       font-family: "Courier New", monospace;
-      font-size: 11pt;
+      font-size: 10pt;
       font-weight: 700;
     }
  
@@ -2053,7 +2279,7 @@
       background: #fff;
       border: 2px solid #808080;
       font-family: "Courier New", monospace;
-      font-size: 11pt;
+      font-size: 10pt;
     }
  
     .euchre-config .euchre-name-label {
@@ -2135,7 +2361,7 @@
       background: #ffef5a;
       border: 2px solid #000;
       box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
-      font-size: 11pt;
+      font-size: 10pt;
       font-weight: 900;
       line-height: 1;
     }
@@ -2190,7 +2416,7 @@
       border-left: 2px solid #fff;
       border-right: 2px solid #404040;
       border-bottom: 2px solid #404040;
-      font-size: 11pt;
+      font-size: 10pt;
       font-weight: 800;
       line-height: 1.05;
       text-align: center;
@@ -2243,7 +2469,7 @@
  
     .euchre-actions button {
       min-height: 28px;
-      font-size: 11pt;
+      font-size: 10pt;
       font-weight: 700;
     }
  
@@ -2255,7 +2481,7 @@
       border-left: 1px solid #fff;
       border-right: 1px solid #404040;
       border-bottom: 1px solid #404040;
-      font-size: 11pt;
+      font-size: 10pt;
       font-weight: 700;
       text-transform: uppercase;
     }
@@ -2286,7 +2512,7 @@
       border-right: 2px solid #fff;
       border-bottom: 2px solid #fff;
       font-family: "Courier New", monospace;
-      font-size: 11pt;
+      font-size: 10pt;
     }
  
     .euchre-leaderboard-title {
@@ -2314,7 +2540,7 @@
  
     .desktop-window:not(.minesweeper-window):not(.euchre-window),
     .desktop-window:not(.minesweeper-window):not(.euchre-window) * {
-      font-size: 11pt;
+      font-size: 10pt;
     }
  
     @media (max-width: 768px) {
@@ -2326,6 +2552,15 @@
         width: 100%;
         margin: 0;
         grid-template-columns: 1fr;
+      }
+ 
+      .desktop-icons {
+        z-index: 0;
+      }
+ 
+      .desktop-window {
+        position: relative;
+        z-index: 2;
       }
  
       .window-body {
@@ -2371,7 +2606,7 @@
       }
  
       .window-titlebar {
-        font-size: 11pt;
+        font-size: 10pt;
       }
  
  
@@ -2399,6 +2634,10 @@
       <span class="desktop-icon-art euchre-icon" aria-hidden="true"><img src="n64-baseball-cap-head.png" alt="" /></span>
       <span>Euchre</span>
     </button>
+    <button type="button" class="desktop-icon" data-window-restore="skiChef">
+      <span class="desktop-icon-art ski-icon" aria-hidden="true"><img src="skichef-head-icon.png" alt="" /></span>
+      <span>SkiChef</span>
+    </button>
     <button type="button" class="desktop-icon" data-window-restore="minesweeper">
       <span class="desktop-icon-art mine-icon" aria-hidden="true"></span>
       <span>Mintzweeper</span>
@@ -2416,8 +2655,8 @@
           <span class="titlebar-label"><span class="window-icon"></span>NEW ENTRY</span>
           <div class="window-controls">
             <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
-            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
-            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¡</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â</button>
           </div>
         </div>
         <div class="window-body">
@@ -2444,8 +2683,8 @@
           <span class="titlebar-label" id="runStatsTitleLabel"><span class="window-icon"></span>RUN STATISTICS</span>
           <div class="window-controls">
             <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
-            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
-            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¡</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â</button>
           </div>
         </div>
         <div class="window-body">
@@ -2472,8 +2711,8 @@
           <span class="titlebar-label"><span class="window-icon"></span>SCOREBOARD FILTERS</span>
           <div class="window-controls">
             <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
-            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
-            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¡</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â</button>
           </div>
         </div>
         <div class="window-body">
@@ -2496,18 +2735,50 @@
           <span class="titlebar-label"><span class="window-icon"></span>MINTZWEEPER</span>
           <div class="window-controls">
             <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
-            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
-            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¡</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â</button>
           </div>
         </div>
         <div class="window-body">
           <div class="minesweeper-panel">
             <div class="mine-status">
               <div class="mine-counter" id="mineCounter">010</div>
-              <button type="button" class="mine-reset" id="mineReset" aria-label="Reset Mintzweeper">☺</button>
+              <button type="button" class="mine-reset" id="mineReset" aria-label="Reset Mintzweeper">ÃƒÆ’Ã‚Â¢Ãƒâ€¹Ã…â€œÃƒâ€šÃ‚Âº</button>
               <div class="mine-timer" id="mineTimer">000</div>
             </div>
             <div class="mine-board" id="mineBoard" aria-label="Mintzweeper board"></div>
+          </div>
+        </div>
+      </section>
+ 
+      <section class="desktop-window minimized skichef-window" data-window-id="skiChef" data-window-title="SKICHEF">
+        <div class="window-titlebar">
+          <span class="titlebar-label"><span class="window-icon"></span>SKICHEF</span>
+          <div class="window-controls">
+            <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">&#9633;</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">&times;</button>
+          </div>
+        </div>
+        <div class="window-body">
+          <div class="skichef-panel">
+            <div class="skichef-status">
+              <div>METERS <strong id="skiChefMeters">0000</strong></div>
+              <div>HITS <strong id="skiChefHits">0</strong></div>
+              <div>SPEED <strong id="skiChefSpeed">1</strong></div>
+            </div>
+            <canvas id="skiChefCanvas" class="skichef-canvas" width="530" height="520" tabindex="0" aria-label="SkiChef game"></canvas>
+            <div class="skichef-controls">
+              <button type="button" id="skiChefStart">Start</button>
+              <button type="button" id="skiChefPause">Pause</button>
+              <button type="button" id="skiChefReset">Reset</button>
+            </div>
+            <div class="skichef-score-entry">
+              <input id="skiChefName" type="text" maxlength="18" placeholder="Name" aria-label="SkiChef score name" />
+              <button type="button" id="skiChefRecord">Record</button>
+            </div>
+            <div class="skichef-scoreboard" id="skiChefScores" aria-label="SkiChef recorded scores"></div>
+            <div class="skichef-help" id="skiChefHelp">ARROWS OR A/D TO CARVE. DODGE TREES, ROCKS, AND SNOW PILES.</div>
           </div>
         </div>
       </section>
@@ -2517,8 +2788,8 @@
           <span class="titlebar-label"><span class="window-icon"></span>EUCHRE</span>
           <div class="window-controls">
             <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
-            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
-            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¡</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â</button>
           </div>
         </div>
         <div class="window-body">
@@ -2571,8 +2842,8 @@
           <span class="titlebar-label"><span class="window-icon"></span>YUG STATION</span>
           <div class="window-controls">
             <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
-            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
-            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¡</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â</button>
           </div>
         </div>
         <div class="window-body">
@@ -2616,8 +2887,8 @@
           <span class="titlebar-label"><span class="window-icon"></span>SCOREBOARD</span>
           <div class="window-controls">
             <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
-            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
-            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¡</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â</button>
           </div>
         </div>
         <div class="window-body">
@@ -2658,8 +2929,8 @@
           <span class="titlebar-label"><span class="window-icon"></span>MONTHLY LEADERS</span>
           <div class="window-controls">
             <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
-            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
-            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¡</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â</button>
           </div>
         </div>
         <div class="window-body">
@@ -2675,8 +2946,8 @@
           <span class="titlebar-label"><span class="window-icon"></span>CONFIGURATIONS</span>
           <div class="window-controls">
             <button type="button" class="window-control" data-window-action="minimize" aria-label="Minimize">_</button>
-            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">□</button>
-            <button type="button" class="window-control" data-window-action="close" aria-label="Close">×</button>
+            <button type="button" class="window-control" data-window-action="maximize" aria-label="Maximize">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¡</button>
+            <button type="button" class="window-control" data-window-action="close" aria-label="Close">ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â</button>
           </div>
         </div>
         <div class="window-body">
@@ -2761,6 +3032,7 @@
       <button type="button" class="start-menu-folder-button">GAMES</button>
       <div class="start-submenu">
         <button type="button" data-window-restore="euchre">Euchre</button>
+        <button type="button" data-window-restore="skiChef">SkiChef</button>
         <button type="button" data-window-restore="minesweeper">Mintzweeper</button>
       </div>
     </div>
@@ -2784,7 +3056,7 @@
     <div class="login-dialog" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
       <div class="login-titlebar">
         <span id="loginTitle">Admin Login</span>
-        <button type="button" class="window-control" id="loginCloseButton" aria-label="Close">×</button>
+        <button type="button" class="window-control" id="loginCloseButton" aria-label="Close">ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â</button>
       </div>
       <form class="login-body" id="adminLoginForm">
         <div class="login-form">
@@ -2842,6 +3114,17 @@
     const mineCounter = document.getElementById('mineCounter');
     const mineTimer = document.getElementById('mineTimer');
     const mineReset = document.getElementById('mineReset');
+    const skiChefCanvas = document.getElementById('skiChefCanvas');
+    const skiChefMeters = document.getElementById('skiChefMeters');
+    const skiChefHits = document.getElementById('skiChefHits');
+    const skiChefSpeed = document.getElementById('skiChefSpeed');
+    const skiChefStart = document.getElementById('skiChefStart');
+    const skiChefPause = document.getElementById('skiChefPause');
+    const skiChefReset = document.getElementById('skiChefReset');
+    const skiChefName = document.getElementById('skiChefName');
+    const skiChefRecord = document.getElementById('skiChefRecord');
+    const skiChefScores = document.getElementById('skiChefScores');
+    const skiChefHelp = document.getElementById('skiChefHelp');
 const euchreScoreUs = document.getElementById('euchreScoreUs');
 const euchreScoreThem = document.getElementById('euchreScoreThem');
 const euchreTricksUs = document.getElementById('euchreTricksUs');
@@ -2881,6 +3164,40 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       timerId: null
     };
  
+    const skiChefState = {
+      running: false,
+      ended: false,
+      meters: 0,
+      hits: 0,
+      speed: 2.4,
+      skierX: 260,
+      skierY: 96,
+      turn: 0,
+      frame: 0,
+      lastTime: 0,
+      nextObstacleAt: 160,
+      obstacles: [],
+      scoreRecorded: false,
+      keys: { left: false, right: false }
+    };
+    const skiChefScoreStorageKey = 'skiChefScores';
+    let skiChefScoreEntries = [];
+    const skiChefSpriteLeft = new Image();
+    const skiChefSpriteRight = new Image();
+    const skiChefDogHead = new Image();
+    const skiChefTreeSprite = new Image();
+    const skiChefStartLogo = new Image();
+    skiChefSpriteLeft.src = 'skichef-character.png';
+    skiChefSpriteRight.src = 'skichef-character-flipped.png';
+    skiChefDogHead.src = 'skichef-dog-head.png';
+    skiChefTreeSprite.src = 'skichef-tree.png';
+    skiChefStartLogo.src = 'skichef-start-logo.png';
+    skiChefSpriteLeft.addEventListener('load', drawSkiChef);
+    skiChefSpriteRight.addEventListener('load', drawSkiChef);
+    skiChefDogHead.addEventListener('load', drawSkiChef);
+    skiChefTreeSprite.addEventListener('load', drawSkiChef);
+    skiChefStartLogo.addEventListener('load', drawSkiChef);
+ 
     const euchrePlayers = ['You', 'Lefty', 'Partner', 'Righty'];
     let euchreSeatProfiles = [
       { name: 'You', initials: 'YOU' },
@@ -2891,7 +3208,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     const euchreRanks = ['9', '10', 'J', 'Q', 'K', 'A'];
     const euchreSuits = ['S', 'H', 'D', 'C'];
     const euchreSuitNames = { S: 'Spades', H: 'Hearts', D: 'Diamonds', C: 'Clubs' };
-    const euchreSuitSymbols = { S: '♠', H: '♥', D: '♦', C: '♣' };
+    const euchreSuitSymbols = { S: 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢Ãƒâ€šÃ‚Â ', H: 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢Ãƒâ€šÃ‚Â¥', D: 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢Ãƒâ€šÃ‚Â¦', C: 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢Ãƒâ€šÃ‚Â£' };
     const euchreRedSuits = new Set(['H', 'D']);
     const euchreSameColor = { S: 'C', C: 'S', H: 'D', D: 'H' };
     const euchreSettingsStorageKey = 'yakEuchreSettingsV1';
@@ -2971,7 +3288,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         }
       } else if (cell.flagged) {
         button.classList.add('flagged');
-        button.textContent = '⚑';
+        button.textContent = 'ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã‚Â¡ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“';
       }
     }
  
@@ -2983,7 +3300,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         mineState.ended = true;
         stopMineTimer();
         playMineBombSound();
-        if (mineReset) mineReset.textContent = '☹';
+        if (mineReset) mineReset.textContent = 'ÃƒÆ’Ã‚Â¢Ãƒâ€¹Ã…â€œÃƒâ€šÃ‚Â¹';
         mineState.cells.flat().forEach(item => {
           if (item.mine) item.revealed = true;
           renderMineCell(item);
@@ -3013,7 +3330,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       if (!won) return;
       mineState.ended = true;
       stopMineTimer();
-      if (mineReset) mineReset.textContent = '😎';
+      if (mineReset) mineReset.textContent = 'ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¹Ã…â€œÃƒâ€¦Ã‚Â½';
       mineState.cells.flat().forEach(cell => {
         if (cell.mine && !cell.flagged) {
           cell.flagged = true;
@@ -3072,8 +3389,423 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         cell.count = cell.mine ? 0 : mineNeighbors(cell.row, cell.col).filter(item => item.mine).length;
         renderMineCell(cell);
       });
-      if (mineReset) mineReset.textContent = '☺';
+      if (mineReset) mineReset.textContent = 'ÃƒÆ’Ã‚Â¢Ãƒâ€¹Ã…â€œÃƒâ€šÃ‚Âº';
       updateMineDisplays();
+    }
+ 
+    function padSkiMeters(value) {
+      return String(Math.max(0, Math.floor(value))).padStart(4, '0');
+    }
+ 
+    function updateSkiChefHud() {
+      if (skiChefMeters) skiChefMeters.textContent = padSkiMeters(skiChefState.meters);
+      if (skiChefHits) skiChefHits.textContent = skiChefState.hits;
+      if (skiChefSpeed) skiChefSpeed.textContent = Math.max(1, Math.round(skiChefState.speed));
+      if (skiChefHelp) {
+        skiChefHelp.textContent = skiChefState.ended
+          ? 'RUN OVER. CLICK RESET OR START FOR ANOTHER DROP.'
+          : skiChefState.running
+            ? 'CARVE WITH ARROWS OR A/D. AVOID ANYTHING THAT IS NOT SNOW.'
+          : 'ARROWS OR A/D TO CARVE. DODGE TREES, ROCKS, AND SNOW PILES.';
+      }
+    }
+ 
+    function loadSkiChefScores() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(skiChefScoreStorageKey) || '[]');
+        skiChefScoreEntries = Array.isArray(saved) ? saved : [];
+      } catch (error) {
+        skiChefScoreEntries = [];
+      }
+    }
+ 
+    function saveSkiChefScores() {
+      localStorage.setItem(skiChefScoreStorageKey, JSON.stringify(skiChefScoreEntries));
+    }
+ 
+    function renderSkiChefScores() {
+      if (!skiChefScores) return;
+      const rows = skiChefScoreEntries
+        .slice()
+        .sort((a, b) => (b.meters || 0) - (a.meters || 0) || (a.hits || 0) - (b.hits || 0))
+        .slice(0, 5);
+      if (!rows.length) {
+        skiChefScores.innerHTML = '<div class="skichef-score-row"><span>No.</span><span>Name</span><span>Meters</span></div>';
+        return;
+      }
+      skiChefScores.innerHTML = rows.map((entry, index) => `
+        <div class="skichef-score-row">
+          <span>${index + 1}.</span>
+          <span>${escapeHTML(entry.name || 'Chef')}</span>
+          <span>${Math.floor(entry.meters || 0)}m</span>
+        </div>
+      `).join('');
+    }
+ 
+    function recordSkiChefScore() {
+      const meters = Math.floor(skiChefState.meters || 0);
+      if (!meters || skiChefState.scoreRecorded) return;
+      const name = (skiChefName?.value || '').trim();
+      if (!name) return;
+      skiChefScoreEntries.push({
+        name: name.slice(0, 18),
+        meters,
+        hits: skiChefState.hits || 0,
+        recordedAt: new Date().toISOString()
+      });
+      skiChefScoreEntries = skiChefScoreEntries
+        .sort((a, b) => (b.meters || 0) - (a.meters || 0) || (a.hits || 0) - (b.hits || 0))
+        .slice(0, 12);
+      saveSkiChefScores();
+      renderSkiChefScores();
+      skiChefState.scoreRecorded = true;
+    }
+ 
+    function skiChefMaxObstacles() {
+      const distance = skiChefState.meters || 0;
+      if (distance < 450) return 2;
+      if (distance < 1000) return 3;
+      if (distance < 1700) return 5;
+      return Math.min(10, 5 + Math.floor(distance / 850));
+    }
+ 
+    function skiChefRandomObstacle(y = 560) {
+      const distance = skiChefState.meters || 0;
+      const types = distance < 450
+        ? ['pine', 'mogul', 'flag']
+        : distance < 1000
+          ? ['pine', 'pine', 'deadTree', 'rock', 'mogul', 'flag']
+          : distance < 1700
+            ? ['pine', 'pine', 'deadTree', 'rock', 'mogul', 'mogul', 'flag', 'lift']
+            : ['pine', 'pine', 'deadTree', 'rock', 'mogul', 'mogul', 'flag', 'lift', 'dog'];
+      return {
+        type: types[Math.floor(Math.random() * types.length)],
+        x: 28 + Math.random() * 474,
+        y,
+        hit: false,
+        wobble: Math.random() * Math.PI * 2
+      };
+    }
+ 
+    function resetSkiChef() {
+      Object.assign(skiChefState, {
+        running: false,
+        ended: false,
+        meters: 0,
+        hits: 0,
+        speed: 2.4,
+        skierX: 260,
+        skierY: 180,
+        turn: 0,
+        frame: 0,
+        lastTime: 0,
+        nextObstacleAt: 420,
+        obstacles: Array.from({ length: 2 }, (_, index) => skiChefRandomObstacle(430 + index * 260)),
+        scoreRecorded: false,
+        keys: { left: false, right: false }
+      });
+      updateSkiChefHud();
+      drawSkiChef();
+    }
+ 
+    function startSkiChef() {
+      if (!skiChefCanvas) return;
+      if (skiChefState.running) return;
+      if (skiChefState.ended) resetSkiChef();
+      skiChefState.running = true;
+      skiChefState.lastTime = performance.now();
+      skiChefCanvas.focus();
+      updateSkiChefHud();
+      window.requestAnimationFrame(tickSkiChef);
+    }
+ 
+    function pauseSkiChef() {
+      skiChefState.running = false;
+      updateSkiChefHud();
+      drawSkiChef();
+    }
+ 
+    function skiPixel(ctx, color, x, y, w, h) {
+      ctx.fillStyle = color;
+      ctx.fillRect(Math.round(x), Math.round(y), w, h);
+    }
+ 
+    function drawSkiChefPine(ctx, x, y) {
+      if (skiChefTreeSprite.complete && skiChefTreeSprite.naturalWidth) {
+        ctx.drawImage(skiChefTreeSprite, x - 18, y - 30, 36, 42);
+        return;
+      }
+      const rows = [
+        [0, -25, 4], [-4, -21, 12], [-8, -17, 20], [-12, -13, 28],
+        [-9, -9, 22], [-14, -5, 32], [-11, -1, 26], [-16, 3, 36]
+      ];
+      rows.forEach(([dx, dy, width], index) => {
+        skiPixel(ctx, index % 2 ? '#00b000' : '#00d000', x + dx, y + dy, width, 4);
+      });
+      skiPixel(ctx, '#8b5a00', x - 4, y + 7, 8, 12);
+      skiPixel(ctx, '#d0a020', x - 8, y + 19, 16, 4);
+    }
+ 
+    function drawSkiChefDeadTree(ctx, x, y) {
+      ctx.strokeStyle = '#6b3a00';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, y - 28);
+      ctx.lineTo(x, y + 16);
+      ctx.moveTo(x, y - 14);
+      ctx.lineTo(x - 10, y - 22);
+      ctx.moveTo(x, y - 8);
+      ctx.lineTo(x + 9, y - 17);
+      ctx.moveTo(x, y + 1);
+      ctx.lineTo(x - 12, y + 7);
+      ctx.moveTo(x, y + 6);
+      ctx.lineTo(x + 11, y + 12);
+      ctx.stroke();
+      skiPixel(ctx, '#6b3a00', x - 2, y + 14, 5, 5);
+    }
+ 
+    function drawSkiChefRock(ctx, x, y) {
+      skiPixel(ctx, '#404040', x - 11, y - 4, 22, 8);
+      skiPixel(ctx, '#808080', x - 8, y - 8, 16, 5);
+      skiPixel(ctx, '#c0c0c0', x - 3, y - 6, 8, 2);
+    }
+ 
+    function drawSkiChefMogul(ctx, x, y) {
+      ctx.strokeStyle = '#aaaaff';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.arc(x + i * 12, y + (i % 2) * 8, 10, Math.PI * 1.1, Math.PI * 1.9);
+        ctx.stroke();
+      }
+    }
+ 
+    function drawSkiChefFlag(ctx, x, y) {
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, y - 22);
+      ctx.lineTo(x, y + 15);
+      ctx.stroke();
+      skiPixel(ctx, '#ff0000', x + 1, y - 21, 20, 9);
+      skiPixel(ctx, '#ff00ff', x + 1, y + 8, 24, 4);
+      skiPixel(ctx, '#00ffff', x + 1, y + 12, 24, 4);
+    }
+ 
+    function drawSkiChefLift(ctx, x, y) {
+      skiPixel(ctx, '#000', x - 5, y - 34, 10, 48);
+      skiPixel(ctx, '#fff', x - 2, y - 28, 4, 6);
+      skiPixel(ctx, '#ffff00', x - 12, y + 12, 24, 20);
+      skiPixel(ctx, '#000', x - 14, y + 31, 28, 3);
+      skiPixel(ctx, '#ff0000', x + 16, y + 4, 7, 18);
+      skiPixel(ctx, '#00a000', x + 25, y + 4, 7, 18);
+    }
+ 
+    function drawSkiChefDog(ctx, x, y) {
+      skiPixel(ctx, '#808080', x - 14, y - 7, 22, 9);
+      skiPixel(ctx, '#404040', x - 9, y + 1, 3, 8);
+      skiPixel(ctx, '#404040', x + 4, y + 1, 3, 8);
+      ctx.strokeStyle = '#404040';
+      ctx.beginPath();
+      ctx.moveTo(x - 12, y - 6);
+      ctx.lineTo(x - 19, y - 12);
+      ctx.stroke();
+      if (skiChefDogHead.complete && skiChefDogHead.naturalWidth) {
+        ctx.drawImage(skiChefDogHead, x + 2, y - 23, 20, 24);
+      } else {
+        skiPixel(ctx, '#808080', x + 8, y - 12, 8, 8);
+        skiPixel(ctx, '#000', x + 14, y - 10, 2, 2);
+      }
+    }
+ 
+    function drawSkiChefSkier(ctx) {
+      const x = skiChefState.skierX;
+      const y = skiChefState.skierY;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(skiChefState.turn * 0.08);
+      const sprite = skiChefState.turn > 0 ? skiChefSpriteRight : skiChefSpriteLeft;
+      if (sprite.complete && sprite.naturalWidth) {
+        const spriteHeight = 68;
+        const spriteWidth = spriteHeight * (sprite.naturalWidth / sprite.naturalHeight);
+        ctx.drawImage(sprite, -spriteWidth / 2, -spriteHeight / 2 + 8, spriteWidth, spriteHeight);
+        ctx.restore();
+        return;
+      }
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = '#008000';
+      ctx.beginPath();
+      ctx.moveTo(-7, 18);
+      ctx.lineTo(1, 25);
+      ctx.lineTo(10, 19);
+      ctx.moveTo(-8, 22);
+      ctx.lineTo(13, 26);
+      ctx.stroke();
+      skiPixel(ctx, '#ff00ff', -5, -12, 9, 8);
+      skiPixel(ctx, '#00ffff', -4, -4, 8, 12);
+      skiPixel(ctx, '#0000ff', -6, 8, 5, 12);
+      skiPixel(ctx, '#0000ff', 2, 8, 5, 12);
+      skiPixel(ctx, '#ffcc99', -3, -19, 6, 6);
+      skiPixel(ctx, '#ff0000', -4, -23, 8, 4);
+      ctx.strokeStyle = '#000';
+      ctx.beginPath();
+      ctx.moveTo(-5, 0);
+      ctx.lineTo(-13, 8);
+      ctx.moveTo(5, 0);
+      ctx.lineTo(13, 8);
+      ctx.stroke();
+      ctx.restore();
+    }
+ 
+    function drawSkiChefChef(ctx) {
+      if (skiChefState.meters < 1400) return;
+      const chase = Math.min(90, (skiChefState.meters - 1400) / 3);
+      const x = 72 + Math.sin(skiChefState.frame / 12) * 8;
+      const y = skiChefCanvas.height + 24 - chase;
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(x - 22, y - 30, 44, 38);
+      ctx.fillStyle = '#111';
+      ctx.fillRect(x - 16, y - 14, 32, 20);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(x - 28, y - 42, 56, 16);
+      ctx.fillRect(x - 16, y - 54, 32, 14);
+      ctx.fillStyle = '#c00000';
+      ctx.fillRect(x - 20, y + 8, 40, 8);
+      ctx.fillStyle = '#000';
+      ctx.fillText('CHEF', x - 17, y - 2);
+    }
+ 
+    function drawSkiChefStatsBox(ctx, w) {
+      const minutes = Math.floor(skiChefState.meters / 3600);
+      const seconds = Math.floor((skiChefState.meters / 60) % 60);
+      const hundredths = Math.floor((skiChefState.meters * 1.7) % 100);
+      const x = w - 140;
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(x, 0, 140, 74);
+      ctx.strokeStyle = '#000';
+      ctx.strokeRect(x, 0, 139, 73);
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 13px Courier New, monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(`Time:  ${minutes}:${String(seconds).padStart(2, '0')}:${String(hundredths).padStart(2, '0')}`, x + 4, 15);
+      ctx.fillText(`Dist:  ${Math.floor(skiChefState.meters)}m`, x + 4, 30);
+      ctx.fillText(`Speed: ${String(Math.round(skiChefState.speed)).padStart(2, '0')}m/s`, x + 4, 45);
+      ctx.fillText(`Style: ${Math.max(0, 5 - skiChefState.hits)}`, x + 4, 60);
+    }
+ 
+    function drawSkiChefStartScreen(ctx, w, h) {
+      if (skiChefState.meters > 0 || skiChefState.ended) return;
+      if (skiChefStartLogo.complete && skiChefStartLogo.naturalWidth) {
+        const logoWidth = 152;
+        const logoHeight = logoWidth * (skiChefStartLogo.naturalHeight / skiChefStartLogo.naturalWidth);
+        ctx.drawImage(skiChefStartLogo, Math.round((w - logoWidth) / 2), 62, logoWidth, logoHeight);
+      }
+    }
+ 
+    function drawSkiChef() {
+      if (!skiChefCanvas) return;
+      const ctx = skiChefCanvas.getContext('2d');
+      const w = skiChefCanvas.width;
+      const h = skiChefCanvas.height;
+      ctx.imageSmoothingEnabled = false;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, w, h);
+      skiChefState.obstacles
+        .slice()
+        .sort((a, b) => a.y - b.y)
+        .forEach(obstacle => {
+          if (obstacle.type === 'pine') drawSkiChefPine(ctx, obstacle.x, obstacle.y);
+          if (obstacle.type === 'deadTree') drawSkiChefDeadTree(ctx, obstacle.x, obstacle.y);
+          if (obstacle.type === 'rock') drawSkiChefRock(ctx, obstacle.x, obstacle.y);
+          if (obstacle.type === 'mogul') drawSkiChefMogul(ctx, obstacle.x, obstacle.y);
+          if (obstacle.type === 'flag') drawSkiChefFlag(ctx, obstacle.x, obstacle.y);
+          if (obstacle.type === 'lift') drawSkiChefLift(ctx, obstacle.x, obstacle.y);
+          if (obstacle.type === 'dog') drawSkiChefDog(ctx, obstacle.x, obstacle.y);
+        });
+      drawSkiChefSkier(ctx);
+      drawSkiChefChef(ctx);
+      drawSkiChefStatsBox(ctx, w);
+      drawSkiChefStartScreen(ctx, w, h);
+      if (!skiChefState.running) {
+        ctx.fillStyle = '#000';
+        ctx.font = 'bold 13px Courier New, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(skiChefState.ended ? 'SKICHEF WIPEOUT - START AGAIN' : 'CLICK START TO SKI', w / 2, h - 16);
+        ctx.textAlign = 'left';
+      }
+    }
+ 
+    function hitSkiChefObstacle(obstacle) {
+      if (obstacle.hit || obstacle.type === 'flag' || obstacle.type === 'mogul') return false;
+      const dx = Math.abs(obstacle.x - skiChefState.skierX);
+      const dy = Math.abs(obstacle.y - (skiChefState.skierY + 18));
+      return dx < 18 && dy < 22;
+    }
+ 
+    function tickSkiChef(time) {
+      if (!skiChefState.running) return;
+      const delta = Math.min(40, time - (skiChefState.lastTime || time)) / 16.67;
+      skiChefState.lastTime = time;
+      skiChefState.frame += 1;
+      skiChefState.turn = (skiChefState.keys.left ? -1 : 0) + (skiChefState.keys.right ? 1 : 0);
+      skiChefState.skierX += skiChefState.turn * 4.8 * delta;
+      skiChefState.skierX = Math.max(26, Math.min(skiChefCanvas.width - 26, skiChefState.skierX));
+      skiChefState.speed = Math.min(8.5, 2.4 + skiChefState.meters / 420);
+      skiChefState.meters += skiChefState.speed * delta;
+      const maxObstacles = skiChefMaxObstacles();
+      if (skiChefState.obstacles.length < maxObstacles && skiChefState.meters >= skiChefState.nextObstacleAt) {
+        skiChefState.obstacles.push(skiChefRandomObstacle(skiChefCanvas.height + 70 + Math.random() * 90));
+        skiChefState.nextObstacleAt += Math.max(180, 430 - skiChefState.meters / 16);
+      }
+      skiChefState.obstacles.forEach(obstacle => {
+        obstacle.y -= skiChefState.speed * delta;
+        obstacle.x += Math.sin((skiChefState.frame / 20) + obstacle.wobble) * 0.14 * delta;
+        if (obstacle.type === 'dog') {
+          const dogProgress = Math.min(1.8, Math.max(0, (skiChefState.meters - 1700) / 1800));
+          const chase = (0.34 + dogProgress * 0.46) * delta;
+          obstacle.x += Math.sign(skiChefState.skierX - obstacle.x) * chase;
+          obstacle.y -= dogProgress * 0.28 * delta;
+        }
+        if (hitSkiChefObstacle(obstacle)) {
+          obstacle.hit = true;
+          skiChefState.hits += 1;
+          skiChefState.speed = Math.max(1.7, skiChefState.speed - 0.8);
+          skiChefState.skierX += obstacle.x < skiChefState.skierX ? 24 : -24;
+          playUiSound('grunt');
+        }
+        if (obstacle.y < -60) {
+          Object.assign(obstacle, skiChefRandomObstacle(skiChefCanvas.height + 35 + Math.random() * 90));
+        }
+      });
+      if (skiChefState.hits >= 5) {
+        skiChefState.running = false;
+        skiChefState.ended = true;
+        recordSkiChefScore();
+      }
+      updateSkiChefHud();
+      drawSkiChef();
+      if (skiChefState.running) window.requestAnimationFrame(tickSkiChef);
+    }
+ 
+    function handleSkiChefKey(event, pressed) {
+      if (!skiChefCanvas) return;
+      const skiWindow = document.querySelector('[data-window-id="skiChef"]');
+      const activeInSki = document.activeElement === skiChefCanvas || (skiWindow && !skiWindow.classList.contains('minimized') && skiWindow.contains(document.activeElement));
+      if (!activeInSki) return;
+      const key = event.key.toLowerCase();
+      if (event.key === 'ArrowLeft' || key === 'a') {
+        skiChefState.keys.left = pressed;
+        event.preventDefault();
+      }
+      if (event.key === 'ArrowRight' || key === 'd') {
+        skiChefState.keys.right = pressed;
+        event.preventDefault();
+      }
+      if (pressed && event.key === ' ') {
+        skiChefState.running ? pauseSkiChef() : startSkiChef();
+        event.preventDefault();
+      }
     }
  
     function euchreTeam(playerIndex) {
@@ -3692,14 +4424,17 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     function positionGameWindow(win, id) {
       const isMine = id === 'minesweeper';
       const isYug = id === 'yugStation';
-      const width = isMine ? 362 : isYug ? 680 : 760;
-      const left = isMine ? 16 : isYug ? Math.min(Math.max(250, window.innerWidth - width - 28), window.innerWidth - width - 12) : Math.min(Math.max(320, window.innerWidth - width - 18), window.innerWidth - width - 12);
-      const top = isMine ? 314 : isYug ? 120 : 74;
+      const isSki = id === 'skiChef';
+      const width = isMine ? 362 : isYug ? 680 : isSki ? 562 : 760;
+      const left = isMine ? 16 : isYug ? Math.min(Math.max(250, window.innerWidth - width - 28), window.innerWidth - width - 12) : isSki ? Math.min(Math.max(180, window.innerWidth - width - 44), window.innerWidth - width - 12) : Math.min(Math.max(320, window.innerWidth - width - 18), window.innerWidth - width - 12);
+      const desiredTop = isMine ? 314 : isYug ? 120 : isSki ? 8 : 74;
+      const estimatedHeight = isMine ? 430 : isYug ? 520 : isSki ? 710 : 640;
+      const maxTop = Math.max(8, window.innerHeight - estimatedHeight - 12);
       win.classList.remove('maximized');
       win.classList.add('detached');
       win.style.position = 'fixed';
       win.style.left = `${Math.max(12, left)}px`;
-      win.style.top = `${Math.max(58, Math.min(top, window.innerHeight - 120))}px`;
+      win.style.top = `${Math.max(8, Math.min(desiredTop, maxTop))}px`;
       win.style.width = `${Math.min(width, window.innerWidth - 24)}px`;
     }
  
@@ -3724,7 +4459,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       win.classList.remove('minimized');
       if (id === 'statsDashboard' || id === 'wheelConfig') {
         positionOverScoreboard(win);
-      } else if (id === 'minesweeper' || id === 'euchre' || id === 'yugStation') {
+      } else if (id === 'minesweeper' || id === 'euchre' || id === 'yugStation' || id === 'skiChef') {
         positionGameWindow(win, id);
       }
       bringWindowToFront(win);
@@ -3832,10 +4567,14 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         button.addEventListener('click', event => {
           event.stopPropagation();
           const action = button.dataset.windowAction;
-          if (action === 'minimize') win.classList.add('minimized');
+          if (action === 'minimize') {
+            win.classList.add('minimized');
+            if (win.dataset.windowId === 'skiChef') pauseSkiChef();
+          }
           if (action === 'maximize') toggleMaximize(win);
           if (action === 'close') {
             win.classList.add('minimized');
+            if (win.dataset.windowId === 'skiChef') pauseSkiChef();
           }
         });
       });
@@ -4699,8 +5438,8 @@ function showRunStats(entryId) {
         const daysSince = getDaysSince(entry.date);
         let iconHTML = '';
  
-        if (isLeader) iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">🥇${daysSince}d</span>`;
-        else if (isDivisionLeader) iconHTML = `<span class="stopwatch blue" title="Days since: ${daysSince}">⏱️${daysSince}d</span>`;
+        if (isLeader) iconHTML = `<span class="stopwatch gold" title="Days since: ${daysSince}">${daysSince}d</span>`;
+        else if (isDivisionLeader) iconHTML = `<span class="stopwatch blue" title="Days since: ${daysSince}">${daysSince}d</span>`;
         const noteHTML = !isEditMode && entry.notes ? `<span class="note-icon" title="${escapeHTML(entry.notes.toUpperCase())}" aria-label="Note"></span>` : '';
  
         row.innerHTML = `
@@ -5148,7 +5887,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
       ctx.fillStyle = '#fff';
       ctx.font = 'bold 11pt Roboto, Arial';
       ctx.textAlign = 'left';
-      ctx.fillText('🏆 Hall Of Fame', leaderboardLeft + 8, top + 15);
+      ctx.fillText('ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€šÃ‚ÂÃƒÂ¢Ã¢â€šÂ¬Ã‚Â  Hall Of Fame', leaderboardLeft + 8, top + 15);
       ctx.fillStyle = '#000';
       ctx.font = 'bold 11pt Roboto, Arial';
       winnerRows.forEach(([name, wins], index) => {
@@ -5270,6 +6009,29 @@ document.querySelectorAll('.delete-button').forEach(button => {
  
     resetMinesweeper();
     if (mineReset) mineReset.addEventListener('click', resetMinesweeper);
+    resetSkiChef();
+    if (skiChefStart) skiChefStart.addEventListener('click', startSkiChef);
+    if (skiChefPause) skiChefPause.addEventListener('click', pauseSkiChef);
+    if (skiChefReset) skiChefReset.addEventListener('click', resetSkiChef);
+    if (skiChefRecord) skiChefRecord.addEventListener('click', recordSkiChefScore);
+    if (skiChefName) {
+      skiChefName.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          recordSkiChefScore();
+        }
+      });
+    }
+    if (skiChefCanvas) {
+      skiChefCanvas.addEventListener('click', () => {
+        skiChefCanvas.focus();
+        if (!skiChefState.running) startSkiChef();
+      });
+    }
+    loadSkiChefScores();
+    renderSkiChefScores();
+    document.addEventListener('keydown', event => handleSkiChefKey(event, true));
+    document.addEventListener('keyup', event => handleSkiChefKey(event, false));
     renderEuchre();
     if (euchreNewHand) euchreNewHand.addEventListener('click', euchreNewDeal);
     if (euchreOrder) euchreOrder.addEventListener('click', euchreOrderUp);

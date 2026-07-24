@@ -2109,7 +2109,7 @@
  
     .skichef-score-row {
       display: grid;
-      grid-template-columns: 20px minmax(0, 1fr) 68px 42px;
+      grid-template-columns: 20px minmax(0, 1fr) 62px 42px 42px;
       gap: 5px;
       align-items: center;
       white-space: nowrap;
@@ -2384,6 +2384,10 @@
     .euchre-config .euchre-you-name {
       grid-column: span 2;
       width: 138px;
+      color: #fff;
+      background: #000;
+      border-color: #fff;
+      font-size: 8pt;
     }
  
 .euchre-name {
@@ -3547,7 +3551,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         .sort((a, b) => (b.entry.meters || 0) - (a.entry.meters || 0) || (a.entry.hits || 0) - (b.entry.hits || 0))
         .slice(0, 5);
       if (!rows.length) {
-        skiChefScores.innerHTML = '<div class="skichef-score-row"><span>No.</span><span>Name</span><span>Meters</span><span></span></div>';
+        skiChefScores.innerHTML = '<div class="skichef-score-row"><span>No.</span><span>Name</span><span>Dist</span><span>Style</span><span></span></div>';
         return;
       }
       skiChefScores.innerHTML = rows.map(({ entry, scoreIndex }, index) => `
@@ -3555,6 +3559,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
           <span>${index + 1}.</span>
           <input type="text" maxlength="18" value="${escapeHTML(entry.name || '')}" aria-label="Edit SkiChef score name" />
           <span>${Math.floor(entry.meters || 0)}m</span>
+          <span>${Number.isFinite(entry.style) ? entry.style : Math.max(0, 5 - (entry.hits || 0))}</span>
           <span class="skichef-score-actions"><button type="button" data-ski-score-action="delete" aria-label="Delete SkiChef score">X</button></span>
         </div>
       `).join('');
@@ -3585,6 +3590,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const name = (skiChefName?.value || '').trim();
       if (!name) return;
       const cleanName = name.slice(0, 18);
+      const style = Math.max(0, 5 - skiChefState.hits) + skiChefState.stylePoints;
       const existing = skiChefScoreEntries.find(entry => String(entry.name || '').trim().toUpperCase() === cleanName.toUpperCase());
       if (existing) {
         if ((existing.meters || 0) >= meters) {
@@ -3593,12 +3599,14 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         }
         existing.meters = meters;
         existing.hits = skiChefState.hits || 0;
+        existing.style = style;
         existing.recordedAt = new Date().toISOString();
       } else {
         skiChefScoreEntries.push({
           name: cleanName,
           meters,
           hits: skiChefState.hits || 0,
+          style,
           recordedAt: new Date().toISOString()
         });
       }

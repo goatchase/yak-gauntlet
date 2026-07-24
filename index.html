@@ -2041,7 +2041,7 @@
     .skichef-status strong {
       display: inline-block;
       min-width: 34px;
-      color: #c00000;
+      color: #fff;
       background: #000;
       padding: 2px 4px;
       border-top: 1px solid #404040;
@@ -2069,7 +2069,7 @@
     .skichef-controls {
       order: 3;
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 6px;
     }
  
@@ -2855,6 +2855,7 @@
               <button type="button" id="skiChefStart">Start</button>
               <button type="button" id="skiChefPause">Pause</button>
               <button type="button" id="skiChefReset">Reset</button>
+              <button type="button" id="skiChefJump">Jump</button>
             </div>
             <div class="skichef-score-entry">
               <input id="skiChefName" type="text" maxlength="18" placeholder="Name" aria-label="SkiChef score name" />
@@ -3205,6 +3206,7 @@
     const skiChefStart = document.getElementById('skiChefStart');
     const skiChefPause = document.getElementById('skiChefPause');
     const skiChefReset = document.getElementById('skiChefReset');
+    const skiChefJump = document.getElementById('skiChefJump');
     const skiChefName = document.getElementById('skiChefName');
     const skiChefRecord = document.getElementById('skiChefRecord');
     const skiChefScores = document.getElementById('skiChefScores');
@@ -3261,6 +3263,10 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       lastTime: 0,
       nextObstacleAt: 160,
       obstacles: [],
+      jumpTime: 0,
+      jumpDuration: 46,
+      trickSpin: 0,
+      stylePoints: 0,
       scoreRecorded: false,
       keys: { left: false, right: false }
     };
@@ -3499,7 +3505,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       if (skiChefTime) skiChefTime.textContent = formatSkiChefTime();
       if (skiChefMeters) skiChefMeters.textContent = `${padSkiMeters(skiChefState.meters)}m`;
       if (skiChefSpeed) skiChefSpeed.textContent = `${Math.max(1, Math.round(skiChefState.speed))}m/s`;
-      if (skiChefStyle) skiChefStyle.textContent = Math.max(0, 5 - skiChefState.hits);
+      if (skiChefStyle) skiChefStyle.textContent = Math.max(0, 5 - skiChefState.hits) + skiChefState.stylePoints;
       if (skiChefHelp) {
         skiChefHelp.textContent = skiChefState.ended
           ? 'RUN OVER. CLICK RESET OR START FOR ANOTHER DROP.'
@@ -3605,6 +3611,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         hit: false,
         wobble: Math.random() * Math.PI * 2
       };
+      if (type === 'pine') {
+        obstacle.scale = [0.78, 1, 1.24][Math.floor(Math.random() * 3)];
+      }
       if (type === 'dog') {
         obstacle.walkerIndex = Math.floor(Math.random() * skiChefWalkers.length);
         obstacle.walkDir = Math.random() > 0.5 ? 1 : -1;
@@ -3628,6 +3637,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         lastTime: 0,
         nextObstacleAt: 420,
         obstacles: Array.from({ length: 2 }, (_, index) => skiChefRandomObstacle(430 + index * 260)),
+        jumpTime: 0,
+        trickSpin: 0,
+        stylePoints: 0,
         scoreRecorded: false,
         keys: { left: false, right: false }
       });
@@ -3652,25 +3664,48 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       drawSkiChef();
     }
  
+    function skiChefJumpHeight() {
+      if (skiChefState.jumpTime <= 0) return 0;
+      const progress = Math.min(1, skiChefState.jumpTime / skiChefState.jumpDuration);
+      return Math.sin(progress * Math.PI) * 42;
+    }
+ 
+    function startSkiChefJump() {
+      if (!skiChefCanvas) return;
+      if (!skiChefState.running) {
+        startSkiChef();
+        return;
+      }
+      if (skiChefState.jumpTime > 0) return;
+      skiChefState.jumpTime = 1;
+      skiChefState.trickSpin = 0;
+    }
+ 
     function skiPixel(ctx, color, x, y, w, h) {
       ctx.fillStyle = color;
       ctx.fillRect(Math.round(x), Math.round(y), w, h);
     }
  
-    function drawSkiChefPine(ctx, x, y) {
+    function drawSkiChefPine(ctx, x, y, scale = 1) {
       if (skiChefTreeSprite.complete && skiChefTreeSprite.naturalWidth) {
-        ctx.drawImage(skiChefTreeSprite, x - 18, y - 30, 36, 42);
+        const width = 36 * scale;
+        const height = 42 * scale;
+        ctx.drawImage(skiChefTreeSprite, x - width / 2, y - height + 12 * scale, width, height);
         return;
       }
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
       const rows = [
         [0, -25, 4], [-4, -21, 12], [-8, -17, 20], [-12, -13, 28],
         [-9, -9, 22], [-14, -5, 32], [-11, -1, 26], [-16, 3, 36]
       ];
       rows.forEach(([dx, dy, width], index) => {
-        skiPixel(ctx, index % 2 ? '#00b000' : '#00d000', x + dx, y + dy, width, 4);
+        skiPixel(ctx, index % 2 ? '#00b000' : '#00d000', dx, dy, width, 4);
       });
-      skiPixel(ctx, '#8b5a00', x - 4, y + 7, 8, 12);
-      skiPixel(ctx, '#d0a020', x - 8, y + 19, 16, 4);
+      skiPixel(ctx, '#8b5a00', -4, 7, 8, 12);
+      skiPixel(ctx, '#d0a020', -8, 19, 16, 4);
+      ctx.restore();
     }
  
     function drawSkiChefDeadTree(ctx, x, y) {
@@ -3747,10 +3782,12 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
  
     function drawSkiChefSkier(ctx) {
       const x = skiChefState.skierX;
-      const y = skiChefState.skierY;
+      const jumpHeight = skiChefJumpHeight();
+      const y = skiChefState.skierY - jumpHeight;
       ctx.save();
       ctx.translate(x, y);
-      ctx.rotate(skiChefState.turn * 0.08);
+      ctx.rotate(skiChefState.turn * 0.08 + skiChefState.trickSpin * 0.14);
+      if (jumpHeight > 0) ctx.scale(1 + jumpHeight / 240, 1 + jumpHeight / 240);
       const sprite = skiChefState.turn > 0 ? skiChefSpriteRight : skiChefSpriteLeft;
       if (sprite.complete && sprite.naturalWidth) {
         const spriteHeight = 68;
@@ -3854,7 +3891,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         .slice()
         .sort((a, b) => a.y - b.y)
         .forEach(obstacle => {
-          if (obstacle.type === 'pine') drawSkiChefPine(ctx, obstacle.x, obstacle.y);
+          if (obstacle.type === 'pine') drawSkiChefPine(ctx, obstacle.x, obstacle.y, obstacle.scale || 1);
           if (obstacle.type === 'deadTree') drawSkiChefDeadTree(ctx, obstacle.x, obstacle.y);
           if (obstacle.type === 'rock') drawSkiChefRock(ctx, obstacle.x, obstacle.y);
           if (obstacle.type === 'mogul') drawSkiChefMogul(ctx, obstacle.x, obstacle.y);
@@ -3876,9 +3913,11 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
  
     function hitSkiChefObstacle(obstacle) {
       if (obstacle.hit || obstacle.type === 'flag' || obstacle.type === 'mogul') return false;
+      if (skiChefJumpHeight() > 22) return false;
       const dx = Math.abs(obstacle.x - skiChefState.skierX);
       const dy = Math.abs(obstacle.y - (skiChefState.skierY + 18));
-      return dx < 18 && dy < 22;
+      const treeScale = obstacle.type === 'pine' ? (obstacle.scale || 1) : 1;
+      return dx < 18 * treeScale && dy < 22 * treeScale;
     }
  
     function tickSkiChef(time) {
@@ -3887,10 +3926,20 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       skiChefState.lastTime = time;
       skiChefState.frame += 1;
       skiChefState.turn = (skiChefState.keys.left ? -1 : 0) + (skiChefState.keys.right ? 1 : 0);
-      skiChefState.skierX += skiChefState.turn * 4.8 * delta;
+      skiChefState.skierX += skiChefState.turn * 5.05 * delta;
       skiChefState.skierX = Math.max(26, Math.min(skiChefCanvas.width - 26, skiChefState.skierX));
-      skiChefState.speed = Math.min(8.5, 2.4 + skiChefState.meters / 420);
+      skiChefState.speed = Math.min(9, 2.55 + skiChefState.meters / 395);
       skiChefState.meters += skiChefState.speed * delta;
+      if (skiChefState.jumpTime > 0) {
+        skiChefState.jumpTime += delta;
+        skiChefState.trickSpin += skiChefState.turn * 0.2 * delta;
+        if (skiChefState.jumpTime >= skiChefState.jumpDuration) {
+          const trickScore = Math.min(8, Math.floor(Math.abs(skiChefState.trickSpin) * 3));
+          if (trickScore > 0) skiChefState.stylePoints += trickScore;
+          skiChefState.jumpTime = 0;
+          skiChefState.trickSpin = 0;
+        }
+      }
       const maxObstacles = skiChefMaxObstacles();
       if (skiChefState.obstacles.length < maxObstacles && skiChefState.meters >= skiChefState.nextObstacleAt) {
         skiChefState.obstacles.push(skiChefRandomObstacle(skiChefCanvas.height + 70 + Math.random() * 90));
@@ -3901,7 +3950,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         obstacle.x += Math.sin((skiChefState.frame / 20) + obstacle.wobble) * 0.14 * delta;
         if (obstacle.type === 'dog') {
           const dogProgress = Math.min(1.8, Math.max(0, (skiChefState.meters - 1700) / 1800));
-          obstacle.x += obstacle.walkDir * (obstacle.walkSpeed + dogProgress * 0.38) * delta;
+          obstacle.x += obstacle.walkDir * (obstacle.walkSpeed + dogProgress * 0.44) * delta;
           obstacle.y -= dogProgress * 0.18 * delta;
         }
         if (hitSkiChefObstacle(obstacle)) {
@@ -3941,7 +3990,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         event.preventDefault();
       }
       if (pressed && event.key === ' ') {
-        skiChefState.running ? pauseSkiChef() : startSkiChef();
+        startSkiChefJump();
         event.preventDefault();
       }
     }
@@ -6151,6 +6200,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
     if (skiChefStart) skiChefStart.addEventListener('click', startSkiChef);
     if (skiChefPause) skiChefPause.addEventListener('click', pauseSkiChef);
     if (skiChefReset) skiChefReset.addEventListener('click', resetSkiChef);
+    if (skiChefJump) skiChefJump.addEventListener('click', startSkiChefJump);
     if (skiChefRecord) skiChefRecord.addEventListener('click', recordSkiChefScore);
     if (skiChefName) {
       skiChefName.addEventListener('keydown', event => {
@@ -6163,14 +6213,16 @@ document.querySelectorAll('.delete-button').forEach(button => {
     if (skiChefCanvas) {
       skiChefCanvas.addEventListener('click', () => {
         skiChefCanvas.focus();
-        if (!skiChefState.running) startSkiChef();
+        if (skiChefState.running) startSkiChefJump();
+        else startSkiChef();
       });
       skiChefCanvas.addEventListener('touchstart', event => {
         const touch = event.touches[0];
         if (!touch) return;
         skiChefTouchX = touch.clientX;
         skiChefCanvas.focus();
-        if (!skiChefState.running) startSkiChef();
+        if (skiChefState.running) startSkiChefJump();
+        else startSkiChef();
         event.preventDefault();
       }, { passive: false });
       skiChefCanvas.addEventListener('touchmove', event => {

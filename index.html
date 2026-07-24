@@ -2005,7 +2005,7 @@
     .mine-cell.n8 { color: #808080; }
  
     .skichef-window {
-      width: 562px;
+      width: 620px;
       max-width: calc(100vw - 24px);
     }
  
@@ -2063,6 +2063,7 @@
       border-bottom: 3px solid #fff;
       image-rendering: pixelated;
       outline: 0;
+      touch-action: none;
     }
  
     .skichef-controls {
@@ -3265,12 +3266,13 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     };
     const skiChefScoreStorageKey = 'skiChefScores';
     let skiChefScoreEntries = [];
+    let skiChefTouchX = null;
     const skiChefSpriteLeft = new Image();
     const skiChefSpriteRight = new Image();
     const skiChefDogHead = new Image();
     const skiChefTreeSprite = new Image();
     const skiChefStartLogo = new Image();
-    const skiChefWalkers = ['skichef-kb.png', 'skichef-ben.png', 'skichef-mark.png', 'skichef-nick.png'].map(src => {
+    const skiChefWalkers = ['skichef-kb.png?v=transparent-2', 'skichef-ben.png?v=transparent-2', 'skichef-mark.png?v=transparent-2', 'skichef-nick.png?v=transparent-2'].map(src => {
       const image = new Image();
       image.src = src;
       image.addEventListener('load', drawSkiChef);
@@ -3730,7 +3732,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const sprite = skiChefWalkers[obstacle.walkerIndex || 0];
       const bob = Math.sin((skiChefState.frame + obstacle.wobble * 12) / 8) * 2;
       if (sprite && sprite.complete && sprite.naturalWidth) {
-        const height = 70;
+        const height = 77;
         const width = height * (sprite.naturalWidth / sprite.naturalHeight);
         ctx.save();
         ctx.translate(obstacle.x, obstacle.y + bob);
@@ -3825,7 +3827,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         const logoHeight = logoWidth * (skiChefStartLogo.naturalHeight / skiChefStartLogo.naturalWidth);
         ctx.drawImage(skiChefStartLogo, Math.round((w - logoWidth) / 2), 62, logoWidth, logoHeight);
       }
-      const walkerHeight = 86;
+      const walkerHeight = 95;
       const walkerY = h - 62;
       const walkerXs = [w / 2 - 132, w / 2 - 44, w / 2 + 44, w / 2 + 132];
       skiChefWalkers.forEach((sprite, index) => {
@@ -4561,7 +4563,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const isMine = id === 'minesweeper';
       const isYug = id === 'yugStation';
       const isSki = id === 'skiChef';
-      const width = isMine ? 386 : isYug ? 680 : isSki ? 562 : 760;
+      const width = isMine ? 386 : isYug ? 680 : isSki ? 620 : 760;
       const left = isMine ? 16 : isYug ? Math.min(Math.max(250, window.innerWidth - width - 28), window.innerWidth - width - 12) : isSki ? Math.min(Math.max(180, window.innerWidth - width - 44), window.innerWidth - width - 12) : Math.min(Math.max(320, window.innerWidth - width - 18), window.innerWidth - width - 12);
       const desiredTop = isMine ? 314 : isYug ? 120 : isSki ? 8 : 74;
       const estimatedHeight = isMine ? 430 : isYug ? 520 : isSki ? 710 : 640;
@@ -6162,6 +6164,36 @@ document.querySelectorAll('.delete-button').forEach(button => {
       skiChefCanvas.addEventListener('click', () => {
         skiChefCanvas.focus();
         if (!skiChefState.running) startSkiChef();
+      });
+      skiChefCanvas.addEventListener('touchstart', event => {
+        const touch = event.touches[0];
+        if (!touch) return;
+        skiChefTouchX = touch.clientX;
+        skiChefCanvas.focus();
+        if (!skiChefState.running) startSkiChef();
+        event.preventDefault();
+      }, { passive: false });
+      skiChefCanvas.addEventListener('touchmove', event => {
+        const touch = event.touches[0];
+        if (!touch || skiChefTouchX === null) return;
+        const deltaX = touch.clientX - skiChefTouchX;
+        skiChefTouchX = touch.clientX;
+        skiChefState.keys.left = deltaX < -1;
+        skiChefState.keys.right = deltaX > 1;
+        skiChefState.skierX += deltaX * 0.42;
+        skiChefState.skierX = Math.max(26, Math.min(skiChefCanvas.width - 26, skiChefState.skierX));
+        event.preventDefault();
+      }, { passive: false });
+      skiChefCanvas.addEventListener('touchend', event => {
+        skiChefTouchX = null;
+        skiChefState.keys.left = false;
+        skiChefState.keys.right = false;
+        event.preventDefault();
+      }, { passive: false });
+      skiChefCanvas.addEventListener('touchcancel', () => {
+        skiChefTouchX = null;
+        skiChefState.keys.left = false;
+        skiChefState.keys.right = false;
       });
     }
     if (skiChefScores) {

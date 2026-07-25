@@ -2384,10 +2384,18 @@
     .euchre-config .euchre-you-name {
       grid-column: span 2;
       width: 138px;
-      color: #fff;
+      color: #fff !important;
+      -webkit-text-fill-color: #fff;
       background: #000;
       border-color: #fff;
       font-size: 8pt;
+    }
+ 
+    .euchre-config .euchre-you-name:focus {
+      color: #fff !important;
+      -webkit-text-fill-color: #fff;
+      background: #000;
+      outline: 1px dotted #fff;
     }
  
 .euchre-name {
@@ -3155,7 +3163,7 @@
   <div class="login-overlay" id="loginOverlay" aria-hidden="true">
     <div class="login-dialog" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
       <div class="login-titlebar">
-        <span id="loginTitle">Admin Login</span>
+        <span id="loginTitle">Login</span>
         <button type="button" class="window-control" id="loginCloseButton" aria-label="Close">ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â</button>
       </div>
       <form class="login-body" id="adminLoginForm">
@@ -3165,6 +3173,9 @@
           </label>
           <label for="adminPasswordInput">Password
             <input id="adminPasswordInput" type="password" autocomplete="current-password" required>
+          </label>
+          <label for="playerUsernameInput">Username
+            <input id="playerUsernameInput" type="text" maxlength="18" autocomplete="nickname" placeholder="Minigame name">
           </label>
         </div>
         <div class="login-actions">
@@ -3188,6 +3199,7 @@
     const adminLoginForm = document.getElementById('adminLoginForm');
     const adminEmailInput = document.getElementById('adminEmailInput');
     const adminPasswordInput = document.getElementById('adminPasswordInput');
+    const playerUsernameInput = document.getElementById('playerUsernameInput');
     const loginCloseButton = document.getElementById('loginCloseButton');
     const loginCancelButton = document.getElementById('loginCancelButton');
     const soundPackButton = document.getElementById('soundPackButton');
@@ -3538,10 +3550,25 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       } catch (error) {
         skiChefScoreEntries = [];
       }
+      subscribeSkiChefScores();
     }
  
     function saveSkiChefScores() {
       localStorage.setItem(skiChefScoreStorageKey, JSON.stringify(skiChefScoreEntries));
+    }
+ 
+    function subscribeSkiChefScores() {
+      if (!skiChefScoresCollection) return;
+      if (skiChefScoresUnsubscribe) skiChefScoresUnsubscribe();
+      skiChefScoresUnsubscribe = skiChefScoresCollection
+        .orderBy('meters', 'desc')
+        .limit(20)
+        .onSnapshot(snapshot => {
+          skiChefScoreEntries = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          renderSkiChefScores();
+        }, error => {
+          console.error('SkiChef scores could not load from Firebase:', error);
+        });
     }
  
     function renderSkiChefScores() {
@@ -3555,9 +3582,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         return;
       }
       skiChefScores.innerHTML = rows.map(({ entry, scoreIndex }, index) => `
-        <div class="skichef-score-row" data-ski-score-index="${scoreIndex}">
+        <div class="skichef-score-row" data-ski-score-index="${scoreIndex}" data-ski-score-id="${escapeHTML(entry.id || '')}">
           <span>${index + 1}.</span>
-          <input type="text" maxlength="18" value="${escapeHTML(entry.name || '')}" aria-label="Edit SkiChef score name" />
+          <input type="text" maxlength="18" value="${escapeHTML(entry.username || entry.name || '')}" aria-label="Edit SkiChef score name" />
           <span>${Math.floor(entry.meters || 0)}m</span>
           <span>${Number.isFinite(entry.style) ? entry.style : Math.max(0, 5 - (entry.hits || 0))}</span>
           <span class="skichef-score-actions"><button type="button" data-ski-score-action="delete" aria-label="Delete SkiChef score">X</button></span>
@@ -3565,11 +3592,33 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       `).join('');
     }
  
-    function updateSkiChefScoreName(scoreIndex, name) {
-      if (!skiChefScoreEntries[scoreIndex]) return;
+    async function updateSkiChefScoreName(scoreIndex, name) {
+      const entry = skiChefScoreEntries[scoreIndex];
+      if (!entry) return;
       const cleanName = String(name || '').trim().slice(0, 18);
       if (!cleanName) {
         renderSkiChefScores();
+        return;
+      }
+      if (entry.id && skiChefScoresCollection) {
+        if (!currentUser || (entry.id !== currentUser.uid && !playerIsAdmin)) {
+          alert('You can only edit your own SkiChef name.');
+          renderSkiChefScores();
+          return;
+        }
+        await skiChefScoresCollection.doc(entry.id).set({
+          username: cleanName,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        if (entry.id === currentUser?.uid) {
+          currentUsername = cleanName;
+          await usersCollection.doc(currentUser.uid).set({
+            username: cleanName,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+          applyCurrentUsernameToMinigames(true);
+          renderAdminAuthButton();
+        }
         return;
       }
       skiChefScoreEntries[scoreIndex].name = cleanName;
@@ -3577,20 +3626,60 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       renderSkiChefScores();
     }
  
-    function deleteSkiChefScore(scoreIndex) {
-      if (!skiChefScoreEntries[scoreIndex]) return;
+    async function deleteSkiChefScore(scoreIndex) {
+      const entry = skiChefScoreEntries[scoreIndex];
+      if (!entry) return;
+      if (entry.id && skiChefScoresCollection) {
+        if (!currentUser || (entry.id !== currentUser.uid && !playerIsAdmin)) {
+          alert('You can only delete your own SkiChef score.');
+          return;
+        }
+        await skiChefScoresCollection.doc(entry.id).delete();
+        return;
+      }
       skiChefScoreEntries.splice(scoreIndex, 1);
       saveSkiChefScores();
       renderSkiChefScores();
     }
  
-    function recordSkiChefScore() {
+    async function recordSkiChefScore() {
       const meters = Math.floor(skiChefState.meters || 0);
       if (!meters || skiChefState.scoreRecorded) return;
-      const name = (skiChefName?.value || '').trim();
+      if (!currentUser) {
+        alert('Log in with a username to record SkiChef scores.');
+        openLoginDialog();
+        return;
+      }
+      const name = currentUsername || (skiChefName?.value || '').trim();
       if (!name) return;
       const cleanName = name.slice(0, 18);
       const style = Math.max(0, 5 - skiChefState.hits) + skiChefState.stylePoints;
+      if (skiChefScoresCollection) {
+        try {
+          const scoreRef = skiChefScoresCollection.doc(currentUser.uid);
+          const existingSnapshot = await scoreRef.get();
+          const existing = existingSnapshot.exists ? existingSnapshot.data() || {} : {};
+          if ((existing.meters || 0) >= meters) {
+            skiChefState.scoreRecorded = true;
+            return;
+          }
+          await scoreRef.set({
+            uid: currentUser.uid,
+            username: cleanName,
+            meters,
+            hits: skiChefState.hits || 0,
+            style,
+            recordedAt: existing.recordedAt || firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+          skiChefState.scoreRecorded = true;
+          return;
+        } catch (error) {
+          console.error('SkiChef score save failed:', error);
+          alert('SkiChef score could not save to Firebase. Check Firestore rules for skiChefScores.');
+          return;
+        }
+      }
       const existing = skiChefScoreEntries.find(entry => String(entry.name || '').trim().toUpperCase() === cleanName.toUpperCase());
       if (existing) {
         if ((existing.meters || 0) >= meters) {
@@ -4125,23 +4214,42 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       localStorage.setItem(euchreLeaderboardStorageKey, JSON.stringify(euchreCompletedLeaderboard));
     }
  
+    function subscribeEuchreScores() {
+      if (!euchreScoresCollection) return;
+      if (euchreScoresUnsubscribe) euchreScoresUnsubscribe();
+      euchreScoresUnsubscribe = euchreScoresCollection
+        .orderBy('wins', 'desc')
+        .limit(20)
+        .onSnapshot(snapshot => {
+          euchreCompletedLeaderboard = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          renderEuchreLeaderboard();
+        }, error => {
+          console.error('Euchre scores could not load from Firebase:', error);
+        });
+    }
+ 
     function renderEuchreLeaderboard() {
       if (!euchreLeaderboard) return;
-      const rows = [...euchreCompletedLeaderboard].sort((a, b) => b.wins - a.wins || a.name.localeCompare(b.name));
+      const rows = [...euchreCompletedLeaderboard].sort((a, b) => b.wins - a.wins || String(a.username || a.name || '').localeCompare(String(b.username || b.name || '')));
       euchreLeaderboard.innerHTML = '<div class="euchre-leaderboard-title">Completed Games</div>' +
         (rows.length
           ? rows.map(row => {
             const rowIndex = euchreCompletedLeaderboard.indexOf(row);
-            const safeName = escapeHTML(row.name);
+            const safeName = escapeHTML(row.username || row.name || '');
             return `<div class="euchre-leaderboard-row"><span>${safeName}</span><strong class="euchre-leaderboard-wins">${row.wins}</strong><div class="euchre-leaderboard-controls"><button type="button" class="euchre-leaderboard-icon" data-euchre-leaderboard-action="edit" data-euchre-leaderboard-index="${rowIndex}" aria-label="Edit ${safeName} completed games">E</button><button type="button" class="euchre-leaderboard-icon" data-euchre-leaderboard-action="delete" data-euchre-leaderboard-index="${rowIndex}" aria-label="Delete ${safeName} completed games">X</button></div></div>`;
           }).join('')
           : '<div>No games yet.</div>');
     }
  
-    function editEuchreLeaderboard(index) {
+    async function editEuchreLeaderboard(index) {
       const row = euchreCompletedLeaderboard[index];
       if (!row) return;
-      const newName = window.prompt('Edit completed-games name:', row.name);
+      const currentName = row.username || row.name || '';
+      if (row.id && (!currentUser || (row.id !== currentUser.uid && !playerIsAdmin))) {
+        alert('You can only edit your own Euchre record.');
+        return;
+      }
+      const newName = window.prompt('Edit completed-games name:', currentName);
       if (newName === null) return;
       const trimmedName = newName.trim();
       if (!trimmedName) return;
@@ -4149,6 +4257,23 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       if (winsText === null) return;
       const wins = Math.max(0, Math.floor(Number(winsText)));
       if (!Number.isFinite(wins)) return;
+      if (row.id && euchreScoresCollection) {
+        await euchreScoresCollection.doc(row.id).set({
+          username: trimmedName.slice(0, 18),
+          wins,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        if (row.id === currentUser?.uid) {
+          currentUsername = trimmedName.slice(0, 18);
+          await usersCollection.doc(currentUser.uid).set({
+            username: currentUsername,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+          applyCurrentUsernameToMinigames(true);
+          renderAdminAuthButton();
+        }
+        return;
+      }
       row.name = trimmedName;
       row.wins = wins;
       euchreCompletedLeaderboard = euchreCompletedLeaderboard
@@ -4166,19 +4291,43 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       renderEuchreLeaderboard();
     }
  
-    function deleteEuchreLeaderboard(index) {
-      if (!euchreCompletedLeaderboard[index]) return;
+    async function deleteEuchreLeaderboard(index) {
+      const row = euchreCompletedLeaderboard[index];
+      if (!row) return;
+      if (row.id && euchreScoresCollection) {
+        if (!currentUser || (row.id !== currentUser.uid && !playerIsAdmin)) {
+          alert('You can only delete your own Euchre record.');
+          return;
+        }
+        await euchreScoresCollection.doc(row.id).delete();
+        return;
+      }
       euchreCompletedLeaderboard.splice(index, 1);
       saveEuchreLeaderboard();
       renderEuchreLeaderboard();
     }
  
-    function recordEuchreWinners(teamIndex) {
+    async function recordEuchreWinners(teamIndex) {
       if (teamIndex !== 0) {
         renderEuchreLeaderboard();
         return;
       }
-      const name = euchreDisplayName(0);
+      const name = currentUsername || euchreDisplayName(0);
+      if (currentUser && euchreScoresCollection) {
+        try {
+          await euchreScoresCollection.doc(currentUser.uid).set({
+            uid: currentUser.uid,
+            username: name,
+            wins: firebase.firestore.FieldValue.increment(1),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+          return;
+        } catch (error) {
+          console.error('Euchre score save failed:', error);
+          alert('Euchre score could not save to Firebase. Check Firestore rules for euchreScores.');
+          return;
+        }
+      }
       const existing = euchreCompletedLeaderboard.find(row => row.name.toUpperCase() === name.toUpperCase());
       if (existing) {
         existing.wins += 1;
@@ -4877,6 +5026,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     const db = firebase.firestore();
     const entriesCollection = db.collection("entries");
     const yugEntriesCollection = db.collection("yugEntries");
+    const usersCollection = db.collection("users");
+    const skiChefScoresCollection = db.collection("skiChefScores");
+    const euchreScoresCollection = db.collection("euchreScores");
  
     const form = document.getElementById('entryForm');
     const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
@@ -4944,7 +5096,13 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     };
     let wheelConfig = loadWheelConfig();
     let activeWheelQuartile = 'q25';
+    let currentUser = null;
+    let currentUsername = '';
+    let playerIsAdmin = false;
     let adminUser = null;
+    let pendingLoginUsername = '';
+    let skiChefScoresUnsubscribe = null;
+    let euchreScoresUnsubscribe = null;
  
     // Sort state
     let currentSort = {
@@ -5004,14 +5162,73 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       });
     }
  
+    function normalizePlayerName(value) {
+      return String(value || '').trim().slice(0, 18);
+    }
+ 
+    function fallbackUsernameFromUser(user) {
+      const emailPrefix = String(user?.email || '').split('@')[0];
+      return normalizePlayerName(emailPrefix || 'Player');
+    }
+ 
+    function applyCurrentUsernameToMinigames(overwrite = false) {
+      if (!currentUsername) return;
+      if (skiChefName && (overwrite || !skiChefName.value.trim())) {
+        skiChefName.value = currentUsername;
+        skiChefName.readOnly = true;
+      }
+      if (euchreYouName && (overwrite || !euchreYouName.value.trim() || euchreSettings.youName === 'You')) {
+        euchreYouName.value = currentUsername;
+        euchreSettings.youName = currentUsername;
+        euchreSeatProfiles[0] = { name: currentUsername, initials: euchreInitials(currentUsername), face: 0 };
+        saveEuchreSettings();
+        renderEuchre();
+      }
+    }
+ 
+    async function loadPlayerProfile(user) {
+      currentUser = user;
+      currentUsername = '';
+      playerIsAdmin = false;
+      adminUser = null;
+      if (!user) return;
+ 
+      let profile = {};
+      try {
+        const snapshot = await usersCollection.doc(user.uid).get();
+        profile = snapshot.exists ? snapshot.data() || {} : {};
+        const typedUsername = normalizePlayerName(pendingLoginUsername || playerUsernameInput?.value);
+        const username = typedUsername || normalizePlayerName(profile.username) || fallbackUsernameFromUser(user);
+        const update = {
+          username,
+          email: user.email || '',
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        if (!snapshot.exists) update.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+        await usersCollection.doc(user.uid).set(update, { merge: true });
+        currentUsername = username;
+        playerIsAdmin = profile.isAdmin === true;
+        adminUser = playerIsAdmin ? user : null;
+      } catch (error) {
+        console.error('Player profile could not load:', error);
+        currentUsername = normalizePlayerName(pendingLoginUsername) || fallbackUsernameFromUser(user);
+      } finally {
+        pendingLoginUsername = '';
+        if (playerUsernameInput) playerUsernameInput.value = currentUsername;
+        applyCurrentUsernameToMinigames(true);
+      }
+    }
+ 
     function renderAdminAuthButton() {
       if (!adminAuthButton) return;
-      adminAuthButton.textContent = adminUser ? 'Logout' : 'Login';
-      adminAuthButton.title = adminUser ? 'Sign out of admin mode' : 'Sign in before adding, editing, or deleting data';
+      adminAuthButton.textContent = currentUser ? 'Logout' : 'Login';
+      adminAuthButton.title = currentUser
+        ? `Signed in as ${currentUsername || currentUser.email || 'player'}${playerIsAdmin ? ' (admin)' : ''}`
+        : 'Sign in for minigames; admins can edit Gauntlet data';
     }
  
     function requireAdmin(action = 'make changes') {
-      if (adminUser) return true;
+      if (playerIsAdmin && adminUser) return true;
       alert(`Admin sign-in is required to ${action}.`);
       return false;
     }
@@ -5033,7 +5250,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
  
     async function toggleAdminAuth() {
       try {
-        if (adminUser) {
+        if (currentUser) {
           await auth.signOut();
           return;
         }
@@ -5048,6 +5265,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       event.preventDefault();
       if (!adminEmailInput || !adminPasswordInput) return;
       try {
+        pendingLoginUsername = normalizePlayerName(playerUsernameInput?.value);
         await auth.signInWithEmailAndPassword(adminEmailInput.value.trim(), adminPasswordInput.value);
         closeLoginDialog();
       } catch (error) {
@@ -5056,8 +5274,16 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }
     }
  
-    auth.onAuthStateChanged(user => {
-      adminUser = user;
+    auth.onAuthStateChanged(async user => {
+      currentUser = user;
+      if (!user) {
+        currentUsername = '';
+        playerIsAdmin = false;
+        adminUser = null;
+        if (skiChefName) skiChefName.readOnly = false;
+      } else {
+        await loadPlayerProfile(user);
+      }
       if (!adminUser && isEditMode) {
         isEditMode = false;
         editButton.textContent = "Edit";
@@ -6305,6 +6531,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
     }
     loadSkiChefScores();
     renderSkiChefScores();
+    subscribeEuchreScores();
     document.addEventListener('keydown', event => handleSkiChefKey(event, true));
     document.addEventListener('keyup', event => handleSkiChefKey(event, false));
     renderEuchre();

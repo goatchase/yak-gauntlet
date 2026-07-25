@@ -2698,6 +2698,53 @@
         max-height: calc(100vh - 230px);
       }
  
+      .desktop-window.skichef-window.ski-mobile-run {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: none !important;
+        max-height: none !important;
+        border: 0;
+        box-shadow: none;
+        z-index: 1200 !important;
+        background: #fff;
+      }
+ 
+      .desktop-window.skichef-window.ski-mobile-run .window-titlebar {
+        display: none;
+      }
+ 
+      .desktop-window.skichef-window.ski-mobile-run .window-body {
+        height: 100%;
+        padding: 0;
+        overflow: hidden;
+      }
+ 
+      .desktop-window.skichef-window.ski-mobile-run .skichef-panel {
+        display: block;
+        height: 100%;
+        padding: 0;
+        border: 0;
+        background: #fff;
+      }
+ 
+      .desktop-window.skichef-window.ski-mobile-run .skichef-status,
+      .desktop-window.skichef-window.ski-mobile-run .skichef-controls,
+      .desktop-window.skichef-window.ski-mobile-run .skichef-score-entry,
+      .desktop-window.skichef-window.ski-mobile-run .skichef-scoreboard,
+      .desktop-window.skichef-window.ski-mobile-run .skichef-help {
+        display: none;
+      }
+ 
+      .desktop-window.skichef-window.ski-mobile-run .skichef-canvas {
+        width: 100vw;
+        height: 100vh;
+        max-height: none;
+        aspect-ratio: auto;
+        border: 0;
+      }
+ 
       .window-body {
         padding: 6px;
       }
@@ -3782,6 +3829,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     }
  
     function resetSkiChef() {
+      setSkiChefMobileRunMode(false);
       Object.assign(skiChefState, {
         running: false,
         ended: false,
@@ -3806,12 +3854,23 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       drawSkiChef();
     }
  
+    function isSkiChefMobileView() {
+      return window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+    }
+ 
+    function setSkiChefMobileRunMode(active) {
+      const skiWindow = document.querySelector('[data-window-id="skiChef"]');
+      if (!skiWindow) return;
+      skiWindow.classList.toggle('ski-mobile-run', !!active && isSkiChefMobileView());
+    }
+ 
     function startSkiChef() {
       if (!skiChefCanvas) return;
       if (skiChefState.running) return;
       if (skiChefState.ended) resetSkiChef();
       skiChefState.running = true;
       skiChefState.lastTime = performance.now();
+      setSkiChefMobileRunMode(true);
       skiChefCanvas.focus();
       updateSkiChefHud();
       window.requestAnimationFrame(tickSkiChef);
@@ -3819,6 +3878,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
  
     function pauseSkiChef() {
       skiChefState.running = false;
+      setSkiChefMobileRunMode(false);
       updateSkiChefHud();
       drawSkiChef();
     }
@@ -4206,6 +4266,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       if (skiChefState.hits >= 5) {
         skiChefState.running = false;
         skiChefState.ended = true;
+        setSkiChefMobileRunMode(false);
         recordSkiChefScore();
       }
       updateSkiChefHud();
@@ -5181,7 +5242,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     let yugEntries = JSON.parse(localStorage.getItem('yugLeaderboard') || '[]');
     const soundPackStorageKey = 'yakSoundPackEnabledV1';
     const wallpaperStorageKey = 'yakWallpaperModeV1';
-    const defaultWallpaperMode = 'rotating';
+    const defaultWallpaperMode = 'classic';
     const wallpaperModes = ['classic', 'van-talk', 'yak-special', 'more-cow-bell', 'rotating'];
     const rotatingWallpaperModes = ['classic', 'van-talk', 'yak-special', 'more-cow-bell'];
     let wallpaperRotationTimer = null;

@@ -1631,6 +1631,7 @@
       display: grid;
       gap: 10px;
       padding: 14px;
+      text-transform: none;
     }
  
     .login-form {
@@ -1646,13 +1647,16 @@
  
     .login-form input {
       width: 100%;
+      text-transform: none;
     }
  
     .login-actions {
       display: flex;
       justify-content: flex-end;
+      flex-wrap: wrap;
       gap: 7px;
       margin-top: 4px;
+      text-transform: none;
     }
  
     .minesweeper-window {
@@ -3258,6 +3262,7 @@
         </div>
         <div class="login-actions">
           <button type="submit">OK</button>
+          <button type="button" id="createAccountButton">Create Account</button>
           <button type="button" id="loginCancelButton">Cancel</button>
         </div>
       </form>
@@ -3278,6 +3283,7 @@
     const adminEmailInput = document.getElementById('adminEmailInput');
     const adminPasswordInput = document.getElementById('adminPasswordInput');
     const playerUsernameInput = document.getElementById('playerUsernameInput');
+    const createAccountButton = document.getElementById('createAccountButton');
     const loginCloseButton = document.getElementById('loginCloseButton');
     const loginCancelButton = document.getElementById('loginCancelButton');
     const soundPackButton = document.getElementById('soundPackButton');
@@ -5148,6 +5154,10 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       adminLoginForm.addEventListener('submit', submitAdminLogin);
     }
  
+    if (createAccountButton) {
+      createAccountButton.addEventListener('click', createPlayerAccount);
+    }
+ 
     [loginCloseButton, loginCancelButton].forEach(button => {
       if (button) button.addEventListener('click', closeLoginDialog);
     });
@@ -5247,7 +5257,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     let yugEntries = JSON.parse(localStorage.getItem('yugLeaderboard') || '[]');
     const soundPackStorageKey = 'yakSoundPackEnabledV1';
     const wallpaperStorageKey = 'yakWallpaperModeV1';
-    const defaultWallpaperMode = 'classic';
+    const defaultWallpaperMode = 'rotating';
     const wallpaperModes = ['classic', 'van-talk', 'yak-special', 'more-cow-bell', 'rotating'];
     const rotatingWallpaperModes = ['classic', 'van-talk', 'yak-special', 'more-cow-bell'];
     let wallpaperRotationTimer = null;
@@ -5454,6 +5464,25 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       } catch (error) {
         console.error('Admin sign-in failed:', error);
         alert(`Admin sign-in failed: ${error.message || 'Check the Firebase user and password.'}`);
+      }
+    }
+ 
+    async function createPlayerAccount() {
+      if (!adminEmailInput || !adminPasswordInput) return;
+      const email = adminEmailInput.value.trim();
+      const password = adminPasswordInput.value;
+      const username = normalizePlayerName(playerUsernameInput?.value);
+      if (!email || !password || !username) {
+        alert('Enter an email, password, and username to create an account.');
+        return;
+      }
+      try {
+        pendingLoginUsername = username;
+        await auth.createUserWithEmailAndPassword(email, password);
+        closeLoginDialog();
+      } catch (error) {
+        console.error('Account creation failed:', error);
+        alert(`Account creation failed: ${error.message || 'Check the email and password.'}`);
       }
     }
  

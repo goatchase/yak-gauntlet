@@ -2190,7 +2190,7 @@
     .skichef-status {
       order: 2;
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 6px;
       padding: 4px;
       color: #000;
@@ -2205,9 +2205,19 @@
       text-align: center;
     }
  
+    .skichef-status > div {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      gap: 4px;
+    }
+ 
     .skichef-status strong {
-      display: inline-block;
-      min-width: 34px;
+      display: block;
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
       color: #fff;
       background: #000;
       padding: 2px 4px;
@@ -2236,12 +2246,14 @@
     .skichef-controls {
       order: 3;
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 6px;
     }
  
     .skichef-controls button {
-      min-height: 26px;
+      width: 100%;
+      min-width: 0;
+      min-height: 28px;
     }
  
     .skichef-leaderboard-panel {

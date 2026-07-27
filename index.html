@@ -2442,33 +2442,10 @@
       -moz-appearance: textfield;
     }
  
-    .nfl-score-cell {
-      display: inline-block;
-      width: 100%;
-      min-width: 0;
-      min-height: 18px;
-      padding: 1px 2px;
-      color: #000;
-      background: #fff;
-      border-top: 2px solid #808080;
-      border-left: 2px solid #808080;
-      border-right: 2px solid #fff;
-      border-bottom: 2px solid #fff;
-      font-family: Arial, sans-serif;
-      font-size: 10pt;
-      line-height: 14px;
-      text-align: center;
-      cursor: text;
-    }
- 
-    .nfl-score-cell:focus {
-      color: #fff;
-      background: #000080;
-      outline: 1px dotted #fff;
-      outline-offset: -3px;
-    }
- 
     .nfl-score-input {
+      position: relative;
+      z-index: 2;
+      box-sizing: border-box;
       width: 100%;
       min-width: 0;
       padding: 1px 2px;
@@ -2481,6 +2458,9 @@
       font-family: Arial, sans-serif;
       font-size: 10pt;
       text-align: center;
+      user-select: text;
+      -webkit-user-select: text;
+      touch-action: manipulation;
     }
  
     .nfl-score-input:focus {
@@ -2488,8 +2468,8 @@
       outline-offset: 0;
     }
  
-    .nfl-row input::-webkit-outer-spin-button,
-    .nfl-row input::-webkit-inner-spin-button {
+    .nfl-score-input::-webkit-outer-spin-button,
+    .nfl-score-input::-webkit-inner-spin-button {
       margin: 0;
       appearance: none;
       -webkit-appearance: none;
@@ -5800,70 +5780,30 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       };
     }
  
-    function moveNfl272ScoreFocus(cell, key) {
+    function getNfl272ScoreInputs() {
+      return [...nfl272Games.querySelectorAll('.nfl-score-input')]
+        .filter(input => input.offsetParent !== null && !input.readOnly && input.dataset.readonly !== 'true');
+    }
+ 
+    function moveNfl272InputFocus(input, key) {
       const rows = [...nfl272Games.querySelectorAll('tr[data-nfl-game-id], tr[data-nfl-playoff-id]')];
-      const row = cell.closest('tr[data-nfl-game-id], tr[data-nfl-playoff-id]');
+      const row = input.closest('tr[data-nfl-game-id], tr[data-nfl-playoff-id]');
       const rowIndex = rows.indexOf(row);
-      if (rowIndex < 0) return;
-      const editableCellsForRow = targetRow => [...targetRow.querySelectorAll('.nfl-score-cell')]
-        .filter(item => item.offsetParent !== null && item.dataset.readonly !== 'true');
-      const currentRowCells = editableCellsForRow(row);
-      const columnIndex = currentRowCells.indexOf(cell);
-      if (columnIndex < 0) return;
+      const rowInputs = targetRow => [...targetRow.querySelectorAll('.nfl-score-input')]
+        .filter(item => item.offsetParent !== null && !item.readOnly && item.dataset.readonly !== 'true');
+      const cells = row ? rowInputs(row) : [];
+      const columnIndex = cells.indexOf(input);
       let target = null;
-      if (key === 'ArrowLeft') target = currentRowCells[Math.max(0, columnIndex - 1)];
-      if (key === 'ArrowRight') target = currentRowCells[Math.min(currentRowCells.length - 1, columnIndex + 1)];
+      if (key === 'ArrowLeft') target = cells[Math.max(0, columnIndex - 1)];
+      if (key === 'ArrowRight' || key === 'Enter') target = cells[Math.min(cells.length - 1, columnIndex + 1)];
       if (key === 'ArrowUp' || key === 'ArrowDown') {
-        const direction = key === 'ArrowUp' ? -1 : 1;
-        const nextRow = rows[rowIndex + direction];
-        const nextCells = nextRow ? editableCellsForRow(nextRow) : [];
-        target = nextCells[Math.min(columnIndex, nextCells.length - 1)];
+        const nextRow = rows[rowIndex + (key === 'ArrowUp' ? -1 : 1)];
+        const nextInputs = nextRow ? rowInputs(nextRow) : [];
+        target = nextInputs[Math.min(Math.max(columnIndex, 0), nextInputs.length - 1)];
       }
-      if (target && target !== cell) {
-        target.focus();
-        target.dataset.replaceNext = 'true';
-      }
-    }
- 
-    function selectNfl272Input(cell) {
-      cell.dataset.replaceNext = 'true';
-    }
- 
-    function cleanNfl272ScoreInput(cell) {
-      const clean = cell.value.replace(/\D/g, '').slice(0, 2);
-      if (cell.value !== clean) cell.value = clean;
-    }
- 
-    function setNfl272ScoreCellValue(cell, value) {
-      cell.value = String(value ?? '').replace(/\D/g, '').slice(0, 2);
-      const row = cell.closest('[data-nfl-game-id]');
-      const field = cell.dataset.nflField;
-      const gameId = row?.dataset.nflGameId;
-      if (gameId && field) {
-        if (field === 'homeScore' || field === 'awayScore') setNfl272Prediction(gameId, field, cell.value);
-        if (field === 'homeActual' || field === 'awayActual') setNfl272Actual(gameId, field, cell.value);
-        return;
-      }
-      const playoffRow = cell.closest('[data-nfl-playoff-id]');
-      const playoffId = playoffRow?.dataset.nflPlayoffId;
-      const playoffField = cell.dataset.nflPlayoffField;
-      if (playoffId && playoffField) setNfl272PlayoffPick(playoffId, playoffField, cell.value);
-    }
- 
-    function typeNfl272ScoreDigit(cell, digit) {
-      const current = cell.value.replace(/\D/g, '').slice(0, 2);
-      const replaceCell = cell.dataset.replaceNext === 'true' || current.length >= 2;
-      const next = replaceCell
-        ? digit
-        : `${current}${digit}`.slice(0, 2);
-      cell.dataset.replaceNext = 'false';
-      setNfl272ScoreCellValue(cell, next);
-    }
- 
-    function nfl272DigitFromKey(event) {
-      if (/^\d$/.test(event.key)) return event.key;
-      if (/^Numpad\d$/.test(event.code)) return event.code.replace('Numpad', '');
-      return null;
+      if (!target || target === input) return;
+      target.focus();
+      target.select();
     }
  
     async function submitNfl272Predictions() {
@@ -8403,13 +8343,32 @@ document.querySelectorAll('.delete-button').forEach(button => {
       });
     });
     if (nfl272Games) {
+      nfl272Games.addEventListener('pointerdown', event => {
+        if (event.target instanceof Element && event.target.closest('.nfl-score-input')) {
+          event.stopPropagation();
+        }
+      });
+      nfl272Games.addEventListener('focusin', event => {
+        const input = event.target instanceof Element ? event.target.closest('.nfl-score-input') : null;
+        if (input && input.dataset.readonly !== 'true') {
+          window.requestAnimationFrame(() => input.select());
+        }
+      });
+      nfl272Games.addEventListener('keydown', event => {
+        const input = event.target instanceof Element ? event.target.closest('.nfl-score-input') : null;
+        if (!input || input.dataset.readonly === 'true') return;
+        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter'].includes(event.key)) {
+          event.preventDefault();
+          moveNfl272InputFocus(input, event.key);
+        }
+      });
       nfl272Games.addEventListener('input', event => {
-        const cell = event.target instanceof Element ? event.target.closest('.nfl-score-input') : null;
-        if (!cell || cell.dataset.readonly === 'true') return;
-        const value = cell.value.replace(/\D/g, '').slice(0, 2);
-        if (cell.value !== value) cell.value = value;
-        const row = cell.closest('[data-nfl-game-id]');
-        const field = cell.dataset.nflField;
+        const input = event.target instanceof Element ? event.target.closest('.nfl-score-input') : null;
+        if (!input || input.dataset.readonly === 'true') return;
+        const value = input.value.replace(/\D/g, '').slice(0, 2);
+        if (input.value !== value) input.value = value;
+        const row = input.closest('[data-nfl-game-id]');
+        const field = input.dataset.nflField;
         const gameId = row?.dataset.nflGameId;
         if (gameId && field) {
           if (field === 'homeScore' || field === 'awayScore') setNfl272Prediction(gameId, field, value);
@@ -8417,9 +8376,9 @@ document.querySelectorAll('.delete-button').forEach(button => {
           renderNfl272Records(nfl272Submitted ? 'compare' : 'predicted');
           return;
         }
-        const playoffRow = cell.closest('[data-nfl-playoff-id]');
+        const playoffRow = input.closest('[data-nfl-playoff-id]');
         const playoffId = playoffRow?.dataset.nflPlayoffId;
-        const playoffField = cell.dataset.nflPlayoffField;
+        const playoffField = input.dataset.nflPlayoffField;
         if (playoffId && playoffField) {
           setNfl272PlayoffPick(playoffId, playoffField, value);
         }

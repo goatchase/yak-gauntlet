@@ -1109,6 +1109,84 @@
       background: #000080;
     }
  
+    .survival-path {
+      display: grid;
+      gap: 6px;
+    }
+ 
+    .survival-phase-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4px;
+    }
+ 
+    .survival-phase {
+      padding: 4px 6px;
+      color: #000;
+      background: #fff;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #808080;
+      border-bottom: 2px solid #808080;
+      font-weight: 700;
+      text-align: center;
+      white-space: nowrap;
+    }
+ 
+    .survival-phase.past {
+      color: #fff;
+      background: #000;
+      border-top-color: #404040;
+      border-left-color: #404040;
+      border-right-color: #fff;
+      border-bottom-color: #fff;
+    }
+ 
+    .survival-phase.current {
+      color: #fff;
+      background: #b00020;
+      border-top-color: #600010;
+      border-left-color: #600010;
+      border-right-color: #fff;
+      border-bottom-color: #fff;
+    }
+ 
+    .survival-progress {
+      display: grid;
+      gap: 4px;
+      padding-top: 2px;
+    }
+ 
+    .survival-progress-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4px;
+      text-align: center;
+      white-space: nowrap;
+    }
+ 
+    .survival-progress-meta span {
+      overflow: hidden;
+      text-overflow: clip;
+    }
+ 
+    .survival-progress-track {
+      height: 16px;
+      background: #c0c0c0;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      overflow: hidden;
+    }
+ 
+    .survival-progress-fill {
+      width: var(--survival-progress, 0%);
+      height: 100%;
+      min-width: 2px;
+      background: #b00020;
+    }
+ 
     .wheel-panel {
       margin-top: 8px;
       padding: 7px;
@@ -5496,8 +5574,8 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
                 <tr data-nfl-playoff-id="${game.id}">
                   <td>${escapeHTML(game.stage.slice(0, 3))}</td>
                   <td class="team-col">${escapeHTML(game.away)}</td>
-                  <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${nfl272Submitted ? '-1' : '0'}" data-nfl-playoff-field="awayScore" data-readonly="${nfl272Submitted ? 'true' : 'false'}" value="${pick.awayScore ?? ''}" aria-label="${game.away} playoff score" ${nfl272Submitted ? 'readonly' : ''} /></td>
-                  <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${nfl272Submitted ? '-1' : '0'}" data-nfl-playoff-field="homeScore" data-readonly="${nfl272Submitted ? 'true' : 'false'}" value="${pick.homeScore ?? ''}" aria-label="${game.home} playoff score" ${nfl272Submitted ? 'readonly' : ''} /></td>
+                  <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${nfl272Submitted ? '-1' : '0'}" data-nfl-playoff-field="awayScore" data-readonly="${nfl272Submitted ? 'true' : 'false'}" value="${pick.awayScore ?? ''}" aria-label="${game.away} playoff score" onpointerdown="event.stopPropagation(); this.focus();" ${nfl272Submitted ? 'readonly' : ''} /></td>
+                  <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${nfl272Submitted ? '-1' : '0'}" data-nfl-playoff-field="homeScore" data-readonly="${nfl272Submitted ? 'true' : 'false'}" value="${pick.homeScore ?? ''}" aria-label="${game.home} playoff score" onpointerdown="event.stopPropagation(); this.focus();" ${nfl272Submitted ? 'readonly' : ''} /></td>
                   <td class="team-col">${escapeHTML(game.home)}</td>
                 </tr>
               `;
@@ -5667,6 +5745,14 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     }
  
     function renderNfl272() {
+      const activeScoreInput = document.activeElement instanceof HTMLInputElement
+        && document.activeElement.classList.contains('nfl-score-input');
+      if (activeScoreInput) {
+        renderNfl272Records(nfl272Submitted ? 'compare' : 'predicted');
+        renderNfl272Picture();
+        renderNfl272Leaderboard();
+        return;
+      }
       if (!nfl272Panel || !nfl272Games || !nfl272WeekLabel) return;
       nfl272Panel.classList.toggle('nfl-admin', playerIsAdmin);
       nfl272Panel.classList.toggle('nfl-submitted', nfl272Submitted);
@@ -5733,8 +5819,8 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
             <td>${game.week}</td>
             <td class="team-col">${opponent}</td>
             <td>${isHomeTeam ? 'H' : 'A'}</td>
-            <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${readOnly ? '-1' : '0'}" data-nfl-field="${teamField}" data-readonly="${readOnly ? 'true' : 'false'}" value="${prediction[teamField] ?? ''}" aria-label="${selectedTeam} predicted score" ${readOnly ? 'readonly' : ''} /></td>
-            <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${readOnly ? '-1' : '0'}" data-nfl-field="${opponentField}" data-readonly="${readOnly ? 'true' : 'false'}" value="${prediction[opponentField] ?? ''}" aria-label="${opponent} predicted score" ${readOnly ? 'readonly' : ''} /></td>
+            <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${readOnly ? '-1' : '0'}" data-nfl-field="${teamField}" data-readonly="${readOnly ? 'true' : 'false'}" value="${prediction[teamField] ?? ''}" aria-label="${selectedTeam} predicted score" onpointerdown="event.stopPropagation(); this.focus();" ${readOnly ? 'readonly' : ''} /></td>
+            <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${readOnly ? '-1' : '0'}" data-nfl-field="${opponentField}" data-readonly="${readOnly ? 'true' : 'false'}" value="${prediction[opponentField] ?? ''}" aria-label="${opponent} predicted score" onpointerdown="event.stopPropagation(); this.focus();" ${readOnly ? 'readonly' : ''} /></td>
           </tr>
         `;
       }).join('') + '</tbody></table>';
@@ -5755,8 +5841,6 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         away: game.away,
         [field]: score === null ? '' : score
       };
-      renderNfl272Records();
-      renderNfl272Picture();
     }
  
     function setNfl272Actual(gameId, field, value) {
@@ -6689,7 +6773,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     desktopWindows.forEach(win => {
       const titlebar = win.querySelector('.window-titlebar');
       titlebar.addEventListener('mousedown', event => startDrag(event, win));
-      win.addEventListener('mousedown', () => bringWindowToFront(win));
+      win.addEventListener('mousedown', () => {
+        if (Number(win.style.zIndex || 0) < activeZ) bringWindowToFront(win);
+      });
       win.querySelectorAll('[data-window-action]').forEach(button => {
         button.addEventListener('click', event => {
           event.stopPropagation();
@@ -7201,6 +7287,70 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       `;
     }
  
+    const survivalPhases = [
+      { label: '01 Weekday', keys: ['01 weekday', 'weekday'], cutRatio: 0.5 },
+      { label: '02 Friday', keys: ['02 friday', 'friday'], cutRatio: 0.5 },
+      { label: '03 Saturday', keys: ['03 saturday', 'saturday'], cutRatio: 0.5 },
+      { label: '04 Sunday', keys: ['04 sunday', 'sunday'], cutRatio: 1 }
+    ];
+ 
+    function datePhaseKey(dateValue) {
+      const date = new Date(dateValue);
+      if (Number.isNaN(date.getTime())) return '';
+      const day = date.getDay();
+      if (day === 5) return 'friday';
+      if (day === 6) return 'saturday';
+      if (day === 0) return 'sunday';
+      return 'weekday';
+    }
+ 
+    function getSurvivalPhaseIndex(entry) {
+      const text = `${entry?.category || ''} ${entry?.notes || ''}`.toLowerCase();
+      const explicitIndex = survivalPhases.findIndex(phase => phase.keys.some(key => text.includes(key)));
+      if (explicitIndex >= 0) return explicitIndex;
+      const dateKey = datePhaseKey(entry?.date);
+      return Math.max(0, survivalPhases.findIndex(phase => phase.keys.includes(dateKey)));
+    }
+ 
+    function buildSurvivalPath(entry, validEntries) {
+      const phaseEntries = survivalPhases.map((phase, phaseIndex) =>
+        validEntries
+          .filter(item => getSurvivalPhaseIndex(item) === phaseIndex)
+          .sort((a, b) => a.totalSeconds - b.totalSeconds)
+      );
+      const lastScoredIndex = phaseEntries.reduce((last, group, index) => group.length ? index : last, -1);
+      const currentIndex = Math.min(lastScoredIndex + 1, survivalPhases.length - 1);
+      const currentEntries = phaseEntries[currentIndex] || [];
+      const currentPhase = survivalPhases[currentIndex];
+      const entryPhaseIndex = getSurvivalPhaseIndex(entry);
+      const entryRankInCurrent = currentEntries.findIndex(item => item.id === entry.id) + 1;
+      const fallbackRank = phaseEntries[entryPhaseIndex]?.findIndex(item => item.id === entry.id) + 1 || 0;
+      const rank = entryRankInCurrent || fallbackRank;
+      const cut = currentEntries.length ? Math.max(1, Math.ceil(currentEntries.length * currentPhase.cutRatio)) : 0;
+      const progress = currentEntries.length && rank ? pct(Math.min(rank, cut), cut) : 0;
+ 
+      return `
+        <div class="survival-path">
+          <div class="survival-phase-list">
+            ${survivalPhases.map((phase, index) => {
+              const status = index < currentIndex ? 'past' : index === currentIndex ? 'current' : 'future';
+              return `<div class="survival-phase ${status}">${escapeHTML(phase.label)}</div>`;
+            }).join('')}
+          </div>
+          <div class="survival-progress">
+            <div class="survival-progress-meta">
+              <span>Entries ${currentEntries.length}</span>
+              <span>Cut ${cut || '--'}</span>
+              <span>Rank ${rank || '--'}</span>
+            </div>
+            <div class="survival-progress-track" style="--survival-progress: ${progress}%">
+              <div class="survival-progress-fill"></div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+ 
     function percentileBar(value) {
       return `
         <div class="stat-bar-row">
@@ -7481,9 +7631,7 @@ function showRunStats(entryId) {
       }
  
       runStatsContent.innerHTML = `
-        ${statBar('Overall', overallRank, validEntries.length)}
-        ${statBar('Division', rankInGroup(entry, divisionEntries), divisionEntries.length)}
-        ${statBar('Month', rankInGroup(entry, monthlyEntries), monthlyEntries.length)}
+        ${buildSurvivalPath(entry, validEntries)}
       `;
  
       const statsWindow = document.querySelector('[data-window-id="runStats"]');
@@ -8343,16 +8491,23 @@ document.querySelectorAll('.delete-button').forEach(button => {
       });
     });
     if (nfl272Games) {
-      nfl272Games.addEventListener('pointerdown', event => {
-        if (event.target instanceof Element && event.target.closest('.nfl-score-input')) {
-          event.stopPropagation();
-        }
-      });
-      nfl272Games.addEventListener('focusin', event => {
+      nfl272Games.addEventListener('mouseup', event => {
         const input = event.target instanceof Element ? event.target.closest('.nfl-score-input') : null;
-        if (input && input.dataset.readonly !== 'true') {
-          window.requestAnimationFrame(() => input.select());
-        }
+        if (!input || input.dataset.readonly === 'true') return;
+        event.stopPropagation();
+        window.setTimeout(() => input.focus(), 0);
+      }, true);
+      nfl272Games.addEventListener('mousedown', event => {
+        const input = event.target instanceof Element ? event.target.closest('.nfl-score-input') : null;
+        if (!input || input.dataset.readonly === 'true') return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        input.focus();
+      });
+      nfl272Games.addEventListener('click', event => {
+        const input = event.target instanceof Element ? event.target.closest('.nfl-score-input') : null;
+        if (!input || input.dataset.readonly === 'true') return;
+        input.focus();
       });
       nfl272Games.addEventListener('keydown', event => {
         const input = event.target instanceof Element ? event.target.closest('.nfl-score-input') : null;
@@ -8382,6 +8537,10 @@ document.querySelectorAll('.delete-button').forEach(button => {
         if (playoffId && playoffField) {
           setNfl272PlayoffPick(playoffId, playoffField, value);
         }
+      });
+      nfl272Games.addEventListener('change', () => {
+        renderNfl272Records(nfl272Submitted ? 'compare' : 'predicted');
+        renderNfl272Picture();
       });
     }
     document.addEventListener('keydown', event => handleSkiChefKey(event, true));

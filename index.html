@@ -2468,6 +2468,26 @@
       outline-offset: -3px;
     }
  
+    .nfl-score-input {
+      width: 100%;
+      min-width: 0;
+      padding: 1px 2px;
+      color: #000;
+      background: #fff;
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      font-family: Arial, sans-serif;
+      font-size: 10pt;
+      text-align: center;
+    }
+ 
+    .nfl-score-input:focus {
+      outline: 1px solid #000080;
+      outline-offset: 0;
+    }
+ 
     .nfl-row input::-webkit-outer-spin-button,
     .nfl-row input::-webkit-inner-spin-button {
       margin: 0;
@@ -2485,15 +2505,18 @@
     }
  
     .nfl-panel.nfl-admin .nfl-actual-input,
+    .nfl-panel.nfl-submitted .nfl-actual-input,
+    .nfl-panel.nfl-admin #nfl272SaveActuals {
+      display: inline-block;
+    }
+ 
     .nfl-panel.nfl-admin .nfl-actual-head,
     .nfl-panel.nfl-admin .nfl-actual-cell,
-    .nfl-panel.nfl-submitted .nfl-actual-input,
     .nfl-panel.nfl-submitted .nfl-actual-head,
     .nfl-panel.nfl-submitted .nfl-actual-cell,
     .nfl-panel.nfl-submitted .nfl-diff-cell,
-    .nfl-panel.nfl-submitted .nfl-diff-head,
-    .nfl-panel.nfl-admin #nfl272SaveActuals {
-      display: inline-block;
+    .nfl-panel.nfl-submitted .nfl-diff-head {
+      display: table-cell;
     }
  
     .nfl-panel.nfl-submitted .nfl-actual-input:not(:focus) {
@@ -5493,8 +5516,8 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
                 <tr data-nfl-playoff-id="${game.id}">
                   <td>${escapeHTML(game.stage.slice(0, 3))}</td>
                   <td class="team-col">${escapeHTML(game.away)}</td>
-                  <td><input class="nfl-score-cell" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${nfl272Submitted ? '-1' : '0'}" data-nfl-playoff-field="awayScore" data-readonly="${nfl272Submitted ? 'true' : 'false'}" value="${pick.awayScore ?? ''}" aria-label="${game.away} playoff score" ${nfl272Submitted ? 'readonly' : ''} /></td>
-                  <td><input class="nfl-score-cell" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${nfl272Submitted ? '-1' : '0'}" data-nfl-playoff-field="homeScore" data-readonly="${nfl272Submitted ? 'true' : 'false'}" value="${pick.homeScore ?? ''}" aria-label="${game.home} playoff score" ${nfl272Submitted ? 'readonly' : ''} /></td>
+                  <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${nfl272Submitted ? '-1' : '0'}" data-nfl-playoff-field="awayScore" data-readonly="${nfl272Submitted ? 'true' : 'false'}" value="${pick.awayScore ?? ''}" aria-label="${game.away} playoff score" ${nfl272Submitted ? 'readonly' : ''} /></td>
+                  <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${nfl272Submitted ? '-1' : '0'}" data-nfl-playoff-field="homeScore" data-readonly="${nfl272Submitted ? 'true' : 'false'}" value="${pick.homeScore ?? ''}" aria-label="${game.home} playoff score" ${nfl272Submitted ? 'readonly' : ''} /></td>
                   <td class="team-col">${escapeHTML(game.home)}</td>
                 </tr>
               `;
@@ -5715,7 +5738,6 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
           <thead>
             <tr>
               <th>Wk</th><th class="team-col">Opp</th><th>H/A</th><th>${selectedTeam}</th><th>Opp</th>
-              <th class="nfl-actual-head">${selectedTeam}</th><th class="nfl-actual-head">Opp</th><th class="nfl-diff-head">Diff</th>
             </tr>
           </thead>
           <tbody>
@@ -5726,25 +5748,13 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         const opponent = isHomeTeam ? game.away : game.home;
         const teamField = isHomeTeam ? 'homeScore' : 'awayScore';
         const opponentField = isHomeTeam ? 'awayScore' : 'homeScore';
-        const teamActualField = isHomeTeam ? 'homeActual' : 'awayActual';
-        const opponentActualField = isHomeTeam ? 'awayActual' : 'homeActual';
-        const predictedHome = nfl272ScoreValue(prediction.homeScore);
-        const predictedAway = nfl272ScoreValue(prediction.awayScore);
-        const actualHome = nfl272ScoreValue(actual.homeActual);
-        const actualAway = nfl272ScoreValue(actual.awayActual);
-        const diff = predictedHome === null || predictedAway === null || actualHome === null || actualAway === null
-          ? ''
-          : Math.abs(actualHome - predictedHome) + Math.abs(actualAway - predictedAway);
         return `
           <tr class="${isHomeTeam ? '' : 'away-game'}" data-nfl-game-id="${game.id}">
             <td>${game.week}</td>
             <td class="team-col">${opponent}</td>
             <td>${isHomeTeam ? 'H' : 'A'}</td>
-            <td><input class="nfl-score-cell" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${readOnly ? '-1' : '0'}" data-nfl-field="${teamField}" data-readonly="${readOnly ? 'true' : 'false'}" value="${prediction[teamField] ?? ''}" aria-label="${selectedTeam} predicted score" ${readOnly ? 'readonly' : ''} /></td>
-            <td><input class="nfl-score-cell" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${readOnly ? '-1' : '0'}" data-nfl-field="${opponentField}" data-readonly="${readOnly ? 'true' : 'false'}" value="${prediction[opponentField] ?? ''}" aria-label="${opponent} predicted score" ${readOnly ? 'readonly' : ''} /></td>
-            <td class="nfl-actual-head"><input class="nfl-score-cell nfl-actual-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${playerIsAdmin ? '0' : '-1'}" data-nfl-field="${teamActualField}" data-readonly="${playerIsAdmin ? 'false' : 'true'}" value="${actual[teamActualField] ?? ''}" aria-label="${selectedTeam} actual score" ${playerIsAdmin ? '' : 'readonly'} /></td>
-            <td class="nfl-actual-head"><input class="nfl-score-cell nfl-actual-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${playerIsAdmin ? '0' : '-1'}" data-nfl-field="${opponentActualField}" data-readonly="${playerIsAdmin ? 'false' : 'true'}" value="${actual[opponentActualField] ?? ''}" aria-label="${opponent} actual score" ${playerIsAdmin ? '' : 'readonly'} /></td>
-            <td class="nfl-diff-cell">${diff}</td>
+            <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${readOnly ? '-1' : '0'}" data-nfl-field="${teamField}" data-readonly="${readOnly ? 'true' : 'false'}" value="${prediction[teamField] ?? ''}" aria-label="${selectedTeam} predicted score" ${readOnly ? 'readonly' : ''} /></td>
+            <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${readOnly ? '-1' : '0'}" data-nfl-field="${opponentField}" data-readonly="${readOnly ? 'true' : 'false'}" value="${prediction[opponentField] ?? ''}" aria-label="${opponent} predicted score" ${readOnly ? 'readonly' : ''} /></td>
           </tr>
         `;
       }).join('') + '</tbody></table>';
@@ -8394,7 +8404,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
     });
     if (nfl272Games) {
       nfl272Games.addEventListener('input', event => {
-        const cell = event.target instanceof Element ? event.target.closest('.nfl-score-cell') : null;
+        const cell = event.target instanceof Element ? event.target.closest('.nfl-score-input') : null;
         if (!cell || cell.dataset.readonly === 'true') return;
         const value = cell.value.replace(/\D/g, '').slice(0, 2);
         if (cell.value !== value) cell.value = value;
@@ -8413,13 +8423,6 @@ document.querySelectorAll('.delete-button').forEach(button => {
         if (playoffId && playoffField) {
           setNfl272PlayoffPick(playoffId, playoffField, value);
         }
-      });
-      nfl272Games.addEventListener('keydown', event => {
-        const cell = event.target instanceof Element ? event.target.closest('.nfl-score-cell') : null;
-        if (!cell || cell.dataset.readonly === 'true') return;
-        if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) return;
-        event.preventDefault();
-        moveNfl272ScoreFocus(cell, event.key);
       });
     }
     document.addEventListener('keydown', event => handleSkiChefKey(event, true));

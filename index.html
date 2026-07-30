@@ -2989,7 +2989,7 @@
     }
  
     .nfl-leader-row {
-      grid-template-columns: 34px minmax(90px, 1.4fr) 58px 54px 54px 64px 72px minmax(76px, 1fr);
+      grid-template-columns: 34px minmax(0, 1.4fr) 56px 56px 56px minmax(0, 1fr);
     }
  
     .nfl-row span,
@@ -4611,7 +4611,6 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       return { index, id: `2026-W${String(week).padStart(2, '0')}-${away}-${home}`, week: Number(week), home, away };
     });
     let nfl272TeamIndex = 0;
-    let nfl272AdminWeek = 1;
     let nfl272View = 'picks';
     let nfl272Predictions = {};
     let nfl272PlayoffPicks = {};
@@ -5699,22 +5698,10 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       return records;
     }
  
-    function nfl272ActualPredictions() {
-      return Object.fromEntries(nfl272Schedule.map(game => {
-        const actual = nfl272ActualFor(game);
-        return [game.id, {
-          homeScore: actual.homeActual,
-          awayScore: actual.awayActual
-        }];
-      }));
-    }
- 
     function scoreNfl272Submission(submission) {
       let total = 0;
       let games = 0;
-      let perfectPicks = 0;
       const predictions = submission.predictions || {};
-      const completedPredictions = {};
       nfl272Schedule.forEach(game => {
         const prediction = predictions[game.id] || {};
         const actual = nfl272ActualFor(game);
@@ -5725,24 +5712,8 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         if (predictedHome === null || predictedAway === null || actualHome === null || actualAway === null) return;
         total += Math.abs(actualHome - predictedHome) + Math.abs(actualAway - predictedAway);
         games += 1;
-        if (predictedHome === actualHome && predictedAway === actualAway) perfectPicks += 1;
-        completedPredictions[game.id] = {
-          homeScore: predictedHome,
-          awayScore: predictedAway
-        };
       });
-      const predictedRecords = calculateNfl272Records(completedPredictions);
-      const actualRecords = calculateNfl272ActualRecords();
-      const teamsCorrect = nfl272TeamOrder.filter(team => {
-        const predicted = predictedRecords[team];
-        const actual = actualRecords[team];
-        const gamesPlayed = actual.wins + actual.losses + actual.ties;
-        return gamesPlayed > 0
-          && predicted.wins === actual.wins
-          && predicted.losses === actual.losses
-          && predicted.ties === actual.ties;
-      }).length;
-      return { total, games, avg: games ? total / games : 0, perfectPicks, teamsCorrect };
+      return { total, games, avg: games ? total / games : 0 };
     }
  
     function calculateNfl272TeamStats(predictions = nfl272Predictions) {
@@ -6004,9 +5975,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       if (!nfl272Records) return;
       const records = calculateNfl272Records();
       const actualRecords = calculateNfl272ActualRecords();
-      const actualMode = mode === 'actual';
-      const displayedRecords = actualMode ? actualRecords : records;
-      const stats = calculateNfl272TeamStats(actualMode ? nfl272ActualPredictions() : nfl272Predictions);
+      const stats = calculateNfl272TeamStats();
       const grouped = Object.entries(nfl272TeamDivisions).reduce((groups, [team, division]) => {
         if (!groups[division]) groups[division] = [];
         groups[division].push(team);
@@ -6027,9 +5996,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
           ${sortedTeams(teams).map(team => `
             <div class="nfl-record-row ${team === nfl272PickStepForIndex(nfl272TeamIndex).team ? 'current-team' : ''}" data-nfl-record-team="${team}">
               <span>${team}</span>
-              <span>${displayedRecords[team].wins}</span>
-              <span>${displayedRecords[team].losses}</span>
-              <span class="nfl-record-tie">${displayedRecords[team].ties}</span>
+              <span>${records[team].wins}</span>
+              <span>${records[team].losses}</span>
+              <span class="nfl-record-tie">${records[team].ties}</span>
               <span>${stats[team].pf - stats[team].pa}</span>
               ${compareMode ? `
                 <span>${actualRecords[team].wins}</span>
@@ -6069,7 +6038,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
  
     function renderNfl272Picture() {
       if (!nfl272Picture) return;
-      if (nfl272View !== 'picks' || playerIsAdmin) {
+      if (nfl272View !== 'picks') {
         nfl272Picture.innerHTML = '';
         return;
       }
@@ -6121,7 +6090,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
           return a.score.total - b.score.total || String(a.submission.username || '').localeCompare(String(b.submission.username || ''));
         })
         .slice(0, 10);
-      nfl272Leaderboard.innerHTML = '<div class="nfl-leader-row header"><span>No.</span><span>User</span><span>Diff</span><span>Games</span><span>Avg</span><span>Perfect</span><span>Teams</span><span>SB Champ</span></div>' +
+      nfl272Leaderboard.innerHTML = '<div class="nfl-leader-row header"><span>No.</span><span>User</span><span>Total</span><span>Games</span><span>Avg</span><span>SB Champ</span></div>' +
         (rows.length ? rows.map(({ submission, score }, index) => `
           <div class="nfl-leader-row">
             <span>${index + 1}</span>
@@ -6129,11 +6098,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
             <span>${score.games ? score.total : '-'}</span>
             <span>${score.games}</span>
             <span>${score.games ? score.avg.toFixed(1) : '-'}</span>
-            <span>${score.perfectPicks}</span>
-            <span>${score.teamsCorrect}</span>
             <span>${escapeHTML(superBowlChamp(submission))}</span>
           </div>
-        `).join('') : '<div class="nfl-leader-row"><span>-</span><span>No submissions</span><span>-</span><span>0</span><span>-</span><span>0</span><span>0</span><span>-</span></div>');
+        `).join('') : '<div class="nfl-leader-row"><span>-</span><span>No submissions</span><span>-</span><span>0</span><span>-</span><span>-</span></div>');
     }
  
     function nfl272OverallProgress() {
@@ -6154,17 +6121,6 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       return { label: 'Overall picks', filled, total, percent: total ? Number(((filled / total) * 100).toFixed(2)) : 0 };
     }
  
-    function nfl272ActualProgress() {
-      const total = nfl272Schedule.length * 2;
-      const filled = nfl272Schedule.reduce((sum, game) => {
-        const actual = nfl272ActualFor(game);
-        return sum
-          + (nfl272ScoreValue(actual.homeActual) === null ? 0 : 1)
-          + (nfl272ScoreValue(actual.awayActual) === null ? 0 : 1);
-      }, 0);
-      return { filled, total, percent: total ? Number(((filled / total) * 100).toFixed(2)) : 0 };
-    }
- 
     function nfl272ProgressMarkup() {
       const progress = nfl272OverallProgress();
       return `<div class="nfl-record-progress"><div class="nfl-progress-label"><span>${progress.filled}/${progress.total}</span></div><div class="nfl-progress-track" style="--nfl-progress: ${progress.percent}%"><div class="nfl-progress-fill"></div></div></div>`;
@@ -6176,14 +6132,6 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         nfl272ScreenTitle.classList.remove('progress', 'afc', 'nfc');
         nfl272ScreenTitle.style.removeProperty('--nfl-progress');
         nfl272ScreenTitle.textContent = 'Lowest total wins. Super Bowl champ shows the submitted Super Bowl pick.';
-        return;
-      }
-      if (playerIsAdmin) {
-        const progress = nfl272ActualProgress();
-        nfl272ScreenTitle.classList.add('progress', 'afc');
-        nfl272ScreenTitle.classList.remove('nfc');
-        nfl272ScreenTitle.style.setProperty('--nfl-progress', `${progress.percent}%`);
-        nfl272ScreenTitle.innerHTML = `<span>Week ${nfl272AdminWeek}: enter actual final scores.</span><span class="nfl-instruction-count">${progress.filled}/${progress.total}</span>`;
         return;
       }
       const progress = nfl272OverallProgress();
@@ -6199,39 +6147,11 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       nfl272ScreenTitle.innerHTML = `<span>${escapeHTML(instruction)}</span><span class="nfl-instruction-count">${progress.filled}/${progress.total}</span>`;
     }
  
-    function renderNfl272AdminWeek() {
-      if (!nfl272Games) return;
-      const games = nfl272Schedule.filter(game => game.week === nfl272AdminWeek);
-      nfl272Games.innerHTML = `
-        <table class="nfl-score-table conference-afc">
-          <thead>
-            <tr><th class="team-col">Away</th><th>Away</th><th>Home</th><th class="team-col">Home</th></tr>
-          </thead>
-          <tbody>
-            ${games.map(game => {
-              const actual = nfl272ActualFor(game);
-              return `
-                <tr data-nfl-game-id="${game.id}">
-                  <td class="team-col">${escapeHTML(game.away)}</td>
-                  <td><input class="nfl-score-input nfl-actual-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" data-nfl-field="awayActual" value="${actual.awayActual ?? ''}" aria-label="${game.away} actual score" /></td>
-                  <td><input class="nfl-score-input nfl-actual-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" data-nfl-field="homeActual" value="${actual.homeActual ?? ''}" aria-label="${game.home} actual score" /></td>
-                  <td class="team-col">${escapeHTML(game.home)}</td>
-                </tr>
-              `;
-            }).join('')}
-          </tbody>
-        </table>
-      `;
-      renderNfl272Records('actual');
-      if (nfl272Picture) nfl272Picture.innerHTML = '';
-      renderNfl272Leaderboard();
-    }
- 
     function renderNfl272() {
       const activeScoreInput = document.activeElement instanceof HTMLInputElement
         && document.activeElement.classList.contains('nfl-score-input');
       if (activeScoreInput) {
-        renderNfl272Records(playerIsAdmin ? 'actual' : (nfl272Submitted ? 'compare' : 'predicted'));
+        renderNfl272Records(nfl272Submitted ? 'compare' : 'predicted');
         renderNfl272Picture();
         renderNfl272Leaderboard();
         renderNfl272Instruction(nfl272PickStepForIndex(nfl272TeamIndex));
@@ -6246,15 +6166,14 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         button.classList.toggle('active', button.dataset.nflView === nfl272View);
       });
       const step = nfl272PickStepForIndex(nfl272TeamIndex);
-      const adminActualMode = playerIsAdmin && nfl272View === 'picks';
       const selectedTeam = step.team || nfl272TeamOrder[0];
-      nfl272WeekLabel.textContent = adminActualMode ? `Week ${nfl272AdminWeek}` : step.label;
+      nfl272WeekLabel.textContent = step.label;
       if (nfl272Prev) {
-        nfl272Prev.disabled = adminActualMode ? nfl272AdminWeek <= 1 : nfl272TeamIndex <= 0;
+        nfl272Prev.disabled = nfl272TeamIndex <= 0;
         nfl272Prev.textContent = 'Prev';
       }
       if (nfl272Next) {
-        nfl272Next.disabled = adminActualMode ? nfl272AdminWeek >= 18 : nfl272TeamIndex >= nfl272PickFlowLength() - 1;
+        nfl272Next.disabled = nfl272TeamIndex >= nfl272PickFlowLength() - 1;
         nfl272Next.textContent = 'Next';
       }
       const showWeekTools = nfl272View === 'picks';
@@ -6264,7 +6183,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       if (nfl272WeekLabel) nfl272WeekLabel.style.display = 'none';
       renderNfl272Instruction(step);
       if (nfl272Submit) {
-        nfl272Submit.style.display = nfl272View === 'picks' && !adminActualMode ? '' : 'none';
+        nfl272Submit.style.display = nfl272View === 'picks' ? '' : 'none';
         nfl272Submit.disabled = nfl272Submitted;
         nfl272Submit.textContent = nfl272Submitted ? 'Submitted' : 'Submit';
       }
@@ -6274,10 +6193,6 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         if (nfl272Records) nfl272Records.innerHTML = '';
         if (nfl272Picture) nfl272Picture.innerHTML = '';
         renderNfl272Leaderboard();
-        return;
-      }
-      if (adminActualMode) {
-        renderNfl272AdminWeek();
         return;
       }
       if (step.type === 'playoffs') {
@@ -9025,21 +8940,13 @@ document.querySelectorAll('.delete-button').forEach(button => {
     renderNfl272();
     if (nfl272Prev) {
       nfl272Prev.addEventListener('click', () => {
-        if (playerIsAdmin && nfl272View === 'picks') {
-          nfl272AdminWeek = Math.max(1, nfl272AdminWeek - 1);
-        } else {
-          nfl272TeamIndex = Math.max(0, nfl272TeamIndex - 1);
-        }
+        nfl272TeamIndex = Math.max(0, nfl272TeamIndex - 1);
         renderNfl272();
       });
     }
     if (nfl272Next) {
       nfl272Next.addEventListener('click', () => {
-        if (playerIsAdmin && nfl272View === 'picks') {
-          nfl272AdminWeek = Math.min(18, nfl272AdminWeek + 1);
-        } else {
-          nfl272TeamIndex = Math.min(nfl272PickFlowLength() - 1, nfl272TeamIndex + 1);
-        }
+        nfl272TeamIndex = Math.min(nfl272PickFlowLength() - 1, nfl272TeamIndex + 1);
         renderNfl272();
       });
     }
@@ -9097,9 +9004,8 @@ document.querySelectorAll('.delete-button').forEach(button => {
         if (gameId && field) {
           if (field === 'homeScore' || field === 'awayScore') setNfl272Prediction(gameId, field, value);
           if (field === 'homeActual' || field === 'awayActual') setNfl272Actual(gameId, field, value);
-          renderNfl272Records(playerIsAdmin ? 'actual' : (nfl272Submitted ? 'compare' : 'predicted'));
+          renderNfl272Records(nfl272Submitted ? 'compare' : 'predicted');
           renderNfl272Picture();
-          renderNfl272Leaderboard();
           renderNfl272Instruction(nfl272PickStepForIndex(nfl272TeamIndex));
           return;
         }

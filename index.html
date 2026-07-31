@@ -5093,6 +5093,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         x: 28 + Math.random() * 474,
         y,
         hit: false,
+        passed: false,
         wobble: Math.random() * Math.PI * 2
       };
       if (type === 'pine') {
@@ -5571,7 +5572,16 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
           skiChefState.hits += 1;
           skiChefState.speed = Math.max(1.7, skiChefState.speed - 0.8);
           skiChefState.skierX += obstacle.x < skiChefState.skierX ? 24 : -24;
-          playUiSound('grunt');
+          if (obstacle.type === 'pine' || obstacle.type === 'deadTree') {
+            playSkiChefAudio('tree.m4a');
+          } else {
+            playUiSound('grunt');
+          }
+        }
+        const isTree = obstacle.type === 'pine' || obstacle.type === 'deadTree';
+        if (isTree && !obstacle.hit && !obstacle.passed && obstacle.y < skiChefState.skierY - 34) {
+          obstacle.passed = true;
+          playSkiChefAudio('french.m4a');
         }
         const crossedScreen = obstacle.type === 'dog' && (obstacle.x < -76 || obstacle.x > skiChefCanvas.width + 76);
         if (obstacle.y < -60 || crossedScreen) {
@@ -7441,6 +7451,17 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       soundPackEnabled = !!enabled;
       localStorage.setItem(soundPackStorageKey, soundPackEnabled ? 'on' : 'off');
       renderSoundPackButton();
+    }
+ 
+    function playSkiChefAudio(filename) {
+      if (!soundPackEnabled) return;
+      const audio = new Audio(filename);
+      audio.volume = 0.85;
+      audio.play().catch(() => {
+        const fallback = new Audio(`https://raw.githubusercontent.com/goatchase/yak-gauntlet/main/${filename}`);
+        fallback.volume = 0.85;
+        fallback.play().catch(() => playUiSound('grunt'));
+      });
     }
  
     function playMineBombSound() {

@@ -5110,6 +5110,15 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
  
     function resetSkiChef() {
       setSkiChefMobileRunMode(false);
+      [skiChefTreeAudio, skiChefFrenchAudio].forEach(audio => {
+        if (!audio) return;
+        audio.pause();
+        audio.currentTime = 0;
+      });
+      skiChefTreeAudio = null;
+      skiChefFrenchAudio = null;
+      skiChefFrenchNextAt = 0;
+      skiChefSafeTreePasses = 0;
       Object.assign(skiChefState, {
         running: false,
         ended: false,
@@ -7374,6 +7383,10 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     let wallpaperRotationTimer = null;
     let wallpaperRotationIndex = 0;
     let soundPackEnabled = localStorage.getItem(soundPackStorageKey) !== 'off';
+    let skiChefTreeAudio = null;
+    let skiChefFrenchAudio = null;
+    let skiChefFrenchNextAt = 0;
+    let skiChefSafeTreePasses = 0;
     const wheelConfigStorageKey = 'yakQuartileWheelConfigV2';
     const defaultWheelConfig = {
       enabled: true,
@@ -7455,10 +7468,30 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
  
     function playSkiChefAudio(filename) {
       if (!soundPackEnabled) return;
+      const isFrench = filename === 'french.m4a';
+      if (isFrench) {
+        skiChefSafeTreePasses += 1;
+        if (skiChefSafeTreePasses % 4 !== 0 || Date.now() < skiChefFrenchNextAt) return;
+        if (skiChefTreeAudio && !skiChefTreeAudio.paused) return;
+        skiChefFrenchNextAt = Date.now() + 12000;
+      } else if (filename === 'tree.m4a') {
+        if (skiChefFrenchAudio && !skiChefFrenchAudio.paused) {
+          skiChefFrenchAudio.pause();
+          skiChefFrenchAudio.currentTime = 0;
+        }
+        if (skiChefTreeAudio && !skiChefTreeAudio.paused) {
+          skiChefTreeAudio.pause();
+          skiChefTreeAudio.currentTime = 0;
+        }
+      }
       const audio = new Audio(filename);
+      if (isFrench) skiChefFrenchAudio = audio;
+      if (filename === 'tree.m4a') skiChefTreeAudio = audio;
       audio.volume = 0.85;
       audio.play().catch(() => {
         const fallback = new Audio(`https://raw.githubusercontent.com/goatchase/yak-gauntlet/main/${filename}`);
+        if (isFrench) skiChefFrenchAudio = fallback;
+        if (filename === 'tree.m4a') skiChefTreeAudio = fallback;
         fallback.volume = 0.85;
         fallback.play().catch(() => playUiSound('grunt'));
       });

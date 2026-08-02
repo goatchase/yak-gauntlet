@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>THE YAK GAUNTLET</title>
+  <title>The Yak Gauntlet</title>
   <link rel="icon" type="image/png" href="wiffle-ball-favicon.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -6567,6 +6567,43 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       target.select();
     }
  
+    function nfl272DraftStorageKey(uid = currentUser?.uid) {
+      return uid ? `yak-nfl272-draft-${uid}` : '';
+    }
+ 
+    function saveNfl272DraftLocally() {
+      const key = nfl272DraftStorageKey();
+      if (!key) return false;
+      try {
+        localStorage.setItem(key, JSON.stringify({
+          predictions: nfl272Predictions,
+          playoffPicks: nfl272PlayoffPicks,
+          updatedAt: new Date().toISOString()
+        }));
+        return true;
+      } catch (error) {
+        console.error('Data Day local draft save failed:', error);
+        return false;
+      }
+    }
+ 
+    function loadNfl272DraftLocally(uid = currentUser?.uid) {
+      const key = nfl272DraftStorageKey(uid);
+      if (!key) return null;
+      try {
+        const draft = JSON.parse(localStorage.getItem(key) || 'null');
+        return draft && typeof draft === 'object' ? draft : null;
+      } catch (error) {
+        console.error('Data Day local draft load failed:', error);
+        return null;
+      }
+    }
+ 
+    function clearNfl272DraftLocally(uid = currentUser?.uid) {
+      const key = nfl272DraftStorageKey(uid);
+      if (key) localStorage.removeItem(key);
+    }
+ 
     async function saveNfl272Predictions() {
       if (!currentUser) {
         await showDataDayDialog('Log in with a username to save Data Day picks.');
@@ -6574,6 +6611,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         return;
       }
       if (nfl272Submitted) return;
+      const savedLocally = saveNfl272DraftLocally();
+      nfl272SavePicks.disabled = true;
+      nfl272SavePicks.textContent = 'Saving...';
       try {
         await nfl272PredictionsCollection.doc(currentUser.uid).set({
           uid: currentUser.uid,
@@ -6584,15 +6624,23 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
           submitted: false,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
-        if (nfl272SavePicks) {
-          nfl272SavePicks.textContent = 'Saved';
-          window.setTimeout(() => {
-            if (nfl272SavePicks && !nfl272Submitted) nfl272SavePicks.textContent = 'Save Picks';
-          }, 1400);
-        }
+        clearNfl272DraftLocally();
+        nfl272SavePicks.textContent = 'Saved';
+        await showDataDayDialog('Your picks were saved to your account.', { title: 'Picks Saved' });
       } catch (error) {
         console.error('Data Day draft save failed:', error);
-        await showDataDayDialog('Data Day picks could not save. Check Firestore rules for nfl272Predictions.', { title: 'Save Error', error: true });
+        const detail = error?.message ? ` Firebase: ${error.message}` : '';
+        await showDataDayDialog(
+          savedLocally
+            ? `Your picks were saved on this browser, but Firebase rejected the account sync.${detail}`
+            : `Data Day picks could not save.${detail}`,
+          { title: savedLocally ? 'Saved Locally' : 'Save Error', error: true }
+        );
+      } finally {
+        if (nfl272SavePicks && !nfl272Submitted) {
+          nfl272SavePicks.disabled = false;
+          nfl272SavePicks.textContent = 'Save Picks';
+        }
       }
     }
  
@@ -6619,6 +6667,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
           submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
+        clearNfl272DraftLocally();
         nfl272Submitted = true;
         renderNfl272();
         await showDataDayDialog('Data Day picks submitted.');
@@ -6664,12 +6713,13 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       nfl272PredictionsUnsubscribe = nfl272PredictionsCollection.onSnapshot(snapshot => {
         nfl272Submissions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         const mine = currentUser ? nfl272Submissions.find(submission => submission.id === currentUser.uid) : null;
+        const localDraft = currentUser ? loadNfl272DraftLocally(currentUser.uid) : null;
         nfl272Submitted = !!(mine && (
           mine.submitted === true
           || (typeof mine.submitted === 'undefined' && mine.predictions)
         ));
-        nfl272Predictions = mine && mine.predictions ? mine.predictions : {};
-        nfl272PlayoffPicks = mine && mine.playoffPicks ? mine.playoffPicks : {};
+        nfl272Predictions = localDraft?.predictions || (mine && mine.predictions ? mine.predictions : {});
+        nfl272PlayoffPicks = localDraft?.playoffPicks || (mine && mine.playoffPicks ? mine.playoffPicks : {});
         renderNfl272();
       }, error => console.error('Data Day predictions could not load:', error));
       nfl272ActualsUnsubscribe = nfl272ActualsCollection.onSnapshot(snapshot => {

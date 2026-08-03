@@ -2659,9 +2659,9 @@
       border-left: 2px solid #fff;
       border-right: 2px solid #404040;
       border-bottom: 2px solid #404040;
-      font-family: Arial, sans-serif;
-      font-weight: 400;
+      font: inherit;
       text-align: center;
+      cursor: default;
     }
  
     .nfl-week-label {
@@ -2753,6 +2753,16 @@
  
     .nfl-score-table .team-col {
       text-align: left;
+    }
+ 
+    .nfl-score-table th.team-col,
+    .nfl-picks-table th {
+      text-align: center;
+    }
+ 
+    .nfl-picks-table th:first-child,
+    .nfl-picks-table td:first-child {
+      border-right: 0;
     }
  
     .nfl-score-table.nfl-picks-table th {
@@ -3205,6 +3215,11 @@
       color: #fff;
       background: #b00020;
       font-weight: 700;
+    }
+ 
+    .nfl-record-row.conference-header span {
+      justify-self: center;
+      text-align: center;
     }
  
     .nfl-record-row.conference-header.nfc {
@@ -4165,7 +4180,7 @@
             </div>
             <div class="nfl-toolbar">
               <button type="button" id="nfl272Prev">Prev</button>
-              <div class="nfl-current-step" id="nfl272CurrentStep">BUF</div>
+              <button type="button" class="nfl-current-step" id="nfl272CurrentStep" tabindex="-1" aria-disabled="true">BUF</button>
               <button type="button" id="nfl272Next">Next</button>
               <button type="button" id="nfl272SavePicks">Save</button>
               <button type="button" id="nfl272Submit">Submit</button>

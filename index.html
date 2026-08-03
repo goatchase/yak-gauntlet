@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>The Yak Gauntlet</title>
+  <title>The Yak</title>
   <link rel="icon" type="image/png" href="wiffle-ball-favicon.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -2647,14 +2647,14 @@
  
     .nfl-current-step {
       padding: 5px 8px;
-      color: #fff;
-      background: #000080;
-      border-top: 1px solid #fff;
-      border-left: 1px solid #fff;
-      border-right: 1px solid #404040;
-      border-bottom: 1px solid #404040;
-      font-family: "Courier New", monospace;
-      font-weight: 700;
+      color: #000;
+      background: #c0c0c0;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      font-family: Arial, sans-serif;
+      font-weight: 400;
       text-align: center;
     }
  
@@ -2915,7 +2915,10 @@
     }
  
     .nfl-panel.nfl-admin .nfl-actual-input {
-      pointer-events: auto;
+      pointer-events: auto !important;
+      color: #000;
+      background: #fff;
+      border: 1px solid #808080;
     }
  
     .nfl-panel[data-nfl-view="leaderboard"] .nfl-toolbar {
@@ -6652,14 +6655,14 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const games = nfl272Schedule.filter(game => game.week === nfl272ActualWeek);
       nfl272Games.innerHTML = `
         <table class="nfl-score-table">
-          <thead><tr><th>Away</th><th>Score</th><th>Score</th><th>Home</th></tr></thead>
+          <thead><tr><th>Away</th><th colspan="2">Score</th><th>Home</th></tr></thead>
           <tbody>${games.map(game => {
             const actual = nfl272ActualFor(game);
             return `
               <tr data-nfl-game-id="${game.id}">
                 <td class="team-col">${nfl272TeamBadge(game.away)}</td>
-                <td><input class="nfl-score-input nfl-actual-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" data-nfl-field="awayActual" value="${actual.awayActual ?? ''}" aria-label="${game.away} actual score" /></td>
-                <td><input class="nfl-score-input nfl-actual-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" data-nfl-field="homeActual" value="${actual.homeActual ?? ''}" aria-label="${game.home} actual score" /></td>
+                <td><input class="nfl-score-input nfl-actual-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" data-nfl-field="awayActual" value="${actual.awayActual ?? ''}" aria-label="${game.away} actual score" onpointerdown="event.stopPropagation();" onmousedown="event.stopPropagation();" onclick="this.focus();" /></td>
+                <td><input class="nfl-score-input nfl-actual-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" data-nfl-field="homeActual" value="${actual.homeActual ?? ''}" aria-label="${game.home} actual score" onpointerdown="event.stopPropagation();" onmousedown="event.stopPropagation();" onclick="this.focus();" /></td>
                 <td class="team-col">${nfl272TeamBadge(game.home)}</td>
               </tr>`;
           }).join('')}</tbody>

@@ -9,6 +9,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -2478,7 +2479,7 @@
     }
  
     .nfl-window {
-      width: 1120px;
+      width: 1660px;
       max-width: calc(100vw - 16px);
     }
  
@@ -2492,6 +2493,8 @@
     }
  
     .nfl-panel {
+      --nfl-content-height: min(540px, calc(100vh - 205px));
+      --nfl-row-height: 26px;
       display: grid;
       gap: 7px;
       padding: 6px;
@@ -2541,13 +2544,18 @@
     .nfl-toolbar {
       order: 4;
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
       gap: 6px;
       align-items: center;
     }
  
     .nfl-panel.nfl-admin .nfl-toolbar {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    }
+ 
+    .nfl-toolbar > * {
+      width: 100%;
+      min-width: 0;
     }
  
     .nfl-screen-title {
@@ -2666,9 +2674,9 @@
     .nfl-layout {
       order: 3;
       display: grid;
-      grid-template-columns: minmax(200px, 0.72fr) minmax(350px, 1.35fr) minmax(210px, 0.93fr);
+      grid-template-columns: minmax(190px, 0.64fr) minmax(410px, 1.18fr) minmax(430px, 1.18fr);
       gap: 7px;
-      align-items: start;
+      align-items: stretch;
     }
  
     .nfl-games,
@@ -2684,8 +2692,10 @@
     }
  
     .nfl-games {
-      max-height: none;
-      overflow: visible;
+      height: var(--nfl-content-height);
+      max-height: var(--nfl-content-height);
+      overflow: auto;
+      box-sizing: border-box;
     }
  
     .nfl-score-table {
@@ -2694,10 +2704,24 @@
       table-layout: fixed;
     }
  
+    .nfl-picks-table th:first-child,
+    .nfl-picks-table td:first-child {
+      width: 34px;
+    }
+ 
+    .nfl-picks-table th:nth-child(3),
+    .nfl-picks-table td:nth-child(3),
+    .nfl-picks-table th:nth-child(4),
+    .nfl-picks-table td:nth-child(4) {
+      width: 52px;
+    }
+ 
     .nfl-score-table th,
     .nfl-score-table td {
-      padding: 3px 4px;
-      border-bottom: 1px solid #d8d8d8;
+      box-sizing: border-box;
+      height: var(--nfl-row-height);
+      padding: 2px 4px;
+      border-bottom: 0;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -2725,6 +2749,39 @@
       text-align: left;
     }
  
+    .nfl-score-table.nfl-picks-table th {
+      color: var(--nfl-team-text);
+      background: var(--nfl-team-primary);
+    }
+ 
+    .nfl-team-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 72px;
+      max-width: 100%;
+      min-height: 18px;
+      box-sizing: border-box;
+      padding: 1px 6px;
+      color: var(--nfl-team-text);
+      background: var(--nfl-team-primary);
+      border-radius: 4px;
+      line-height: 16px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+    }
+ 
+    .nfl-team-badge.nfl-bye-badge {
+      width: auto;
+      min-width: 94px;
+      max-width: none;
+      overflow: visible;
+      text-overflow: clip;
+    }
+ 
     .nfl-score-table tr.away-game td {
       background: #eeeeee;
     }
@@ -2735,7 +2792,10 @@
       display: grid;
       gap: 5px;
       align-items: center;
-      padding: 3px 5px;
+      box-sizing: border-box;
+      height: var(--nfl-row-height);
+      min-height: var(--nfl-row-height);
+      padding: 2px 5px;
       border-bottom: 1px solid #d8d8d8;
       white-space: nowrap;
     }
@@ -2791,6 +2851,7 @@
       z-index: 2;
       box-sizing: border-box;
       width: 100%;
+      height: 20px;
       min-width: 0;
       padding: 1px 2px;
       color: #000;
@@ -2824,13 +2885,15 @@
     .nfl-actual-cell,
     .nfl-diff-cell,
     .nfl-diff-head,
-    #nfl272SaveActuals {
+    #nfl272SaveActuals,
+    #nfl272Lock {
       display: none;
     }
  
     .nfl-panel.nfl-admin .nfl-actual-input,
     .nfl-panel.nfl-submitted .nfl-actual-input,
-    .nfl-panel.nfl-admin #nfl272SaveActuals {
+    .nfl-panel.nfl-admin #nfl272SaveActuals,
+    .nfl-panel.nfl-admin #nfl272Lock {
       display: inline-block;
     }
  
@@ -2865,22 +2928,32 @@
  
     .nfl-panel[data-nfl-view="leaderboard"] .nfl-layout {
       display: block;
-      min-height: min(520px, calc(100vh - 190px));
+      min-height: var(--nfl-content-height);
     }
  
     .nfl-panel[data-nfl-view="leaderboard"] .nfl-games,
-    .nfl-panel[data-nfl-view="leaderboard"] .nfl-records {
+    .nfl-panel[data-nfl-view="leaderboard"] .nfl-records,
+    .nfl-panel[data-nfl-view="leaderboard"] .nfl-playoff-picture {
       display: none;
     }
  
     .nfl-panel[data-nfl-view="leaderboard"] .nfl-leaderboard {
-      min-height: min(520px, calc(100vh - 190px));
-      max-height: min(620px, calc(100vh - 190px));
+      height: var(--nfl-content-height);
+      min-height: var(--nfl-content-height);
+      max-height: var(--nfl-content-height);
       overflow: auto;
     }
  
     .nfl-panel:not([data-nfl-view="leaderboard"]) .nfl-leaderboard {
       display: none;
+    }
+ 
+    .nfl-bracket-score {
+      width: 24px;
+      padding: 0 2px;
+      color: #000;
+      background: #fff;
+      cursor: text;
     }
  
     .nfl-playoff-grid {
@@ -2911,7 +2984,11 @@
     }
  
     .nfl-picture-title {
-      padding: 4px 6px;
+      display: flex;
+      align-items: center;
+      box-sizing: border-box;
+      min-height: var(--nfl-row-height);
+      padding: 2px 6px;
       color: #fff;
       background: #000080;
       font-weight: 700;
@@ -2930,7 +3007,11 @@
       display: grid;
       grid-template-columns: 42px minmax(0, 1fr);
       gap: 5px;
-      padding: 3px 5px;
+      align-items: center;
+      box-sizing: border-box;
+      height: var(--nfl-row-height);
+      min-height: var(--nfl-row-height);
+      padding: 2px 5px;
       border-bottom: 1px solid #d8d8d8;
       white-space: nowrap;
     }
@@ -2946,32 +3027,98 @@
     }
  
     .nfl-bracket {
+      padding: 6px;
+    }
+ 
+    .nfl-bracket-tree {
       display: grid;
-      gap: 4px;
-      padding: 5px;
+      grid-template-columns: repeat(3, minmax(120px, 1fr));
+      gap: 14px;
+      min-width: 388px;
+    }
+ 
+    .nfl-bracket-round {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      gap: 8px;
+      min-width: 0;
+    }
+ 
+    .nfl-bracket-round-title {
+      display: none;
     }
  
     .nfl-bracket-game {
-      display: grid;
-      grid-template-columns: 34px minmax(0, 1fr);
-      gap: 4px;
-      padding: 3px 4px;
-      background: #f5f5f5;
+      position: relative;
+      box-sizing: border-box;
+      background: #fff;
+      border: 1px solid #808080;
+    }
+ 
+    .nfl-bracket-round:not(:last-child) .nfl-bracket-game::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 100%;
+      width: 15px;
       border-top: 1px solid #808080;
-      border-left: 1px solid #808080;
-      border-right: 1px solid #fff;
-      border-bottom: 1px solid #fff;
+    }
+ 
+    .nfl-bracket-team {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 24px;
+      align-items: center;
+      min-height: 21px;
+      padding: 1px 4px;
+      border-bottom: 1px solid #d8d8d8;
       white-space: nowrap;
     }
  
-    .nfl-bracket-game span {
+    .nfl-bracket-team:last-child {
+      border-bottom: 0;
+    }
+ 
+    .nfl-bracket-team.winner {
+      background: #eeeeee;
+      font-weight: 700;
+    }
+ 
+    .nfl-bracket-team > * {
       overflow: hidden;
       text-overflow: ellipsis;
     }
  
+    .nfl-bracket-team > span:last-child {
+      text-align: right;
+    }
+ 
+    .nfl-super-bowl-bracket {
+      max-width: 260px;
+      margin: 6px auto;
+    }
+ 
+    .nfl-champion-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      max-width: 260px;
+      min-height: var(--nfl-row-height);
+      margin: 0 auto 6px;
+      padding-top: 4px;
+      border-top: 1px solid #808080;
+      font-weight: 700;
+    }
+ 
     .nfl-playoff-card h3 {
       margin: 0 0 5px;
-      padding: 4px 6px;
+      display: flex;
+      align-items: center;
+      box-sizing: border-box;
+      height: var(--nfl-row-height);
+      min-height: var(--nfl-row-height);
+      padding: 2px 6px;
       color: #fff;
       background: #000080;
       font-size: 10pt;
@@ -2981,7 +3128,11 @@
       display: grid;
       grid-template-columns: 64px minmax(0, 1fr);
       gap: 5px;
-      padding: 3px 4px;
+      align-items: center;
+      box-sizing: border-box;
+      height: var(--nfl-row-height);
+      min-height: var(--nfl-row-height);
+      padding: 2px 4px;
       border-bottom: 1px solid #d8d8d8;
       white-space: nowrap;
     }
@@ -3008,19 +3159,47 @@
     }
  
     .nfl-playoff-picture {
-      max-height: min(520px, calc(100vh - 210px));
-      overflow: auto;
+      min-height: var(--nfl-content-height);
+      height: auto;
+      max-height: none;
+      overflow: visible;
+      box-sizing: border-box;
     }
  
     .nfl-records {
-      max-height: none;
-      overflow: visible;
+      height: var(--nfl-content-height);
+      max-height: var(--nfl-content-height);
+      overflow: auto;
+      box-sizing: border-box;
     }
  
     .nfl-record-conferences {
       display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 5px;
       align-items: start;
+    }
+ 
+    .nfl-record-conference {
+      min-width: 0;
+    }
+ 
+    .nfl-records .nfl-record-row {
+      border-bottom: 0;
+    }
+ 
+    .nfl-records .nfl-record-row.division-start {
+      border-top: 1px solid #a0a0a0;
+    }
+ 
+    .nfl-record-row.conference-header {
+      color: #fff;
+      background: #b00020;
+      font-weight: 700;
+    }
+ 
+    .nfl-record-row.conference-header.nfc {
+      background: #000080;
     }
  
     .nfl-record-pair-header {
@@ -3040,6 +3219,15 @@
       grid-template-columns: minmax(0, 1fr) 19px 19px 19px 29px;
       gap: 3px;
       padding: 2px 4px;
+    }
+ 
+    .nfl-record-row[data-nfl-record-team] {
+      cursor: pointer;
+    }
+ 
+    .nfl-record-row[data-nfl-record-team]:focus-visible {
+      outline: 1px dotted #000;
+      outline-offset: -2px;
     }
  
     .nfl-record-row span:not(:first-child) {
@@ -3086,7 +3274,42 @@
     }
  
     .nfl-leader-row {
-      grid-template-columns: 34px minmax(0, 1.4fr) 56px 56px 56px minmax(0, 1fr);
+      grid-template-columns: minmax(68px, 1fr) minmax(150px, 2fr) repeat(6, minmax(68px, 1fr)) 26px;
+      gap: 0;
+    }
+ 
+    .nfl-leader-row > span {
+      box-sizing: border-box;
+      height: 100%;
+      padding: 2px 5px;
+      border-left: 1px solid #a0a0a0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+ 
+    .nfl-leader-row > span:nth-child(2) {
+      justify-content: flex-start;
+    }
+ 
+    .nfl-leader-row > span:first-child {
+      border-left: 0;
+    }
+ 
+    .nfl-leader-row.header {
+      top: 0;
+      bottom: auto;
+    }
+ 
+    .nfl-delete-entry {
+      width: 20px;
+      min-width: 20px;
+      height: 20px;
+      min-height: 20px;
+      padding: 0;
+      color: #fff;
+      background: #b00020;
+      line-height: 16px;
     }
  
     .nfl-row span,
@@ -3935,9 +4158,13 @@
               <button type="button" id="nfl272Prev">Prev</button>
               <div class="nfl-current-step" id="nfl272CurrentStep">BUF</div>
               <button type="button" id="nfl272Next">Next</button>
-              <button type="button" id="nfl272SavePicks">Save Picks</button>
+              <button type="button" id="nfl272SavePicks">Save</button>
               <button type="button" id="nfl272Submit">Submit</button>
+              <button type="button" id="nfl272Import">Import</button>
+              <button type="button" id="nfl272Export">Export</button>
+              <input type="file" id="nfl272ImportFile" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.xlsx" hidden>
               <button type="button" id="nfl272SaveActuals">Save Actuals</button>
+              <button type="button" id="nfl272Lock">Lock Picks</button>
             </div>
             <div class="nfl-screen-title" id="nfl272ScreenTitle">Enter predicted scores by week.</div>
             <div class="nfl-layout">
@@ -4334,8 +4561,12 @@
     const nfl272Prev = document.getElementById('nfl272Prev');
     const nfl272Next = document.getElementById('nfl272Next');
     const nfl272SavePicks = document.getElementById('nfl272SavePicks');
+    const nfl272Import = document.getElementById('nfl272Import');
+    const nfl272Export = document.getElementById('nfl272Export');
+    const nfl272ImportFile = document.getElementById('nfl272ImportFile');
     const nfl272Submit = document.getElementById('nfl272Submit');
     const nfl272SaveActuals = document.getElementById('nfl272SaveActuals');
+    const nfl272Lock = document.getElementById('nfl272Lock');
     const nfl272ScreenTitle = document.getElementById('nfl272ScreenTitle');
     const nfl272Games = document.getElementById('nfl272Games');
     const nfl272Records = document.getElementById('nfl272Records');
@@ -4455,7 +4686,38 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       ATL: 'NFC South', CAR: 'NFC South', NO: 'NFC South', TB: 'NFC South',
       ARI: 'NFC West', LAR: 'NFC West', SEA: 'NFC West', SF: 'NFC West'
     };
+    const nfl272TeamColors = {
+      BUF: ['#00338D', '#C60C30'], MIA: ['#008E97', '#FC4C02'], NE: ['#002244', '#C60C30'], NYJ: ['#125740', '#FFFFFF'],
+      BAL: ['#241773', '#000000'], CIN: ['#FB4F14', '#000000'], CLE: ['#311D00', '#FF3C00'], PIT: ['#101820', '#FFB612'],
+      HOU: ['#03202F', '#A71930'], IND: ['#002C5F', '#FFFFFF'], JAX: ['#006778', '#D7A22A'], TEN: ['#0C2340', '#4B92DB'],
+      DEN: ['#FB4F14', '#002244'], KC: ['#E31837', '#FFB81C'], LAC: ['#0080C6', '#FFC20E'], LV: ['#000000', '#A5ACAF'],
+      DAL: ['#003594', '#869397'], NYG: ['#0B2265', '#A71930'], PHI: ['#004C54', '#A5ACAF'], WAS: ['#5A1414', '#FFB612'],
+      CHI: ['#0B162A', '#C83803'], DET: ['#0076B6', '#B0B7BC'], GB: ['#203731', '#FFB612'], MIN: ['#4F2683', '#FFC62F'],
+      ATL: ['#A71930', '#000000'], CAR: ['#101820', '#0085CA'], NO: ['#101820', '#D3BC8D'], TB: ['#D50A0A', '#34302B'],
+      ARI: ['#97233F', '#000000'], LAR: ['#003594', '#FFA300'], SF: ['#AA0000', '#B3995D'], SEA: ['#002244', '#69BE28']
+    };
     const nfl272TeamOrder = Object.keys(nfl272TeamDivisions);
+ 
+    function nfl272ColorLuminance(hex) {
+      const value = String(hex || '').replace('#', '');
+      if (!/^[0-9a-f]{6}$/i.test(value)) return 0;
+      const channels = [0, 2, 4].map(index => parseInt(value.slice(index, index + 2), 16) / 255)
+        .map(channel => channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4);
+      return (0.2126 * channels[0]) + (0.7152 * channels[1]) + (0.0722 * channels[2]);
+    }
+ 
+    function nfl272TeamStyle(team) {
+      const [primary, secondary] = nfl272TeamColors[team] || ['#505050', '#FFFFFF'];
+      const primaryLight = nfl272ColorLuminance(primary) >= 0.42;
+      const secondaryLight = nfl272ColorLuminance(secondary) >= 0.42;
+      const text = !primaryLight && !secondaryLight ? '#FFFFFF' : (primaryLight && secondaryLight ? '#000000' : secondary);
+      return `--nfl-team-primary:${primary};--nfl-team-secondary:${secondary};--nfl-team-text:${text}`;
+    }
+ 
+    function nfl272TeamBadge(team, label = team, extraClass = '') {
+      if (!nfl272TeamColors[team]) return escapeHTML(label || 'TBD');
+      return `<span class="nfl-team-badge${extraClass ? ` ${escapeHTML(extraClass)}` : ''}" style="${nfl272TeamStyle(team)}">${escapeHTML(label)}</span>`;
+    }
     const nfl272ScheduleText = `
 1 CAR CHI
 1 CIN TB
@@ -4742,8 +5004,10 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     let nfl272Actuals = {};
     let nfl272Submissions = [];
     let nfl272Submitted = false;
+    let nfl272Locked = false;
     let nfl272PredictionsUnsubscribe = null;
     let nfl272ActualsUnsubscribe = null;
+    let nfl272SettingsUnsubscribe = null;
     let dataDayDialogResolve = null;
  
     function closeDataDayDialog(result = false) {
@@ -5879,6 +6143,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     function scoreNfl272Submission(submission) {
       let total = 0;
       let games = 0;
+      let perfect = 0;
       const predictions = submission.predictions || {};
       nfl272Schedule.forEach(game => {
         const prediction = predictions[game.id] || {};
@@ -5890,8 +6155,13 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         if (predictedHome === null || predictedAway === null || actualHome === null || actualAway === null) return;
         total += Math.abs(actualHome - predictedHome) + Math.abs(actualAway - predictedAway);
         games += 1;
+        if (actualHome === predictedHome && actualAway === predictedAway) perfect += 1;
       });
-      return { total, games, avg: games ? total / games : 0 };
+      const actualPredictions = nfl272ActualPredictions();
+      const predictedPlayoffTeams = new Set(['AFC', 'NFC'].flatMap(conference => buildNfl272PlayoffSeeds(conference, predictions).map(seed => seed.team)));
+      const actualPlayoffTeams = new Set(['AFC', 'NFC'].flatMap(conference => buildNfl272PlayoffSeeds(conference, actualPredictions).map(seed => seed.team)));
+      const playoffTeams = games ? [...predictedPlayoffTeams].filter(team => actualPlayoffTeams.has(team)).length : 0;
+      return { total, games, avg: games ? total / games : 0, perfect, playoffTeams };
     }
  
     function calculateNfl272TeamStats(predictions = nfl272Predictions) {
@@ -5994,8 +6264,8 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       return [...teams].sort((a, b) => compareNfl272Teams(a, b, context, tiedTeams));
     }
  
-    function buildNfl272PlayoffSeeds(conference) {
-      const stats = calculateNfl272TeamStats();
+    function buildNfl272PlayoffSeeds(conference, predictions = nfl272Predictions) {
+      const stats = calculateNfl272TeamStats(predictions);
       const teams = Object.values(stats).filter(team => team.conference === conference);
       const divisions = [...new Set(teams.map(team => team.division))];
       const divisionWinners = divisions
@@ -6026,9 +6296,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       return playoffSteps[index - nfl272TeamOrder.length] || playoffSteps[playoffSteps.length - 1];
     }
  
-    function nfl272PickSteps() {
+    function nfl272PickSteps(predictions = nfl272Predictions, playoffPicks = nfl272PlayoffPicks) {
       const winnerOf = game => {
-        const pick = nfl272PlayoffPicks[game.id] || {};
+        const pick = playoffPicks[game.id] || {};
         const awayScore = nfl272ScoreValue(pick.awayScore);
         const homeScore = nfl272ScoreValue(pick.homeScore);
         if (awayScore === null || homeScore === null || awayScore === homeScore) return null;
@@ -6038,7 +6308,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         return nfl272TeamOrder.includes(winner.team) ? winner : null;
       };
       const conferenceBracket = conference => {
-        const seeds = buildNfl272PlayoffSeeds(conference);
+        const seeds = buildNfl272PlayoffSeeds(conference, predictions);
         const seed = number => {
           const team = seeds.find(item => item.seed === number);
           return { team: team?.team || `${conference} #${number}`, seed: number };
@@ -6137,10 +6407,10 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
               return `
                 <tr data-nfl-playoff-id="${game.id}">
                   <td>${escapeHTML(game.stage.slice(0, 3))}</td>
-                  <td class="team-col">${escapeHTML(game.away)}</td>
+                  <td class="team-col">${nfl272TeamBadge(game.away)}</td>
                   <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${nfl272Submitted ? '-1' : '0'}" data-nfl-playoff-field="awayScore" data-readonly="${nfl272Submitted ? 'true' : 'false'}" value="${pick.awayScore ?? ''}" aria-label="${game.away} playoff score" onpointerdown="event.stopPropagation(); this.focus();" ${nfl272Submitted ? 'readonly' : ''} /></td>
                   <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${nfl272Submitted ? '-1' : '0'}" data-nfl-playoff-field="homeScore" data-readonly="${nfl272Submitted ? 'true' : 'false'}" value="${pick.homeScore ?? ''}" aria-label="${game.home} playoff score" onpointerdown="event.stopPropagation(); this.focus();" ${nfl272Submitted ? 'readonly' : ''} /></td>
-                  <td class="team-col">${escapeHTML(game.home)}</td>
+                  <td class="team-col">${nfl272TeamBadge(game.home)}</td>
                 </tr>
               `;
             }).join('')}
@@ -6159,7 +6429,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }));
     }
  
-    function renderNfl272Records(mode = 'predicted') {
+    function renderNfl272RecordsLegacy(mode = 'predicted') {
       if (!nfl272Records) return;
       const actualMode = mode === 'actual';
       const records = actualMode ? calculateNfl272ActualRecords() : calculateNfl272Records();
@@ -6183,7 +6453,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
             ? `<span>${escapeHTML(division)}</span><span>PW</span><span>PL</span><span>PT</span><span>PD</span><span>AW</span><span>AL</span><span>AT</span>`
             : `<span>${escapeHTML(division)}</span><span>W</span><span>L</span><span>T</span><span>PD</span>`}</div>
           ${sortedTeams(teams).map(team => `
-            <div class="nfl-record-row ${!actualMode && team === nfl272PickStepForIndex(nfl272TeamIndex).team ? 'current-team' : ''}" data-nfl-record-team="${team}">
+            <div class="nfl-record-row ${!actualMode && team === nfl272PickStepForIndex(nfl272TeamIndex).team ? 'current-team' : ''}" data-nfl-record-team="${team}" role="button" tabindex="0" aria-label="Show ${team} picks">
               <span>${team}</span>
               <span>${records[team].wins}</span>
               <span>${records[team].losses}</span>
@@ -6215,6 +6485,37 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       `).join('') + '</div>';
     }
  
+    function renderNfl272Records(mode = 'predicted') {
+      if (!nfl272Records) return;
+      const actualMode = mode === 'actual';
+      const records = actualMode ? calculateNfl272ActualRecords() : calculateNfl272Records();
+      const stats = calculateNfl272TeamStats(actualMode ? nfl272ActualPredictions() : nfl272Predictions);
+      const divisionNames = ['East', 'North', 'South', 'West'];
+      const renderConference = conference => {
+        const conferenceClass = conference.toLowerCase();
+        const rows = divisionNames.map((divisionName, divisionIndex) => {
+          const division = `${conference} ${divisionName}`;
+          const teams = nfl272TeamOrder.filter(team => nfl272TeamDivisions[team] === division);
+          const ranked = rankNfl272Teams(teams.map(team => stats[team]), 'division');
+          return ranked.map((teamStats, teamIndex) => {
+            const team = teamStats.team;
+            const current = !actualMode && team === nfl272PickStepForIndex(nfl272TeamIndex).team;
+            const divider = divisionIndex > 0 && teamIndex === 0 ? 'division-start' : '';
+            return `<div class="nfl-record-row ${current ? 'current-team' : ''} ${divider}" data-nfl-record-team="${team}" role="button" tabindex="0" aria-label="Show ${team} picks">
+              <span>${nfl272TeamBadge(team)}</span>
+              <span>${records[team].wins}</span>
+              <span>${records[team].losses}</span>
+              <span class="nfl-record-tie">${records[team].ties}</span>
+              <span>${stats[team].pf - stats[team].pa}</span>
+            </div>`;
+          }).join('');
+        }).join('');
+        return `<div class="nfl-record-conference"><div class="nfl-record-row conference-header ${conferenceClass}"><span>${conference}</span><span>W</span><span>L</span><span>T</span><span>PD</span></div>${rows}</div>`;
+      };
+      nfl272Records.classList.remove('compare');
+      nfl272Records.innerHTML = `<div class="nfl-record-conferences">${renderConference('AFC')}${renderConference('NFC')}</div>`;
+    }
+ 
     function scrollNfl272CurrentTeamIntoView() {
       if (!nfl272Records) return;
       const row = nfl272Records.querySelector('.nfl-record-row.current-team');
@@ -6225,7 +6526,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }, 0);
     }
  
-    function renderNfl272Picture() {
+    function renderNfl272PictureLegacy() {
       if (!nfl272Picture) return;
       if (nfl272View !== 'picks') {
         nfl272Picture.innerHTML = '';
@@ -6263,6 +6564,52 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       `;
     }
  
+    function renderNfl272Picture() {
+      if (!nfl272Picture) return;
+      if (nfl272View !== 'picks') {
+        nfl272Picture.innerHTML = '';
+        return;
+      }
+      const games = nfl272PickSteps();
+      const currentStage = nfl272PickStepForIndex(nfl272TeamIndex).stage;
+      const winnerOf = game => {
+        const pick = nfl272PlayoffPicks[game.id] || {};
+        const away = nfl272ScoreValue(pick.awayScore);
+        const home = nfl272ScoreValue(pick.homeScore);
+        if (away === null || home === null || away === home) return '';
+        return away > home ? game.away : game.home;
+      };
+      const renderGame = game => {
+        if (!game) return '<div class="nfl-bracket-game"><div class="nfl-bracket-team"><span>TBD</span><span>-</span></div><div class="nfl-bracket-team"><span>TBD</span><span>-</span></div></div>';
+        const pick = nfl272PlayoffPicks[game.id] || {};
+        const awayScore = nfl272ScoreValue(pick.awayScore);
+        const homeScore = nfl272ScoreValue(pick.homeScore);
+        const winner = winnerOf(game);
+        const editable = !nfl272Locked && nfl272TeamOrder.includes(game.away) && nfl272TeamOrder.includes(game.home);
+        const teamRow = (team, score, field) => `<div class="nfl-bracket-team ${winner === team ? 'winner' : ''}"><div>${nfl272TeamBadge(team, team || 'TBD')}</div>${editable ? `<input class="nfl-score-input nfl-bracket-score" type="text" maxlength="2" inputmode="numeric" data-nfl-playoff-field="${field}" value="${score === null ? '' : score}" aria-label="${escapeHTML(team)} playoff score">` : `<span>${score === null ? '-' : score}</span>`}</div>`;
+        return `<div class="nfl-bracket-game" data-nfl-playoff-id="${game.id}">${teamRow(game.away, awayScore, 'awayScore')}${teamRow(game.home, homeScore, 'homeScore')}</div>`;
+      };
+      const renderConference = conference => {
+        const conferenceGames = games.filter(game => game.conference === conference);
+        const rounds = [
+          { stage: 'Wild Card', label: 'Wild Card' },
+          { stage: 'Divisional', label: 'Divisional' },
+          { stage: 'Conference', label: 'Conf.' }
+        ];
+        return `
+          <div class="nfl-picture-title ${conference.toLowerCase()}">${conference} Playoff Bracket</div>
+          <div class="nfl-bracket"><div class="nfl-bracket-tree">
+            ${rounds.map(round => `<div class="nfl-bracket-round"><div class="nfl-bracket-round-title">${round.label}</div>${conferenceGames.filter(game => game.stage === round.stage).map(renderGame).join('') || renderGame(null)}</div>`).join('')}
+          </div></div>`;
+      };
+      const superBowl = games.find(game => game.id === 'SUPER-BOWL');
+      const superBowlWinner = superBowl ? winnerOf(superBowl) : '';
+      nfl272Picture.innerHTML = renderConference('AFC') + renderConference('NFC') + `
+        <div class="nfl-picture-title">Super Bowl</div>
+        <div class="nfl-super-bowl-bracket">${renderGame(superBowl)}</div>
+        <div class="nfl-champion-row"><span>Champion</span><span>${superBowlWinner ? nfl272TeamBadge(superBowlWinner) : 'TBD'}</span></div>`;
+    }
+ 
     function nfl272ActualSeeds(conference) {
       const stats = calculateNfl272TeamStats(nfl272ActualPredictions());
       const conferenceTeams = nfl272TeamOrder.filter(team => nfl272TeamDivisions[team].startsWith(conference));
@@ -6286,14 +6633,16 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         const matchup = (awaySeed, homeSeed) => {
           const away = seeds[awaySeed - 1]?.team || '-';
           const home = seeds[homeSeed - 1]?.team || '-';
-          return `<div class="nfl-bracket-game"><span>${awaySeed}/${homeSeed}</span><span>${escapeHTML(away)} at ${escapeHTML(home)}</span></div>`;
+          return `<div class="nfl-bracket-game"><div class="nfl-bracket-team"><div>${nfl272TeamBadge(away, `#${awaySeed} ${away}`)}</div><span>-</span></div><div class="nfl-bracket-team"><div>${nfl272TeamBadge(home, `#${homeSeed} ${home}`)}</div><span>-</span></div></div>`;
         };
+        const placeholder = '<div class="nfl-bracket-game"><div class="nfl-bracket-team"><span>TBD</span><span>-</span></div><div class="nfl-bracket-team"><span>TBD</span><span>-</span></div></div>';
         return `
-          <div class="nfl-picture-title ${conference.toLowerCase()}">${conference} Playoff Picture</div>
-          <div class="nfl-bracket">
-            <div class="nfl-bracket-game"><span>BYE</span><span>#1 ${escapeHTML(seeds[0]?.team || '-')}</span></div>
-            ${matchup(7, 2)}${matchup(6, 3)}${matchup(5, 4)}
-          </div>
+          <div class="nfl-picture-title ${conference.toLowerCase()}">${conference} Playoff Bracket</div>
+          <div class="nfl-bracket"><div class="nfl-bracket-tree">
+            <div class="nfl-bracket-round"><div class="nfl-bracket-round-title">Wild Card</div>${matchup(7, 2)}${matchup(6, 3)}${matchup(5, 4)}</div>
+            <div class="nfl-bracket-round"><div class="nfl-bracket-round-title">Divisional</div><div class="nfl-bracket-game"><div class="nfl-bracket-team winner"><div>${nfl272TeamBadge(seeds[0]?.team, `#1 ${seeds[0]?.team || '-'} BYE`, 'nfl-bye-badge')}</div><span>-</span></div><div class="nfl-bracket-team"><span>TBD</span><span>-</span></div></div>${placeholder}</div>
+            <div class="nfl-bracket-round"><div class="nfl-bracket-round-title">Conf.</div>${placeholder}</div>
+          </div></div>
         `;
       };
       nfl272Picture.innerHTML = renderConference('AFC') + renderConference('NFC');
@@ -6308,10 +6657,10 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
             const actual = nfl272ActualFor(game);
             return `
               <tr data-nfl-game-id="${game.id}">
-                <td class="team-col">${game.away}</td>
+                <td class="team-col">${nfl272TeamBadge(game.away)}</td>
                 <td><input class="nfl-score-input nfl-actual-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" data-nfl-field="awayActual" value="${actual.awayActual ?? ''}" aria-label="${game.away} actual score" /></td>
                 <td><input class="nfl-score-input nfl-actual-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" data-nfl-field="homeActual" value="${actual.homeActual ?? ''}" aria-label="${game.home} actual score" /></td>
-                <td class="team-col">${game.home}</td>
+                <td class="team-col">${nfl272TeamBadge(game.home)}</td>
               </tr>`;
           }).join('')}</tbody>
         </table>`;
@@ -6320,7 +6669,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       renderNfl272Leaderboard();
     }
  
-    function renderNfl272Leaderboard() {
+    function renderNfl272LeaderboardLegacy() {
       if (!nfl272Leaderboard) return;
       const superBowlChamp = submission => {
         const pick = submission.playoffPicks?.['SUPER-BOWL'] || {};
@@ -6348,6 +6697,47 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
             <span>${escapeHTML(superBowlChamp(submission))}</span>
           </div>
         `).join('') : '<div class="nfl-leader-row"><span>-</span><span>No submissions</span><span>-</span><span>0</span><span>-</span><span>-</span></div>');
+    }
+ 
+    function nfl272SubmissionChampions(submission) {
+      const playoffPicks = submission.playoffPicks || {};
+      const games = nfl272PickSteps(submission.predictions || {}, playoffPicks);
+      const winnerOf = game => {
+        if (!game) return '';
+        const pick = playoffPicks[game.id] || {};
+        const away = nfl272ScoreValue(pick.awayScore);
+        const home = nfl272ScoreValue(pick.homeScore);
+        if (away === null || home === null || away === home) return '';
+        return away > home ? game.away : game.home;
+      };
+      return {
+        afc: winnerOf(games.find(game => game.id === 'AFC-CHAMP')),
+        nfc: winnerOf(games.find(game => game.id === 'NFC-CHAMP')),
+        superBowl: winnerOf(games.find(game => game.id === 'SUPER-BOWL'))
+      };
+    }
+ 
+    function renderNfl272Leaderboard() {
+      if (!nfl272Leaderboard) return;
+      const rows = nfl272Submissions
+        .filter(submission => submission.submitted === true || (typeof submission.submitted === 'undefined' && submission.predictions))
+        .map(submission => ({ submission, score: scoreNfl272Submission(submission), champions: nfl272SubmissionChampions(submission) }))
+        .sort((a, b) => b.score.games - a.score.games || a.score.total - b.score.total || String(a.submission.username || '').localeCompare(String(b.submission.username || '')));
+      const badge = team => team ? nfl272TeamBadge(team) : '-';
+      nfl272Leaderboard.innerHTML = '<div class="nfl-leader-row header"><span>No.</span><span>Name</span><span>Playoff Teams</span><span>Avg Error</span><span>Perfect</span><span>AFC Champ</span><span>NFC Champ</span><span>SB Champ</span><span></span></div>' +
+        (rows.length ? rows.map(({ submission, score, champions }, index) => `<div class="nfl-leader-row" data-nfl-submission-id="${escapeHTML(submission.id)}"><span>${index + 1}</span><span>${escapeHTML(submission.username || 'Player')}</span><span>${score.games ? score.playoffTeams : '-'}</span><span>${score.games ? score.avg.toFixed(1) : '-'}</span><span>${score.games ? score.perfect : '-'}</span><span>${badge(champions.afc)}</span><span>${badge(champions.nfc)}</span><span>${badge(champions.superBowl)}</span><span>${playerIsAdmin ? '<button type="button" class="nfl-delete-entry" data-nfl-delete-entry title="Delete entry" aria-label="Delete entry">&times;</button>' : ''}</span></div>`).join('') : '<div class="nfl-leader-empty">No submissions</div>');
+    }
+ 
+    async function deleteNfl272Submission(id) {
+      if (!playerIsAdmin || !id) return;
+      const confirmed = await showDataDayDialog('Delete this Data Day leaderboard entry?', { title: 'Delete Entry', confirm: true, okText: 'Delete' });
+      if (!confirmed) return;
+      try {
+        await nfl272PredictionsCollection.doc(id).delete();
+        await showDataDayDialog('Data Day entry deleted.', { title: 'Entry Deleted' });
+      } catch (error) {
+        await showDataDayDialog(error?.message || 'The entry could not be deleted.', { title: 'Delete Error', error: true });
+      }
     }
  
     function nfl272OverallProgress() {
@@ -6414,7 +6804,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const activeScoreInput = document.activeElement instanceof HTMLInputElement
         && document.activeElement.classList.contains('nfl-score-input');
       if (activeScoreInput) {
-        renderNfl272Records(nfl272View === 'actuals' ? 'actual' : (nfl272Submitted ? 'compare' : 'predicted'));
+        renderNfl272Records(nfl272View === 'actuals' ? 'actual' : 'predicted');
         if (nfl272View === 'actuals') renderNfl272ActualPicture();
         else renderNfl272Picture();
         renderNfl272Leaderboard();
@@ -6430,7 +6820,8 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         button.classList.toggle('active', button.dataset.nflView === nfl272View);
       });
       const step = nfl272PickStepForIndex(nfl272TeamIndex);
-      const selectedTeam = step.team || nfl272TeamOrder[0];
+      nfl272Panel.classList.remove('nfl-playoff-entry');
+      const selectedTeam = step.team || nfl272TeamOrder[nfl272TeamOrder.length - 1];
       nfl272WeekLabel.textContent = nfl272View === 'actuals' ? `Week ${nfl272ActualWeek}` : step.label;
       if (nfl272Prev) {
         nfl272Prev.disabled = nfl272View === 'actuals' ? nfl272ActualWeek <= 1 : nfl272TeamIndex <= 0;
@@ -6440,22 +6831,30 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         nfl272Next.disabled = nfl272View === 'actuals' ? nfl272ActualWeek >= 18 : nfl272TeamIndex >= nfl272PickFlowLength() - 1;
         nfl272Next.textContent = 'Next';
       }
-      const showWeekTools = nfl272View === 'picks' || nfl272View === 'actuals';
-      [nfl272Prev, nfl272Next].forEach(node => {
-        if (node) node.style.display = showWeekTools ? '' : 'none';
-      });
+      if (nfl272Prev) nfl272Prev.style.display = nfl272View === 'picks' || nfl272View === 'actuals' ? '' : 'none';
+      if (nfl272Next) nfl272Next.style.display = nfl272View === 'actuals' || (nfl272View === 'picks' && step.type !== 'playoffs') ? '' : 'none';
       if (nfl272WeekLabel) nfl272WeekLabel.style.display = nfl272View === 'actuals' ? '' : 'none';
       renderNfl272Instruction(step);
       if (nfl272SavePicks) {
         nfl272SavePicks.style.display = nfl272View === 'picks' ? '' : 'none';
-        nfl272SavePicks.disabled = nfl272Submitted;
+        nfl272SavePicks.disabled = nfl272Locked;
       }
+      [nfl272Import, nfl272Export].forEach(button => {
+        if (!button) return;
+        button.style.display = nfl272View === 'picks' ? '' : 'none';
+      });
+      if (nfl272Import) nfl272Import.disabled = nfl272Locked;
+      if (nfl272Export) nfl272Export.disabled = false;
       if (nfl272Submit) {
         nfl272Submit.style.display = nfl272View === 'picks' ? '' : 'none';
-        nfl272Submit.disabled = nfl272Submitted;
-        nfl272Submit.textContent = nfl272Submitted ? 'Submitted' : 'Submit';
+        nfl272Submit.disabled = nfl272Locked;
+        nfl272Submit.textContent = 'Submit';
       }
       if (nfl272SaveActuals) nfl272SaveActuals.style.display = nfl272View === 'actuals' && playerIsAdmin ? '' : 'none';
+      if (nfl272Lock) {
+        nfl272Lock.style.display = playerIsAdmin && nfl272View === 'picks' ? '' : 'none';
+        nfl272Lock.textContent = nfl272Locked ? 'Unlock Picks' : 'Lock Picks';
+      }
       if (nfl272View === 'leaderboard') {
         nfl272Games.innerHTML = '';
         if (nfl272Records) nfl272Records.innerHTML = '';
@@ -6467,26 +6866,19 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         renderNfl272ActualsWeek();
         return;
       }
-      if (step.type === 'playoffs') {
-        if (nfl272Records) nfl272Records.innerHTML = '';
-        renderNfl272Picture();
-        renderNfl272Playoffs();
-        return;
-      }
       const games = nfl272Schedule.filter(game => game.home === selectedTeam || game.away === selectedTeam);
-      const readOnly = nfl272Submitted;
+      const readOnly = nfl272Locked;
       const selectedConference = String(nfl272TeamDivisions[selectedTeam] || '').startsWith('AFC') ? 'afc' : 'nfc';
       nfl272Games.innerHTML = `
-        <table class="nfl-score-table conference-${selectedConference}">
+        <table class="nfl-score-table nfl-picks-table conference-${selectedConference}" style="${nfl272TeamStyle(selectedTeam)}">
           <thead>
             <tr>
-              <th>Wk</th><th class="team-col">Opp</th><th>H/A</th><th>${selectedTeam}</th><th>Opp</th>
+              <th>Wk</th><th class="team-col">Opp</th><th>${selectedTeam}</th><th>Opp</th>
             </tr>
           </thead>
           <tbody>
       ` + games.map(game => {
         const prediction = nfl272PredictionFor(game);
-        const actual = nfl272ActualFor(game);
         const isHomeTeam = game.home === selectedTeam;
         const opponent = isHomeTeam ? game.away : game.home;
         const teamField = isHomeTeam ? 'homeScore' : 'awayScore';
@@ -6494,22 +6886,45 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         return `
           <tr class="${isHomeTeam ? '' : 'away-game'}" data-nfl-game-id="${game.id}">
             <td>${game.week}</td>
-            <td class="team-col">${opponent}</td>
-            <td>${isHomeTeam ? 'H' : 'A'}</td>
+            <td class="team-col">${nfl272TeamBadge(opponent, `${isHomeTeam ? '' : '@'}${opponent}`)}</td>
             <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${readOnly ? '-1' : '0'}" data-nfl-field="${teamField}" data-readonly="${readOnly ? 'true' : 'false'}" value="${prediction[teamField] ?? ''}" aria-label="${selectedTeam} predicted score" onpointerdown="event.stopPropagation(); this.focus();" ${readOnly ? 'readonly' : ''} /></td>
             <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${readOnly ? '-1' : '0'}" data-nfl-field="${opponentField}" data-readonly="${readOnly ? 'true' : 'false'}" value="${prediction[opponentField] ?? ''}" aria-label="${opponent} predicted score" onpointerdown="event.stopPropagation(); this.focus();" ${readOnly ? 'readonly' : ''} /></td>
           </tr>
         `;
       }).join('') + '</tbody></table>';
-      renderNfl272Records(nfl272Submitted ? 'compare' : 'predicted');
+      renderNfl272Records('predicted');
       scrollNfl272CurrentTeamIntoView();
       renderNfl272Picture();
       renderNfl272Leaderboard();
     }
  
+    function stampNfl272PlayoffMatchups() {
+      nfl272PickSteps().forEach(game => {
+        const pick = nfl272PlayoffPicks[game.id];
+        if (!pick || (nfl272ScoreValue(pick.awayScore) === null && nfl272ScoreValue(pick.homeScore) === null)) return;
+        if (!pick.away || !pick.home) nfl272PlayoffPicks[game.id] = { ...pick, away: game.away, home: game.home };
+      });
+    }
+ 
+    function clearChangedNfl272PlayoffMatchups() {
+      for (let pass = 0; pass < 5; pass += 1) {
+        let changed = false;
+        nfl272PickSteps().forEach(game => {
+          const pick = nfl272PlayoffPicks[game.id];
+          if (!pick || !pick.away || !pick.home) return;
+          if (pick.away !== game.away || pick.home !== game.home) {
+            delete nfl272PlayoffPicks[game.id];
+            changed = true;
+          }
+        });
+        if (!changed) break;
+      }
+    }
+ 
     function setNfl272Prediction(gameId, field, value) {
       const game = nfl272Schedule.find(item => item.id === gameId);
       if (!game) return;
+      stampNfl272PlayoffMatchups();
       const score = nfl272ScoreValue(value);
       nfl272Predictions[gameId] = {
         ...nfl272Predictions[gameId],
@@ -6518,6 +6933,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         away: game.away,
         [field]: score === null ? '' : score
       };
+      clearChangedNfl272PlayoffMatchups();
     }
  
     function setNfl272Actual(gameId, field, value) {
@@ -6534,11 +6950,25 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     }
  
     function setNfl272PlayoffPick(gameId, field, value) {
+      stampNfl272PlayoffMatchups();
+      const game = nfl272PickSteps().find(item => item.id === gameId);
+      if (!game) return;
       const score = nfl272ScoreValue(value);
       nfl272PlayoffPicks[gameId] = {
         ...nfl272PlayoffPicks[gameId],
+        away: game.away,
+        home: game.home,
         [field]: score === null ? '' : score
       };
+      clearChangedNfl272PlayoffMatchups();
+    }
+ 
+    function selectNfl272Team(team) {
+      const teamIndex = nfl272TeamOrder.indexOf(team);
+      if (teamIndex < 0) return;
+      nfl272TeamIndex = teamIndex;
+      nfl272View = 'picks';
+      renderNfl272();
     }
  
     function getNfl272ScoreInputs() {
@@ -6604,13 +7034,172 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       if (key) localStorage.removeItem(key);
     }
  
+    function exportNfl272PicksJsonLegacy() {
+      const payload = {
+        format: 'yak-data-day-picks',
+        version: 1,
+        season: 2026,
+        username: currentUsername || '',
+        exportedAt: new Date().toISOString(),
+        predictions: nfl272Predictions,
+        playoffPicks: nfl272PlayoffPicks
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'data-day-picks-2026.json';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+ 
+    async function importNfl272PicksJsonLegacy(file) {
+      if (!file || nfl272Submitted) return;
+      try {
+        const payload = JSON.parse(await file.text());
+        if (payload?.format !== 'yak-data-day-picks' || payload?.version !== 1 || payload?.season !== 2026) {
+          throw new Error('Choose a 2026 Data Day JSON file created by Export.');
+        }
+        const importedPredictions = {};
+        nfl272Schedule.forEach(game => {
+          const source = payload.predictions?.[game.id];
+          if (!source) return;
+          const homeScore = nfl272ScoreValue(source.homeScore);
+          const awayScore = nfl272ScoreValue(source.awayScore);
+          importedPredictions[game.id] = {
+            week: game.week,
+            home: game.home,
+            away: game.away,
+            homeScore: homeScore === null ? '' : homeScore,
+            awayScore: awayScore === null ? '' : awayScore
+          };
+        });
+        nfl272Predictions = importedPredictions;
+        const validPlayoffIds = new Set(nfl272PickSteps().map(game => game.id));
+        nfl272PlayoffPicks = Object.fromEntries(Object.entries(payload.playoffPicks || {})
+          .filter(([id]) => validPlayoffIds.has(id))
+          .map(([id, source]) => {
+            const awayScore = nfl272ScoreValue(source?.awayScore);
+            const homeScore = nfl272ScoreValue(source?.homeScore);
+            return [id, {
+              awayScore: awayScore === null ? '' : awayScore,
+              homeScore: homeScore === null ? '' : homeScore
+            }];
+          }));
+        saveNfl272DraftLocally();
+        renderNfl272();
+        await showDataDayDialog('Picks imported. Review them, then select Save Picks to sync them to your account.', { title: 'Import Complete' });
+      } catch (error) {
+        console.error('Data Day import failed:', error);
+        await showDataDayDialog(error?.message || 'The Data Day file could not be imported.', { title: 'Import Error', error: true });
+      } finally {
+        if (nfl272ImportFile) nfl272ImportFile.value = '';
+      }
+    }
+ 
+    function requireNfl272Excel() {
+      if (window.XLSX) return true;
+      showDataDayDialog('Excel support could not load. Check the internet connection and reload the page.', { title: 'Excel Error', error: true });
+      return false;
+    }
+ 
+    function exportNfl272Picks() {
+      if (!requireNfl272Excel()) return;
+      const metadataRows = [
+        ['Format', 'yak-data-day-picks'],
+        ['Version', 1],
+        ['Season', 2026],
+        ['Username', currentUsername || ''],
+        ['Exported At', new Date().toISOString()]
+      ];
+      const pickRows = nfl272Schedule.map(game => {
+        const prediction = nfl272PredictionFor(game);
+        return {
+          Week: game.week,
+          Away: game.away,
+          Home: game.home,
+          'Away Score': nfl272ScoreValue(prediction.awayScore) ?? '',
+          'Home Score': nfl272ScoreValue(prediction.homeScore) ?? '',
+          'Game ID': game.id
+        };
+      });
+      const playoffRows = nfl272PickSteps().map(game => {
+        const pick = nfl272PlayoffPicks[game.id] || {};
+        return {
+          Stage: game.stage,
+          Conference: game.conference || '',
+          Away: game.away,
+          Home: game.home,
+          'Away Score': nfl272ScoreValue(pick.awayScore) ?? '',
+          'Home Score': nfl272ScoreValue(pick.homeScore) ?? '',
+          'Game ID': game.id
+        };
+      });
+      const workbook = XLSX.utils.book_new();
+      const metadataSheet = XLSX.utils.aoa_to_sheet(metadataRows);
+      const picksSheet = XLSX.utils.json_to_sheet(pickRows);
+      const playoffsSheet = XLSX.utils.json_to_sheet(playoffRows);
+      picksSheet['!cols'] = [{ wch: 7 }, { wch: 10 }, { wch: 10 }, { wch: 13 }, { wch: 13 }, { wch: 28 }];
+      playoffsSheet['!cols'] = [{ wch: 14 }, { wch: 12 }, { wch: 20 }, { wch: 20 }, { wch: 13 }, { wch: 13 }, { wch: 28 }];
+      XLSX.utils.book_append_sheet(workbook, metadataSheet, 'Metadata');
+      XLSX.utils.book_append_sheet(workbook, picksSheet, 'Picks');
+      XLSX.utils.book_append_sheet(workbook, playoffsSheet, 'Playoffs');
+      XLSX.writeFile(workbook, 'data-day-picks-2026.xlsx');
+    }
+ 
+    async function importNfl272Picks(file) {
+      if (!file || nfl272Locked || !requireNfl272Excel()) return;
+      try {
+        const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+        const metadata = XLSX.utils.sheet_to_json(workbook.Sheets.Metadata, { header: 1, defval: '' });
+        const metadataMap = Object.fromEntries(metadata.filter(row => row.length >= 2).map(row => [String(row[0]), row[1]]));
+        if (metadataMap.Format !== 'yak-data-day-picks' || Number(metadataMap.Version) !== 1 || Number(metadataMap.Season) !== 2026) {
+          throw new Error('Choose a 2026 Data Day Excel file created by Export.');
+        }
+        const pickRows = XLSX.utils.sheet_to_json(workbook.Sheets.Picks, { defval: '' });
+        const pickRowsById = new Map(pickRows.map(row => [String(row['Game ID'] || ''), row]));
+        nfl272Predictions = Object.fromEntries(nfl272Schedule.map(game => {
+          const row = pickRowsById.get(game.id) || {};
+          const awayScore = nfl272ScoreValue(row['Away Score']);
+          const homeScore = nfl272ScoreValue(row['Home Score']);
+          return [game.id, {
+            week: game.week,
+            away: game.away,
+            home: game.home,
+            awayScore: awayScore === null ? '' : awayScore,
+            homeScore: homeScore === null ? '' : homeScore
+          }];
+        }));
+        const playoffRows = XLSX.utils.sheet_to_json(workbook.Sheets.Playoffs, { defval: '' });
+        const validPlayoffIds = new Set(nfl272PickSteps().map(game => game.id));
+        nfl272PlayoffPicks = Object.fromEntries(playoffRows.filter(row => validPlayoffIds.has(String(row['Game ID'] || ''))).map(row => {
+          const awayScore = nfl272ScoreValue(row['Away Score']);
+          const homeScore = nfl272ScoreValue(row['Home Score']);
+          return [String(row['Game ID']), {
+            awayScore: awayScore === null ? '' : awayScore,
+            homeScore: homeScore === null ? '' : homeScore
+          }];
+        }));
+        saveNfl272DraftLocally();
+        renderNfl272();
+        await showDataDayDialog('Excel picks imported. Review them, then select Save Picks to sync them to your account.', { title: 'Import Complete' });
+      } catch (error) {
+        console.error('Data Day Excel import failed:', error);
+        await showDataDayDialog(error?.message || 'The Data Day Excel file could not be imported.', { title: 'Import Error', error: true });
+      } finally {
+        if (nfl272ImportFile) nfl272ImportFile.value = '';
+      }
+    }
+ 
     async function saveNfl272Predictions() {
       if (!currentUser) {
         await showDataDayDialog('Log in with a username to save Data Day picks.');
         openLoginDialog();
         return;
       }
-      if (nfl272Submitted) return;
+      if (nfl272Locked) return;
       const savedLocally = saveNfl272DraftLocally();
       nfl272SavePicks.disabled = true;
       nfl272SavePicks.textContent = 'Saving...';
@@ -6621,7 +7210,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
           season: 2026,
           predictions: nfl272Predictions,
           playoffPicks: nfl272PlayoffPicks,
-          submitted: false,
+          submitted: nfl272Submitted,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
         clearNfl272DraftLocally();
@@ -6637,7 +7226,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
           { title: savedLocally ? 'Saved Locally' : 'Save Error', error: true }
         );
       } finally {
-        if (nfl272SavePicks && !nfl272Submitted) {
+        if (nfl272SavePicks && !nfl272Locked) {
           nfl272SavePicks.disabled = false;
           nfl272SavePicks.textContent = 'Save Picks';
         }
@@ -6650,7 +7239,11 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         openLoginDialog();
         return;
       }
-      const confirmed = await showDataDayDialog('Submit your Data Day picks? They cannot be edited after submission.', {
+      if (nfl272Locked) {
+        await showDataDayDialog('Data Day picks are locked by an admin.', { title: 'Picks Locked', error: true });
+        return;
+      }
+      const confirmed = await showDataDayDialog('Submit your Data Day picks? You may update them until an admin locks picks.', {
         title: 'Submit Picks',
         confirm: true,
         okText: 'Submit'
@@ -6707,9 +7300,23 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }
     }
  
+    async function toggleNfl272Lock() {
+      if (!playerIsAdmin) return;
+      try {
+        await nfl272SettingsCollection.doc('2026').set({
+          locked: !nfl272Locked,
+          updatedBy: currentUser.uid,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+      } catch (error) {
+        await showDataDayDialog(error?.message || 'The Data Day lock could not be changed.', { title: 'Lock Error', error: true });
+      }
+    }
+ 
     function subscribeNfl272() {
       if (nfl272PredictionsUnsubscribe) nfl272PredictionsUnsubscribe();
       if (nfl272ActualsUnsubscribe) nfl272ActualsUnsubscribe();
+      if (nfl272SettingsUnsubscribe) nfl272SettingsUnsubscribe();
       nfl272PredictionsUnsubscribe = nfl272PredictionsCollection.onSnapshot(snapshot => {
         nfl272Submissions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         const mine = currentUser ? nfl272Submissions.find(submission => submission.id === currentUser.uid) : null;
@@ -6726,6 +7333,10 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         nfl272Actuals = Object.fromEntries(snapshot.docs.map(doc => [doc.id, doc.data()]));
         renderNfl272();
       }, error => console.error('Data Day actuals could not load:', error));
+      nfl272SettingsUnsubscribe = nfl272SettingsCollection.doc('2026').onSnapshot(snapshot => {
+        nfl272Locked = snapshot.exists && snapshot.data()?.locked === true;
+        renderNfl272();
+      }, error => console.error('Data Day settings could not load:', error));
     }
  
     function euchreTeam(playerIndex) {
@@ -7688,6 +8299,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     const euchreScoresCollection = db.collection("euchreScores");
     const nfl272PredictionsCollection = db.collection("nfl272Predictions");
     const nfl272ActualsCollection = db.collection("nfl272Actuals");
+    const nfl272SettingsCollection = db.collection("nfl272Settings");
  
     const form = document.getElementById('entryForm');
     const scoreboard = document.getElementById('scoreboard').querySelector('tbody');
@@ -9354,8 +9966,17 @@ document.querySelectorAll('.delete-button').forEach(button => {
       });
     }
     if (nfl272SavePicks) nfl272SavePicks.addEventListener('click', saveNfl272Predictions);
+    if (nfl272Import && nfl272ImportFile) nfl272Import.addEventListener('click', () => nfl272ImportFile.click());
+    if (nfl272Export) nfl272Export.addEventListener('click', exportNfl272Picks);
+    if (nfl272ImportFile) nfl272ImportFile.addEventListener('change', () => importNfl272Picks(nfl272ImportFile.files?.[0]));
     if (nfl272Submit) nfl272Submit.addEventListener('click', submitNfl272Predictions);
     if (nfl272SaveActuals) nfl272SaveActuals.addEventListener('click', saveNfl272Actuals);
+    if (nfl272Lock) nfl272Lock.addEventListener('click', toggleNfl272Lock);
+    if (nfl272Leaderboard) nfl272Leaderboard.addEventListener('click', event => {
+      const button = event.target instanceof Element ? event.target.closest('[data-nfl-delete-entry]') : null;
+      const id = button?.closest('[data-nfl-submission-id]')?.dataset.nflSubmissionId;
+      if (button && id) deleteNfl272Submission(id);
+    });
     document.querySelectorAll('[data-nfl-view]').forEach(button => {
       button.addEventListener('click', () => {
         const requestedView = button.dataset.nflView || 'picks';
@@ -9409,7 +10030,7 @@ document.querySelectorAll('.delete-button').forEach(button => {
         if (gameId && field) {
           if (field === 'homeScore' || field === 'awayScore') setNfl272Prediction(gameId, field, value);
           if (field === 'homeActual' || field === 'awayActual') setNfl272Actual(gameId, field, value);
-          renderNfl272Records(nfl272View === 'actuals' ? 'actual' : (nfl272Submitted ? 'compare' : 'predicted'));
+          renderNfl272Records(nfl272View === 'actuals' ? 'actual' : 'predicted');
           if (nfl272View === 'actuals') renderNfl272ActualPicture();
           else renderNfl272Picture();
           renderNfl272Leaderboard();
@@ -9426,8 +10047,42 @@ document.querySelectorAll('.delete-button').forEach(button => {
         }
       });
       nfl272Games.addEventListener('change', () => {
-        renderNfl272Records(nfl272Submitted ? 'compare' : 'predicted');
+        renderNfl272Records('predicted');
         renderNfl272Picture();
+      });
+    }
+    if (nfl272Picture) {
+      nfl272Picture.addEventListener('click', event => {
+        const input = event.target instanceof Element ? event.target.closest('.nfl-bracket-score') : null;
+        if (input && !nfl272Locked) input.focus();
+      });
+      nfl272Picture.addEventListener('input', event => {
+        const input = event.target instanceof Element ? event.target.closest('.nfl-bracket-score') : null;
+        if (!input || nfl272Locked) return;
+        const value = input.value.replace(/\D/g, '').slice(0, 2);
+        if (input.value !== value) input.value = value;
+        const gameId = input.closest('[data-nfl-playoff-id]')?.dataset.nflPlayoffId;
+        const field = input.dataset.nflPlayoffField;
+        if (gameId && field) setNfl272PlayoffPick(gameId, field, value);
+      });
+      nfl272Picture.addEventListener('change', event => {
+        if (!(event.target instanceof Element) || !event.target.closest('.nfl-bracket-score')) return;
+        renderNfl272Picture();
+        renderNfl272Instruction(nfl272PickStepForIndex(nfl272TeamIndex));
+      });
+    }
+    if (nfl272Records) {
+      const openTeamPicks = event => {
+        const row = event.target instanceof Element ? event.target.closest('[data-nfl-record-team]') : null;
+        if (row) selectNfl272Team(row.dataset.nflRecordTeam);
+      };
+      nfl272Records.addEventListener('click', openTeamPicks);
+      nfl272Records.addEventListener('keydown', event => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        const row = event.target instanceof Element ? event.target.closest('[data-nfl-record-team]') : null;
+        if (!row) return;
+        event.preventDefault();
+        selectNfl272Team(row.dataset.nflRecordTeam);
       });
     }
     document.addEventListener('keydown', event => handleSkiChefKey(event, true));

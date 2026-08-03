@@ -2646,7 +2646,13 @@
     }
  
     .nfl-current-step {
-      padding: 5px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      height: 21px;
+      min-height: 21px;
+      padding: 1px 8px;
       color: #000;
       background: #c0c0c0;
       border-top: 2px solid #fff;
@@ -6728,7 +6734,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         .sort((a, b) => b.score.games - a.score.games || a.score.total - b.score.total || String(a.submission.username || '').localeCompare(String(b.submission.username || '')));
       const badge = team => team ? nfl272TeamBadge(team) : '-';
       nfl272Leaderboard.innerHTML = '<div class="nfl-leader-row header"><span>No.</span><span>Name</span><span>Playoff Teams</span><span>Avg Error</span><span>Perfect</span><span>AFC Champ</span><span>NFC Champ</span><span>SB Champ</span><span></span></div>' +
-        (rows.length ? rows.map(({ submission, score, champions }, index) => `<div class="nfl-leader-row" data-nfl-submission-id="${escapeHTML(submission.id)}"><span>${index + 1}</span><span>${escapeHTML(submission.username || 'Player')}</span><span>${score.games ? score.playoffTeams : '-'}</span><span>${score.games ? score.avg.toFixed(1) : '-'}</span><span>${score.games ? score.perfect : '-'}</span><span>${badge(champions.afc)}</span><span>${badge(champions.nfc)}</span><span>${badge(champions.superBowl)}</span><span>${playerIsAdmin ? '<button type="button" class="nfl-delete-entry" data-nfl-delete-entry title="Delete entry" aria-label="Delete entry">&times;</button>' : ''}</span></div>`).join('') : '<div class="nfl-leader-empty">No submissions</div>');
+        (rows.length ? rows.map(({ submission, score, champions }, index) => `<div class="nfl-leader-row" data-nfl-submission-id="${escapeHTML(submission.id)}"><span>${index + 1}</span><span>${escapeHTML(submission.username || 'Player')}</span><span>${score.games ? score.playoffTeams : '-'}</span><span>${score.games ? Math.round(score.avg) : '-'}</span><span>${score.games ? score.perfect : '-'}</span><span>${badge(champions.afc)}</span><span>${badge(champions.nfc)}</span><span>${badge(champions.superBowl)}</span><span>${playerIsAdmin ? '<button type="button" class="nfl-delete-entry" data-nfl-delete-entry title="Delete entry" aria-label="Delete entry">&times;</button>' : ''}</span></div>`).join('') : '<div class="nfl-leader-empty">No submissions</div>');
     }
  
     async function deleteNfl272Submission(id) {
@@ -10050,8 +10056,13 @@ document.querySelectorAll('.delete-button').forEach(button => {
         }
       });
       nfl272Games.addEventListener('change', () => {
-        renderNfl272Records('predicted');
-        renderNfl272Picture();
+        if (nfl272View === 'actuals') {
+          renderNfl272Records('actual');
+          renderNfl272ActualPicture();
+        } else {
+          renderNfl272Records('predicted');
+          renderNfl272Picture();
+        }
       });
     }
     if (nfl272Picture) {

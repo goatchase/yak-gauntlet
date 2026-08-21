@@ -8401,13 +8401,19 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       } catch (error) {
         positions = {};
       }
+      const initialRects = new Map(desktopIcons.map(icon => [icon, icon.getBoundingClientRect()]));
       desktopIcons.forEach(icon => {
         const position = positions[icon.dataset.windowRestore];
-        if (!position) return;
+        const initialRect = initialRects.get(icon);
         icon.style.position = 'fixed';
         icon.style.bottom = 'auto';
         icon.style.zIndex = '1';
-        snapDesktopIconPosition(icon, parseFloat(position.left) || desktopIconGrid.left, parseFloat(position.top) || desktopIconGrid.top);
+        if (position) {
+          snapDesktopIconPosition(icon, parseFloat(position.left) || desktopIconGrid.left, parseFloat(position.top) || desktopIconGrid.top);
+        } else {
+          icon.style.left = `${initialRect.left}px`;
+          icon.style.top = `${initialRect.top}px`;
+        }
       });
     }
  

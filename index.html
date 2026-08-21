@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>The Yak</title>
+  <title>the yak</title>
   <link rel="icon" type="image/png" href="wiffle-ball-favicon.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -161,11 +161,20 @@
       white-space: nowrap;
     }
  
+    .desktop-icon > * {
+      pointer-events: none;
+    }
+ 
+    .desktop-icon img {
+      -webkit-user-drag: none;
+      user-select: none;
+    }
+ 
     .desktop-icon:hover,
     .desktop-icon:focus {
       color: #fff;
-      background: #000080;
-      border-color: #fff;
+      background: transparent;
+      border-color: transparent;
       outline: 0;
     }
  
@@ -1110,6 +1119,8 @@
       min-width: 0;
       padding: 8px;
       color: #fff;
+      touch-action: none;
+      user-select: none;
       background: #000080;
       border-top: 2px solid #1084d0;
       border-left: 2px solid #1084d0;
@@ -8356,8 +8367,52 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       document.addEventListener('mouseup', stopDrag);
     }
  
+    const desktopIconPositionKey = 'yakDesktopIconPositionsV1';
+    const desktopIconGrid = { left: 10, top: 8, column: 88, row: 84 };
+ 
+    function snapDesktopIconPosition(icon, left, top) {
+      const maxLeft = desktopIconGrid.left + Math.max(0,
+        Math.floor((window.innerWidth - icon.offsetWidth - desktopIconGrid.left) / desktopIconGrid.column)
+      ) * desktopIconGrid.column;
+      const maxTop = desktopIconGrid.top + Math.max(0,
+        Math.floor((window.innerHeight - icon.offsetHeight - 36 - desktopIconGrid.top) / desktopIconGrid.row)
+      ) * desktopIconGrid.row;
+      const snappedLeft = desktopIconGrid.left
+        + Math.round((left - desktopIconGrid.left) / desktopIconGrid.column) * desktopIconGrid.column;
+      const snappedTop = desktopIconGrid.top
+        + Math.round((top - desktopIconGrid.top) / desktopIconGrid.row) * desktopIconGrid.row;
+      icon.style.left = `${Math.max(desktopIconGrid.left, Math.min(maxLeft, snappedLeft))}px`;
+      icon.style.top = `${Math.max(desktopIconGrid.top, Math.min(maxTop, snappedTop))}px`;
+    }
+ 
+    function saveDesktopIconPositions() {
+      const positions = {};
+      desktopIcons.forEach(icon => {
+        if (!icon.style.left || !icon.style.top) return;
+        positions[icon.dataset.windowRestore] = { left: icon.style.left, top: icon.style.top };
+      });
+      localStorage.setItem(desktopIconPositionKey, JSON.stringify(positions));
+    }
+ 
+    function restoreDesktopIconPositions() {
+      let positions = {};
+      try {
+        positions = JSON.parse(localStorage.getItem(desktopIconPositionKey) || '{}');
+      } catch (error) {
+        positions = {};
+      }
+      desktopIcons.forEach(icon => {
+        const position = positions[icon.dataset.windowRestore];
+        if (!position) return;
+        icon.style.position = 'fixed';
+        icon.style.bottom = 'auto';
+        icon.style.zIndex = '1';
+        snapDesktopIconPosition(icon, parseFloat(position.left) || desktopIconGrid.left, parseFloat(position.top) || desktopIconGrid.top);
+      });
+    }
+ 
     function startDesktopIconDrag(event, icon) {
-      if (event.button !== 0) return;
+      if (event.button !== undefined && event.button !== 0) return;
       const rect = icon.getBoundingClientRect();
       const offsetX = event.clientX - rect.left;
       const offsetY = event.clientY - rect.top;
@@ -8370,8 +8425,10 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       icon.style.top = `${rect.top}px`;
       icon.style.bottom = 'auto';
       icon.style.zIndex = '1';
+      icon.setPointerCapture?.(event.pointerId);
  
       function moveIcon(moveEvent) {
+        if (moveEvent.pointerId !== event.pointerId) return;
         const distance = Math.hypot(moveEvent.clientX - startX, moveEvent.clientY - startY);
         if (distance > 4) moved = true;
         const maxLeft = window.innerWidth - rect.width;
@@ -8380,14 +8437,22 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         icon.style.top = `${Math.max(0, Math.min(maxTop, moveEvent.clientY - offsetY))}px`;
       }
  
-      function stopIconDrag() {
-        if (moved) icon.dataset.dragSuppressClick = 'true';
-        document.removeEventListener('mousemove', moveIcon);
-        document.removeEventListener('mouseup', stopIconDrag);
+      function stopIconDrag(stopEvent) {
+        if (stopEvent.pointerId !== event.pointerId) return;
+        if (moved) {
+          icon.dataset.dragSuppressClick = 'true';
+          snapDesktopIconPosition(icon, parseFloat(icon.style.left) || rect.left, parseFloat(icon.style.top) || rect.top);
+          saveDesktopIconPositions();
+        }
+        icon.releasePointerCapture?.(event.pointerId);
+        document.removeEventListener('pointermove', moveIcon);
+        document.removeEventListener('pointerup', stopIconDrag);
+        document.removeEventListener('pointercancel', stopIconDrag);
       }
  
-      document.addEventListener('mousemove', moveIcon);
-      document.addEventListener('mouseup', stopIconDrag);
+      document.addEventListener('pointermove', moveIcon);
+      document.addEventListener('pointerup', stopIconDrag);
+      document.addEventListener('pointercancel', stopIconDrag);
     }
  
     function toggleMaximize(win) {
@@ -8506,6 +8571,13 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         setWallpaperMode(button.dataset.wallpaperMode);
         startMenu.classList.remove('open');
       });
+    });
+ 
+    restoreDesktopIconPositions();
+    desktopIcons.forEach(icon => {
+      icon.querySelectorAll('img').forEach(image => image.draggable = false);
+      icon.addEventListener('dragstart', event => event.preventDefault());
+      icon.addEventListener('pointerdown', event => startDesktopIconDrag(event, icon));
     });
  
     document.querySelectorAll('[data-window-restore]').forEach(button => {

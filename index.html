@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>The Yak Gauntlet</title>
+  <title>The Yak</title>
   <link rel="icon" type="image/png" href="wiffle-ball-favicon.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -3111,8 +3111,9 @@
     }
  
     .nfl-bracket-score {
-      width: 24px;
-      padding: 0 2px;
+      width: 100%;
+      height: 20px;
+      padding: 1px 2px;
       color: #000;
       background: #fff;
       cursor: text;
@@ -6808,7 +6809,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         const homeScore = nfl272ScoreValue(pick.homeScore);
         const winner = winnerOf(game);
         const editable = !nfl272Locked && nfl272TeamOrder.includes(game.away) && nfl272TeamOrder.includes(game.home);
-        const teamRow = (team, score, field) => `<div class="nfl-bracket-team ${winner === team ? 'winner' : ''}"><div>${nfl272TeamBadge(team, team || 'TBD')}</div>${editable ? `<input class="nfl-score-input nfl-bracket-score" type="text" maxlength="2" inputmode="numeric" data-nfl-playoff-field="${field}" value="${score === null ? '' : score}" aria-label="${escapeHTML(team)} playoff score">` : `<span>${score === null ? '-' : score}</span>`}</div>`;
+        const teamRow = (team, score, field) => `<div class="nfl-bracket-team ${winner === team ? 'winner' : ''}"><div>${nfl272TeamBadge(team, team || 'TBD')}</div>${editable ? `<input class="nfl-score-input nfl-bracket-score" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="0" data-nfl-playoff-field="${field}" data-readonly="false" value="${score === null ? '' : score}" aria-label="${escapeHTML(team)} playoff score" onpointerdown="event.stopPropagation(); this.focus();">` : `<span>${score === null ? '-' : score}</span>`}</div>`;
         return `<div class="nfl-bracket-game" data-nfl-playoff-id="${game.id}">${teamRow(game.away, awayScore, 'awayScore')}${teamRow(game.home, homeScore, 'homeScore')}</div>`;
       };
       const renderConference = conference => {
@@ -7026,9 +7027,10 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const activeScoreInput = document.activeElement instanceof HTMLInputElement
         && document.activeElement.classList.contains('nfl-score-input');
       if (activeScoreInput) {
+        const activeBracketInput = !!nfl272Picture?.contains(document.activeElement);
         renderNfl272Records(nfl272View === 'actuals' ? 'actual' : 'predicted');
         if (nfl272View === 'actuals') renderNfl272ActualPicture();
-        else renderNfl272Picture();
+        else if (!activeBracketInput) renderNfl272Picture();
         renderNfl272Leaderboard();
         renderNfl272Instruction(nfl272PickStepForIndex(nfl272TeamIndex));
         return;
@@ -7074,7 +7076,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }
       if (nfl272SaveActuals) nfl272SaveActuals.style.display = nfl272View === 'actuals' && playerIsAdmin ? '' : 'none';
       if (nfl272Lock) {
-        nfl272Lock.style.display = playerIsAdmin && nfl272View === 'picks' ? '' : 'none';
+        nfl272Lock.style.display = playerIsAdmin && nfl272View === 'actuals' ? '' : 'none';
         nfl272Lock.textContent = nfl272Locked ? 'Unlock Picks' : 'Lock Picks';
       }
       if (nfl272View === 'leaderboard') {
@@ -10331,9 +10333,39 @@ document.querySelectorAll('.delete-button').forEach(button => {
       });
     }
     if (nfl272Picture) {
+      nfl272Picture.addEventListener('mouseup', event => {
+        const input = event.target instanceof Element ? event.target.closest('.nfl-bracket-score') : null;
+        if (!input || input.dataset.readonly === 'true' || nfl272Locked) return;
+        event.stopPropagation();
+        window.setTimeout(() => input.focus(), 0);
+      }, true);
+      nfl272Picture.addEventListener('mousedown', event => {
+        const input = event.target instanceof Element ? event.target.closest('.nfl-bracket-score') : null;
+        if (!input || input.dataset.readonly === 'true' || nfl272Locked) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        input.focus();
+      });
       nfl272Picture.addEventListener('click', event => {
         const input = event.target instanceof Element ? event.target.closest('.nfl-bracket-score') : null;
-        if (input && !nfl272Locked) input.focus();
+        if (!input || input.dataset.readonly === 'true' || nfl272Locked) return;
+        input.focus();
+      });
+      nfl272Picture.addEventListener('keydown', event => {
+        const input = event.target instanceof Element ? event.target.closest('.nfl-bracket-score') : null;
+        if (!input || input.dataset.readonly === 'true' || nfl272Locked) return;
+        if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter'].includes(event.key)) return;
+        const inputs = [...nfl272Picture.querySelectorAll('.nfl-bracket-score')]
+          .filter(item => item.offsetParent !== null && !item.readOnly && item.dataset.readonly !== 'true');
+        const index = inputs.indexOf(input);
+        if (index < 0) return;
+        event.preventDefault();
+        const backwards = event.key === 'ArrowLeft' || event.key === 'ArrowUp';
+        const target = inputs[Math.max(0, Math.min(inputs.length - 1, index + (backwards ? -1 : 1)))];
+        if (target && target !== input) {
+          target.focus();
+          target.select();
+        }
       });
       nfl272Picture.addEventListener('input', event => {
         const input = event.target instanceof Element ? event.target.closest('.nfl-bracket-score') : null;

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>The Yak</title>
+  <title>The Yak Gauntlet</title>
   <link rel="icon" type="image/png" href="wiffle-ball-favicon.png"/>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -92,10 +92,10 @@
     }
  
     .desktop-shell {
-      width: min(1300px, calc(100vw - 124px));
-      margin: 0 12px 0 100px;
+      width: calc(100vw - 100px);
+      margin: 0 12px 0 88px;
       display: grid;
-      grid-template-columns: 330px minmax(0, 1fr);
+      grid-template-columns: 280px minmax(0, 1fr);
       align-items: start;
       gap: 10px;
     }
@@ -353,6 +353,24 @@
     .desktop-left-column .desktop-window,
     .desktop-right-column .desktop-window {
       width: 100%;
+    }
+ 
+    .desktop-left-column .form-window { order: 1; }
+    .desktop-left-column .filter-window { order: 2; }
+    .desktop-left-column [data-window-id="runStats"] { order: 3; }
+ 
+    .form-window.entry-collapsed .window-body {
+      display: none;
+    }
+ 
+    .entry-expand-button {
+      display: none;
+      width: calc(100% - 8px);
+      margin: 4px;
+    }
+ 
+    .form-window.entry-collapsed .entry-expand-button {
+      display: block;
     }
  
     .desktop-window:not(.minesweeper-window):not(.euchre-window),
@@ -642,6 +660,16 @@
       width: 100%;
     }
  
+    .filter-button-grid button {
+      width: 100%;
+      min-width: 0;
+      padding-left: 3px;
+      padding-right: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+ 
     .notes-input {
       min-height: 21px;
     }
@@ -887,6 +915,28 @@
       width: 104px;
     }
  
+    @media (max-width: 1120px) and (min-width: 769px) {
+      .desktop-shell {
+        grid-template-columns: 260px minmax(0, 1fr);
+      }
+ 
+      #scoreboard th:nth-child(4),
+      #scoreboard td:nth-child(4),
+      #scoreboard th:nth-child(6),
+      #scoreboard td:nth-child(6) {
+        display: none;
+      }
+ 
+      table#scoreboard th:nth-child(1),
+      table#scoreboard td:nth-child(1) { width: 8%; }
+      table#scoreboard th:nth-child(2),
+      table#scoreboard td:nth-child(2) { width: 34%; }
+      table#scoreboard th:nth-child(3),
+      table#scoreboard td:nth-child(3) { width: 32%; }
+      table#scoreboard th:nth-child(5),
+      table#scoreboard td:nth-child(5) { width: 26%; }
+    }
+ 
     .scoreboard-edit-bar {
       display: none;
       justify-content: flex-end;
@@ -1057,13 +1107,14 @@
       display: grid;
       grid-template-columns: auto 1fr;
       gap: 5px 10px;
-      min-width: min(260px, 100%);
-      padding: 6px;
-      background: #fff;
-      border-top: 2px solid #404040;
-      border-left: 2px solid #404040;
-      border-right: 2px solid #fff;
-      border-bottom: 2px solid #fff;
+      min-width: 0;
+      padding: 8px;
+      color: #fff;
+      background: #000080;
+      border-top: 2px solid #1084d0;
+      border-left: 2px solid #1084d0;
+      border-right: 2px solid #000040;
+      border-bottom: 2px solid #000040;
     }
  
     .run-stats-grid dt {
@@ -1079,13 +1130,10 @@
     .run-stats-graphic {
       display: grid;
       gap: 6px;
-      min-width: min(330px, 100%);
-      padding: 6px;
-      background: #fff;
-      border-top: 2px solid #404040;
-      border-left: 2px solid #404040;
-      border-right: 2px solid #fff;
-      border-bottom: 2px solid #fff;
+      min-width: 0;
+      padding: 0;
+      background: transparent;
+      border: 0;
       font-size: 10pt;
     }
  
@@ -2022,6 +2070,7 @@
       font-size: 10pt;
       font-weight: 700;
       text-align: center;
+      width: 100%;
     }
  
     .mine-reset {
@@ -2280,14 +2329,16 @@
     }
  
     .skichef-window {
-      width: 880px;
+      width: 1760px;
       max-width: calc(100vw - 24px);
     }
  
     .skichef-panel {
       display: grid;
-      grid-template-columns: 510px minmax(300px, 1fr);
+      grid-template-columns: minmax(0, 1fr) 430px;
       gap: 6px;
+      align-items: stretch;
+      overflow: hidden;
       padding: 6px;
       background: #c0c0c0;
       border-top: 2px solid #fff;
@@ -2298,8 +2349,11 @@
  
     .skichef-main {
       min-width: 0;
+      min-height: 0;
       display: grid;
+      grid-template-rows: auto auto auto;
       gap: 6px;
+      justify-items: center;
     }
  
     .skichef-status {
@@ -2345,7 +2399,10 @@
  
     .skichef-canvas {
       order: 1;
-      width: 100%;
+      width: min(100%, calc((100vh - 190px) * 53 / 52));
+      max-width: 100%;
+      height: auto;
+      max-height: calc(100vh - 190px);
       aspect-ratio: 53 / 52;
       display: block;
       background: #fff;
@@ -2372,8 +2429,18 @@
     }
  
     .skichef-leaderboard-panel {
+      width: 100%;
+      max-width: 100%;
       min-width: 0;
-      min-height: 100%;
+      height: auto;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr);
+      align-content: stretch;
+      gap: 0;
+      padding: 0;
+      overflow: hidden;
+      align-self: stretch;
       background: #fff;
       border-top: 3px solid #808080;
       border-left: 3px solid #808080;
@@ -2381,15 +2448,35 @@
       border-bottom: 3px solid #fff;
     }
  
+    .skichef-leaderboard-panel .skichef-controls {
+      order: 0;
+      width: 100%;
+      padding: 6px;
+      gap: 4px;
+      background: #c0c0c0;
+    }
+ 
+    .skichef-leaderboard-panel .skichef-controls button {
+      min-height: 24px;
+      padding-left: 4px;
+      padding-right: 4px;
+    }
+ 
     .skichef-leaderboard-title {
       padding: 5px 7px;
       color: #fff;
       background: #000080;
+      border-top: 1px solid #fff;
+      border-bottom: 1px solid #404040;
       font-weight: 700;
+      text-align: center;
     }
  
     .skichef-scoreboard {
-      min-height: 520px;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      min-height: 0;
       overflow: hidden;
       padding: 0;
       color: #000;
@@ -2400,12 +2487,15 @@
     }
  
     .skichef-score-row {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
       display: grid;
-      grid-template-columns: 48px minmax(0, 1fr) 62px 46px 42px;
-      gap: 5px;
+      grid-template-columns: 36px minmax(80px, 1fr) 66px 52px 28px;
+      gap: 3px;
       align-items: center;
       min-height: 26px;
-      padding: 3px 5px;
+      padding: 3px 4px;
       border-bottom: 1px solid #d8d8d8;
       white-space: nowrap;
     }
@@ -2419,8 +2509,13 @@
  
     .skichef-score-row span,
     .skichef-score-row input {
+      min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+ 
+    .skichef-score-row span:not(:nth-child(2)) {
+      text-align: center;
     }
  
     .skichef-score-row input {
@@ -2680,9 +2775,57 @@
     .nfl-layout {
       order: 3;
       display: grid;
-      grid-template-columns: minmax(190px, 0.64fr) minmax(410px, 1.18fr) minmax(430px, 1.18fr);
+      grid-template-columns: minmax(190px, 0.55fr) minmax(340px, 0.9fr) minmax(480px, 1.35fr);
       gap: 7px;
       align-items: stretch;
+      min-width: 0;
+    }
+ 
+    .nfl-layout > *,
+    .nfl-side > * {
+      min-width: 0;
+      max-width: 100%;
+    }
+ 
+    .nfl-records .nfl-team-badge {
+      width: 56px;
+    }
+ 
+    @media (max-width: 1150px) and (min-width: 769px) {
+      .nfl-panel {
+        --nfl-content-height: min(520px, calc(100vh - 195px));
+        --nfl-row-height: 24px;
+        gap: 4px;
+        padding: 4px;
+      }
+ 
+      .nfl-layout {
+        grid-template-columns: minmax(145px, 0.55fr) minmax(250px, 0.85fr) minmax(320px, 1.3fr);
+        gap: 4px;
+      }
+ 
+      .nfl-toolbar,
+      .nfl-panel.nfl-admin .nfl-toolbar {
+        grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+        gap: 4px;
+      }
+ 
+      .nfl-team-badge {
+        width: 58px;
+        padding-left: 3px;
+        padding-right: 3px;
+      }
+ 
+ 
+      .nfl-records .nfl-team-badge {
+        width: 50px;
+      }
+ 
+      .nfl-record-conferences,
+      .nfl-record-pair-header,
+      .nfl-record-pair {
+        gap: 3px;
+      }
     }
  
     .nfl-games,
@@ -2909,7 +3052,7 @@
     .nfl-panel.nfl-admin .nfl-actual-input,
     .nfl-panel.nfl-submitted .nfl-actual-input,
     .nfl-panel.nfl-admin #nfl272SaveActuals,
-    .nfl-panel.nfl-admin #nfl272Lock {
+    .nfl-panel.nfl-admin[data-nfl-view="actuals"] #nfl272Lock {
       display: inline-block;
     }
  
@@ -4029,6 +4172,7 @@
             <button type="button" class="window-control" data-window-action="close" aria-label="Close">ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â</button>
           </div>
         </div>
+        <button type="button" class="entry-expand-button" id="entryExpandButton">Expand</button>
         <div class="window-body">
           <form id="entryForm">
             <input id="name" placeholder="Name" required />
@@ -4091,9 +4235,9 @@
             <div class="filter-button-grid">
               <button id="barstoolButton" class="audience-button">Barstool</button>
               <button id="guestsButton" class="audience-button">Guests</button>
-              <button id="statsButton" class="open-stats-button" type="button">Monthly Leaders</button>
-              <button id="leadersButton" class="leaders-button" type="button">Overall Leaders</button>
-              <button id="bestTimesButton" class="leaders-button" type="button">Best Times</button>
+              <button id="statsButton" class="open-stats-button" type="button">Monthly</button>
+              <button id="leadersButton" class="leaders-button" type="button">Leaders</button>
+              <button id="bestTimesButton" class="leaders-button active" type="button" aria-pressed="true">Best Times</button>
               <button id="unfilterButton" class="unfilter-button" type="button">Unfilter</button>
             </div>
           </div>
@@ -4141,20 +4285,20 @@
         <div class="window-body">
           <div class="skichef-panel">
             <div class="skichef-main">
+              <canvas id="skiChefCanvas" class="skichef-canvas" width="530" height="520" tabindex="0" aria-label="SkiChef game"></canvas>
               <div class="skichef-status">
                 <div>TIME <strong id="skiChefTime">0:00:00</strong></div>
                 <div>DIST <strong id="skiChefMeters">0000m</strong></div>
                 <div>STYLE <strong id="skiChefStyle">5</strong></div>
               </div>
-              <canvas id="skiChefCanvas" class="skichef-canvas" width="530" height="520" tabindex="0" aria-label="SkiChef game"></canvas>
+              <div class="skichef-help" id="skiChefHelp">LEFT/RIGHT TO CARVE. SPACE JUMPS. UP BRAKES, DOWN BOOSTS.</div>
+            </div>
+            <div class="skichef-leaderboard-panel">
               <div class="skichef-controls">
                 <button type="button" id="skiChefStart">Start</button>
                 <button type="button" id="skiChefPause">Pause</button>
                 <button type="button" id="skiChefReset">Reset</button>
               </div>
-              <div class="skichef-help" id="skiChefHelp">LEFT/RIGHT TO CARVE. SPACE JUMPS. UP BRAKES, DOWN BOOSTS.</div>
-            </div>
-            <div class="skichef-leaderboard-panel">
               <div class="skichef-leaderboard-title">Leaderboard</div>
               <div class="skichef-scoreboard" id="skiChefScores" aria-label="SkiChef recorded scores"></div>
             </div>
@@ -4648,6 +4792,8 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       turn: 0,
       frame: 0,
       lastTime: 0,
+      elapsedMs: 0,
+      runStartedAt: 0,
       nextObstacleAt: 160,
       obstacles: [],
       projectiles: [],
@@ -4678,7 +4824,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       { name: 'kb', src: 'skichef-kb.png?v=transparent-2' },
       { name: 'ben', src: 'skichef-ben.png?v=transparent-2' },
       { name: 'mark', src: 'skichef-mark.png?v=transparent-2' },
-      { name: 'nick', src: 'skichef-nick.png?v=transparent-2' }
+      { name: 'nick', src: 'skichef-nick.png?v=transparent-2' },
+      { name: 'dan', src: 'skichef-walker-dan.png?v=2' },
+      { name: 'brandon', src: 'skichef-walker-brandon.png?v=2' }
     ];
     const skiChefWalkers = skiChefWalkerData.map(({ name, src }) => {
       const image = new Image();
@@ -5333,9 +5481,13 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     }
  
     function formatSkiChefTime() {
-      const minutes = Math.floor(skiChefState.meters / 3600);
-      const seconds = Math.floor((skiChefState.meters / 60) % 60);
-      const hundredths = Math.floor((skiChefState.meters * 1.7) % 100);
+      const liveElapsed = skiChefState.running && skiChefState.runStartedAt
+        ? performance.now() - skiChefState.runStartedAt
+        : 0;
+      const totalMilliseconds = Math.max(0, skiChefState.elapsedMs + liveElapsed);
+      const minutes = Math.floor(totalMilliseconds / 60000);
+      const seconds = Math.floor((totalMilliseconds / 1000) % 60);
+      const hundredths = Math.floor((totalMilliseconds % 1000) / 10);
       return `${minutes}:${String(seconds).padStart(2, '0')}:${String(hundredths).padStart(2, '0')}`;
     }
  
@@ -5520,9 +5672,11 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     function skiChefMaxObstacles() {
       const distance = skiChefState.meters || 0;
       if (distance < 450) return 2;
-      if (distance < 1000) return 3;
-      if (distance < 1700) return 5;
-      return Math.min(10, 5 + Math.floor(distance / 850));
+      if (distance < 1400) return 3;
+      if (distance < 4000) return 5;
+      if (distance < 10000) return 6;
+      if (distance < 20000) return 7;
+      return 8;
     }
  
     function skiChefRandomObstacle(y = 560) {
@@ -5530,10 +5684,10 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const types = distance < 450
         ? ['pine', 'mogul']
         : distance < 1000
-          ? ['pine', 'pine', 'deadTree', 'rock', 'mogul']
+          ? ['pine', 'pine', 'deadTree', 'mogul', 'mogul']
           : distance < 1700
-            ? ['pine', 'pine', 'deadTree', 'rock', 'mogul', 'mogul']
-            : ['pine', 'pine', 'deadTree', 'rock', 'mogul', 'mogul', 'dog'];
+            ? ['pine', 'pine', 'deadTree', 'mogul', 'mogul', 'mogul']
+            : ['pine', 'pine', 'deadTree', 'mogul', 'mogul', 'mogul', 'dog'];
       const type = types[Math.floor(Math.random() * types.length)];
       const obstacle = {
         type,
@@ -5541,6 +5695,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         y,
         hit: false,
         passed: false,
+        threwItem: false,
         wobble: Math.random() * Math.PI * 2
       };
       if (type === 'pine') {
@@ -5551,6 +5706,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         obstacle.walkDir = Math.random() > 0.5 ? 1 : -1;
         obstacle.x = obstacle.walkDir > 0 ? -34 : 564;
         obstacle.walkSpeed = 0.8 + Math.min(1.4, Math.max(0, (distance - 1700) / 1900));
+        obstacle.walkVertical = Math.random() < 0.42
+          ? (Math.random() > 0.5 ? 1 : -1) * (0.32 + Math.random() * 0.5)
+          : 0;
       }
       return obstacle;
     }
@@ -5577,6 +5735,8 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         turn: 0,
         frame: 0,
         lastTime: 0,
+        elapsedMs: 0,
+        runStartedAt: 0,
         nextObstacleAt: 420,
         obstacles: Array.from({ length: 2 }, (_, index) => skiChefRandomObstacle(430 + index * 260)),
         projectiles: [],
@@ -5609,6 +5769,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       if (skiChefState.ended) resetSkiChef();
       skiChefState.running = true;
       skiChefState.lastTime = performance.now();
+      skiChefState.runStartedAt = skiChefState.lastTime;
       setSkiChefMobileRunMode(true);
       skiChefCanvas.focus();
       updateSkiChefHud();
@@ -5616,6 +5777,10 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     }
  
     function pauseSkiChef() {
+      if (skiChefState.running && skiChefState.runStartedAt) {
+        skiChefState.elapsedMs += performance.now() - skiChefState.runStartedAt;
+        skiChefState.runStartedAt = 0;
+      }
       skiChefState.running = false;
       setSkiChefMobileRunMode(false);
       updateSkiChefHud();
@@ -5752,7 +5917,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const sprite = skiChefWalkers[obstacle.walkerIndex || 0];
       const bob = Math.sin((skiChefState.frame + obstacle.wobble * 12) / 8) * 2;
       if (sprite && sprite.complete && sprite.naturalWidth) {
-        const height = 88;
+        const height = sprite.dataset.walkerName === 'brandon' ? 110 : 88;
         const width = height * (sprite.naturalWidth / sprite.naturalHeight);
         ctx.save();
         ctx.translate(obstacle.x, obstacle.y + bob);
@@ -5789,6 +5954,29 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       ctx.stroke();
       skiPixel(ctx, '#7a4c00', -2, 8, 4, 6);
       skiPixel(ctx, '#4b2a00', -8, 14, 16, 4);
+      ctx.restore();
+    }
+ 
+    function drawSkiChefCowbell(ctx, projectile) {
+      ctx.save();
+      ctx.translate(projectile.x, projectile.y);
+      ctx.rotate(projectile.spin);
+      ctx.fillStyle = '#6f1024';
+      ctx.strokeStyle = '#2b050d';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-8, -8);
+      ctx.lineTo(8, -8);
+      ctx.lineTo(11, 8);
+      ctx.lineTo(-11, 8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#202020';
+      ctx.fillRect(-3, -14, 6, 6);
+      ctx.beginPath();
+      ctx.arc(0, 11, 3, 0, Math.PI * 2);
+      ctx.fill();
       ctx.restore();
     }
  
@@ -5903,18 +6091,20 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         const logoHeight = logoWidth * (skiChefStartLogo.naturalHeight / skiChefStartLogo.naturalWidth);
         ctx.drawImage(skiChefStartLogo, Math.round((w - logoWidth) / 2), 62, logoWidth, logoHeight);
       }
-      const walkerHeight = 95;
+      const walkerHeight = skiChefWalkers.length > 4 ? 82 : 95;
       const walkerY = h - 62;
-      const walkerXs = [w / 2 - 132, w / 2 - 44, w / 2 + 44, w / 2 + 132];
+      const walkerSpacing = Math.min(88, (w - 76) / Math.max(1, skiChefWalkers.length - 1));
+      const walkerStart = w / 2 - walkerSpacing * (skiChefWalkers.length - 1) / 2;
       skiChefWalkers.forEach((sprite, index) => {
         if (!sprite.complete || !sprite.naturalWidth) return;
-        const walkerWidth = walkerHeight * (sprite.naturalWidth / sprite.naturalHeight);
+        const displayHeight = sprite.dataset.walkerName === 'brandon' ? walkerHeight * 1.25 : walkerHeight;
+        const walkerWidth = displayHeight * (sprite.naturalWidth / sprite.naturalHeight);
         ctx.save();
-        ctx.translate(walkerXs[index], walkerY);
+        ctx.translate(walkerStart + walkerSpacing * index, walkerY);
         if (index === 1) ctx.scale(-1, 1);
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(sprite, -walkerWidth / 2, -walkerHeight, walkerWidth, walkerHeight);
+        ctx.drawImage(sprite, -walkerWidth / 2, -displayHeight, walkerWidth, displayHeight);
         ctx.imageSmoothingEnabled = false;
         ctx.restore();
       });
@@ -5940,7 +6130,10 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
           if (obstacle.type === 'lift') drawSkiChefLift(ctx, obstacle.x, obstacle.y);
           if (obstacle.type === 'dog') drawSkiChefDog(ctx, obstacle);
         });
-      skiChefState.projectiles.forEach(projectile => drawSkiChefTrophy(ctx, projectile));
+      skiChefState.projectiles.forEach(projectile => {
+        if (projectile.type === 'cowbell') drawSkiChefCowbell(ctx, projectile);
+        else drawSkiChefTrophy(ctx, projectile);
+      });
       drawSkiChefSkier(ctx);
       drawSkiChefChef(ctx);
       drawSkiChefStartScreen(ctx, w, h);
@@ -5969,15 +6162,16 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       return dx < 17 && dy < 19;
     }
  
-    function maybeThrowSkiChefTrophy(obstacle) {
+    function maybeThrowSkiChefItem(obstacle) {
       const sprite = skiChefWalkers[obstacle.walkerIndex || 0];
-      if (!sprite || sprite.dataset.walkerName !== 'mark' || obstacle.threwTrophy) return;
+      const walkerName = sprite?.dataset.walkerName;
+      if (!sprite || !['mark', 'brandon'].includes(walkerName) || obstacle.threwItem) return;
       if (Math.abs(obstacle.y - skiChefState.skierY) > 86) return;
       if (Math.random() > 0.055) return;
-      obstacle.threwTrophy = true;
+      obstacle.threwItem = true;
       const direction = obstacle.x < skiChefState.skierX ? 1 : -1;
       skiChefState.projectiles.push({
-        type: 'trophy',
+        type: walkerName === 'brandon' ? 'cowbell' : 'trophy',
         x: obstacle.x,
         y: obstacle.y - 54,
         vx: direction * (2.9 + Math.min(1.4, skiChefState.meters / 1800)),
@@ -6020,8 +6214,8 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         if (obstacle.type === 'dog') {
           const dogProgress = Math.min(1.8, Math.max(0, (skiChefState.meters - 1700) / 1800));
           obstacle.x += obstacle.walkDir * (obstacle.walkSpeed + dogProgress * 0.44) * delta;
-          obstacle.y -= dogProgress * 0.18 * delta;
-          maybeThrowSkiChefTrophy(obstacle);
+          obstacle.y += (obstacle.walkVertical - dogProgress * 0.18) * delta;
+          maybeThrowSkiChefItem(obstacle);
         }
         if (hitSkiChefObstacle(obstacle)) {
           obstacle.hit = true;
@@ -6064,6 +6258,10 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         && projectile.y < skiChefCanvas.height + 60
       ));
       if (skiChefState.hits >= 5) {
+        if (skiChefState.runStartedAt) {
+          skiChefState.elapsedMs += performance.now() - skiChefState.runStartedAt;
+          skiChefState.runStartedAt = 0;
+        }
         skiChefState.running = false;
         skiChefState.ended = true;
         setSkiChefMobileRunMode(false);
@@ -8046,7 +8244,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const isYug = id === 'yugStation';
       const isSki = id === 'skiChef';
       const isNfl = id === 'nfl272';
-      const width = isMine ? 700 : isYug ? 680 : isSki ? 880 : isNfl ? 1120 : 760;
+      const width = isMine ? 700 : isYug ? 680 : isSki ? 880 : isNfl ? 1660 : 760;
       win.classList.remove('maximized');
       centerDetachedWindow(win, width);
     }
@@ -8209,6 +8407,25 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }
     }
  
+    function expandEntryWindow() {
+      const entryWindow = document.querySelector('[data-window-id="gauntlet"]');
+      if (!entryWindow) return;
+      restoreStackedWindow(entryWindow);
+      entryWindow.classList.remove('entry-collapsed', 'minimized', 'taskbar-listed');
+      const minimizeButton = entryWindow.querySelector('[data-window-action="minimize"]');
+      if (minimizeButton) {
+        minimizeButton.setAttribute('aria-label', 'Minimize');
+        minimizeButton.removeAttribute('title');
+      }
+      const maximizeButton = entryWindow.querySelector('[data-window-action="maximize"]');
+      if (maximizeButton) {
+        maximizeButton.setAttribute('aria-label', 'Maximize');
+        maximizeButton.removeAttribute('title');
+      }
+      bringWindowToFront(entryWindow);
+      syncTaskbarWindowRibbon();
+    }
+ 
     desktopWindows.forEach(win => {
       const titlebar = win.querySelector('.window-titlebar');
       titlebar.addEventListener('mousedown', event => startDrag(event, win));
@@ -8224,7 +8441,13 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
             if (win.dataset.windowId === 'skiChef') pauseSkiChef();
             syncTaskbarWindowRibbon();
           }
-          if (action === 'maximize') toggleMaximize(win);
+          if (action === 'maximize') {
+            if (win.dataset.windowId === 'gauntlet' && win.classList.contains('entry-collapsed')) {
+              expandEntryWindow();
+            } else {
+              toggleMaximize(win);
+            }
+          }
           if (action === 'close') {
             win.classList.add('minimized');
             win.classList.remove('taskbar-listed');
@@ -8234,6 +8457,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         });
       });
     });
+ 
+    const entryExpandButton = document.getElementById('entryExpandButton');
+    if (entryExpandButton) entryExpandButton.addEventListener('click', expandEntryWindow);
  
     startButton.addEventListener('click', event => {
       event.stopPropagation();
@@ -8346,7 +8572,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     let isEditMode = false;
     let audienceFilter = 'All';
     let leadersOnly = false;
-    let bestTimesOnly = false;
+    let bestTimesOnly = true;
     let pendingStatsEntryId = null;
     let wheelRotation = 0;
     let wheelSpinning = false;
@@ -9102,24 +9328,37 @@ function showRunStats(entryId) {
       const divisionEntries = validEntries.filter(item => item.division === entry.division);
       const categoryEntries = validEntries.filter(item => item.category === entry.category);
       const monthlyEntries = validEntries.filter(item => sameMonth(item.date, entry.date));
+      const monthlyRank = rankInGroup(entry, monthlyEntries);
+      const divisionRank = rankInGroup(entry, divisionEntries);
       const percentile = overallRank > 0 && validEntries.length > 1
         ? Math.round(((overallRank - 1) / (validEntries.length - 1)) * 100)
         : 0;
  
       if (runStatsTitleLabel) {
-        runStatsTitleLabel.innerHTML = `<span class="window-icon"></span>${escapeHTML(entry.name)} STATISTICS`;
+        runStatsTitleLabel.innerHTML = `<span class="window-icon"></span>STATISTICS`;
       }
  
       runStatsContent.innerHTML = `
-        ${buildSurvivalPath(entry, validEntries)}
+        <dl class="run-stats-grid">
+          <dt>OVERALL RANK</dt>
+          <dd>${formatRank(overallRank, validEntries.length)}</dd>
+          <dt>MONTHLY RANK</dt>
+          <dd>${formatRank(monthlyRank, monthlyEntries.length)}</dd>
+          <dt>DIVISION RANK</dt>
+          <dd>${formatRank(divisionRank, divisionEntries.length)}</dd>
+        </dl>
       `;
  
       const statsWindow = document.querySelector('[data-window-id="runStats"]');
       if (statsWindow) {
-        focusPopupWorkspace('runStats');
-        statsWindow.classList.remove('minimized', 'maximized', 'detached');
-        centerDetachedWindow(statsWindow, 760);
+        restoreStackedWindow(statsWindow);
+        statsWindow.classList.remove('minimized', 'taskbar-listed');
+        const scoreboardWindow = document.querySelector('[data-window-id="scoreboard"]');
+        if (scoreboardWindow) {
+          scoreboardWindow.classList.remove('minimized', 'taskbar-listed');
+        }
         bringWindowToFront(statsWindow);
+        syncTaskbarWindowRibbon();
         if (updateWheelPanelVisibility(entry)) {
           populateWheelForPercentile(percentile);
         }
@@ -9148,7 +9387,9 @@ function showRunStats(entryId) {
     }
  
     function updateBestTimesButton() {
-      if (bestTimesButton) bestTimesButton.classList.toggle('active', bestTimesOnly);
+      if (!bestTimesButton) return;
+      bestTimesButton.classList.toggle('active', bestTimesOnly);
+      bestTimesButton.setAttribute('aria-pressed', String(bestTimesOnly));
     }
  
     function bestEntriesByName(sourceEntries) {
@@ -9425,6 +9666,15 @@ document.querySelectorAll('.delete-button').forEach(button => {
       await addEntry({ name, division, category, time, date: dateTimeString, notes });
  
       form.reset();
+      const entryWindow = document.querySelector('[data-window-id="gauntlet"]');
+      if (entryWindow) {
+        entryWindow.classList.add('entry-collapsed');
+        const maximizeButton = entryWindow.querySelector('[data-window-action="maximize"]');
+        if (maximizeButton) {
+          maximizeButton.setAttribute('aria-label', 'Expand New Entry');
+          maximizeButton.setAttribute('title', 'Expand New Entry');
+        }
+      }
     });
  
     async function saveScoreboardChanges() {

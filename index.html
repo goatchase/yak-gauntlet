@@ -138,7 +138,7 @@
       right: 18px;
       bottom: 42px;
       z-index: 0;
-      width: clamp(130px, 15vw, 230px);
+      width: clamp(91px, 10.5vw, 161px);
       height: auto;
       pointer-events: none;
       user-select: none;
@@ -2947,6 +2947,7 @@
       color: var(--nfl-team-text);
       background: var(--nfl-team-primary);
       border-radius: 4px;
+      font-size: 9pt;
       line-height: 16px;
       font-weight: 700;
       white-space: nowrap;
@@ -3130,6 +3131,16 @@
  
     .nfl-panel:not([data-nfl-view="leaderboard"]) .nfl-leaderboard {
       display: none;
+    }
+
+    .nfl-panel[data-nfl-view="submission"] .nfl-layout {
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.7fr);
+    }
+
+    .nfl-panel[data-nfl-view="submission"] .nfl-games {
+      grid-column: 1 / -1;
+      height: min(430px, calc(100vh - 280px));
+      max-height: min(430px, calc(100vh - 280px));
     }
  
     .nfl-bracket-score {
@@ -4033,7 +4044,17 @@
       .wallpaper-goat {
         right: 8px;
         bottom: 42px;
-        width: clamp(105px, 28vw, 160px);
+        width: clamp(74px, 19.6vw, 112px);
+      }
+
+      .nfl-panel[data-nfl-view="submission"] .nfl-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .nfl-panel[data-nfl-view="submission"] .nfl-games {
+        grid-column: 1;
+        height: 52vh;
+        max-height: 52vh;
       }
  
       .desktop-window {
@@ -6809,7 +6830,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
  
     function renderNfl272PictureLegacy() {
       if (!nfl272Picture) return;
-      if (nfl272View !== 'picks') {
+      if (nfl272View !== 'picks' && nfl272View !== 'submission') {
         nfl272Picture.innerHTML = '';
         return;
       }
@@ -6847,7 +6868,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
  
     function renderNfl272Picture(predictions = nfl272Predictions, playoffPicks = nfl272PlayoffPicks, forceReadOnly = false) {
       if (!nfl272Picture) return;
-      if (nfl272View !== 'picks') {
+      if (nfl272View !== 'picks' && nfl272View !== 'submission') {
         nfl272Picture.innerHTML = '';
         return;
       }
@@ -7014,7 +7035,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       if (!submission) return;
       nfl272ViewingSubmission = submission;
       nfl272TeamIndex = 0;
-      nfl272View = 'picks';
+      nfl272View = 'submission';
       renderNfl272();
     }
 
@@ -7083,7 +7104,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
  
     function renderNfl272Instruction(step) {
       if (!nfl272ScreenTitle) return;
-      if (nfl272ViewingSubmission && nfl272View === 'picks') {
+      if (nfl272ViewingSubmission && nfl272View === 'submission') {
         nfl272ScreenTitle.classList.remove('progress', 'afc', 'nfc');
         nfl272ScreenTitle.style.removeProperty('--nfl-progress');
         const status = nfl272ViewingSubmission.submitted === true ? 'Submitted' : 'Saved';
@@ -7132,7 +7153,8 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       if (!nfl272Panel || !nfl272Games || !nfl272WeekLabel) return;
       nfl272Panel.classList.toggle('nfl-admin', playerIsAdmin);
       nfl272Panel.classList.toggle('nfl-submitted', nfl272Submitted);
-      if (!['picks', 'leaderboard', 'actuals'].includes(nfl272View) || (nfl272View === 'actuals' && !playerIsAdmin)) nfl272View = 'picks';
+      if (!['picks', 'leaderboard', 'actuals', 'submission'].includes(nfl272View) || (nfl272View === 'actuals' && !playerIsAdmin)) nfl272View = 'picks';
+      if (nfl272View === 'submission' && !nfl272ViewingSubmission) nfl272View = 'leaderboard';
       nfl272Panel.dataset.nflView = nfl272View;
       document.querySelectorAll('[data-nfl-view]').forEach(button => {
         button.classList.toggle('active', button.dataset.nflView === nfl272View);
@@ -7144,14 +7166,14 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       const selectedTeam = step.team || nfl272TeamOrder[nfl272TeamOrder.length - 1];
       nfl272WeekLabel.textContent = nfl272View === 'actuals' ? `Week ${nfl272ActualWeek}` : step.label;
       if (nfl272Prev) {
-        nfl272Prev.disabled = nfl272View === 'actuals' ? nfl272ActualWeek <= 1 : nfl272TeamIndex <= 0;
-        nfl272Prev.textContent = 'Prev';
+        nfl272Prev.disabled = nfl272View === 'submission' ? false : (nfl272View === 'actuals' ? nfl272ActualWeek <= 1 : nfl272TeamIndex <= 0);
+        nfl272Prev.textContent = nfl272View === 'submission' ? 'Back to Leaderboard' : 'Prev';
       }
       if (nfl272Next) {
         nfl272Next.disabled = nfl272View === 'actuals' ? nfl272ActualWeek >= 18 : nfl272TeamIndex >= nfl272PickFlowLength() - 1;
         nfl272Next.textContent = 'Next';
       }
-      if (nfl272Prev) nfl272Prev.style.display = nfl272View === 'actuals' || (nfl272View === 'picks' && !nfl272ViewingSubmission) ? '' : 'none';
+      if (nfl272Prev) nfl272Prev.style.display = nfl272View === 'submission' || nfl272View === 'actuals' || nfl272View === 'picks' ? '' : 'none';
       if (nfl272Next) nfl272Next.style.display = nfl272View === 'actuals' || (nfl272View === 'picks' && !nfl272ViewingSubmission) ? '' : 'none';
       if (nfl272WeekLabel) nfl272WeekLabel.style.display = nfl272View === 'actuals' || (nfl272View === 'picks' && !nfl272ViewingSubmission) ? '' : 'none';
       renderNfl272Instruction(step);
@@ -7186,7 +7208,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         renderNfl272ActualsWeek();
         return;
       }
-      if (nfl272ViewingSubmission) {
+      if (nfl272View === 'submission' && nfl272ViewingSubmission) {
         renderNfl272SubmissionDetail(nfl272ViewingSubmission);
         renderNfl272Records('predicted', viewingPredictions);
         renderNfl272Picture(viewingPredictions, viewingPlayoffPicks, true);
@@ -7298,6 +7320,7 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     }
  
     function selectNfl272Team(team) {
+      if (nfl272View === 'submission') return;
       const teamIndex = nfl272TeamOrder.indexOf(team);
       if (teamIndex < 0) return;
       nfl272TeamIndex = teamIndex;
@@ -10406,7 +10429,10 @@ document.querySelectorAll('.delete-button').forEach(button => {
     renderNfl272();
     if (nfl272Prev) {
       nfl272Prev.addEventListener('click', () => {
-        if (nfl272View === 'actuals') nfl272ActualWeek = Math.max(1, nfl272ActualWeek - 1);
+        if (nfl272View === 'submission') {
+          nfl272ViewingSubmission = null;
+          nfl272View = 'leaderboard';
+        } else if (nfl272View === 'actuals') nfl272ActualWeek = Math.max(1, nfl272ActualWeek - 1);
         else nfl272TeamIndex = Math.max(0, nfl272TeamIndex - 1);
         renderNfl272();
       });

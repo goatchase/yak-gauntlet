@@ -132,6 +132,17 @@
     .desktop-shell .desktop-window {
       pointer-events: auto;
     }
+
+    .wallpaper-goat {
+      position: fixed;
+      right: 18px;
+      bottom: 42px;
+      z-index: 0;
+      width: clamp(130px, 15vw, 230px);
+      height: auto;
+      pointer-events: none;
+      user-select: none;
+    }
  
     .desktop-icon {
       width: 82px;
@@ -4018,6 +4029,12 @@
       .desktop-icons {
         z-index: 0;
       }
+
+      .wallpaper-goat {
+        right: 8px;
+        bottom: 42px;
+        width: clamp(105px, 28vw, 160px);
+      }
  
       .desktop-window {
         position: relative;
@@ -4164,6 +4181,7 @@
 <body>
  
   <div class="stella-popup" id="stellaPopup" aria-hidden="true"><img src="stella-blue-sign.png" class="stella-art" alt="" /></div>
+  <img class="wallpaper-goat" src="goatchase-transparent.png" alt="" aria-hidden="true" />
  
   <div class="desktop-icons" aria-label="Desktop shortcuts">
     <div class="desktop-icon-group">
@@ -6340,7 +6358,11 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
     }
  
     function nfl272PredictionFor(game, predictions = nfl272Predictions) {
-      return predictions[game.id] || {};
+      if (predictions[game.id]) return predictions[game.id];
+      return Object.values(predictions).find(pick => pick && (
+        pick.gameId === game.id
+        || (Number(pick.week) === game.week && pick.home === game.home && pick.away === game.away)
+      )) || {};
     }
  
     function nfl272ActualFor(game) {
@@ -6995,6 +7017,26 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       nfl272View = 'picks';
       renderNfl272();
     }
+
+    function renderNfl272SubmissionDetail(submission) {
+      if (!nfl272Games || !submission) return;
+      const predictions = submission.predictions || {};
+      const playoffPicks = submission.playoffPicks || {};
+      const playoffGames = nfl272PickSteps(predictions, playoffPicks);
+      const score = value => {
+        const parsed = nfl272ScoreValue(value);
+        return parsed === null ? '-' : parsed;
+      };
+      const regularRows = nfl272Schedule.map(game => {
+        const pick = nfl272PredictionFor(game, predictions);
+        return `<tr><td>${game.week}</td><td class="team-col">${nfl272TeamBadge(game.away)}</td><td>${score(pick.awayScore)}</td><td>${score(pick.homeScore)}</td><td class="team-col">${nfl272TeamBadge(game.home)}</td></tr>`;
+      }).join('');
+      const playoffRows = playoffGames.map(game => {
+        const pick = playoffPicks[game.id] || {};
+        return `<tr><td>${escapeHTML(game.stage.slice(0, 3))}</td><td class="team-col">${nfl272TeamBadge(game.away)}</td><td>${score(pick.awayScore)}</td><td>${score(pick.homeScore)}</td><td class="team-col">${nfl272TeamBadge(game.home)}</td></tr>`;
+      }).join('');
+      nfl272Games.innerHTML = `<table class="nfl-score-table"><thead><tr><th>Wk</th><th class="team-col">Away</th><th>Away</th><th>Home</th><th class="team-col">Home</th></tr></thead><tbody>${regularRows}<tr><th colspan="5">Playoff Picks</th></tr>${playoffRows}</tbody></table>`;
+    }
  
     async function deleteNfl272Submission(id) {
       if (!playerIsAdmin || !id) return;
@@ -7109,9 +7151,9 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         nfl272Next.disabled = nfl272View === 'actuals' ? nfl272ActualWeek >= 18 : nfl272TeamIndex >= nfl272PickFlowLength() - 1;
         nfl272Next.textContent = 'Next';
       }
-      if (nfl272Prev) nfl272Prev.style.display = nfl272View === 'picks' || nfl272View === 'actuals' ? '' : 'none';
-      if (nfl272Next) nfl272Next.style.display = nfl272View === 'picks' || nfl272View === 'actuals' ? '' : 'none';
-      if (nfl272WeekLabel) nfl272WeekLabel.style.display = nfl272View === 'picks' || nfl272View === 'actuals' ? '' : 'none';
+      if (nfl272Prev) nfl272Prev.style.display = nfl272View === 'actuals' || (nfl272View === 'picks' && !nfl272ViewingSubmission) ? '' : 'none';
+      if (nfl272Next) nfl272Next.style.display = nfl272View === 'actuals' || (nfl272View === 'picks' && !nfl272ViewingSubmission) ? '' : 'none';
+      if (nfl272WeekLabel) nfl272WeekLabel.style.display = nfl272View === 'actuals' || (nfl272View === 'picks' && !nfl272ViewingSubmission) ? '' : 'none';
       renderNfl272Instruction(step);
       if (nfl272SavePicks) {
         nfl272SavePicks.style.display = nfl272View === 'picks' && !nfl272ViewingSubmission ? '' : 'none';
@@ -7142,6 +7184,12 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }
       if (nfl272View === 'actuals') {
         renderNfl272ActualsWeek();
+        return;
+      }
+      if (nfl272ViewingSubmission) {
+        renderNfl272SubmissionDetail(nfl272ViewingSubmission);
+        renderNfl272Records('predicted', viewingPredictions);
+        renderNfl272Picture(viewingPredictions, viewingPlayoffPicks, true);
         return;
       }
       if (step.type === 'playoffs') {

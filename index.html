@@ -6650,10 +6650,11 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       ];
     }
  
-    function renderNfl272Playoffs() {
+    function renderNfl272Playoffs(predictions = nfl272Predictions, playoffPicks = nfl272PlayoffPicks, forceReadOnly = false) {
       if (!nfl272Games) return;
       const step = nfl272PickStepForIndex(nfl272TeamIndex);
-      const games = nfl272PickSteps().filter(game => game.stage === step.stage);
+      const games = nfl272PickSteps(predictions, playoffPicks).filter(game => game.stage === step.stage);
+      const readOnly = forceReadOnly || nfl272Locked;
       nfl272Games.innerHTML = `
         <table class="nfl-score-table">
           <thead>
@@ -6661,13 +6662,13 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
           </thead>
           <tbody>
             ${games.map(game => {
-              const pick = nfl272PlayoffPicks[game.id] || {};
+              const pick = playoffPicks[game.id] || {};
               return `
                 <tr data-nfl-playoff-id="${game.id}">
                   <td>${escapeHTML(game.stage.slice(0, 3))}</td>
                   <td class="team-col">${nfl272TeamBadge(game.away)}</td>
-                  <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${nfl272Submitted ? '-1' : '0'}" data-nfl-playoff-field="awayScore" data-readonly="${nfl272Submitted ? 'true' : 'false'}" value="${pick.awayScore ?? ''}" aria-label="${game.away} playoff score" onpointerdown="event.stopPropagation(); this.focus();" ${nfl272Submitted ? 'readonly' : ''} /></td>
-                  <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${nfl272Submitted ? '-1' : '0'}" data-nfl-playoff-field="homeScore" data-readonly="${nfl272Submitted ? 'true' : 'false'}" value="${pick.homeScore ?? ''}" aria-label="${game.home} playoff score" onpointerdown="event.stopPropagation(); this.focus();" ${nfl272Submitted ? 'readonly' : ''} /></td>
+                  <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${readOnly ? '-1' : '0'}" data-nfl-playoff-field="awayScore" data-readonly="${readOnly ? 'true' : 'false'}" value="${pick.awayScore ?? ''}" aria-label="${game.away} playoff score" onpointerdown="event.stopPropagation(); this.focus();" ${readOnly ? 'readonly' : ''} /></td>
+                  <td><input class="nfl-score-input" type="text" maxlength="2" inputmode="numeric" pattern="[0-9]*" tabindex="${readOnly ? '-1' : '0'}" data-nfl-playoff-field="homeScore" data-readonly="${readOnly ? 'true' : 'false'}" value="${pick.homeScore ?? ''}" aria-label="${game.home} playoff score" onpointerdown="event.stopPropagation(); this.focus();" ${readOnly ? 'readonly' : ''} /></td>
                   <td class="team-col">${nfl272TeamBadge(game.home)}</td>
                 </tr>
               `;
@@ -7109,8 +7110,8 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
         nfl272Next.textContent = 'Next';
       }
       if (nfl272Prev) nfl272Prev.style.display = nfl272View === 'picks' || nfl272View === 'actuals' ? '' : 'none';
-      if (nfl272Next) nfl272Next.style.display = nfl272View === 'actuals' || (nfl272View === 'picks' && step.type !== 'playoffs') ? '' : 'none';
-      if (nfl272WeekLabel) nfl272WeekLabel.style.display = nfl272View === 'actuals' ? '' : 'none';
+      if (nfl272Next) nfl272Next.style.display = nfl272View === 'picks' || nfl272View === 'actuals' ? '' : 'none';
+      if (nfl272WeekLabel) nfl272WeekLabel.style.display = nfl272View === 'picks' || nfl272View === 'actuals' ? '' : 'none';
       renderNfl272Instruction(step);
       if (nfl272SavePicks) {
         nfl272SavePicks.style.display = nfl272View === 'picks' && !nfl272ViewingSubmission ? '' : 'none';
@@ -7141,6 +7142,14 @@ const euchreTricksThem = document.getElementById('euchreTricksThem');
       }
       if (nfl272View === 'actuals') {
         renderNfl272ActualsWeek();
+        return;
+      }
+      if (step.type === 'playoffs') {
+        nfl272Panel.classList.add('nfl-playoff-entry');
+        renderNfl272Playoffs(viewingPredictions, viewingPlayoffPicks, !!nfl272ViewingSubmission);
+        renderNfl272Records('predicted', viewingPredictions);
+        renderNfl272Picture(viewingPredictions, viewingPlayoffPicks, !!nfl272ViewingSubmission);
+        renderNfl272Leaderboard();
         return;
       }
       const games = nfl272Schedule.filter(game => game.home === selectedTeam || game.away === selectedTeam);
